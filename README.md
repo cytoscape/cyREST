@@ -1,5 +1,5 @@
 cyto-bridge
 ===========
 
-Plugin to transfer data between Cytoscape and R, MATLAB, and other tools.
+Plug-in to transfer data between Cytoscape and R, MATLAB, and other tools.
 

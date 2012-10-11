@@ -69,6 +69,7 @@
 	</build>
 
 	<dependencies>
+		<!-- Cytoscape 3 Dependencies -->
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>swing-application-api</artifactId>
@@ -96,12 +97,16 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- OSGi core dependency -->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!-- 3rd party libraries -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>

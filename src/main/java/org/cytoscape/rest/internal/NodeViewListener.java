@@ -41,9 +41,9 @@ public class NodeViewListener implements AddedNodeViewsListener {
 			style.apply(networkView.getModel().getRow(v.getModel()), networkView.getNodeView(v.getModel()));
 		}
 		
-		String pref = CyLayoutAlgorithmManager.DEFAULT_LAYOUT_NAME;
+		String pref = CyLayoutAlgorithmManager.DEFAULT_LAYOUT_NAME;/*
 		if (props != null)
-			pref = props.getProperty("preferredLayoutAlgorithm", DEF_LAYOUT);
+			pref = props.getProperty("preferredLayoutAlgorithm", DEF_LAYOUT);*/
 		
 		final CyLayoutAlgorithm layout = layMan.getLayout(pref);
 		if (layout != null) {

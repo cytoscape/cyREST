@@ -15,9 +15,9 @@ g <- set.graph.attribute(g, "cytobid", as.integer(cytob.suid))
 } else {
 cytob.suid <<- get.graph.attribute(g, "cytobid")
 
-V(g)$cytobid <- lapply(V(g)$cytobid,idUpdate)
+V(g)$cytobid <- lapply(V(g)$cytobid,.idUpdate)
 
-E(g)$cytobid <- lapply(E(g)$cytobid,idUpdate)
+E(g)$cytobid <- lapply(E(g)$cytobid,.idUpdate)
 
 g <- set.graph.attribute(g, "cytobid", as.integer(cytob.suid))
 }

@@ -1,6 +1,5 @@
 package org.cytoscape.rest.internal;
 
-//import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -9,6 +8,8 @@ import java.util.concurrent.Executors;
 import javax.servlet.ServletException;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CyAction;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
@@ -62,7 +63,13 @@ public class CyActivator extends AbstractCyActivator {
 
 		final CytoBridgeGetResponder cytoGetResp = new CytoBridgeGetResponder(myManager);
 		final CytoBridgePostResponder cytoPostResp = new CytoBridgePostResponder(myManager);
-
+		
+		CySwingApplication swingApp = getService(bc,CySwingApplication.class);
+		final CytoBridgeAction cytoBridgeAction = new CytoBridgeAction(swingApp, myManager);
+		
+		registerService(bc,cytoBridgeAction,CyAction.class, new Properties());
+		myManager.setListener(cytoBridgeAction);
+		
 		Thread serverThread = new Thread() {
 
 			private LocalHttpServer server;

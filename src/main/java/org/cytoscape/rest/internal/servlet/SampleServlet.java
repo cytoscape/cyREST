@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 
-public class HelloWorldServlet extends HttpServlet {
+public class SampleServlet extends HttpServlet {
 
 	private final String m_registrationPath;
 	
 	private final CyApplicationManager applicationManager;
 
-	public HelloWorldServlet(final String registrationPath, final CyApplicationManager applicationManager) {
+	public SampleServlet(final String registrationPath, final CyApplicationManager applicationManager) {
 
 		m_registrationPath = registrationPath;
 		this.applicationManager = applicationManager;

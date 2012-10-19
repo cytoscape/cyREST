@@ -9,9 +9,6 @@
 		<!-- Cytoscape Module Versions: This should be release version -->
 		<cytoscape.api.version>3.0.0-beta3</cytoscape.api.version>
 
-		<!-- JAX-RS Reference Implementation -->
-		<jersey.version>2.0-m09</jersey.version>
-
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-bundle-plugin.version>2.3.4</maven-bundle-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
@@ -162,7 +159,7 @@
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 
 		<!-- 3rd party libraries -->
 		<dependency>

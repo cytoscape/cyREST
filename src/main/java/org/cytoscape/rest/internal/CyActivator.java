@@ -18,7 +18,7 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.LocalHttpServer;
-import org.cytoscape.rest.internal.servlet.HelloWorldServlet;
+import org.cytoscape.rest.internal.servlet.SampleServlet;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
@@ -106,9 +106,9 @@ public class CyActivator extends AbstractCyActivator {
 				// register the hello world servlet
 				final Dictionary initParams = new Hashtable();
 				initParams.put("from", "HttpService");
-				httpService.registerServlet("/helloworld/hs", new HelloWorldServlet("/helloworld/hs", applicationManager), initParams,
+				httpService.registerServlet("/helloworld/hs", new SampleServlet("/helloworld/hs", applicationManager), initParams,
 						httpContext);
-				httpService.registerServlet("/", new HelloWorldServlet("/", applicationManager), initParams, httpContext);
+				httpService.registerServlet("/", new SampleServlet("/", applicationManager), initParams, httpContext);
 				// register images as resources
 				httpService.registerResources("/images", "/images", httpContext);
 

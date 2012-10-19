@@ -4,21 +4,22 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 
 public class CytoBridgeAction extends AbstractCyAction {
 
-	//private CySwingApplication desktopApp;
+	private CySwingApplication desktopApp;
 	
 	private boolean started = false;
 	
 	private ImageIcon icon, smallIcon, warn, success;
 	private NetworkManager myManager;
+	private String message = "Cytobridge is currently ready.";
 	
-	
-	public CytoBridgeAction(NetworkManager myManager){
+	public CytoBridgeAction(CySwingApplication desktopApp, NetworkManager myManager){
 		// Add a menu item -- Plugins->sample03
 		super("CytoBridge");
 		setPreferredMenu("Apps");
@@ -33,7 +34,7 @@ public class CytoBridgeAction extends AbstractCyAction {
 		putValue(LARGE_ICON_KEY, icon);
 		putValue(SMALL_ICON, smallIcon);
 		
-		//this.desktopApp = desktopApp;
+		this.desktopApp = desktopApp;
 		this.myManager = myManager;
 	}
 	
@@ -43,7 +44,8 @@ public class CytoBridgeAction extends AbstractCyAction {
 	 * @param e DOCUMENT ME!
 	 */
 	public void actionPerformed(ActionEvent e) {
-		//show help
+		JOptionPane.showMessageDialog(this.desktopApp.getJFrame(), message, "CytoBridge", 
+				JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	
@@ -64,17 +66,17 @@ public class CytoBridgeAction extends AbstractCyAction {
 	}
 	
 	public void setWarn() {
-		putValue("tooltip","CytoBridge Error!");
+		message = "Cytobridge recently encountered an error in data transfer!";
 		putValue(LARGE_ICON_KEY, warn);
 	}
 	
 	public void setSuccess() {
-		putValue("tooltip","CytoBridge Successful Data Transfer");
+		message = "Cytobridge  successfully transferred data.";
 		putValue(LARGE_ICON_KEY, success);
 	}
 	
 	public void setIdle() {
-		putValue("tooltip","CytoBridge Ready");
+		message = "Cytobridge is currently ready.";
 		putValue(LARGE_ICON_KEY, icon);
 	}
 }

@@ -74,6 +74,7 @@ public class NetworkManager {
 	 */
 	public void pushNetwork(String netName, Vector<Integer> nodes, Vector<Integer> edges, Vector<Integer> edgeFrom, Vector<Integer> edgeTo) {
 		
+		listener.setSuccess();
 		if (currentNets.containsKey(netName)) {
 			//Update the appropriate CyNetwork
 			logger.debug("Updating network "+netName);
@@ -166,7 +167,9 @@ public class NetworkManager {
 	}
 	
 	public void pushNetTable(String netName, Vector<String> gheads, Vector<String> gtypes, Vector<String> gdata) {
+		listener.setSuccess();
 		if (!currentNets.containsKey(netName)) {
+			listener.setWarn();
 			System.out.println("That network doesn't exist!");
 			return ;
 		}
@@ -194,6 +197,7 @@ public class NetworkManager {
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
+			listener.setWarn();
 		}
 		logger.debug("Updating network table for network "+netName);
 	}
@@ -201,8 +205,10 @@ public class NetworkManager {
 	public void pushNodeTable(String netName, Vector<String> nheads, Vector<String> ntypes, Vector<Integer> nrids, Vector<String> ndata) {
 		if (!currentNets.containsKey(netName)) {
 			System.out.println("That network doesn't exist!");
+			listener.setWarn();
 			return ;
 		}
+		listener.setSuccess();
 		NetworkSync netSyn = currentNets.get(netName);
 
 		try {
@@ -233,8 +239,10 @@ public class NetworkManager {
 	public void pushEdgeTable(String netName, Vector<String> eheads, Vector<String> etypes, Vector<Integer> erids, Vector<String> edata) {
 		if (!currentNets.containsKey(netName)) {
 			System.out.println("That network doesn't exist!");
+			listener.setWarn();
 			return ;
 		}
+		listener.setSuccess();
 		NetworkSync netSyn = currentNets.get(netName);
 
 		try {
@@ -258,11 +266,13 @@ public class NetworkManager {
 			}
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
+			listener.setWarn();
 		}
 		logger.debug("Updating edge table for network "+netName);
 	}
 	
 	public void pushTable(String tabName, Vector<String> heads, Vector<String> types, Vector<String> row_ids, Vector<String> data) {
+		listener.setSuccess();
 		CyTable table = null;
 		if (currentTabs.containsKey(tabName)) {
 			//Update the appropriate CyTable
@@ -303,8 +313,10 @@ public class NetworkManager {
 				}
 				
 				logger.debug("Added row "+r);
+				
+				listener.setSuccess();
 			} catch(Exception e) {
-			
+				listener.setWarn();
 			}
 		}
 		logger.debug("Done adding rows...");
@@ -313,6 +325,12 @@ public class NetworkManager {
 	
 	public void test() {
 		System.out.println("Hello there");
+	}
+	
+	private CytoBridgeAction listener;
+	
+	public void setListener(CytoBridgeAction cba) {
+		this.listener = cba;
 	}
 
 }

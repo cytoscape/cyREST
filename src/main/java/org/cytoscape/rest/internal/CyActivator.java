@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal;
 
 //import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
+import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
@@ -51,6 +52,10 @@ public class CyActivator extends AbstractCyActivator {
 		
 		final CytoBridgeGetResponder cytoGetResp = new CytoBridgeGetResponder(myManager);
 		final CytoBridgePostResponder cytoPostResp = new CytoBridgePostResponder(myManager);
+		final CytoBridgeAction cytoBridgeAction = new CytoBridgeAction(myManager);
+		
+		registerService(bc,cytoBridgeAction,CyAction.class, new Properties());
+		myManager.setListener(cytoBridgeAction);
 		
 		Thread serverThread = new Thread() {
 			

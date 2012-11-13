@@ -74,7 +74,6 @@ public class NetworkManager {
 	 */
 	public void pushNetwork(String netName, Vector<Integer> nodes, Vector<Integer> edges, Vector<Integer> edgeFrom, Vector<Integer> edgeTo) {
 		
-		listener.setSuccess();
 		if (currentNets.containsKey(netName)) {
 			//Update the appropriate CyNetwork
 			logger.debug("Updating network "+netName);
@@ -83,27 +82,26 @@ public class NetworkManager {
 			//Any nodes to Add?
 			for (Integer n : nodes) {
 				if (!currentNets.get(netName).getNodeMap().containsKey(n)) {
-					logger.debug("Adding node "+n);
 					CyNode node = network.addNode();
 					network.getRow(node).set(CyNetwork.NAME, n+"");
 					currentNets.get(netName).getNodeMap().put(n, node);
 				}
 			}
+			logger.debug("Successfully added new nodes.");
 			//Any nodes to remove?
 			Vector<CyNode> remove = new Vector<CyNode>();
 			for (Integer n : currentNets.get(netName).getNodeMap().keySet()) {
 				if (!nodes.contains(n)) {
-					logger.debug("Removing node "+n);
 					remove.add(currentNets.get(netName).getNodeMap().get(n));
 				}
 			}
 			network.removeNodes(remove);
+			logger.debug("Successfully removed old nodes.");
 			
 			//Any edges to Add?
 			int i = 0;
 			for (Integer e : edges) {
 				if (!currentNets.get(netName).getEdgeMap().containsKey(e)) {
-					logger.debug("Adding edge "+e);
 					CyNode fromNode = currentNets.get(netName).getNodeMap().get(edgeFrom.get(i).intValue());
 					CyNode toNode = currentNets.get(netName).getNodeMap().get(edgeTo.get(i).intValue());
 					CyEdge edge = network.addEdge(fromNode, toNode, false);
@@ -112,18 +110,19 @@ public class NetworkManager {
 				}
 				i++;
 			}
+			logger.debug("Successfully added new edges.");
 			//Any edges to remove?
 			Vector<CyEdge> removee = new Vector<CyEdge>();
 			for (Integer e : currentNets.get(netName).getEdgeMap().keySet()) {
 				if (!edges.contains(e)) {
-					logger.debug("Removing edge "+e);
 					removee.add(currentNets.get(netName).getEdgeMap().get(e));
 				}
 			}
 			network.removeEdges(removee);
-			currentNets.get(netName).getNetworkView().updateView();
+			logger.debug("Successfully removed old edges.");
 			
-			logger.debug("Done updating "+netName);
+			currentNets.get(netName).getNetworkView().updateView();
+			logger.debug("Successfully updated network "+netName+".");
 			
 		} else {
 			//Create the CyNetwork
@@ -140,7 +139,6 @@ public class NetworkManager {
 				CyNode node = network.addNode();
 				network.getRow(node).set(CyNetwork.NAME, n+"");
 				nodeMap.put(n, node);
-				logger.debug("Added node "+n);
 			}
 			logger.debug("Done adding nodes...");
 			
@@ -167,10 +165,9 @@ public class NetworkManager {
 	}
 	
 	public void pushNetTable(String netName, Vector<String> gheads, Vector<String> gtypes, Vector<String> gdata) {
-		listener.setSuccess();
 		if (!currentNets.containsKey(netName)) {
-			listener.setWarn();
-			System.out.println("That network doesn't exist!");
+			listener.setWarn("The network "+netName+" does not exist!");
+			System.out.println("The network "+netName+" does not exist!");
 			return ;
 		}
 		NetworkSync netSyn = currentNets.get(netName);

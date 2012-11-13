@@ -33,8 +33,8 @@ import com.google.gson.Gson;
 		}
 
 		public Response respond(String url, String body) throws Exception {
-			System.out.println("POST url     : " + url);
-			System.out.println("POST body    : " + body);
+			logger.debug("POST url     : " + url);
+			logger.debug("POST body    : " + body);
 			String[] chunk = url.substring( url.indexOf("cytobridge") + 10 ).split("/"); 
 
 			String namespace = chunk[1];

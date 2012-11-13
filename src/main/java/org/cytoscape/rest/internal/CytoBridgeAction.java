@@ -65,13 +65,13 @@ public class CytoBridgeAction extends AbstractCyAction {
 		return true;
 	}
 	
-	public void setWarn() {
-		message = "Cytobridge recently encountered an error in data transfer!";
+	public void setWarn(String message) {
+		this.message = "ERROR: "+message;
 		putValue(LARGE_ICON_KEY, warn);
 	}
 	
-	public void setSuccess() {
-		message = "Cytobridge  successfully transferred data.";
+	public void setSuccess(String message) {
+		this.message = message;
 		putValue(LARGE_ICON_KEY, success);
 	}
 	

@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal;
 
 //import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetworkFactory;
@@ -11,6 +12,7 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.LocalHttpServer;
+import org.cytoscape.rest.internal.servlet.SampleServlet;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -19,10 +21,18 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.TaskManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 import java.util.concurrent.Executors;
+
+import javax.servlet.ServletException;
 
 public class CyActivator extends AbstractCyActivator {
 	public CyActivator() {
@@ -31,6 +41,7 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) {
 
+		// Importing Services:
 		CyNetworkFactory netFact = getService(bc,CyNetworkFactory.class);
 		CyNetworkManager netMan = getService(bc,CyNetworkManager.class);
 		CyNetworkViewFactory netViewFact = getService(bc,CyNetworkViewFactory.class);
@@ -75,5 +86,34 @@ public class CyActivator extends AbstractCyActivator {
 		serverThread.setDaemon(true);
 		Executors.newSingleThreadExecutor().execute(serverThread);
 		
+		//try {
+//      startServer(bc, applicationManager);
+//    } catch (ServletException e) {
+//      e.printStackTrace();
+//    } catch (NamespaceException e) {
+//      e.printStackTrace();
+//    }
+}
+
+	  	
+	private final void startServer(BundleContext bc, CyApplicationManager applicationManager) throws ServletException,
+									NamespaceException {
+		final ServiceReference m_httpServiceRef = bc.getServiceReference(HttpService.class.getName());
+		if (m_httpServiceRef != null) {
+			final HttpService httpService = (HttpService) bc.getService(m_httpServiceRef);
+			if (httpService != null) {
+				// create a default context to share between registrations
+				final HttpContext httpContext = httpService.createDefaultHttpContext();
+				// register the hello world servlet
+				final Dictionary initParams = new Hashtable();
+				initParams.put("from", "HttpService");
+				httpService.registerServlet("/helloworld/hs", new SampleServlet("/helloworld/hs", applicationManager), initParams,
+						httpContext);
+				httpService.registerServlet("/", new SampleServlet("/", applicationManager), initParams, httpContext);
+				// register images as resources
+				httpService.registerResources("/images", "/images", httpContext);
+				System.out.println("Servlet Start!");
+			}
+		}
 	}
 }

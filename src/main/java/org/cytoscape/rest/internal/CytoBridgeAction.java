@@ -1,8 +1,6 @@
 package org.cytoscape.rest.internal;
 
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -12,8 +10,6 @@ import org.cytoscape.application.swing.CySwingApplication;
 public class CytoBridgeAction extends AbstractCyAction {
 
 	private CySwingApplication desktopApp;
-	
-	private boolean started = false;
 	
 	private ImageIcon icon, smallIcon, warn, success;
 	private NetworkManager myManager;

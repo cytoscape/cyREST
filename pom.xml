@@ -4,13 +4,15 @@
 
 	<properties>
 		<bundle.symbolicName>CytoBridgeRest</bundle.symbolicName>
-		<bundle.namespace>org.cytoscape.rest.internal</bundle.namespace>
+		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 
 		<!-- Cytoscape Module Versions: This should be release version -->
 		<cytoscape.api.version>3.0.0-beta3</cytoscape.api.version>
 
+		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-bundle-plugin.version>2.3.4</maven-bundle-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
+		<junit.version>4.10</junit.version>
 	</properties>
 
 	<groupId>org.cytoscape.rest.internal</groupId>
@@ -45,9 +47,32 @@
 		</repository>
 	</repositories>
 
+	<!-- SCM Information. Currently hosted at GitHub. -->
+	<scm>	
+		<connection>scm:git:git@github.com:idekerlab/cyto-bridge.git</connection>
+		<developerConnection>scm:git:git@github.com:idekerlab/cyto-bridge.git</developerConnection>
+	</scm>
+
 	<build>
 		<plugins>
-			<plugin>
+		    <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+				<source>1.6</source>
+				<target>1.6</target>
+				<optimize>true</optimize>
+				<showWarnings>true</showWarnings>
+				<showDeprecation>true</showDeprecation>
+				<compilerArguments>
+				<Xmaxwarns>10000</Xmaxwarns>
+				<Xmaxerrs>10000</Xmaxerrs>
+				</compilerArguments>
+				</configuration>
+			</plugin>
+ 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>${maven-bundle-plugin.version}</version>
@@ -56,33 +81,55 @@
 					<instructions>
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>!${bundle.namespace}.*</Export-Package>
-						<Private-Package>${bundle.namespace}.*</Private-Package>
-						<Bundle-Activator>${bundle.namespace}.CyActivator</Bundle-Activator>
+						<Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${project.version}"</Export-Package>
+						<Private-Package>${bundle.namespace}.internal.*</Private-Package>
+						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Import-Package>org.cytoscape.*,*;resolution:=optional</Import-Package>
+						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
+				</configuration>
+			</plugin>
+			<!-- For release -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+				<goals>deploy</goals>
+				<!-- Avoid to push changed to upstream -->
+				<pushChanges>false</pushChanges>
+				<localCheckout>true</localCheckout>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
+	    <!-- Cytoscape 3 Dependencies -->
+	    <dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>event-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>swing-application-api</artifactId>
 			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>layout-api</artifactId>
 			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>core-task-api</artifactId>
 			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
@@ -96,12 +143,22 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!--  OSGi core dependency -->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+		    <groupId>org.osgi</groupId>
+		    <artifactId>org.osgi.compendium</artifactId>
+		    <version>${osgi.api.version}</version>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<!--  3rd party libraries -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -117,6 +174,49 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.6.6</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.geronimo.specs</groupId>
+		    <artifactId>geronimo-servlet_3.0_spec</artifactId>
+		    <version>1.0</version>
+		</dependency>
+		
+		 <!-- Testing -->  	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>model-impl</artifactId>
+			<version>3.0.0-beta1</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>model-impl</artifactId>
+			<version>3.0.0-beta1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>event-api</artifactId>
+			<version>3.0.0-beta3</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 
 </project>

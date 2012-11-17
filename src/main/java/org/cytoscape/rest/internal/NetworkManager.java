@@ -194,7 +194,7 @@ public class NetworkManager {
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
-			listener.setWarn();
+			listener.setWarn(e.getMessage());
 		}
 		logger.debug("Updating network table for network "+netName);
 	}
@@ -202,10 +202,10 @@ public class NetworkManager {
 	public void pushNodeTable(String netName, Vector<String> nheads, Vector<String> ntypes, Vector<Integer> nrids, Vector<String> ndata) {
 		if (!currentNets.containsKey(netName)) {
 			System.out.println("That network doesn't exist!");
-			listener.setWarn();
+			listener.setWarn("That network doesn't exist!");
 			return ;
 		}
-		listener.setSuccess();
+		listener.setSuccess("Updating node table for "+netName);
 		NetworkSync netSyn = currentNets.get(netName);
 
 		try {
@@ -236,10 +236,10 @@ public class NetworkManager {
 	public void pushEdgeTable(String netName, Vector<String> eheads, Vector<String> etypes, Vector<Integer> erids, Vector<String> edata) {
 		if (!currentNets.containsKey(netName)) {
 			System.out.println("That network doesn't exist!");
-			listener.setWarn();
+			listener.setWarn("That network doesn't exist!");
 			return ;
 		}
-		listener.setSuccess();
+		listener.setSuccess("Updating edge table for "+netName);
 		NetworkSync netSyn = currentNets.get(netName);
 
 		try {
@@ -263,13 +263,13 @@ public class NetworkManager {
 			}
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
-			listener.setWarn();
+			listener.setWarn(e.getMessage());
 		}
 		logger.debug("Updating edge table for network "+netName);
 	}
 	
 	public void pushTable(String tabName, Vector<String> heads, Vector<String> types, Vector<String> row_ids, Vector<String> data) {
-		listener.setSuccess();
+		listener.setSuccess("Pushing table "+tabName);
 		CyTable table = null;
 		if (currentTabs.containsKey(tabName)) {
 			//Update the appropriate CyTable
@@ -311,9 +311,9 @@ public class NetworkManager {
 				
 				logger.debug("Added row "+r);
 				
-				listener.setSuccess();
+				listener.setSuccess("Added row "+r);
 			} catch(Exception e) {
-				listener.setWarn();
+				listener.setWarn(e.getMessage());
 			}
 		}
 		logger.debug("Done adding rows...");

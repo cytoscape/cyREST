@@ -13,6 +13,7 @@ import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.LocalHttpServer;
 import org.cytoscape.rest.internal.servlet.SampleServlet;
+import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -43,6 +44,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Importing Services:
 		CyNetworkFactory netFact = getService(bc,CyNetworkFactory.class);
+		
 		CyNetworkManager netMan = getService(bc,CyNetworkManager.class);
 		CyNetworkViewFactory netViewFact = getService(bc,CyNetworkViewFactory.class);
 		CyNetworkViewManager netViewMan = getService(bc,CyNetworkViewManager.class);

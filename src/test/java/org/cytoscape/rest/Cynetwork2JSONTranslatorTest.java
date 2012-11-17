@@ -29,14 +29,20 @@ public class Cynetwork2JSONTranslatorTest {
 	}
 
 	@Test
+	public void testSanity() {
+		
+	}
+	@Test
 	public void testTranslation() {
 		final CyNetwork network = testSupport.getNetwork();
 		final CyNode node1 = network.addNode();
 		final CyNode node2 = network.addNode();
+		final CyNode node3 = network.addNode();
 		final CyEdge edge = network.addEdge(node1, node2, true);
 
-//		final String result = translator.translate(network);
-//		assertNotNull(result);
+		
+		final String result = translator.translate(network);
+		assertEquals("{\"SUID\":"+network.getSUID()+"}", result);
 	}
 
 }

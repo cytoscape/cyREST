@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.module.SimpleModule;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTable;
 
 /** Module for Jackson to hold the custom serializers for CyNetworks, CyNodes, CyEdges, and CyTables.
  */
@@ -23,6 +24,7 @@ public class CyJacksonModule extends SimpleModule {
 		addSerializer(new CyNetworkSerializer());
 		addSerializer(new CyNodeSerializer());
 		addSerializer(new CyEdgeSerializer());
+		addSerializer(new CyTableSerializer());
 	}
 	
 	/** Serializer for CyNetworks. */
@@ -83,6 +85,22 @@ public class CyJacksonModule extends SimpleModule {
 		
 		public Class<CyEdge> handledType() {
 			return CyEdge.class;
+		}
+	}
+	
+	/** Serializer for CyTables. */
+	private class CyTableSerializer extends JsonSerializer<CyTable> {
+
+		@Override
+		public void serialize(CyTable table, JsonGenerator jgen,
+		        SerializerProvider provider) throws IOException,
+		        JsonProcessingException {
+			jgen.writeStartObject();
+		    jgen.writeEndObject();
+		}
+		
+		public Class<CyTable> handledType() {
+			return CyTable.class;
 		}
 	}
 }

@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
-public class Cynetwork2JSONTranslatorTest {
+public class CyNetwork2JSONTranslatorTest {
 
 	private Translator<String, CyNetwork> translator;
 	private final NetworkTestSupport testSupport = new NetworkTestSupport();

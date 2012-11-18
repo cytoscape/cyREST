@@ -2,15 +2,11 @@ package org.cytoscape.rest;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.rest.internal.translator.CyEdge2JSONTranslator;
-import org.cytoscape.rest.internal.translator.CyNode2JSONTranslator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

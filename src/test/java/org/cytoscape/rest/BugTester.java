@@ -1,39 +1,26 @@
 package org.cytoscape.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-import com.google.gson.Gson;
+public class BugTester {
 
-public class CyNetwork2JSONTranslatorTest {
-
-	private Translator<String, CyNetwork> translator;
-	private final NetworkTestSupport testSupport = new NetworkTestSupport();
-
-
-	@Before
-	public void setUp() throws Exception {
-		translator = new CyNetwork2JSONTranslator();
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public void testSanity() {
+	private static Translator<String, CyNetwork> translator;
+	private final static NetworkTestSupport testSupport = new NetworkTestSupport();
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 		
-	}
-	@Test
-	public void testTranslation() {
+		translator = new CyNetwork2JSONTranslator();
+		
 		final CyNetwork network = testSupport.getNetwork();
 		final CyNode node1 = network.addNode();
 		final CyNode node2 = network.addNode();
@@ -44,7 +31,9 @@ public class CyNetwork2JSONTranslatorTest {
 		node3.setNetworkPointer(network);
 		
 		final String result = translator.translate(network);
-		assertEquals("{\"SUID\":"+network.getSUID()+"}", result);
+		System.out.println(result);
+		//assertEquals("{\"SUID\":"+network.getSUID()+"}", result);
+
 	}
 
 }

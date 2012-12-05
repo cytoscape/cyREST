@@ -21,10 +21,10 @@ public class CyJacksonModule extends SimpleModule {
 	/** Construct this CyJacksonModule and add all of the defined serializers. */
 	public CyJacksonModule() {
 		super("CyJacksonModule", new Version(1, 0, 0, null));
-		addSerializer(new CyNetworkSerializer());
 		addSerializer(new CyNodeSerializer());
 		addSerializer(new CyEdgeSerializer());
 		addSerializer(new CyTableSerializer());
+		addSerializer(new CyNetworkSerializer());
 	}
 	
 	/** Serializer for CyNetworks. */
@@ -35,7 +35,12 @@ public class CyJacksonModule extends SimpleModule {
 		        SerializerProvider provider) throws IOException,
 		        JsonProcessingException {
 		    jgen.writeStartObject();
-		    jgen.writeNumberField("SUID", network.getSUID());
+		    Map<String, Object> netAttrs = network.getRow(network).getAllValues();
+		    for (String key : netAttrs.keySet()) {
+		    	jgen.writeObjectField(key,netAttrs.get(key));
+		    }
+		    jgen.writeObjectField("nodes", network.getNodeList());
+		    jgen.writeObjectField("edges", network.getEdgeList());
 		    jgen.writeEndObject();
 		}
 		

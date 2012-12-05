@@ -1,9 +1,12 @@
 package org.cytoscape.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -14,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class CyNode2JSONTranslatorTest {
+public class CyNode2JSONTranslatorTest extends JSONTranslatorTest {
 
 	private Translator<String, CyNode> translator;
 	private final NetworkTestSupport testSupport = new NetworkTestSupport();
@@ -22,6 +25,7 @@ public class CyNode2JSONTranslatorTest {
 
 	@Before
 	public void setUp() throws Exception {
+		super.setUp();
 		translator = new CyNode2JSONTranslator();
 	}
 
@@ -34,7 +38,7 @@ public class CyNode2JSONTranslatorTest {
 		
 	}
 	@Test
-	public void testTranslation() {
+	public void testTranslation() throws Exception {
 		final CyNetwork network = testSupport.getNetwork();
 		final CyNode node1 = network.addNode();
 		final CyNode node2 = network.addNode();
@@ -62,7 +66,21 @@ public class CyNode2JSONTranslatorTest {
 		network.getRow(node1).set("TheList", temp);
 		assertEquals("{\"DecCol\":5.67,\"TheList\":[5.2,4.5],\"selected\":true,\"shared name\":\"Johnny\",\"SUID\":"+node1.getSUID()+",\"name\":\"John Tests\"}", translator.translate(node1));
 		
+		testInJS(translator.translate(node1));
+	}
+	
+	private final void testInJS(final String result) throws Exception {
+		bindings.put("result", result);
 		
+		// This is the actual test cases written in JavaScript.
+		final Reader scriptReader = new FileReader("./src/test/resources/node_test.js");
+		
+		final Object jsResult = jsEngine.eval(scriptReader, bindings);
+		scriptReader.close();
+		
+		assertNotNull(jsResult);
+		assertTrue(jsResult instanceof Boolean);
+		assertTrue((Boolean)jsResult);
 	}
 
 }

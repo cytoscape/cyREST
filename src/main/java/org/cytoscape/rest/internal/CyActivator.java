@@ -11,6 +11,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
+import org.cytoscape.rest.internal.net.server.CytoscapeGetResponder;
 import org.cytoscape.rest.internal.net.server.LocalHttpServer;
 import org.cytoscape.rest.internal.servlet.SampleServlet;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
@@ -44,7 +45,6 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Importing Services:
 		CyNetworkFactory netFact = getService(bc,CyNetworkFactory.class);
-		
 		CyNetworkManager netMan = getService(bc,CyNetworkManager.class);
 		CyNetworkViewFactory netViewFact = getService(bc,CyNetworkViewFactory.class);
 		CyNetworkViewManager netViewMan = getService(bc,CyNetworkViewManager.class);
@@ -67,6 +67,8 @@ public class CyActivator extends AbstractCyActivator {
 		final CytoBridgeGetResponder cytoGetResp = new CytoBridgeGetResponder(myManager);
 		final CytoBridgePostResponder cytoPostResp = new CytoBridgePostResponder(myManager);
 		
+		final CytoscapeGetResponder cytoscapeGetResp = new CytoscapeGetResponder(netMan);
+		
 		CySwingApplication swingApp = getService(bc,CySwingApplication.class);
 		final CytoBridgeAction cytoBridgeAction = new CytoBridgeAction(swingApp, myManager);
 		
@@ -82,6 +84,7 @@ public class CyActivator extends AbstractCyActivator {
 				server = new LocalHttpServer(2609, Executors.newSingleThreadExecutor());
 				server.addPostResponder(cytoPostResp);
 				server.addGetResponder(cytoGetResp);
+				server.addGetResponder(cytoscapeGetResp);
 				server.run();
 			}
 		};
@@ -98,7 +101,7 @@ public class CyActivator extends AbstractCyActivator {
 }
 
 	  	
-	private final void startServer(BundleContext bc, CyApplicationManager applicationManager) throws ServletException,
+	/*private final void startServer(BundleContext bc, CyApplicationManager applicationManager) throws ServletException,
 									NamespaceException {
 		final ServiceReference m_httpServiceRef = bc.getServiceReference(HttpService.class.getName());
 		if (m_httpServiceRef != null) {
@@ -117,5 +120,5 @@ public class CyActivator extends AbstractCyActivator {
 				System.out.println("Servlet Start!");
 			}
 		}
-	}
+	}*/
 }

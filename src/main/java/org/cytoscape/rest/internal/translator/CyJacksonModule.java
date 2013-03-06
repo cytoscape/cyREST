@@ -1,19 +1,23 @@
 package org.cytoscape.rest.internal.translator;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
-import org.codehaus.jackson.map.module.SimpleModule;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Module for Jackson to hold the custom serializers for CyNetworks, CyNodes,
@@ -21,30 +25,72 @@ import org.cytoscape.model.CyTable;
  */
 public class CyJacksonModule extends SimpleModule {
 
-	/** Construct this CyJacksonModule and add all of the defined serializers. */
+	private static final long serialVersionUID = -2618300407121070693L;
+
+	/**
+	 * Construct this CyJacksonModule and add all of the defined serializers.
+	 */
 	public CyJacksonModule() {
-		super("CyJacksonModule", new Version(1, 0, 0, null));
+		// TODO: provide correct artifact information.
+		super("CyJacksonModule", new Version(1, 0, 0, null, null, null));
 		addSerializer(new CyNodeSerializer());
 		addSerializer(new CyEdgeSerializer());
+		addSerializer(new CyRowSerializer());
 		addSerializer(new CyTableSerializer());
 		addSerializer(new CyNetworkSerializer());
 	}
 
-	/** Serializer for CyNetworks. */
-	private class CyNetworkSerializer extends JsonSerializer<CyNetwork> {
+	private static final void writeNodeInfo(CyNode node, JsonGenerator jgen) throws JsonGenerationException,
+			IOException {
+		jgen.writeNumberField(CyIdentifiable.SUID, node.getSUID());
+		if (node.getNetworkPointer() != null)
+			jgen.writeNumberField("nestedNetwork", node.getNetworkPointer().getSUID());
+	}
+
+	private static final void writeEdgeInfo(CyEdge edge, JsonGenerator jgen) throws JsonGenerationException,
+			IOException {
+		jgen.writeNumberField("source", edge.getSource().getSUID());
+		jgen.writeNumberField("target", edge.getTarget().getSUID());
+		jgen.writeBooleanField("isDirected", edge.isDirected());
+	}
+
+
+	private final class CyNetworkSerializer extends JsonSerializer<CyNetwork> {
 
 		@Override
 		public void serialize(CyNetwork network, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 				JsonProcessingException {
+
+			jgen.useDefaultPrettyPrinter();
+
 			jgen.writeStartObject();
-			
-			Map<String, Object> netAttrs = network.getRow(network).getAllValues();
-			for (String key : netAttrs.keySet()) {
-				jgen.writeObjectField(key, netAttrs.get(key));
+			jgen.writeObjectFieldStart(CyJsonTags.NETWORK.getName());
+
+			// Network data table
+			jgen.writeObject(network.getRow(network));
+
+			// Write array
+			final List<CyNode> nodes = network.getNodeList();
+			final List<CyEdge> edges = network.getEdgeList();
+
+			jgen.writeArrayFieldStart(CyJsonTags.NODES.getName());
+			for (final CyNode node : nodes) {
+				jgen.writeStartObject();
+				writeNodeInfo(node, jgen);
+				jgen.writeObject(network.getRow(node));
+				jgen.writeEndObject();
 			}
-			jgen.writeObjectField("nodes", network.getNodeList());
-			jgen.writeObjectField("edges", network.getEdgeList());
-			
+			jgen.writeEndArray();
+
+			jgen.writeArrayFieldStart(CyJsonTags.EDGES.getName());
+			for (final CyEdge edge : edges) {
+				jgen.writeStartObject();
+				writeEdgeInfo(edge, jgen);
+				jgen.writeObject(network.getRow(edge));
+				jgen.writeEndObject();
+			}
+			jgen.writeEndArray();
+
 			jgen.writeEndObject();
 		}
 
@@ -59,12 +105,9 @@ public class CyJacksonModule extends SimpleModule {
 		@Override
 		public void serialize(CyNode node, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 				JsonProcessingException {
-			jgen.writeStartObject();
 
-			jgen.writeNumberField(CyIdentifiable.SUID, node.getSUID());
-			if(node.getNetworkPointer() != null)
-				jgen.writeNumberField("nestedNetwork", node.getNetworkPointer().getSUID());
-			
+			jgen.writeStartObject();
+			writeNodeInfo(node, jgen);
 			jgen.writeEndObject();
 		}
 
@@ -79,12 +122,9 @@ public class CyJacksonModule extends SimpleModule {
 		@Override
 		public void serialize(CyEdge edge, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 				JsonProcessingException {
+
 			jgen.writeStartObject();
-
-			jgen.writeNumberField("source", edge.getSource().getSUID());
-			jgen.writeNumberField("target", edge.getTarget().getSUID());
-			jgen.writeBooleanField("isDirected", edge.isDirected());
-
+			writeEdgeInfo(edge, jgen);
 			jgen.writeEndObject();
 		}
 
@@ -108,4 +148,78 @@ public class CyJacksonModule extends SimpleModule {
 			return CyTable.class;
 		}
 	}
+
+	private class CyRowSerializer extends JsonSerializer<CyRow> {
+
+		@Override
+		public void serialize(CyRow row, JsonGenerator jgen, SerializerProvider provider) throws IOException,
+				JsonProcessingException {
+
+			final CyTable table = row.getTable();
+			final Map<String, Object> values = row.getAllValues();
+
+			for (final String key : values.keySet()) {
+				final Object value = values.get(key);
+				if (value == null)
+					continue;
+
+				Class<?> type = table.getColumn(key).getType();
+				if (type == List.class) {
+					type = table.getColumn(key).getListElementType();
+					writeList(type, key, (List<?>) value, jgen);
+				} else {
+					write(type, key, value, jgen);
+				}
+			}
+		}
+
+		private void writeList(final Class<?> type, String fieldName, List<?> values, JsonGenerator jgen)
+				throws JsonGenerationException, IOException {
+
+			jgen.writeFieldName(fieldName);
+			jgen.writeStartArray();
+
+			for (Object value : values)
+				writeValue(type, value, jgen);
+			
+			jgen.writeEndArray();
+		}
+
+		private void write(final Class<?> type, String fieldName, Object value, JsonGenerator jgen)
+				throws JsonGenerationException, IOException {
+			jgen.writeFieldName(fieldName);
+			writeValue(type, value, jgen);
+		}
+
+		private final void writeValue(final Class<?> type, Object value, JsonGenerator jgen)
+				throws JsonGenerationException, IOException {
+			jgen.writeStartObject();
+			if (type == String.class) {
+				jgen.writeStringField("type", "string");
+				jgen.writeStringField("value", (String) value);
+			} else if (type == Boolean.class) {
+				jgen.writeStringField("type", "boolean");
+				jgen.writeBooleanField("value", (Boolean) value);
+			} else if (type == Double.class) {
+				jgen.writeStringField("type", "double");
+				jgen.writeNumberField("value", (Double) value);
+			} else if (type == Integer.class) {
+				jgen.writeStringField("type", "integer");
+				jgen.writeNumberField("value", (Integer) value);
+			} else if (type == Long.class) {
+				jgen.writeStringField("type", "long");
+				jgen.writeNumberField("value", (Long) value);
+			} else if (type == Float.class) {
+				// Handle float as double.
+				jgen.writeStringField("type", "double");
+				jgen.writeNumberField("value", (Float) value);
+			}
+			jgen.writeEndObject();
+		}
+
+		public Class<CyRow> handledType() {
+			return CyRow.class;
+		}
+	}
+
 }

@@ -1,10 +1,11 @@
 package org.cytoscape.rest.internal.translator;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CyNode2JSONTranslator implements Translator<String, CyNode> {
 

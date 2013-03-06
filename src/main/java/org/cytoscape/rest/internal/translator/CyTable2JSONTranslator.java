@@ -1,20 +1,19 @@
 package org.cytoscape.rest.internal.translator;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.Translator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CyTable2JSONTranslator implements Translator<String, CyTable> {
-	
+
 	private final ObjectMapper jackson;
-	
+
 	public CyTable2JSONTranslator() {
 		jackson = new ObjectMapper();
 		jackson.registerModule(new CyJacksonModule());
 	}
-	
-	
+
 	/**
 	 * Convert CyTable Object to JSON
 	 */

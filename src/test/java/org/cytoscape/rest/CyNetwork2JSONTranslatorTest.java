@@ -1,9 +1,12 @@
 package org.cytoscape.rest;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.text.html.HTMLEditorKit.Parser;
 
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -14,7 +17,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 
 public class CyNetwork2JSONTranslatorTest {
 
@@ -36,8 +40,8 @@ public class CyNetwork2JSONTranslatorTest {
 		
 	}
 	@Test
-	public void testTranslation() {
-		final CyNetwork network = testSupport.getNetwork();
+	public void testTranslation() throws Exception {
+		CyNetwork network = testSupport.getNetwork();
 		final CyNode node1 = network.addNode();
 		final CyNode node2 = network.addNode();
 		final CyNode node3 = network.addNode();
@@ -64,7 +68,9 @@ public class CyNetwork2JSONTranslatorTest {
 		final String result = translator.translate(network);
 		assertNotNull(result);
 		
-		System.out.println("JSON = " + result);
+		System.out.println(result);
+		
+		assertTrue(result.contains("term1"));
 	}
 
 }

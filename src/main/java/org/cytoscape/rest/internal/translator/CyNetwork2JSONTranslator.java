@@ -11,7 +11,9 @@ public class CyNetwork2JSONTranslator implements Translator<String, CyNetwork> {
 
 	public CyNetwork2JSONTranslator() {
 		jackson = new ObjectMapper();
-		jackson.registerModule(new CyJacksonModule());
+
+		final CyJacksonModule module = new CyJacksonModule();
+		jackson.registerModule(module);
 	}
 
 	/**
@@ -21,7 +23,6 @@ public class CyNetwork2JSONTranslator implements Translator<String, CyNetwork> {
 		try {
 			return jackson.writeValueAsString(network);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return "";
 		}
 	}

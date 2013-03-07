@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.cytoscape.model.CyEdge;
-import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
@@ -42,7 +41,6 @@ public class CyJacksonModule extends SimpleModule {
 
 	private static final void writeNodeInfo(CyNode node, JsonGenerator jgen) throws JsonGenerationException,
 			IOException {
-		jgen.writeNumberField(CyIdentifiable.SUID, node.getSUID());
 		if (node.getNetworkPointer() != null)
 			jgen.writeNumberField("nestedNetwork", node.getNetworkPointer().getSUID());
 	}
@@ -60,11 +58,11 @@ public class CyJacksonModule extends SimpleModule {
 		@Override
 		public void serialize(CyNetwork network, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 				JsonProcessingException {
-
+			
 			jgen.useDefaultPrettyPrinter();
 
 			jgen.writeStartObject();
-			jgen.writeObjectFieldStart(CyJsonTags.NETWORK.getName());
+			jgen.writeObjectFieldStart(CyJsonToken.NETWORK.getName());
 
 			// Network data table
 			jgen.writeObject(network.getRow(network));
@@ -73,7 +71,7 @@ public class CyJacksonModule extends SimpleModule {
 			final List<CyNode> nodes = network.getNodeList();
 			final List<CyEdge> edges = network.getEdgeList();
 
-			jgen.writeArrayFieldStart(CyJsonTags.NODES.getName());
+			jgen.writeArrayFieldStart(CyJsonToken.NODES.getName());
 			for (final CyNode node : nodes) {
 				jgen.writeStartObject();
 				writeNodeInfo(node, jgen);
@@ -82,7 +80,7 @@ public class CyJacksonModule extends SimpleModule {
 			}
 			jgen.writeEndArray();
 
-			jgen.writeArrayFieldStart(CyJsonTags.EDGES.getName());
+			jgen.writeArrayFieldStart(CyJsonToken.EDGES.getName());
 			for (final CyEdge edge : edges) {
 				jgen.writeStartObject();
 				writeEdgeInfo(edge, jgen);

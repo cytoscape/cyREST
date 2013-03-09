@@ -1,6 +1,12 @@
 package org.cytoscape.rest.internal;
 
 //import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
+import static org.cytoscape.work.ServiceProperties.MENU_GRAVITY;
+import static org.cytoscape.work.ServiceProperties.PREFERRED_MENU;
+import static org.cytoscape.work.ServiceProperties.TITLE;
+
+import java.util.Properties;
+
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
@@ -12,28 +18,16 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.CytoscapeGetResponder;
-import org.cytoscape.rest.internal.net.server.LocalHttpServer;
-import org.cytoscape.rest.internal.servlet.GetNetworkServlet;
-import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
+import org.cytoscape.rest.task.StartHttpServerTaskFactory;
+import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.events.AddedNodeViewsListener;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskManager;
-import org.cytoscape.service.util.AbstractCyActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
-
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-
-import javax.servlet.ServletException;
 
 public class CyActivator extends AbstractCyActivator {
 	public CyActivator() {
@@ -75,69 +69,36 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(bc, cytoBridgeAction, CyAction.class, new Properties());
 		myManager.setListener(cytoBridgeAction);
 
-		Thread serverThread = new Thread() {
+		// Thread serverThread = new Thread() {
+		// private LocalHttpServer server;
+		//
+		// @Override
+		// public void run() {
+		// server = new LocalHttpServer(2609,
+		// Executors.newSingleThreadExecutor());
+		// server.addPostResponder(cytoPostResp);
+		// server.addGetResponder(cytoGetResp);
+		// server.addGetResponder(cytoscapeGetResp);
+		// server.run();
+		// }
+		// };
+		// serverThread.setDaemon(true);
+		// Executors.newSingleThreadExecutor().execute(serverThread);
 
-			private LocalHttpServer server;
+		// Add task to run
+		final StartHttpServerTaskFactory startHttpServerTaskFactory = new StartHttpServerTaskFactory(bc,
+				applicationManager, netFact, netMan);
+		final Properties startHttpServerTaskFactoryProps = new Properties();
+		startHttpServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
+		startHttpServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
+		startHttpServerTaskFactoryProps.setProperty(TITLE, "Start Server");
+		registerService(bc, startHttpServerTaskFactory, TaskFactory.class, startHttpServerTaskFactoryProps);
 
-			@Override
-			public void run() {
-				server = new LocalHttpServer(2609, Executors.newSingleThreadExecutor());
-				server.addPostResponder(cytoPostResp);
-				server.addGetResponder(cytoGetResp);
-				server.addGetResponder(cytoscapeGetResp);
-				server.run();
-			}
-		};
-		serverThread.setDaemon(true);
-		Executors.newSingleThreadExecutor().execute(serverThread);
+		
+		final CommandManager commandManager = new CommandManager();
+		// Get all compatible tasks
+		registerServiceListener(bc, commandManager, "addCommand", "removeCommand", TaskFactory.class);
 
-		ServiceReference sRef = bc.getServiceReference(HttpService.class.getName());
-		HttpService httpService = getService(bc, HttpService.class);
-		System.out.println("#### Service = " + httpService);
-		if (sRef != null) {
-			HttpService service = (HttpService) bc.getService(sRef);
-			try {
-				service.registerServlet("/get/network", new GetNetworkServlet(null, applicationManager), null, null);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NamespaceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-//		try {
-//			startServer(bc, applicationManager);
-//		} catch (ServletException e) {
-//			e.printStackTrace();
-//		} catch (NamespaceException e) {
-//			e.printStackTrace();
-//		}
 	}
 
-	private final void startServer(BundleContext bc, CyApplicationManager applicationManager) throws ServletException,
-			NamespaceException {
-		final ServiceReference m_httpServiceRef = bc.getServiceReference(HttpService.class.getName());
-
-		System.out.println("Service ref = " + m_httpServiceRef);
-
-		if (m_httpServiceRef != null) {
-			final HttpService httpService = (HttpService) bc.getService(m_httpServiceRef);
-
-			if (httpService != null) {
-				// create a default context to share between registrations
-				final HttpContext httpContext = httpService.createDefaultHttpContext();
-				// register the hello world servlet
-				final Dictionary initParams = new Hashtable();
-				initParams.put("from", "HttpService");
-				httpService.registerServlet("/helloworld/hs", new GetNetworkServlet("/helloworld/hs", applicationManager),
-						initParams, httpContext);
-				httpService.registerServlet("/", new GetNetworkServlet("/", applicationManager), initParams, httpContext);
-				// register images as resources
-				httpService.registerResources("/images", "/images", httpContext);
-				System.out.println("Servlet Start!");
-			}
-		}
-	}
 }

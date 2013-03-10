@@ -1,4 +1,4 @@
-package org.cytoscape.rest.task;
+package org.cytoscape.rest.internal.task;
 
 import org.cytoscape.work.AbstractTaskManager;
 import org.cytoscape.work.Task;

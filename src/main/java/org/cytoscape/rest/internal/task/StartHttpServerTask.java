@@ -1,4 +1,4 @@
-package org.cytoscape.rest.task;
+package org.cytoscape.rest.internal.task;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.rest.internal.CommandManager;
 import org.cytoscape.rest.internal.servlet.ExecuteTaskServlet;
 import org.cytoscape.rest.internal.servlet.GetNetworkServlet;
 import org.cytoscape.work.AbstractTask;
@@ -21,13 +22,15 @@ public class StartHttpServerTask extends AbstractTask {
 	private final CyApplicationManager applicationManager;
 	private final CyNetworkFactory networkFactory;
 	private final CyNetworkManager networkManager;
+	private final CommandManager cm;
 
 	public StartHttpServerTask(final BundleContext bc, final CyApplicationManager applicationManager,
-			final CyNetworkFactory networkFactory, final CyNetworkManager networkManager) {
+			final CyNetworkFactory networkFactory, final CyNetworkManager networkManager, CommandManager commandManager) {
 		this.bc = bc;
 		this.applicationManager = applicationManager;
 		this.networkFactory = networkFactory;
 		this.networkManager = networkManager;
+		this.cm = commandManager;
 	}
 
 	@Override
@@ -45,7 +48,7 @@ public class StartHttpServerTask extends AbstractTask {
 					networkManager), initParams, httpContext);
 
 			// Run task
-			service.registerServlet("/exec", new ExecuteTaskServlet(), initParams, httpContext);
+			service.registerServlet("/exec", new ExecuteTaskServlet(cm, applicationManager), initParams, httpContext);
 
 			// register images as resources
 			System.out.println("Servlet Start!");

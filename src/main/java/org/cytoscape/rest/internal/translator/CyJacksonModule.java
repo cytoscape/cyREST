@@ -219,5 +219,7 @@ public class CyJacksonModule extends SimpleModule {
 			return CyRow.class;
 		}
 	}
+	
+	
 
 }

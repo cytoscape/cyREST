@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.rest.internal.CommandManager;
+import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.TaskFactoryManagerImpl;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.work.TaskFactory;
@@ -23,11 +24,11 @@ public class ExecuteTaskServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 5067580373453129029L;
 
-	private final CommandManager manager;
+	private final TaskFactoryManager manager;
 	
 	private final CyApplicationManager applicationManager;
 	
-	public ExecuteTaskServlet(CommandManager manager, final CyApplicationManager applicationManager) {
+	public ExecuteTaskServlet(TaskFactoryManager manager, final CyApplicationManager applicationManager) {
 		this.manager = manager;
 		this.applicationManager = applicationManager;
 	}

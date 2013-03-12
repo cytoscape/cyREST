@@ -21,9 +21,7 @@ public class CyNetwork2CytoscapeJS extends JsonSerializer<CyNetwork> {
 		jgen.useDefaultPrettyPrinter();
 
 		jgen.writeStartObject();
-		jgen.writeObjectFieldStart("elements");
-
-		System.out.println("ELEMENT OK");
+		jgen.writeObjectFieldStart(CyJsonToken.ELEMENTS.getName());
 
 		// Write array
 		final List<CyNode> nodes = network.getNodeList();
@@ -33,8 +31,8 @@ public class CyNetwork2CytoscapeJS extends JsonSerializer<CyNetwork> {
 		for (final CyNode node : nodes) {
 			jgen.writeStartObject();
 
-			jgen.writeObjectFieldStart("data");
-			jgen.writeStringField("id", node.getSUID().toString());
+			jgen.writeObjectFieldStart(CyJsonToken.DATA.getName());
+			jgen.writeStringField(CyJsonToken.ID.getName(), node.getSUID().toString());
 			jgen.writeEndObject();
 
 			jgen.writeEndObject();
@@ -45,10 +43,10 @@ public class CyNetwork2CytoscapeJS extends JsonSerializer<CyNetwork> {
 		for (final CyEdge edge : edges) {
 			jgen.writeStartObject();
 
-			jgen.writeObjectFieldStart("data");
-			jgen.writeStringField("id", edge.getSUID().toString());
-			jgen.writeStringField("source", edge.getSource().getSUID().toString());
-			jgen.writeStringField("target", edge.getTarget().getSUID().toString());
+			jgen.writeObjectFieldStart(CyJsonToken.DATA.getName());
+			jgen.writeStringField(CyJsonToken.ID.getName(), edge.getSUID().toString());
+			jgen.writeStringField(CyJsonToken.SOURCE.getName(), edge.getSource().getSUID().toString());
+			jgen.writeStringField(CyJsonToken.TARGET.getName(), edge.getTarget().getSUID().toString());
 			jgen.writeEndObject();
 
 			jgen.writeEndObject();

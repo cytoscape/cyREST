@@ -6,7 +6,7 @@ import java.util.Hashtable;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
-import org.cytoscape.rest.internal.CommandManager;
+import org.cytoscape.rest.internal.TaskFactoryManagerImpl;
 import org.cytoscape.rest.internal.servlet.ExecuteTaskServlet;
 import org.cytoscape.rest.internal.servlet.GetNetworkServlet;
 import org.cytoscape.work.AbstractTask;
@@ -22,10 +22,10 @@ public class StartHttpServerTask extends AbstractTask {
 	private final CyApplicationManager applicationManager;
 	private final CyNetworkFactory networkFactory;
 	private final CyNetworkManager networkManager;
-	private final CommandManager cm;
+	private final TaskFactoryManagerImpl cm;
 
 	public StartHttpServerTask(final BundleContext bc, final CyApplicationManager applicationManager,
-			final CyNetworkFactory networkFactory, final CyNetworkManager networkManager, CommandManager commandManager) {
+			final CyNetworkFactory networkFactory, final CyNetworkManager networkManager, TaskFactoryManagerImpl commandManager) {
 		this.bc = bc;
 		this.applicationManager = applicationManager;
 		this.networkFactory = networkFactory;

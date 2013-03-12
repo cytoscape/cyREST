@@ -15,11 +15,14 @@ import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.CytoscapeGetResponder;
 import org.cytoscape.rest.internal.task.StartGrizzlyServerTaskFactory;
 import org.cytoscape.service.util.AbstractCyActivator;
+import org.cytoscape.task.NetworkCollectionTaskFactory;
+import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -85,29 +88,35 @@ public class CyActivator extends AbstractCyActivator {
 		// serverThread.setDaemon(true);
 		// Executors.newSingleThreadExecutor().execute(serverThread);
 
-		
-//		final DataService dataService = new DataService(applicationManager, netFact, netMan);
-		
-		final CommandManager commandManager = new CommandManager();
+		// final DataService dataService = new DataService(applicationManager,
+		// netFact, netMan);
+
+		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 		// Get all compatible tasks
-		registerServiceListener(bc, commandManager, "addCommand", "removeCommand", TaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory",
+				NetworkTaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",
+				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
-//		// Add task to run
-//		final StartHttpServerTaskFactory startHttpServerTaskFactory = new StartHttpServerTaskFactory(bc,
-//				applicationManager, netFact, netMan, commandManager);
-//		final Properties startHttpServerTaskFactoryProps = new Properties();
-//		startHttpServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
-//		startHttpServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
-//		startHttpServerTaskFactoryProps.setProperty(TITLE, "Start Server");
-//		registerService(bc, startHttpServerTaskFactory, TaskFactory.class, startHttpServerTaskFactoryProps);
+		// // Add task to run
+		// final StartHttpServerTaskFactory startHttpServerTaskFactory = new
+		// StartHttpServerTaskFactory(bc,
+		// applicationManager, netFact, netMan, commandManager);
+		// final Properties startHttpServerTaskFactoryProps = new Properties();
+		// startHttpServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
+		// startHttpServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
+		// startHttpServerTaskFactoryProps.setProperty(TITLE, "Start Server");
+		// registerService(bc, startHttpServerTaskFactory, TaskFactory.class,
+		// startHttpServerTaskFactoryProps);
 
-		final StartGrizzlyServerTaskFactory startGrizzlyServerTaskFactory = new StartGrizzlyServerTaskFactory(netMan, netFact);
+		final StartGrizzlyServerTaskFactory startGrizzlyServerTaskFactory = new StartGrizzlyServerTaskFactory(netMan,
+				netFact, taskFactoryManagerManager, applicationManager);
 		final Properties startGrizzlyServerTaskFactoryProps = new Properties();
 		startGrizzlyServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
 		startGrizzlyServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
 		startGrizzlyServerTaskFactoryProps.setProperty(TITLE, "Start REST Server");
 		registerService(bc, startGrizzlyServerTaskFactory, TaskFactory.class, startGrizzlyServerTaskFactoryProps);
-	
-		
+
 	}
 }

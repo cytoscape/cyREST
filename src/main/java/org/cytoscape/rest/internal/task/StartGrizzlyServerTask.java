@@ -6,8 +6,10 @@ import java.net.URI;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriBuilder;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -35,10 +37,15 @@ public final class StartGrizzlyServerTask extends AbstractTask {
 
 	private final CyNetworkManager networkManager;
 	private final CyNetworkFactory networkFactory;
+	private final TaskFactoryManager tfManager;
+	private final CyApplicationManager applicationManager;
 
-	public StartGrizzlyServerTask(CyNetworkManager networkManager, final CyNetworkFactory networkFactory) {
+	public StartGrizzlyServerTask(CyNetworkManager networkManager, final CyNetworkFactory networkFactory,
+			final TaskFactoryManager tfManager, final CyApplicationManager applicationManager) {
 		this.networkManager = networkManager;
 		this.networkFactory = networkFactory;
+		this.tfManager = tfManager;
+		this.applicationManager = applicationManager;
 	}
 
 	@Override
@@ -58,6 +65,12 @@ public final class StartGrizzlyServerTask extends AbstractTask {
 				});
 		rc.getSingletons().add(
 				new SingletonTypeInjectableProvider<Context, CyNetworkFactory>(CyNetworkFactory.class, networkFactory) {
+				});
+		rc.getSingletons().add(
+				new SingletonTypeInjectableProvider<Context, TaskFactoryManager>(TaskFactoryManager.class, tfManager) {
+				});
+		rc.getSingletons().add(
+				new SingletonTypeInjectableProvider<Context, CyApplicationManager>(CyApplicationManager.class, applicationManager) {
 				});
 
 		return GrizzlyServerFactory.createHttpServer(baseURI, rc);

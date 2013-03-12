@@ -29,6 +29,7 @@ public class RestTaskManager extends AbstractTaskManager {
 		// Run in the same thread.
 		while(iterator.hasNext()) {
 			final Task task = iterator.next();
+
 			try {
 				task.run(tM);
 			} catch (Exception e) {

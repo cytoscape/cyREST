@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Singleton
-@Path("/data/")
+@Path("/")
 public class DataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(DataService.class);
@@ -118,18 +118,17 @@ public class DataService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String runNetworkTask(@PathParam("suid") String suid, @PathParam("taskId") String taskName) {
 		if (taskName != null) {
-			TaskFactory tf = tfManager.getTaskFactory(taskName);
+			NetworkTaskFactory tf = tfManager.getNetworkTaskFactory(taskName);
+			System.out.println("TF from Map: " + tf);
+
 			if (tf != null) {
 				TaskIterator ti;
-				if (tf instanceof NetworkTaskFactory) {
-					System.out.println("Got network tf: " + taskName);
-					NetworkTaskFactory ntf = (NetworkTaskFactory) tf;
-					final Long networkSUID = parseSUID(suid);
-					final CyNetwork network = networkManager.getNetwork(networkSUID);
-					ti = ntf.createTaskIterator(network);
-				} else {
-					ti = tf.createTaskIterator();
-				}
+
+				System.out.println("## Got network tf: " + taskName);
+				NetworkTaskFactory ntf = (NetworkTaskFactory) tf;
+				final Long networkSUID = parseSUID(suid);
+				final CyNetwork network = networkManager.getNetwork(networkSUID);
+				ti = ntf.createTaskIterator(network);
 
 				TaskManager tm = new RestTaskManager();
 				tm.execute(ti);
@@ -169,6 +168,24 @@ public class DataService {
 		}
 	}
 
+	@GET
+	@Path("/execute/{taskId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String runStatelessTask(@PathParam("taskId") String taskName) {
+		if (taskName != null) {
+			TaskFactory tf = tfManager.getTaskFactory(taskName);
+			if (tf != null) {
+				TaskIterator ti = tf.createTaskIterator();
+
+				TaskManager tm = new RestTaskManager();
+				tm.execute(ti);
+				System.out.println("Finished Task: " + taskName);
+			}
+			return "OK";
+		} else {
+			return "Could not execute task.";
+		}
+	}
 
 	private final Long parseSUID(final String stringID) {
 		Long networkSUID = null;

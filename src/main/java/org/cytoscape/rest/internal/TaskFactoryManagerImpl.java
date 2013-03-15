@@ -80,6 +80,14 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 			return null;
 	}
 	
+	public NetworkTaskFactory getNetworkTaskFactory(final String id) {
+		Object tf = tfMap.get(id);
+		if (tf instanceof NetworkTaskFactory)
+			return (NetworkTaskFactory) tf;
+		else
+			return null;
+	}
+	
 	public NetworkCollectionTaskFactory getNetworkCollectionTaskFactory(final String id) {
 		Object tf = tfMap.get(id);
 		if (tf instanceof NetworkCollectionTaskFactory)

@@ -12,7 +12,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-public class CyNetwork2CytoscapeJS extends JsonSerializer<CyNetwork> {
+
+/**
+ * Implementation to convert
+ * @author kono
+ *
+ */
+public class CyNetwork2CytoscapejsJson extends JsonSerializer<CyNetwork> {
 
 	@Override
 	public void serialize(CyNetwork network, JsonGenerator jgen, SerializerProvider provider) throws IOException,

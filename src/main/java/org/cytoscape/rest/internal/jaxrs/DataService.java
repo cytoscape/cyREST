@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.jaxrs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -16,9 +18,10 @@ import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.rest.DataMapper;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.datamapper.CyNetwork2CytoscapejsMapper;
 import org.cytoscape.rest.internal.task.RestTaskManager;
-import org.cytoscape.rest.internal.translator.CyNetwork2CytoscapeJSTranslator;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
@@ -31,10 +34,13 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Singleton
-@Path("/")
+@Path("/v1")
 public class DataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(DataService.class);
+		
+	private static final String NETWORKS = "networks";
+	private static final String TABLES = "tables";
 
 	@Context
 	private CyApplicationManager applicationManager;
@@ -49,23 +55,31 @@ public class DataService {
 	private TaskFactoryManager tfManager;
 
 	private final CyNetwork2JSONTranslator network2jsonTranslator;
-	private final CyNetwork2CytoscapeJSTranslator network2jsTranslator;
-
-	// private final JSON2CyNetworkTranslator json2CyNetworkTranslator;
+	
+	private final DataMapper<CyNetwork> cytoscapejs;
 
 	public DataService() {
-		// this.applicationManager = applicationManager;
-		// this.networkManager = networkManager;
-
+		this.cytoscapejs = new CyNetwork2CytoscapejsMapper();
 		network2jsonTranslator = new CyNetwork2JSONTranslator();
-		network2jsTranslator = new CyNetwork2CytoscapeJSTranslator();
-
-		// json2CyNetworkTranslator = new
-		// JSON2CyNetworkTranslator(networkFactory);
+	}
+	
+	private final CyNetwork getNetwork(final String title) {
+		final Set<CyNetwork> networks = networkManager.getNetworkSet();
+		
+		for(final CyNetwork network : networks) {
+			final String networkTitle = network.getRow(network).get(CyNetwork.NAME, String.class);
+			if(networkTitle == null)
+				continue;
+			if(networkTitle.equals(title))
+				return network;
+		}
+		
+		// Not found
+		return null;
 	}
 
 	@GET
-	@Path("/network/{suid}/")
+	@Path("/" + NETWORKS + "/{suid}/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworkBySUID(@PathParam("suid") String suid) {
 		System.out.println("----Get network by SUID: " + suid);
@@ -80,6 +94,19 @@ public class DataService {
 
 		CyNetwork network = networkManager.getNetwork(networkSUID);
 		return network2jsonTranslator.translate(network);
+	}
+	
+	@GET
+	@Path("/" + NETWORKS + "/{title}.json/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkByTitle(@PathParam("title") String title) {
+		System.out.println("----Get network by Title: " + title);
+
+		final CyNetwork network = getNetwork(title);
+		if(network == null)
+			throw new WebApplicationException(404);
+
+		return cytoscapejs.writeAsString(network);
 	}
 
 	@GET
@@ -97,7 +124,7 @@ public class DataService {
 		}
 
 		final CyNetwork network = networkManager.getNetwork(networkSUID);
-		return network2jsTranslator.translate(network);
+		return cytoscapejs.writeAsString(network);
 	}
 
 	@POST

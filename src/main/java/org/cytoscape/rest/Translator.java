@@ -21,4 +21,6 @@ public interface Translator<T, V extends CyIdentifiable> {
 	 * @return Converted graph objects.
 	 */
 	T translate(final V cytoscapeObject);
+	
+	
 }

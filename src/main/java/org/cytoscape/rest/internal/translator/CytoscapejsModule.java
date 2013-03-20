@@ -1,5 +1,10 @@
 package org.cytoscape.rest.internal.translator;
 
+import org.cytoscape.rest.internal.datamapper.JsCyNetworkSerializer;
+import org.cytoscape.rest.internal.datamapper.JsCyNetworkViewSerializer;
+import org.cytoscape.rest.internal.datamapper.JsNodeViewSerializer;
+import org.cytoscape.rest.internal.datamapper.JsRowSerializer;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -9,6 +14,9 @@ public class CytoscapejsModule extends SimpleModule {
 
 	public CytoscapejsModule() {
 		super("CytoscapejsModule", new Version(1, 0, 0, null, null, null));
-		addSerializer(new CyNetwork2CytoscapejsJson());
+		addSerializer(new JsCyNetworkSerializer());
+		addSerializer(new JsRowSerializer());
+		addSerializer(new JsCyNetworkViewSerializer());
+		addSerializer(new JsNodeViewSerializer());
 	}
 }

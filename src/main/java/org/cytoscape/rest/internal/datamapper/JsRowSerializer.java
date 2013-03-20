@@ -13,7 +13,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-public class RowSerializer extends JsonSerializer<CyRow> {
+/**
+ * Serialize row data to cytoscape.js style key-value pair.
+ * 
+ */
+public class JsRowSerializer extends JsonSerializer<CyRow> {
 
 	@Override
 	public void serialize(final CyRow row, JsonGenerator jgen, SerializerProvider provider) throws IOException,
@@ -22,65 +26,52 @@ public class RowSerializer extends JsonSerializer<CyRow> {
 		final CyTable table = row.getTable();
 		final Map<String, Object> values = row.getAllValues();
 
-		for (final String key : values.keySet()) {
-			final Object value = values.get(key);
+		for (final String columnName : values.keySet()) {
+			final Object value = values.get(columnName);
 			if (value == null)
 				continue;
 
-			Class<?> type = table.getColumn(key).getType();
+			Class<?> type = table.getColumn(columnName).getType();
 			if (type == List.class) {
-				type = table.getColumn(key).getListElementType();
-				writeList(type, key, (List<?>) value, jgen);
+				type = table.getColumn(columnName).getListElementType();
+				writeList(type, columnName, (List<?>) value, jgen);
 			} else {
-				write(type, key, value, jgen);
+				jgen.writeFieldName(columnName);
+				writeValue(type, value, jgen);
 			}
 		}
 	}
 
-	private void writeList(final Class<?> type, String fieldName, List<?> values, JsonGenerator jgen)
+	private void writeList(final Class<?> type, String columnName, List<?> values, JsonGenerator jgen)
 			throws JsonGenerationException, IOException {
-
-		jgen.writeFieldName(fieldName);
+		jgen.writeFieldName(columnName);
 		jgen.writeStartArray();
 
 		for (Object value : values)
 			writeValue(type, value, jgen);
-
+		
 		jgen.writeEndArray();
-	}
-
-	private void write(final Class<?> type, String fieldName, Object value, JsonGenerator jgen)
-			throws JsonGenerationException, IOException {
-		jgen.writeFieldName(fieldName);
-		writeValue(type, value, jgen);
 	}
 
 	private final void writeValue(final Class<?> type, Object value, JsonGenerator jgen)
 			throws JsonGenerationException, IOException {
-		jgen.writeStartObject();
 		if (type == String.class) {
-			jgen.writeStringField("type", "string");
-			jgen.writeStringField("value", (String) value);
+			jgen.writeString(value.toString());
 		} else if (type == Boolean.class) {
-			jgen.writeStringField("type", "boolean");
-			jgen.writeBooleanField("value", (Boolean) value);
+			jgen.writeBoolean((Boolean) value);
 		} else if (type == Double.class) {
-			jgen.writeStringField("type", "double");
-			jgen.writeNumberField("value", (Double) value);
+			jgen.writeNumber((Double) value);
 		} else if (type == Integer.class) {
-			jgen.writeStringField("type", "integer");
-			jgen.writeNumberField("value", (Integer) value);
+			jgen.writeNumber((Integer) value);
 		} else if (type == Long.class) {
-			jgen.writeStringField("type", "long");
-			jgen.writeNumberField("value", (Long) value);
+			jgen.writeNumber((Long) value);
 		} else if (type == Float.class) {
-			// Handle float as double.
-			jgen.writeStringField("type", "double");
-			jgen.writeNumberField("value", (Float) value);
+			jgen.writeNumber((Double) value);
 		}
-		jgen.writeEndObject();
 	}
 
+	
+	@Override
 	public Class<CyRow> handledType() {
 		return CyRow.class;
 	}

@@ -21,10 +21,12 @@ import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.rest.DataMapper;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.datamapper.CyNetwork2CytoscapejsMapper;
+import org.cytoscape.rest.internal.datamapper.CyNetworkView2CytoscapejsMapper;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
@@ -57,9 +59,12 @@ public class DataService {
 	private final CyNetwork2JSONTranslator network2jsonTranslator;
 	
 	private final DataMapper<CyNetwork> cytoscapejs;
+	private final DataMapper<CyNetworkView> cytoscapejsView;
 
 	public DataService() {
 		this.cytoscapejs = new CyNetwork2CytoscapejsMapper();
+		this.cytoscapejsView = new CyNetworkView2CytoscapejsMapper();
+		
 		network2jsonTranslator = new CyNetwork2JSONTranslator();
 	}
 	
@@ -107,6 +112,19 @@ public class DataService {
 			throw new WebApplicationException(404);
 
 		return cytoscapejs.writeAsString(network);
+	}
+	
+	@GET
+	@Path("/" + NETWORKS + "/views/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCurrentNetworkView() {
+		final CyNetworkView curView = applicationManager.getCurrentNetworkView();
+		System.out.println("----Get current network VIEW");
+		
+		if(curView == null)
+			throw new WebApplicationException(404);
+
+		return cytoscapejsView.writeAsString(curView);
 	}
 
 	@GET

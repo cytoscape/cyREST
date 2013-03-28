@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -37,12 +39,17 @@ import com.sun.jersey.spi.resource.Singleton;
 
 @Singleton
 @Path("/v1")
+// API version
 public class DataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(DataService.class);
-		
+
+	// Preset types
+	private static final String JSON = "json";
+
 	private static final String NETWORKS = "networks";
-	private static final String TABLES = "tables";
+
+	// /////////////// Inject Dependencies ///////////////////////
 
 	@Context
 	private CyApplicationManager applicationManager;
@@ -57,99 +64,106 @@ public class DataService {
 	private TaskFactoryManager tfManager;
 
 	private final CyNetwork2JSONTranslator network2jsonTranslator;
-	
 	private final DataMapper<CyNetwork> cytoscapejs;
 	private final DataMapper<CyNetworkView> cytoscapejsView;
 
 	public DataService() {
 		this.cytoscapejs = new CyNetwork2CytoscapejsMapper();
 		this.cytoscapejsView = new CyNetworkView2CytoscapejsMapper();
-		
-		network2jsonTranslator = new CyNetwork2JSONTranslator();
+
+		this.network2jsonTranslator = new CyNetwork2JSONTranslator();
 	}
-	
-	private final CyNetwork getNetwork(final String title) {
-		final Set<CyNetwork> networks = networkManager.getNetworkSet();
-		
-		for(final CyNetwork network : networks) {
-			final String networkTitle = network.getRow(network).get(CyNetwork.NAME, String.class);
-			if(networkTitle == null)
-				continue;
-			if(networkTitle.equals(title))
-				return network;
-		}
-		
-		// Not found
-		return null;
+
+	/**
+	 * GET method for CyNetwork.
+	 * 
+	 * @param id
+	 *            - title or
+	 * @param fileFormat
+	 * @return
+	 */
+	@GET
+	@Path("/" + NETWORKS + "/{id}/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkByTitle(@PathParam("id") String id,
+			@DefaultValue("title") @QueryParam("idtype") String idType,
+			@DefaultValue(JSON) @QueryParam("format") String format) {
+		System.out.println("----Get network by id (SUID or title): " + id + ", format = " + format);
+		return cytoscapejs.writeAsString(findNetwork(idType, id));
+	}
+
+	/**
+	 * GET method for CyNetwork.
+	 * 
+	 * @param id
+	 *            - title or
+	 * @param fileFormat
+	 * @return
+	 */
+	@GET
+	@Path("/" + NETWORKS + "/{id}.json/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkAsJson(@PathParam("id") String id,
+			@DefaultValue("title") @QueryParam("idtype") String idType) {
+		return cytoscapejs.writeAsString(findNetwork(idType, id));
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{suid}/")
+	@Path("/" + NETWORKS + "/{id}.cyjson/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkBySUID(@PathParam("suid") String suid) {
-		System.out.println("----Get network by SUID: " + suid);
+	public String getNetworkAsCyjson(@PathParam("id") String id,
+			@DefaultValue("title") @QueryParam("idtype") String idType) {
+		return network2jsonTranslator.translate(findNetwork(idType, id));
+	}
 
-		Long networkSUID = null;
-		try {
-			networkSUID = Long.parseLong(suid);
-		} catch (NumberFormatException ex) {
-			logger.warn("Invalid SUID: " + suid, ex);
-			return "";
+	private CyNetwork findNetwork(final String idType, final String id) {
+		final CyNetwork network;
+		if (idType.equals("suid")) {
+			try {
+				final Long suid = Long.parseLong(id);
+				network = networkManager.getNetwork(suid);
+			} catch (NumberFormatException nfe) {
+				throw new WebApplicationException(400);
+			}
+
+		} else if (idType.equals("title")) {
+			network = getNetwork(id);
+		} else {
+			throw new WebApplicationException(400);
 		}
 
-		CyNetwork network = networkManager.getNetwork(networkSUID);
-		return network2jsonTranslator.translate(network);
-	}
-	
-	@GET
-	@Path("/" + NETWORKS + "/{title}.json/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkByTitle(@PathParam("title") String title) {
-		System.out.println("----Get network by Title: " + title);
-
-		final CyNetwork network = getNetwork(title);
-		if(network == null)
+		// Could not find network by the identifier.
+		if (network == null)
 			throw new WebApplicationException(404);
 
-		return cytoscapejs.writeAsString(network);
+		return network;
 	}
-	
+
 	@GET
 	@Path("/" + NETWORKS + "/views/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getCurrentNetworkView() {
 		final CyNetworkView curView = applicationManager.getCurrentNetworkView();
 		System.out.println("----Get current network VIEW");
-		
-		if(curView == null)
+
+		if (curView == null)
 			throw new WebApplicationException(404);
 
 		return cytoscapejsView.writeAsString(curView);
 	}
 
-	@GET
-	@Path("/network/js/{suid}/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetwork4js(@PathParam("suid") String suid) {
-		System.out.println("----Get network by SUID for js: " + suid);
-
-		Long networkSUID = null;
-		try {
-			networkSUID = Long.parseLong(suid);
-		} catch (NumberFormatException ex) {
-			logger.warn("Invalid SUID: " + suid, ex);
-			return "";
-		}
-
-		final CyNetwork network = networkManager.getNetwork(networkSUID);
-		return cytoscapejs.writeAsString(network);
-	}
-
+	/**
+	 * Create network by POST
+	 * 
+	 * @param json
+	 * @param name
+	 * @return
+	 */
 	@POST
-	@Path("/create/network/{name}/")
+	@Path("/networks/{title}/")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces(MediaType.APPLICATION_JSON)
-	public String postCustomer(String json, @PathParam("name") String name) {
+	public String postCustomer(String json, @PathParam("title") String name) {
 
 		final CyNetwork network = networkFactory.createNetwork();
 		network.getRow(network).set(CyNetwork.NAME, name);
@@ -242,5 +256,20 @@ public class DataService {
 		}
 
 		return networkSUID;
+	}
+
+	private final CyNetwork getNetwork(final String title) {
+		final Set<CyNetwork> networks = networkManager.getNetworkSet();
+
+		for (final CyNetwork network : networks) {
+			final String networkTitle = network.getRow(network).get(CyNetwork.NAME, String.class);
+			if (networkTitle == null)
+				continue;
+			if (networkTitle.equals(title))
+				return network;
+		}
+
+		// Not found
+		return null;
 	}
 }

@@ -10,6 +10,11 @@ import java.util.Properties;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.io.BasicCyFileFilter;
+import org.cytoscape.io.DataCategory;
+import org.cytoscape.io.internal.write.json.JSONNetworkWriterFactory;
+import org.cytoscape.io.internal.write.json.JSONVisualStyleWriterFactory;
+import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
@@ -20,6 +25,8 @@ import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
 import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import org.cytoscape.rest.internal.net.server.CytoscapeGetResponder;
 import org.cytoscape.rest.internal.task.StartGrizzlyServerTaskFactory;
+import org.cytoscape.rest.internal.translator.CyJacksonModule;
+import org.cytoscape.rest.internal.translator.CytoscapejsModule;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
@@ -32,6 +39,8 @@ import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskManager;
 import org.osgi.framework.BundleContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class CyActivator extends AbstractCyActivator {
 	public CyActivator() {
 		super();
@@ -40,6 +49,7 @@ public class CyActivator extends AbstractCyActivator {
 	public void start(BundleContext bc) {
 
 		// Importing Services:
+		StreamUtil streamUtil = getService(bc, StreamUtil.class);
 		CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
 		CyNetworkManager netMan = getService(bc, CyNetworkManager.class);
 		CyNetworkViewFactory netViewFact = getService(bc, CyNetworkViewFactory.class);
@@ -117,6 +127,37 @@ public class CyActivator extends AbstractCyActivator {
 		startGrizzlyServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
 		startGrizzlyServerTaskFactoryProps.setProperty(TITLE, "Start REST Server");
 		registerService(bc, startGrizzlyServerTaskFactory, TaskFactory.class, startGrizzlyServerTaskFactoryProps);
+
+		// ///////////////// Writers ////////////////////////////
+		final ObjectMapper jsMapper = new ObjectMapper();
+		jsMapper.registerModule(new CytoscapejsModule());
+
+		final ObjectMapper graphsonMapper = new ObjectMapper();
+		graphsonMapper.registerModule(new CytoscapejsModule());
+
+		final ObjectMapper fullJsonMapper = new ObjectMapper();
+		fullJsonMapper.registerModule(new CyJacksonModule());
+
+		final BasicCyFileFilter cytoscapejsFilter = new BasicCyFileFilter(new String[] { "json" },
+				new String[] { "application/json" }, "cytoscape.js JSON files", DataCategory.NETWORK, streamUtil);
+		final BasicCyFileFilter fullJsonFilter = new BasicCyFileFilter(new String[] { "json" },
+				new String[] { "application/json" }, "Cytoscape JSON files", DataCategory.NETWORK, streamUtil);
+
+		final BasicCyFileFilter vizmapJsonFilter = new BasicCyFileFilter(new String[] { "json" },
+				new String[] { "application/json" }, "cytoscape.js Visual Style JSON files", DataCategory.VIZMAP,
+				streamUtil);
+
+		final JSONNetworkWriterFactory jsonWriterFactory = new JSONNetworkWriterFactory(cytoscapejsFilter, jsMapper);
+		registerAllServices(bc, jsonWriterFactory, new Properties());
+
+		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
+				jsMapper);
+		registerAllServices(bc, jsonVSWriterFactory, new Properties());
+
+		// final JSONNetworkWriterFactory cytoscapeJsonWriterFactory = new
+		// JSONNetworkWriterFactory(fullJsonFilter, fullJsonMapper);
+		// registerAllServices(bc, cytoscapeJsonWriterFactory, new
+		// Properties());
 
 	}
 }

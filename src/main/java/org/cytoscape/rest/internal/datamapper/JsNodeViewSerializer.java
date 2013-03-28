@@ -18,8 +18,8 @@ public class JsNodeViewSerializer extends JsonSerializer<View<CyNode>> {
 	public void serialize(View<CyNode> value, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 			JsonProcessingException {
 		
-		Double x = value.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-		Double y = value.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
+		final Double x = value.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
+		final Double y = value.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
 		
 		jgen.writeObjectFieldStart("position");
 		jgen.writeNumberField("x", x);
@@ -31,5 +31,4 @@ public class JsNodeViewSerializer extends JsonSerializer<View<CyNode>> {
 	public Class<View<CyNode>> handledType() {
 		return (Class<View<CyNode>>) (Class) View.class;
 	}
-
 }

@@ -7,12 +7,12 @@
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 
 		<!-- Cytoscape Module Versions: This should be release version -->
-		<cytoscape.api.version>3.0.0</cytoscape.api.version>
+		<cytoscape.api.version>[3.0.0,3.0.10)</cytoscape.api.version>
 
-		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
-		<maven-bundle-plugin.version>2.3.4</maven-bundle-plugin.version>
+		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+		<maven-bundle-plugin.version>2.3.7</maven-bundle-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
-		<junit.version>4.10</junit.version>
+		<junit.version>4.11</junit.version>
 	</properties>
 
 	<groupId>org.cytoscape.rest.internal</groupId>
@@ -20,7 +20,7 @@
 	<packaging>bundle</packaging>
 	<name>${bundle.symbolicName}</name>
 
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 
 	<repositories>
 		<repository>
@@ -82,7 +82,7 @@
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${project.version}"</Export-Package>
-						<Private-Package>${bundle.namespace}.internal.*</Private-Package>
+						<Private-Package>org.cytoscape.io.internal.*,${bundle.namespace}.internal.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -98,6 +98,12 @@
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>io-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -225,7 +231,5 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
-
 </project>

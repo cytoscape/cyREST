@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.translator.CyJsonToken;
 import org.cytoscape.view.model.CyNetworkView;
@@ -16,8 +17,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class JsCyNetworkViewSerializer extends JsonSerializer<CyNetworkView> {
 
 	@Override
-	public void serialize(CyNetworkView networkView, JsonGenerator jgen, SerializerProvider provider) throws IOException,
-			JsonProcessingException {
+	public void serialize(CyNetworkView networkView, JsonGenerator jgen, SerializerProvider provider)
+			throws IOException, JsonProcessingException {
 		jgen.useDefaultPrettyPrinter();
 
 		jgen.writeStartObject();
@@ -26,6 +27,8 @@ public class JsCyNetworkViewSerializer extends JsonSerializer<CyNetworkView> {
 		// Write array
 		final List<CyNode> nodes = networkView.getModel().getNodeList();
 		final List<CyEdge> edges = networkView.getModel().getEdgeList();
+
+		final CyNetwork network = networkView.getModel();
 
 		jgen.writeArrayFieldStart(CyJsonToken.NODES.getName());
 		for (final CyNode node : nodes) {
@@ -37,9 +40,13 @@ public class JsCyNetworkViewSerializer extends JsonSerializer<CyNetworkView> {
 			// Write CyRow in "data" field
 			jgen.writeObject(networkView.getModel().getRow(node));
 			jgen.writeEndObject();
-			
+
 			// Position and other visual props
 			jgen.writeObject(networkView.getNodeView(node));
+
+			// Special case for cytoscape.js format:
+			// - Selected
+			jgen.writeBooleanField(CyNetwork.SELECTED, network.getRow(node).get(CyNetwork.SELECTED, Boolean.class));
 
 			jgen.writeEndObject();
 		}
@@ -58,6 +65,10 @@ public class JsCyNetworkViewSerializer extends JsonSerializer<CyNetworkView> {
 			jgen.writeObject(networkView.getModel().getRow(edge));
 
 			jgen.writeEndObject();
+
+			// Special case for cytoscape.js format:
+			// - Selected
+			jgen.writeBooleanField(CyNetwork.SELECTED, network.getRow(edge).get(CyNetwork.SELECTED, Boolean.class));
 
 			jgen.writeEndObject();
 

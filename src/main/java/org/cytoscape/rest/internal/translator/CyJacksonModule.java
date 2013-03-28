@@ -59,7 +59,7 @@ public class CyJacksonModule extends SimpleModule {
 		public void serialize(CyNetwork network, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 				JsonProcessingException {
 			
-			jgen.useDefaultPrettyPrinter();
+
 
 			jgen.writeStartObject();
 			jgen.writeObjectFieldStart(CyJsonToken.NETWORK.getName());

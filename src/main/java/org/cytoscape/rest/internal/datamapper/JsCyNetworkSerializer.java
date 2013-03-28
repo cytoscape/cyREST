@@ -40,6 +40,7 @@ public class JsCyNetworkSerializer extends JsonSerializer<CyNetwork> {
 			// Data field
 			jgen.writeObjectFieldStart(CyJsonToken.DATA.getName());
 			jgen.writeStringField(CyJsonToken.ID.getName(), node.getSUID().toString());
+			
 			// Write CyRow in "data" field
 			jgen.writeObject(network.getRow(node));
 			jgen.writeEndObject();

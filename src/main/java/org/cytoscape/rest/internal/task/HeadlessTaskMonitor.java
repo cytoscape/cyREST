@@ -37,4 +37,11 @@ public class HeadlessTaskMonitor implements TaskMonitor {
 		int prog = (int) Math.floor(progress * 100);
 		logger.info(taskName + " % completed: " + prog);
 	}
+
+
+	@Override
+	public void showMessage(Level level, String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

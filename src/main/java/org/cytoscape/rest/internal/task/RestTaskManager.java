@@ -5,6 +5,7 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.TaskObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,12 @@ public class RestTaskManager extends AbstractTaskManager {
 				logger.error("Could not finish task.", e);
 			}
 		}
+		
+	}
+
+	@Override
+	public void execute(TaskIterator iterator, TaskObserver observer) {
+		// TODO Auto-generated method stub
 		
 	}
 

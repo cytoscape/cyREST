@@ -13,13 +13,9 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
-import com.sun.jersey.api.core.PackagesResourceConfig;
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.jersey.spi.inject.SingletonTypeInjectableProvider;
 
 /**
  * Task to start Grizzly server.
@@ -58,7 +54,7 @@ public final class StartGrizzlyServerTask extends AbstractTask {
 	}
 
 	private final HttpServer startServer(final URI baseURI) throws IOException {
-		ResourceConfig rc = new PackagesResourceConfig("org.cytoscape.rest.internal.jaxrs");
+		ResourceConfig rc = new ResourceConfig(DataService.class);
 
 		rc.getSingletons().add(
 				new SingletonTypeInjectableProvider<Context, CyNetworkManager>(CyNetworkManager.class, networkManager) {

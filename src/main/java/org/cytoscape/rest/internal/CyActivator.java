@@ -8,7 +8,6 @@ import static org.cytoscape.work.ServiceProperties.TITLE;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.io.BasicCyFileFilter;
 import org.cytoscape.io.DataCategory;
@@ -21,9 +20,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
-import org.cytoscape.rest.internal.net.server.CytoBridgeGetResponder;
-import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
-import org.cytoscape.rest.internal.net.server.CytoscapeGetResponder;
+import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.StartGrizzlyServerTaskFactory;
 import org.cytoscape.rest.internal.translator.CyJacksonModule;
 import org.cytoscape.rest.internal.translator.CytoscapejsModule;
@@ -62,45 +59,15 @@ public class CyActivator extends AbstractCyActivator {
 
 		CyLayoutAlgorithmManager layMan = getService(bc, CyLayoutAlgorithmManager.class);
 
-		// Create instance of NetworkManager with the factories/managers
-		NetworkManager myManager = new NetworkManager(netFact, netViewFact, netMan, netViewMan, tabFact, tabMan);
-
 		TaskManager tm = getService(bc, TaskManager.class);
-		CyProperty cyPropertyServiceRef = getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
 
 		NodeViewListener listen = new NodeViewListener(visMan, layMan, tm, cyPropertyServiceRef);
 		registerService(bc, listen, AddedNodeViewsListener.class, new Properties());
 
-		final CytoBridgeGetResponder cytoGetResp = new CytoBridgeGetResponder(myManager);
-		final CytoBridgePostResponder cytoPostResp = new CytoBridgePostResponder(myManager);
-
-		final CytoscapeGetResponder cytoscapeGetResp = new CytoscapeGetResponder(netMan);
-
 		CySwingApplication swingApp = getService(bc, CySwingApplication.class);
-		final CytoBridgeAction cytoBridgeAction = new CytoBridgeAction(swingApp, myManager);
-
-		registerService(bc, cytoBridgeAction, CyAction.class, new Properties());
-		myManager.setListener(cytoBridgeAction);
-
-		// Thread serverThread = new Thread() {
-		// private LocalHttpServer server;
-		//
-		// @Override
-		// public void run() {
-		// server = new LocalHttpServer(2609,
-		// Executors.newSingleThreadExecutor());
-		// server.addPostResponder(cytoPostResp);
-		// server.addGetResponder(cytoGetResp);
-		// server.addGetResponder(cytoscapeGetResp);
-		// server.run();
-		// }
-		// };
-		// serverThread.setDaemon(true);
-		// Executors.newSingleThreadExecutor().execute(serverThread);
-
-		// final DataService dataService = new DataService(applicationManager,
-		// netFact, netMan);
-
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 		// Get all compatible tasks
 		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
@@ -109,19 +76,9 @@ public class CyActivator extends AbstractCyActivator {
 		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",
 				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
-		// // Add task to run
-		// final StartHttpServerTaskFactory startHttpServerTaskFactory = new
-		// StartHttpServerTaskFactory(bc,
-		// applicationManager, netFact, netMan, commandManager);
-		// final Properties startHttpServerTaskFactoryProps = new Properties();
-		// startHttpServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
-		// startHttpServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
-		// startHttpServerTaskFactoryProps.setProperty(TITLE, "Start Server");
-		// registerService(bc, startHttpServerTaskFactory, TaskFactory.class,
-		// startHttpServerTaskFactoryProps);
-
-		final StartGrizzlyServerTaskFactory startGrizzlyServerTaskFactory = new StartGrizzlyServerTaskFactory(netMan,
-				netFact, taskFactoryManagerManager, applicationManager);
+	
+		final CyBinder binder = new CyBinder(netMan, netFact, taskFactoryManagerManager, applicationManager);
+		final StartGrizzlyServerTaskFactory startGrizzlyServerTaskFactory = new StartGrizzlyServerTaskFactory(binder);
 		final Properties startGrizzlyServerTaskFactoryProps = new Properties();
 		startGrizzlyServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
 		startGrizzlyServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
@@ -153,11 +110,5 @@ public class CyActivator extends AbstractCyActivator {
 		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
 				jsMapper);
 		registerAllServices(bc, jsonVSWriterFactory, new Properties());
-
-		// final JSONNetworkWriterFactory cytoscapeJsonWriterFactory = new
-		// JSONNetworkWriterFactory(fullJsonFilter, fullJsonMapper);
-		// registerAllServices(bc, cytoscapeJsonWriterFactory, new
-		// Properties());
-
 	}
 }

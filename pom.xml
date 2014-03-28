@@ -3,37 +3,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<bundle.symbolicName>CytoBridgeRest</bundle.symbolicName>
+		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 
 		<cytoscape.api.version>3.1.0</cytoscape.api.version>
+
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-		<maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.11</junit.version>
 
-		<jersey.version>2.7</jersey.version>
+		<jersey.version>2.6</jersey.version>
 	</properties>
 
-	<groupId>org.cytoscape.rest.internal</groupId>
-	<artifactId>CytoBridgeRest</artifactId>
+	<groupId>org.cytoscape</groupId>
+	<artifactId>cy-rest</artifactId>
 	<packaging>bundle</packaging>
 	<name>${bundle.symbolicName}</name>
 
 	<version>0.1.0-SNAPSHOT</version>
 
 	<repositories>
-		<repository>
-			<id>cytoscape_snapshots</id>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<name>Cytoscape Snapshots</name>
-			<url>http://code.cytoscape.org/nexus/content/repositories/snapshots/</url>
-		</repository>
 		<repository>
 			<id>cytoscape_releases</id>
 			<snapshots>
@@ -49,8 +38,8 @@
 
 	<!-- SCM Information. Currently hosted at GitHub. -->
 	<scm>
-		<connection>scm:git:git@github.com:idekerlab/cyto-bridge.git</connection>
-		<developerConnection>scm:git:git@github.com:idekerlab/cyto-bridge.git</developerConnection>
+		<connection>scm:https://github.com/keiono/cy-rest.git</connection>
+		<developerConnection>scm:git@github.com:keiono/cy-rest.git</developerConnection>
 	</scm>
 
 	<build>
@@ -75,7 +64,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${maven-bundle-plugin.version}</version>
+				<version>2.3.7</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
@@ -93,6 +82,17 @@
 		</plugins>
 	</build>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.glassfish.jersey</groupId>
+				<artifactId>jersey-bom</artifactId>
+				<version>${jersey.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<!-- Cytoscape 3 Dependencies -->
 		<dependency>
@@ -173,27 +173,15 @@
 
 		<!-- Jersey -->
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
-			<version>${jersey.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-grizzly2-http</artifactId>
-			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.jersey.media</groupId>
-			<artifactId>jersey-media-json-jackson</artifactId>
-			<version>${jersey.version}</version>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-jetty-http</artifactId>
 		</dependency>
+
+
 
 
 		<dependency>

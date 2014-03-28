@@ -3,16 +3,16 @@ package org.cytoscape.rest.internal.task;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriBuilder;
 
-import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.model.CyNetworkFactory;
-import org.cytoscape.model.CyNetworkManager;
-import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.jaxrs.DataService;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
+import org.eclipse.jetty.server.Server;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,50 +25,33 @@ public final class StartGrizzlyServerTask extends AbstractTask {
 
 	private final static Logger logger = LoggerFactory.getLogger(StartGrizzlyServerTask.class);
 
-	// Server settings TODO make these Cytoscape property
 	private String baseURL = "http://localhost/";
-	private int port = 9988;
+	private int port = 1234;
 
-	private String resourceLocation = "org.cytoscape.rest.internal.jaxrs";
+	private final Binder binder;
 
-	private final CyNetworkManager networkManager;
-	private final CyNetworkFactory networkFactory;
-	private final TaskFactoryManager tfManager;
-	private final CyApplicationManager applicationManager;
-
-	public StartGrizzlyServerTask(CyNetworkManager networkManager, final CyNetworkFactory networkFactory,
-			final TaskFactoryManager tfManager, final CyApplicationManager applicationManager) {
-		this.networkManager = networkManager;
-		this.networkFactory = networkFactory;
-		this.tfManager = tfManager;
-		this.applicationManager = applicationManager;
+	public StartGrizzlyServerTask(final Binder binder) {
+		this.binder = binder;
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setStatusMessage("Starting REST server (Port " + port + ")...");
 		final URI baseURI = UriBuilder.fromUri(baseURL).port(port).build();
-		final HttpServer httpServer = startServer(baseURI);
-		logger.info(String.format("REST service started with WADL available at " + "%sapplication.wadl\nTry out %s%s",
-				baseURI, baseURI, resourceLocation));
+		taskMonitor.setStatusMessage("URL = " + baseURI.toURL());
+		
+		ResourceConfig config = new ResourceConfig(DataService.class);
+//	    HttpServer server = GrizzlyHttpServerFactory.createHttpServer(baseURI, config, true);
+	    Server server = JettyHttpContainerFactory.createServer(baseURI, config);
+//		final HttpServer httpServer = startServer(baseURI);
+		logger.info("#######################################3");
+		taskMonitor.setStatusMessage("DONE!");
 	}
 
 	private final HttpServer startServer(final URI baseURI) throws IOException {
-		ResourceConfig rc = new ResourceConfig(DataService.class);
-
-		rc.getSingletons().add(
-				new SingletonTypeInjectableProvider<Context, CyNetworkManager>(CyNetworkManager.class, networkManager) {
-				});
-		rc.getSingletons().add(
-				new SingletonTypeInjectableProvider<Context, CyNetworkFactory>(CyNetworkFactory.class, networkFactory) {
-				});
-		rc.getSingletons().add(
-				new SingletonTypeInjectableProvider<Context, TaskFactoryManager>(TaskFactoryManager.class, tfManager) {
-				});
-		rc.getSingletons().add(
-				new SingletonTypeInjectableProvider<Context, CyApplicationManager>(CyApplicationManager.class, applicationManager) {
-				});
-
-		return GrizzlyServerFactory.createHttpServer(baseURI, rc);
+//		final ResourceConfig rc = new ResourceConfig(DataService.class);
+//		rc.registerInstances(binder);
+		
+		return GrizzlyHttpServerFactory.createHttpServer(baseURI);
 	}
 }

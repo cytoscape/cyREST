@@ -1,8 +1,8 @@
-cyto-bridge
+cy-rest
 ===========
 
 # Introduction
-Plugin to transfer data between Cytoscape and R, MATLAB, and other tools.
+This is an App for Cytoscape 3.1.0 to provide full programmatic access from R, Python, MATLAB, and other tools via RESTful API.
 
 ## How to Use
 

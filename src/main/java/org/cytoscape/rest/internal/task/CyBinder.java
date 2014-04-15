@@ -28,5 +28,4 @@ public class CyBinder extends AbstractBinder {
 		bind(tfManager).to(TaskFactoryManager.class);
 		bind(applicationManager).to(CyApplicationManager.class);
 	}
-
 }

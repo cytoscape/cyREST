@@ -7,11 +7,9 @@
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 
 		<cytoscape.api.version>3.1.0</cytoscape.api.version>
-
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.11</junit.version>
-
 		<jersey.version>2.6</jersey.version>
 	</properties>
 
@@ -64,7 +62,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
+				<version>2.4.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
@@ -177,12 +175,9 @@
 			<artifactId>jersey-container-grizzly2-http</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-jetty-http</artifactId>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
 		</dependency>
-
-
-
 
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>

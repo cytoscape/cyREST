@@ -73,6 +73,26 @@ public class DataService {
 		this.network2jsonTranslator = new CyNetwork2JSONTranslator();
 	}
 
+	@GET
+	@Path("/version")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCytoscapeVersion() {
+		
+		// TODO: use CyVersion service here.
+		System.out.println("CyVersion:");
+		return "{\"version\": \"3.1.0\"}";
+	}
+
+	@GET
+	@Path("/" + NETWORKS)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworks(
+			@DefaultValue("title") @QueryParam("idtype") String idType,
+			@DefaultValue(JSON) @QueryParam("format") String format) {
+		System.out.println("----Get network by id (SUID or title)");
+		return "OK";
+	}
+	
 	/**
 	 * GET method for CyNetwork.
 	 * 
@@ -87,8 +107,11 @@ public class DataService {
 	public String getNetworkByTitle(@PathParam("id") String id,
 			@DefaultValue("title") @QueryParam("idtype") String idType,
 			@DefaultValue(JSON) @QueryParam("format") String format) {
+		
 		System.out.println("----Get network by id (SUID or title): " + id + ", format = " + format);
-		return cytoscapejs.writeAsString(findNetwork(idType, id));
+		final String res = cytoscapejs.writeAsString(findNetwork(idType, id));
+		System.out.println("Got JSON = " + res);
+		return res;
 	}
 
 	/**

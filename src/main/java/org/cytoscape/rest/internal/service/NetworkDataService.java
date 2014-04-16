@@ -3,7 +3,6 @@ package org.cytoscape.rest.internal.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.CyNetworkReader;
@@ -30,6 +28,8 @@ import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.DataMapper;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.datamapper.CyNetworkView2CytoscapejsMapper;
@@ -38,6 +38,10 @@ import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
@@ -56,6 +60,7 @@ public class NetworkDataService {
 
 	// Preset types
 	private static final String JSON = "json";
+	private static final String DEF_COLLECTION_PREFIX= "Posted: ";
 	private static final String NETWORKS = "networks";
 
 	// /////////////// Inject Dependencies ///////////////////////
@@ -67,13 +72,19 @@ public class NetworkDataService {
 	private CyNetworkManager networkManager;
 
 	@Context
+	private CyNetworkViewManager networkViewManager;
+	
+	@Context
 	private CyNetworkFactory networkFactory;
 
 	@Context
 	private TaskFactoryManager tfManager;
-	
+
 	@Context
 	private InputStreamTaskFactory cytoscapeJsReaderFactory;
+	
+	@Context
+	private VisualMappingManager vmm;
 
 	@Context
 	private CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
@@ -94,7 +105,7 @@ public class NetworkDataService {
 		// Extract number of networks in current session
 		final int count = networkManager.getNetworkSet().size();
 		final JsonFactory factory = new JsonFactory();
-		
+
 		String result = null;
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		JsonGenerator generator = null;
@@ -112,7 +123,7 @@ public class NetworkDataService {
 			logger.error("Could not create stream.", e);
 			throw new WebApplicationException(500);
 		}
-		
+
 		return result;
 	}
 
@@ -123,17 +134,17 @@ public class NetworkDataService {
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
 		StringBuilder result = new StringBuilder();
 		result.append("[");
-		
-		for(final CyNetwork network: networks) {
+
+		for (final CyNetwork network : networks) {
 			result.append(getNetworkString(network));
 			result.append(",");
 		}
 		String jsonString = result.toString();
-		jsonString = jsonString.substring(0, jsonString.length()-1);
-		
+		jsonString = jsonString.substring(0, jsonString.length() - 1);
+
 		return jsonString + "]";
 	}
-	
+
 	/**
 	 * GET method for CyNetwork.
 	 * 
@@ -146,29 +157,46 @@ public class NetworkDataService {
 	@Path("/" + NETWORKS + "/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetwork(@PathParam("id") String id) {
-		
 		final CyNetwork network = findNetwork("suid", id);
+		if(network == null) {
+			throw new WebApplicationException(404);
+		}
+		
 		return getNetworkString(network);
 	}
-	
+
+	/**
+	 * Create network from Cytoscape.js style JSON.
+	 * 
+	 * @param collection Name of network collection.
+	 * @param is
+	 * @throws Exception
+	 */
 	@POST
 	@Path("/" + NETWORKS)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createNetwork(final String text) {
-		System.out.println("###Val = " + text);
-		
-//		TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
-//		try {
-//			CyNetworkReader reader = (CyNetworkReader) it.next();
-//
-//			reader.run(null);
-//			
-//			System.out.println("###read2 = " + reader.getNetworks()[0]);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public void createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection, 
+			final InputStream is) throws Exception {
+			final TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+			final CyNetworkReader reader = (CyNetworkReader) it.next();
+			
+			if(collection.equals(DEF_COLLECTION_PREFIX)) {
+				
+			}
+			
+			final String collectionName = collection;
+			System.out.println("Colleciton = " + collection);
+			reader.run(null);
+			
+			CyNetwork[] networks = reader.getNetworks();
+			CyNetwork newNetwork = networks[0];
+			System.out.println("###LEN = " + networks.length);
+			System.out.println("###read5 edges = " + newNetwork.getEdgeCount());
+			System.out.println("###read5 nodes = " + newNetwork.getNodeCount());
+			addNetwork(networks, reader, collectionName);
+			is.close();
 	}
+
 	private final String getNetworkString(final CyNetwork network) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
@@ -182,7 +210,72 @@ public class NetworkDataService {
 		}
 		return jsonString;
 	}
+	
+	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName) {
+		final VisualStyle style = vmm.getCurrentVisualStyle();
+		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
+		
+		for (final CyNetwork network : networks) {
+			String networkName = network.getRow(network).get(CyNetwork.NAME, String.class);
+			if (networkName == null || networkName.trim().length() == 0) {
+				if (networkName == null)
+					networkName = "? (Name is missing)";
+				
+				network.getRow(network).set(CyNetwork.NAME, networkName);
+			}
+			networkManager.addNetwork(network);
 
+			final int numGraphObjects = network.getNodeCount() + network.getEdgeCount();
+			int viewThreshold = 10000;
+			if (numGraphObjects < viewThreshold ) {
+				final CyNetworkView view = reader.buildCyNetworkView(network);
+				networkViewManager.addNetworkView(view);
+				vmm.setVisualStyle(style, view);
+				style.apply(view);
+				
+				if (!view.isSet(BasicVisualLexicon.NETWORK_CENTER_X_LOCATION)
+						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Y_LOCATION)
+						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Z_LOCATION))
+					view.fitContent();
+				results.add(view);
+			} else {
+				//results.add(nullNetworkViewFactory.createNetworkView(network));
+			}
+		}
+
+		// If this is a subnetwork, and there is only one subnetwork in the root, check the name of the root network
+		// If there is no name yet for the root network, set it the same as its base subnetwork
+		if (networks.length == 1){
+			System.out.println("####### root: " + collectionName);
+			if (networks[0] instanceof CySubNetwork){
+				CySubNetwork subnet = (CySubNetwork) networks[0];
+				final CyRootNetwork rootNet = subnet.getRootNetwork();
+				String rootNetName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
+					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+//				if (rootNetName == null || rootNetName.trim().length() == 0){
+//					// The root network does not have a name yet, set it the same as the base subnetwork
+//					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+//				}
+			}
+		}
+		
+//		// Make sure rootNetwork has a name
+//		for (CyNetwork network : networks) {
+//			if (network instanceof CySubNetwork){
+//				CySubNetwork subNet = (CySubNetwork) network;
+//				CyRootNetwork rootNet = subNet.getRootNetwork();
+//
+//				String networkName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
+//				if(networkName == null || networkName.trim().length() == 0) {
+//					networkName = name;
+//					if(networkName == null)
+//						networkName = "? (Name is missing)";
+//					
+//					rootNet.getRow(rootNet).set(CyNetwork.NAME, namingUtil.getSuggestedNetworkTitle(networkName));
+//				}
+//			}			
+//		}
+	}
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}.cyjson/")

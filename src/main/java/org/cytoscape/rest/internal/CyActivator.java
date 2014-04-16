@@ -1,10 +1,6 @@
 package org.cytoscape.rest.internal;
 
 //import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
-import static org.cytoscape.work.ServiceProperties.MENU_GRAVITY;
-import static org.cytoscape.work.ServiceProperties.PREFERRED_MENU;
-import static org.cytoscape.work.ServiceProperties.TITLE;
-
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
@@ -13,7 +9,9 @@ import org.cytoscape.io.BasicCyFileFilter;
 import org.cytoscape.io.DataCategory;
 import org.cytoscape.io.internal.write.json.JSONNetworkWriterFactory;
 import org.cytoscape.io.internal.write.json.JSONVisualStyleWriterFactory;
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
+import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
@@ -21,7 +19,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.task.CyBinder;
-import org.cytoscape.rest.internal.task.StartGrizzlyServerTaskFactory;
+import org.cytoscape.rest.internal.task.GrizzlyServerManager;
 import org.cytoscape.rest.internal.translator.CyJacksonModule;
 import org.cytoscape.rest.internal.translator.CytoscapejsModule;
 import org.cytoscape.service.util.AbstractCyActivator;
@@ -35,10 +33,17 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskManager;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CyActivator extends AbstractCyActivator {
+
+	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
+	
+	private GrizzlyServerManager grizzlyServerManager = null; 
+	
 	public CyActivator() {
 		super();
 	}
@@ -58,7 +63,17 @@ public class CyActivator extends AbstractCyActivator {
 		CyTableManager tabMan = getService(bc, CyTableManager.class);
 
 		CyLayoutAlgorithmManager layMan = getService(bc, CyLayoutAlgorithmManager.class);
+		
+		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = 
+				getService(bc, CyNetworkViewWriterFactory.class, "(id=cytoscapejsNetworkWriterFactory)"); 
 
+		InputStreamTaskFactory cytoscapeJsReaderFactory = 
+				getService(bc, InputStreamTaskFactory.class, "(id=cytoscapejsNetworkReaderFactory)"); 
+		
+		System.out.println("Writer = " + cytoscapeJsWriterFactory);
+		System.out.println("Reader = " + cytoscapeJsReaderFactory);
+		
+		
 		TaskManager tm = getService(bc, TaskManager.class);
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
@@ -77,13 +92,6 @@ public class CyActivator extends AbstractCyActivator {
 				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
 	
-		final CyBinder binder = new CyBinder(netMan, netFact, taskFactoryManagerManager, applicationManager);
-		final StartGrizzlyServerTaskFactory startGrizzlyServerTaskFactory = new StartGrizzlyServerTaskFactory(binder);
-		final Properties startGrizzlyServerTaskFactoryProps = new Properties();
-		startGrizzlyServerTaskFactoryProps.setProperty(PREFERRED_MENU, "Apps");
-		startGrizzlyServerTaskFactoryProps.setProperty(MENU_GRAVITY, "1.2");
-		startGrizzlyServerTaskFactoryProps.setProperty(TITLE, "Start REST Server");
-		registerService(bc, startGrizzlyServerTaskFactory, TaskFactory.class, startGrizzlyServerTaskFactoryProps);
 
 		// ///////////////// Writers ////////////////////////////
 		final ObjectMapper jsMapper = new ObjectMapper();
@@ -110,5 +118,24 @@ public class CyActivator extends AbstractCyActivator {
 		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
 				jsMapper);
 		registerAllServices(bc, jsonVSWriterFactory, new Properties());
+		
+		
+		// Start REST Server
+		final CyBinder binder = new CyBinder(netMan, netFact, taskFactoryManagerManager, applicationManager, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory);
+		this.grizzlyServerManager = new GrizzlyServerManager(binder);
+		try {
+			this.grizzlyServerManager.startServer();
+		} catch (Exception e) {
+			logger.error("############## Could not start server ###############", e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void shutDown() {
+		System.out.println("Shutting down server...");
+		if(grizzlyServerManager != null) {
+			grizzlyServerManager.stopServer();
+		}
 	}
 }

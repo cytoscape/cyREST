@@ -1,5 +1,9 @@
-package org.cytoscape.rest.internal.jaxrs;
+package org.cytoscape.rest.internal.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -16,14 +20,18 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.io.read.CyNetworkReader;
+import org.cytoscape.io.read.InputStreamTaskFactory;
+import org.cytoscape.io.write.CyNetworkViewWriterFactory;
+import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.rest.DataMapper;
 import org.cytoscape.rest.TaskFactoryManager;
-import org.cytoscape.rest.internal.datamapper.CyNetwork2CytoscapejsMapper;
 import org.cytoscape.rest.internal.datamapper.CyNetworkView2CytoscapejsMapper;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
@@ -36,16 +44,18 @@ import org.cytoscape.work.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+
 @Singleton
 @Path("/v1")
 // API version
-public class DataService {
+public class NetworkDataService {
 
-	private final static Logger logger = LoggerFactory.getLogger(DataService.class);
+	private final static Logger logger = LoggerFactory.getLogger(NetworkDataService.class);
 
 	// Preset types
 	private static final String JSON = "json";
-
 	private static final String NETWORKS = "networks";
 
 	// /////////////// Inject Dependencies ///////////////////////
@@ -61,36 +71,67 @@ public class DataService {
 
 	@Context
 	private TaskFactoryManager tfManager;
+	
+	@Context
+	private InputStreamTaskFactory cytoscapeJsReaderFactory;
+
+	@Context
+	private CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 
 	private final CyNetwork2JSONTranslator network2jsonTranslator;
-	private final DataMapper<CyNetwork> cytoscapejs;
 	private final DataMapper<CyNetworkView> cytoscapejsView;
 
-	public DataService() {
-		this.cytoscapejs = new CyNetwork2CytoscapejsMapper();
+	public NetworkDataService() {
 		this.cytoscapejsView = new CyNetworkView2CytoscapejsMapper();
 
 		this.network2jsonTranslator = new CyNetwork2JSONTranslator();
 	}
 
 	@GET
-	@Path("/version")
+	@Path("/" + NETWORKS + "/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCytoscapeVersion() {
+	public String getNetworkCount() {
+		// Extract number of networks in current session
+		final int count = networkManager.getNetworkSet().size();
+		final JsonFactory factory = new JsonFactory();
 		
-		// TODO: use CyVersion service here.
-		System.out.println("CyVersion:");
-		return "{\"version\": \"3.1.0\"}";
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(stream);
+			generator.writeStartObject();
+			generator.writeFieldName("networkCount");
+			generator.writeNumber(count);
+			generator.writeEndObject();
+			generator.close();
+			result = stream.toString();
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.error("Could not create stream.", e);
+			throw new WebApplicationException(500);
+		}
+		
+		return result;
 	}
 
 	@GET
 	@Path("/" + NETWORKS)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworks(
-			@DefaultValue("title") @QueryParam("idtype") String idType,
-			@DefaultValue(JSON) @QueryParam("format") String format) {
-		System.out.println("----Get network by id (SUID or title)");
-		return "OK";
+	public String getNetworks() {
+		final Set<CyNetwork> networks = networkManager.getNetworkSet();
+		StringBuilder result = new StringBuilder();
+		result.append("[");
+		
+		for(final CyNetwork network: networks) {
+			result.append(getNetworkString(network));
+			result.append(",");
+		}
+		String jsonString = result.toString();
+		jsonString = jsonString.substring(0, jsonString.length()-1);
+		
+		return jsonString + "]";
 	}
 	
 	/**
@@ -104,31 +145,44 @@ public class DataService {
 	@GET
 	@Path("/" + NETWORKS + "/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkByTitle(@PathParam("id") String id,
-			@DefaultValue("title") @QueryParam("idtype") String idType,
-			@DefaultValue(JSON) @QueryParam("format") String format) {
+	public String getNetwork(@PathParam("id") String id) {
 		
-		System.out.println("----Get network by id (SUID or title): " + id + ", format = " + format);
-		final String res = cytoscapejs.writeAsString(findNetwork(idType, id));
-		System.out.println("Got JSON = " + res);
-		return res;
+		final CyNetwork network = findNetwork("suid", id);
+		return getNetworkString(network);
+	}
+	
+	@POST
+	@Path("/" + NETWORKS)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void createNetwork(final String text) {
+		System.out.println("###Val = " + text);
+		
+//		TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+//		try {
+//			CyNetworkReader reader = (CyNetworkReader) it.next();
+//
+//			reader.run(null);
+//			
+//			System.out.println("###read2 = " + reader.getNetworks()[0]);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
+	private final String getNetworkString(final CyNetwork network) {
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
+		String jsonString = null;
+		try {
+			writer.run(null);
+			jsonString = stream.toString();
+			stream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonString;
 	}
 
-	/**
-	 * GET method for CyNetwork.
-	 * 
-	 * @param id
-	 *            - title or
-	 * @param fileFormat
-	 * @return
-	 */
-	@GET
-	@Path("/" + NETWORKS + "/{id}.json/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkAsJson(@PathParam("id") String id,
-			@DefaultValue("title") @QueryParam("idtype") String idType) {
-		return cytoscapejs.writeAsString(findNetwork(idType, id));
-	}
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}.cyjson/")
@@ -149,7 +203,7 @@ public class DataService {
 			}
 
 		} else if (idType.equals("title")) {
-			network = getNetwork(id);
+			network = getNetworkByTitle(id);
 		} else {
 			throw new WebApplicationException(400);
 		}
@@ -280,7 +334,7 @@ public class DataService {
 		return networkSUID;
 	}
 
-	private final CyNetwork getNetwork(final String title) {
+	private final CyNetwork getNetworkByTitle(final String title) {
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
 
 		for (final CyNetwork network : networks) {

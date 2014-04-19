@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.application.CyApplicationManager;
@@ -33,6 +34,7 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.DataMapper;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.datamapper.CyNetworkView2CytoscapejsMapper;
+import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
@@ -60,7 +62,7 @@ public class NetworkDataService {
 
 	// Preset types
 	private static final String JSON = "json";
-	private static final String DEF_COLLECTION_PREFIX= "Posted: ";
+	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
 	private static final String NETWORKS = "networks";
 
 	// /////////////// Inject Dependencies ///////////////////////
@@ -73,7 +75,7 @@ public class NetworkDataService {
 
 	@Context
 	private CyNetworkViewManager networkViewManager;
-	
+
 	@Context
 	private CyNetworkFactory networkFactory;
 
@@ -82,7 +84,7 @@ public class NetworkDataService {
 
 	@Context
 	private InputStreamTaskFactory cytoscapeJsReaderFactory;
-	
+
 	@Context
 	private VisualMappingManager vmm;
 
@@ -158,43 +160,69 @@ public class NetworkDataService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetwork(@PathParam("id") String id) {
 		final CyNetwork network = findNetwork("suid", id);
-		if(network == null) {
+		if (network == null) {
 			throw new WebApplicationException(404);
 		}
-		
+
 		return getNetworkString(network);
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/tables/{tableType}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getTable(@PathParam("id") String id, @PathParam("tableType") String tableType) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+
+		if (tableType.equals("node")) {
+			CyTableSerializer tableSerializer = new CyTableSerializer();
+			try {
+				final String result = tableSerializer.toCSV(network.getDefaultNodeTable());
+				return result;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			throw new WebApplicationException(500);
+		} else {
+			throw new WebApplicationException(404);
+		}
 	}
 
 	/**
 	 * Create network from Cytoscape.js style JSON.
 	 * 
-	 * @param collection Name of network collection.
+	 * @param collection
+	 *            Name of network collection.
 	 * @param is
 	 * @throws Exception
 	 */
 	@POST
 	@Path("/" + NETWORKS)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection, 
-			final InputStream is) throws Exception {
-			final TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
-			final CyNetworkReader reader = (CyNetworkReader) it.next();
-			
-			if(collection.equals(DEF_COLLECTION_PREFIX)) {
-				
-			}
-			
-			final String collectionName = collection;
-			System.out.println("Colleciton = " + collection);
-			reader.run(null);
-			
-			CyNetwork[] networks = reader.getNetworks();
-			CyNetwork newNetwork = networks[0];
-			System.out.println("###LEN = " + networks.length);
-			System.out.println("###read5 edges = " + newNetwork.getEdgeCount());
-			System.out.println("###read5 nodes = " + newNetwork.getNodeCount());
-			addNetwork(networks, reader, collectionName);
-			is.close();
+	public void createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
+			final InputStream is, @Context HttpHeaders headers) throws Exception {
+
+		final String userAgent = headers.getRequestHeader("user-agent").get(0);
+
+		final TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+		final CyNetworkReader reader = (CyNetworkReader) it.next();
+
+		String collectionName = collection;
+		if (collection.equals(DEF_COLLECTION_PREFIX)) {
+			collectionName = collectionName + userAgent;
+		}
+
+		reader.run(null);
+
+		CyNetwork[] networks = reader.getNetworks();
+		CyNetwork newNetwork = networks[0];
+		System.out.println("###LEN = " + networks.length);
+		System.out.println("###read5 edges = " + newNetwork.getEdgeCount());
+		System.out.println("###read5 nodes = " + newNetwork.getNodeCount());
+		addNetwork(networks, reader, collectionName);
+		is.close();
 	}
 
 	private final String getNetworkString(final CyNetwork network) {
@@ -210,71 +238,76 @@ public class NetworkDataService {
 		}
 		return jsonString;
 	}
-	
+
 	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName) {
 		final VisualStyle style = vmm.getCurrentVisualStyle();
 		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
-		
+
 		for (final CyNetwork network : networks) {
 			String networkName = network.getRow(network).get(CyNetwork.NAME, String.class);
 			if (networkName == null || networkName.trim().length() == 0) {
 				if (networkName == null)
-					networkName = "? (Name is missing)";
-				
+					networkName = collectionName;
+
 				network.getRow(network).set(CyNetwork.NAME, networkName);
 			}
 			networkManager.addNetwork(network);
 
 			final int numGraphObjects = network.getNodeCount() + network.getEdgeCount();
 			int viewThreshold = 10000;
-			if (numGraphObjects < viewThreshold ) {
+			if (numGraphObjects < viewThreshold) {
 				final CyNetworkView view = reader.buildCyNetworkView(network);
 				networkViewManager.addNetworkView(view);
 				vmm.setVisualStyle(style, view);
 				style.apply(view);
-				
+
 				if (!view.isSet(BasicVisualLexicon.NETWORK_CENTER_X_LOCATION)
 						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Y_LOCATION)
 						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Z_LOCATION))
 					view.fitContent();
 				results.add(view);
 			} else {
-				//results.add(nullNetworkViewFactory.createNetworkView(network));
+				// results.add(nullNetworkViewFactory.createNetworkView(network));
 			}
 		}
 
-		// If this is a subnetwork, and there is only one subnetwork in the root, check the name of the root network
-		// If there is no name yet for the root network, set it the same as its base subnetwork
-		if (networks.length == 1){
+		// If this is a subnetwork, and there is only one subnetwork in the
+		// root, check the name of the root network
+		// If there is no name yet for the root network, set it the same as its
+		// base subnetwork
+		if (networks.length == 1) {
 			System.out.println("####### root: " + collectionName);
-			if (networks[0] instanceof CySubNetwork){
+			if (networks[0] instanceof CySubNetwork) {
 				CySubNetwork subnet = (CySubNetwork) networks[0];
 				final CyRootNetwork rootNet = subnet.getRootNetwork();
 				String rootNetName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
-					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
-//				if (rootNetName == null || rootNetName.trim().length() == 0){
-//					// The root network does not have a name yet, set it the same as the base subnetwork
-//					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
-//				}
+				rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+				// if (rootNetName == null || rootNetName.trim().length() == 0){
+				// // The root network does not have a name yet, set it the same
+				// as the base subnetwork
+				// rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+				// }
 			}
 		}
-		
-//		// Make sure rootNetwork has a name
-//		for (CyNetwork network : networks) {
-//			if (network instanceof CySubNetwork){
-//				CySubNetwork subNet = (CySubNetwork) network;
-//				CyRootNetwork rootNet = subNet.getRootNetwork();
-//
-//				String networkName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
-//				if(networkName == null || networkName.trim().length() == 0) {
-//					networkName = name;
-//					if(networkName == null)
-//						networkName = "? (Name is missing)";
-//					
-//					rootNet.getRow(rootNet).set(CyNetwork.NAME, namingUtil.getSuggestedNetworkTitle(networkName));
-//				}
-//			}			
-//		}
+
+		// // Make sure rootNetwork has a name
+		// for (CyNetwork network : networks) {
+		// if (network instanceof CySubNetwork){
+		// CySubNetwork subNet = (CySubNetwork) network;
+		// CyRootNetwork rootNet = subNet.getRootNetwork();
+		//
+		// String networkName = rootNet.getRow(rootNet).get(CyNetwork.NAME,
+		// String.class);
+		// if(networkName == null || networkName.trim().length() == 0) {
+		// networkName = name;
+		// if(networkName == null)
+		// networkName = "? (Name is missing)";
+		//
+		// rootNet.getRow(rootNet).set(CyNetwork.NAME,
+		// namingUtil.getSuggestedNetworkTitle(networkName));
+		// }
+		// }
+		// }
 	}
 
 	@GET

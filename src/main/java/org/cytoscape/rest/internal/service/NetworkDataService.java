@@ -9,9 +9,11 @@ import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -26,9 +28,13 @@ import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.DataMapper;
@@ -96,7 +102,6 @@ public class NetworkDataService {
 
 	public NetworkDataService() {
 		this.cytoscapejsView = new CyNetworkView2CytoscapejsMapper();
-
 		this.network2jsonTranslator = new CyNetwork2JSONTranslator();
 	}
 
@@ -105,7 +110,36 @@ public class NetworkDataService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworkCount() {
 		// Extract number of networks in current session
-		final int count = networkManager.getNetworkSet().size();
+		final long count = networkManager.getNetworkSet().size();
+		return getNumberObjectString("networkCount", count);
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/nodes/count")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNodeCount(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+		final long count = network.getNodeCount();
+		return getNumberObjectString("nodeCount", count);
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/edges/count")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEdgeCount(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+		final long count = network.getEdgeCount();
+		return getNumberObjectString("edgeCount", count);
+	}
+
+	private final String getNumberObjectString(final String fieldName, final Long value) {
+
 		final JsonFactory factory = new JsonFactory();
 
 		String result = null;
@@ -114,8 +148,8 @@ public class NetworkDataService {
 		try {
 			generator = factory.createGenerator(stream);
 			generator.writeStartObject();
-			generator.writeFieldName("networkCount");
-			generator.writeNumber(count);
+			generator.writeFieldName(fieldName);
+			generator.writeNumber(value);
 			generator.writeEndObject();
 			generator.close();
 			result = stream.toString();
@@ -168,6 +202,95 @@ public class NetworkDataService {
 	}
 
 	@GET
+	@Path("/" + NETWORKS + "/{id}/nodes")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNodes(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+
+		// Generate node ID array
+		// TODO: Is SUID OK?
+
+		return getGraphObjectArray(network, CyNode.class);
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/edges")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEdges(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+
+		return getGraphObjectArray(network, CyEdge.class);
+	}
+
+	private final String getGraphObjectArray(final CyNetwork network, final Class<? extends CyIdentifiable> type) {
+
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(stream);
+			generator.writeStartArray();
+
+			final List<? extends CyIdentifiable> graphObjects;
+			if (type == CyNode.class) {
+				graphObjects = network.getNodeList();
+			} else if (type == CyEdge.class) {
+				graphObjects = network.getEdgeList();
+			} else {
+				throw new WebApplicationException(500);
+			}
+			for (final CyIdentifiable obj : graphObjects) {
+				final Long suid = obj.getSUID();
+				generator.writeNumber(suid);
+			}
+			generator.writeEndArray();
+			generator.close();
+			result = stream.toString();
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.error("Could not create stream.", e);
+			throw new WebApplicationException(500);
+		}
+		return result;
+
+	}
+
+	/**
+	 * TODO: Ask everyone (which is more natural?)
+	 * 
+	 * Merge nodes and edges
+	 * 
+	 * @param id
+	 */
+	@PUT
+	@Path("/" + NETWORKS + "/{id}/")
+	public void updateNetwork(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+	}
+
+	@DELETE
+	@Path("/" + NETWORKS + "/{id}/")
+	public void deleteNetwork(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException(404);
+		}
+		this.networkManager.destroyNetwork(network);
+	}
+
+	@GET
 	@Path("/" + NETWORKS + "/{id}/tables/{tableType}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getTable(@PathParam("id") String id, @PathParam("tableType") String tableType) {
@@ -176,17 +299,24 @@ public class NetworkDataService {
 			throw new WebApplicationException(404);
 		}
 
+		final CyTable table;
 		if (tableType.equals("node")) {
-			CyTableSerializer tableSerializer = new CyTableSerializer();
-			try {
-				final String result = tableSerializer.toCSV(network.getDefaultNodeTable());
-				return result;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			throw new WebApplicationException(500);
+			table = network.getDefaultNodeTable();
+		} else if (tableType.equals("edge")) {
+			table = network.getDefaultEdgeTable();
+		} else if (tableType.equals("network")) {
+			table = network.getDefaultNetworkTable();
 		} else {
+			// No such table.
 			throw new WebApplicationException(404);
+		}
+
+		final CyTableSerializer tableSerializer = new CyTableSerializer();
+		try {
+			final String result = tableSerializer.toCSV(table);
+			return result;
+		} catch (Exception e) {
+			throw new WebApplicationException(e, 500);
 		}
 	}
 
@@ -201,7 +331,8 @@ public class NetworkDataService {
 	@POST
 	@Path("/" + NETWORKS)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
 			final InputStream is, @Context HttpHeaders headers) throws Exception {
 
 		final String userAgent = headers.getRequestHeader("user-agent").get(0);
@@ -223,6 +354,18 @@ public class NetworkDataService {
 		System.out.println("###read5 nodes = " + newNetwork.getNodeCount());
 		addNetwork(networks, reader, collectionName);
 		is.close();
+
+		// Return SUID-to-Original map
+		return getNumberObjectString("networkSUID", newNetwork.getSUID());
+	}
+
+	/**
+	 * TODO: design return JSON format
+	 * 
+	 * @return
+	 */
+	private final String generateIdMap() {
+		return null;
 	}
 
 	private final String getNetworkString(final CyNetwork network) {

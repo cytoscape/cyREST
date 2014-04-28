@@ -109,12 +109,12 @@ public class CyActivator extends AbstractCyActivator {
 				new String[] { "application/json" }, "cytoscape.js Visual Style JSON files", DataCategory.VIZMAP,
 				streamUtil);
 
-		final JSONNetworkWriterFactory jsonWriterFactory = new JSONNetworkWriterFactory(cytoscapejsFilter, jsMapper);
-		registerAllServices(bc, jsonWriterFactory, new Properties());
-
-		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
-				jsMapper);
-		registerAllServices(bc, jsonVSWriterFactory, new Properties());
+//		final JSONNetworkWriterFactory jsonWriterFactory = new JSONNetworkWriterFactory(cytoscapejsFilter, jsMapper);
+//		registerAllServices(bc, jsonWriterFactory, new Properties());
+//
+//		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
+//				jsMapper);
+//		registerAllServices(bc, jsonVSWriterFactory, new Properties());
 
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,

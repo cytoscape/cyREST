@@ -56,6 +56,9 @@ public class CyTableSerializer {
 //				builder.append(row.get(CyIdentifiable.SUID, Long.class) + ",");
 //			}
 			for (final String columnName : columnNames) {
+				if(columnName.equals(CyIdentifiable.SUID)) {
+					continue;
+				}
 				final CyColumn column = table.getColumn(columnName);
 				final Class<?> type = column.getType();
 				if (type != List.class) {

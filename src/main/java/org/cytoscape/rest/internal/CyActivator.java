@@ -7,8 +7,6 @@ import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.io.BasicCyFileFilter;
 import org.cytoscape.io.DataCategory;
-import org.cytoscape.io.internal.write.json.JSONNetworkWriterFactory;
-import org.cytoscape.io.internal.write.json.JSONVisualStyleWriterFactory;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
@@ -73,7 +71,8 @@ public class CyActivator extends AbstractCyActivator {
 		System.out.println("Writer = " + cytoscapeJsWriterFactory);
 		System.out.println("Reader = " + cytoscapeJsReaderFactory);
 
-		TaskManager tm = getService(bc, TaskManager.class);
+		final TaskManager<?,?> tm = getService(bc, TaskManager.class);
+
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
 				"(cyPropertyName=cytoscape3.props)");
@@ -91,30 +90,6 @@ public class CyActivator extends AbstractCyActivator {
 				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
 		// ///////////////// Writers ////////////////////////////
-		final ObjectMapper jsMapper = new ObjectMapper();
-		jsMapper.registerModule(new CytoscapejsModule());
-
-		final ObjectMapper graphsonMapper = new ObjectMapper();
-		graphsonMapper.registerModule(new CytoscapejsModule());
-
-		final ObjectMapper fullJsonMapper = new ObjectMapper();
-		fullJsonMapper.registerModule(new CyJacksonModule());
-
-		final BasicCyFileFilter cytoscapejsFilter = new BasicCyFileFilter(new String[] { "json" },
-				new String[] { "application/json" }, "cytoscape.js JSON files", DataCategory.NETWORK, streamUtil);
-		final BasicCyFileFilter fullJsonFilter = new BasicCyFileFilter(new String[] { "json" },
-				new String[] { "application/json" }, "Cytoscape JSON files", DataCategory.NETWORK, streamUtil);
-
-		final BasicCyFileFilter vizmapJsonFilter = new BasicCyFileFilter(new String[] { "json" },
-				new String[] { "application/json" }, "cytoscape.js Visual Style JSON files", DataCategory.VIZMAP,
-				streamUtil);
-
-//		final JSONNetworkWriterFactory jsonWriterFactory = new JSONNetworkWriterFactory(cytoscapejsFilter, jsMapper);
-//		registerAllServices(bc, jsonWriterFactory, new Properties());
-//
-//		final JSONVisualStyleWriterFactory jsonVSWriterFactory = new JSONVisualStyleWriterFactory(vizmapJsonFilter,
-//				jsMapper);
-//		registerAllServices(bc, jsonVSWriterFactory, new Properties());
 
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,

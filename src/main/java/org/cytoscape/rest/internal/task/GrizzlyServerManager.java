@@ -7,6 +7,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.cytoscape.rest.internal.service.MiscDataService;
 import org.cytoscape.rest.internal.service.NetworkDataService;
+import org.cytoscape.rest.internal.service.TableDataService;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -39,7 +40,10 @@ public final class GrizzlyServerManager {
 	public void startServer() throws Exception {
 		if (server == null) {
 			final URI baseURI = UriBuilder.fromUri(baseURL).port(port).build();
-			final ResourceConfig rc = new ResourceConfig(NetworkDataService.class, MiscDataService.class);
+			final ResourceConfig rc = new ResourceConfig(
+					NetworkDataService.class, 
+					TableDataService.class, 
+					MiscDataService.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

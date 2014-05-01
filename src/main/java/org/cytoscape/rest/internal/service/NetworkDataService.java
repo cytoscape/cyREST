@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -23,34 +24,21 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.CyNetworkReader;
-import org.cytoscape.io.read.InputStreamTaskFactory;
-import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNetworkFactory;
-import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
-import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
-import org.cytoscape.rest.DataMapper;
-import org.cytoscape.rest.TaskFactoryManager;
-import org.cytoscape.rest.internal.datamapper.CyNetworkView2CytoscapejsMapper;
-import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.task.RestTaskManager;
-import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
@@ -64,60 +52,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
-@Path("/v1")
-// API version
-public class NetworkDataService {
+@Path("/v1") // API version
+public class NetworkDataService extends AbstractDataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(NetworkDataService.class);
 
 	// Preset types
-	private static final String JSON = "json";
 	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
 	private static final String NETWORKS = "networks";
 
-	// /////////////// Inject Dependencies ///////////////////////
-
-	@Context
-	private CyApplicationManager applicationManager;
-
-	@Context
-	private CyNetworkManager networkManager;
-
-	@Context
-	private CyNetworkViewManager networkViewManager;
-
-	@Context
-	private CyNetworkFactory networkFactory;
-
-	@Context
-	private TaskFactoryManager tfManager;
-
-	@Context
-	private InputStreamTaskFactory cytoscapeJsReaderFactory;
-
-	@Context
-	private VisualMappingManager vmm;
-
-	@Context
-	private CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
-
-	private final CyNetwork2JSONTranslator network2jsonTranslator;
-	private final DataMapper<CyNetworkView> cytoscapejsView;
-
-	private final GraphObjectSerializer serializer;
 
 	public NetworkDataService() {
-		this.cytoscapejsView = new CyNetworkView2CytoscapejsMapper();
-		this.network2jsonTranslator = new CyNetwork2JSONTranslator();
-		this.serializer = new GraphObjectSerializer();
+		super();
 	}
 
+	////////////////// Object Counts /////////////////////////////
+	
 	@GET
 	@Path("/" + NETWORKS + "/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworkCount() {
 		return getNumberObjectString("networkCount", networkManager.getNetworkSet().size());
 	}
+
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}/nodes/count")
@@ -130,6 +87,7 @@ public class NetworkDataService {
 		return getNumberObjectString("nodeCount", network.getNodeCount());
 	}
 
+
 	@GET
 	@Path("/" + NETWORKS + "/{id}/edges/count")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -140,6 +98,7 @@ public class NetworkDataService {
 		}
 		return getNumberObjectString("edgeCount", network.getEdgeCount());
 	}
+
 
 	private final String getNumberObjectString(final String fieldName, final Number value) {
 		final JsonFactory factory = new JsonFactory();
@@ -157,13 +116,13 @@ public class NetworkDataService {
 			result = stream.toString();
 			stream.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 			logger.error("Could not create stream.", e);
 			throw new WebApplicationException(500);
 		}
 
 		return result;
 	}
+
 
 	@GET
 	@Path("/" + NETWORKS)
@@ -183,14 +142,7 @@ public class NetworkDataService {
 		return jsonString + "]";
 	}
 
-	/**
-	 * GET method for CyNetwork.
-	 * 
-	 * @param id
-	 *            - title or
-	 * @param fileFormat
-	 * @return
-	 */
+
 	@GET
 	@Path("/" + NETWORKS + "/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -203,6 +155,13 @@ public class NetworkDataService {
 		return getNetworkString(network);
 	}
 
+
+	/**
+	 * Get edges as array of SUID
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@GET
 	@Path("/" + NETWORKS + "/{id}/nodes")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -214,6 +173,7 @@ public class NetworkDataService {
 
 		return getGraphObjectArray(network, CyNode.class);
 	}
+
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}/edges")
@@ -227,72 +187,52 @@ public class NetworkDataService {
 		return getGraphObjectArray(network, CyEdge.class);
 	}
 
+
+	/**
+	 * Returns a node or an edge.
+	 * 
+	 * @param id
+	 * @param objType
+	 * @param objId
+	 * @return
+	 */
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes/{nodeId}")
+	@Path("/" + NETWORKS + "/{id}/{objType}/{objId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNode(@PathParam("id") String id, @PathParam("nodeId") String nodeId) {
+	public String getGraphObject(@PathParam("id") String id, @PathParam("objType") String objType, @PathParam("objId") String objId) {
 		final CyNetwork network = findNetwork("suid", id);
 		if (network == null) {
 			throw new WebApplicationException("Could not find network.", 404);
 		}
 
-		CyNode node = null;
-		Long nodeSuid;
+		CyIdentifiable obj = null;
+		Long suid;
+		Class<? extends CyIdentifiable> type = null;
 		try {
-			nodeSuid = Long.parseLong(nodeId);
-			node = network.getNode(nodeSuid);
+			suid = Long.parseLong(objId);
+			if(objType.equals("nodes")) {
+				obj = network.getNode(suid);
+				type = CyNode.class;
+			} else if(objType.equals("edges")) {
+				obj = network.getEdge(suid);
+				type = CyEdge.class;
+			} else {
+				throw new WebApplicationException("Invalid graph object type: " + objType, 500);
+			}
 		} catch (Exception e) {
 			throw new WebApplicationException(e, 500);
 		}
 
-		if (node == null) {
-			throw new WebApplicationException("Could not find node: " + nodeId, 404);
+		if (obj == null) {
+			throw new WebApplicationException("Could not find object: " + objId, 404);
 		}
-
-		return getGraphObject(network, node, CyNode.class);
+		return getGraphObject(network, obj);
 	}
 
-	@GET
-	@Path("/" + NETWORKS + "/{id}/edges/{edgeId}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdge(@PathParam("id") String id, @PathParam("edgeId") String edgeId) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException("Could not find network.", 404);
-		}
 
-		CyEdge edge = null;
-		Long edgeSuid;
-		try {
-			edgeSuid = Long.parseLong(edgeId);
-			edge = network.getEdge(edgeSuid);
-		} catch (Exception e) {
-			throw new WebApplicationException(e, 500);
-		}
 
-		if (edge == null) {
-			throw new WebApplicationException("Could not find edge: " + edgeId, 404);
-		}
-
-		return getGraphObject(network, edge, CyNode.class);
-	}
-
-	private final String getGraphObject(final CyNetwork network, final CyIdentifiable obj,
-			final Class<? extends CyIdentifiable> type) {
-
-		final CyRow row = network.getRow(obj);
-
-		try {
-			return this.serializer.serializeGraphObject(obj, row);
-		} catch (IOException e) {
-			logger.error("Could not create stream.", e);
-			throw new WebApplicationException(e, 500);
-		}
-
-	}
 
 	private final String getGraphObjectArray(final CyNetwork network, final Class<? extends CyIdentifiable> type) {
-
 		final JsonFactory factory = new JsonFactory();
 
 		String result = null;
@@ -324,8 +264,66 @@ public class NetworkDataService {
 			throw new WebApplicationException(500);
 		}
 		return result;
-
 	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/adjedges")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getAdjEdges(@PathParam("id") Long id, @PathParam("objId") Long objId) {
+		final CyNetwork network = getNetwork(id);
+		final CyNode node = getNode(network, objId);
+		final List<CyEdge> edges = network.getAdjacentEdgeList(node, Type.ANY);
+		return getGraphObjectArray(edges);
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/pointer")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkPointer(@PathParam("id") Long id, @PathParam("objId") Long objId) {
+		final CyNetwork network = getNetwork(id);
+		final CyNode node = getNode(network, objId);
+		final CyNetwork pointer = node.getNetworkPointer();
+		return getNumberObjectString("netwoirkPointer", pointer.getSUID());
+	}
+
+	@GET
+	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/neignbours")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNeighbours(@PathParam("id") Long id, @PathParam("objId") Long objId) {
+		final CyNetwork network = getNetwork(id);
+		final CyNode node = getNode(network, objId);
+		final List<CyNode> nodes = network.getNeighborList(node, Type.ANY);
+		return getGraphObjectArray(nodes);
+	}
+
+	
+	
+	private final String getGraphObjectArray(Collection<? extends CyIdentifiable> objects) {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(stream);
+			generator.writeStartArray();
+			for (final CyIdentifiable obj : objects) {
+				final Long suid = obj.getSUID();
+				generator.writeNumber(suid);
+			}
+			generator.writeEndArray();
+			generator.close();
+			result = stream.toString();
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.error("Could not create stream.", e);
+			throw new WebApplicationException(500);
+		}
+		return result;
+	}
+	
+	
 
 	@POST
 	@Path("/" + NETWORKS + "/{id}/nodes")
@@ -396,35 +394,6 @@ public class NetworkDataService {
 		this.networkManager.destroyNetwork(network);
 	}
 
-	@GET
-	@Path("/" + NETWORKS + "/{id}/tables/{tableType}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getTable(@PathParam("id") String id, @PathParam("tableType") String tableType) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-
-		final CyTable table;
-		if (tableType.equals("node")) {
-			table = network.getDefaultNodeTable();
-		} else if (tableType.equals("edge")) {
-			table = network.getDefaultEdgeTable();
-		} else if (tableType.equals("network")) {
-			table = network.getDefaultNetworkTable();
-		} else {
-			// No such table.
-			throw new WebApplicationException(404);
-		}
-
-		final CyTableSerializer tableSerializer = new CyTableSerializer();
-		try {
-			final String result = tableSerializer.toCSV(table);
-			return result;
-		} catch (Exception e) {
-			throw new WebApplicationException(e, 500);
-		}
-	}
 
 	/**
 	 * Create network from Cytoscape.js style JSON.
@@ -559,13 +528,6 @@ public class NetworkDataService {
 		// }
 	}
 
-	@GET
-	@Path("/" + NETWORKS + "/{id}.cyjson/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkAsCyjson(@PathParam("id") String id,
-			@DefaultValue("title") @QueryParam("idtype") String idType) {
-		return network2jsonTranslator.translate(findNetwork(idType, id));
-	}
 
 	private CyNetwork findNetwork(final String idType, final String id) {
 		final CyNetwork network;
@@ -590,38 +552,6 @@ public class NetworkDataService {
 		return network;
 	}
 
-	@GET
-	@Path("/" + NETWORKS + "/views/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getCurrentNetworkView() {
-		final CyNetworkView curView = applicationManager.getCurrentNetworkView();
-		System.out.println("----Get current network VIEW");
-
-		if (curView == null)
-			throw new WebApplicationException(404);
-
-		return cytoscapejsView.writeAsString(curView);
-	}
-
-	/**
-	 * Create network by POST
-	 * 
-	 * @param json
-	 * @param name
-	 * @return
-	 */
-	@POST
-	@Path("/networks/{title}/")
-	@Consumes({ MediaType.APPLICATION_JSON })
-	@Produces(MediaType.APPLICATION_JSON)
-	public String postCustomer(String json, @PathParam("title") String name) {
-
-		final CyNetwork network = networkFactory.createNetwork();
-		network.getRow(network).set(CyNetwork.NAME, name);
-		networkManager.addNetwork(network);
-		String result = "Input is " + json;
-		return result;
-	}
 
 	@GET
 	@Path("/execute/{taskId}/{suid}")

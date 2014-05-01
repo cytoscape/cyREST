@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
-import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 
 import com.fasterxml.jackson.core.JsonFactory;

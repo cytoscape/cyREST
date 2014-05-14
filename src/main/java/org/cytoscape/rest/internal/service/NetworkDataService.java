@@ -23,6 +23,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.xml.crypto.NodeSetData;
 
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.write.CyWriter;
@@ -384,6 +385,18 @@ public class NetworkDataService extends AbstractDataService {
 		}
 	}
 
+	////////////////// Delete //////////////////////////////////
+	
+	@DELETE
+	@Path("/" + NETWORKS)
+	public void deleteAllNetworks() {
+		final Set<CyNetwork> allNetworks = this.networkManager.getNetworkSet();
+		for(CyNetwork network: allNetworks) {
+			this.networkManager.destroyNetwork(network);
+		}
+	}
+
+
 	@DELETE
 	@Path("/" + NETWORKS + "/{id}/")
 	public void deleteNetwork(@PathParam("id") String id) {
@@ -394,6 +407,72 @@ public class NetworkDataService extends AbstractDataService {
 		this.networkManager.destroyNetwork(network);
 	}
 
+	@DELETE
+	@Path("/" + NETWORKS + "/{id}/nodes")
+	public void deleteAllNodes(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException("Network does not exist.", 404);
+		}
+		network.removeNodes(network.getNodeList());
+		updateViews(network);
+	}
+
+
+	@DELETE
+	@Path("/" + NETWORKS + "/{id}/edges")
+	public void deleteAllEdges(@PathParam("id") String id) {
+		final CyNetwork network = findNetwork("suid", id);
+		if (network == null) {
+			throw new WebApplicationException("Network does not exist.", 404);
+		}
+		network.removeEdges(network.getEdgeList());
+		updateViews(network);
+	}
+
+
+	@DELETE
+	@Path("/" + NETWORKS + "/{networkId}/nodes/{nodeId}")
+	public void deleteNode(@PathParam("networkId") String networkId, @PathParam("nodeId") Long nodeId) {
+		final CyNetwork network = findNetwork("suid", networkId);
+		if (network == null) {
+			throw new WebApplicationException("Network does not exist.", 404);
+		}
+		final CyNode node = network.getNode(nodeId);
+		if(node == null) {
+			throw new WebApplicationException("Node does not exist.", 404);
+		}
+		final List<CyNode> nodes = new ArrayList<CyNode>();
+		nodes.add(node);
+		network.removeNodes(nodes);
+		updateViews(network);
+	}
+
+
+	@DELETE
+	@Path("/" + NETWORKS + "/{networkId}/edges/{edgeId}")
+	public void deleteEdge(@PathParam("networkId") String networkId, @PathParam("edgeId") Long edgeId) {
+		final CyNetwork network = findNetwork("suid", networkId);
+		if (network == null) {
+			throw new WebApplicationException("Network does not exist.", 404);
+		}
+		final CyEdge edge = network.getEdge(edgeId);
+		if(edge == null) {
+			throw new WebApplicationException("Edge does not exist.", 404);
+		}
+		final List<CyEdge> edges = new ArrayList<CyEdge>();
+		edges.add(edge);
+		network.removeEdges(edges);
+		updateViews(network);
+	}
+
+	
+	private final void updateViews(final CyNetwork network) {
+		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(network);
+		for (final CyNetworkView view : views) {
+			view.updateView();
+		}
+	}
 
 	/**
 	 * Create network from Cytoscape.js style JSON.

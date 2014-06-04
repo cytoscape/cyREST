@@ -15,21 +15,30 @@ import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.model.CyTableManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 
 
-
+/**
+ * Prepare services to be injected.
+ *
+ */
 public abstract class AbstractDataService {
 
+	protected static final String NETWORKS = "networks";
+	
 	@Context
 	protected CyApplicationManager applicationManager;
 
 	@Context
 	protected CyNetworkManager networkManager;
 
+	@Context
+	protected CyTableManager tableManager;
+	
 	@Context
 	protected CyNetworkViewManager networkViewManager;
 
@@ -56,9 +65,13 @@ public abstract class AbstractDataService {
 	}
 
 	protected final CyNetwork getNetwork(final Long id) {
+		if(id == null) {
+			throw new WebApplicationException("Network SUID is null.", 505);
+		}
+		
 		final CyNetwork network = networkManager.getNetwork(id);
 		if (network == null) {
-			throw new WebApplicationException("Could not find network.", 404);
+			throw new WebApplicationException("Could not find network with SUID: " + id, 404);
 		}
 		return network;
 	}

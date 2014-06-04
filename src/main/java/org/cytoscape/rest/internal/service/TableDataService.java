@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -36,8 +37,7 @@ public class TableDataService extends AbstractDataService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getTables(@PathParam("id") Long id) {
 
-		final CyNetwork network = getNetwork(id);
-		final CyTable table;
+		final Set<CyTable> tables = this.tableManager.getAllTables(true);
 
 		return id.toString();
 

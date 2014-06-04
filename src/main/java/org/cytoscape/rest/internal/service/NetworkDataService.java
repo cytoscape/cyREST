@@ -60,14 +60,12 @@ public class NetworkDataService extends AbstractDataService {
 
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
-	private static final String NETWORKS = "networks";
 
 
 	public NetworkDataService() {
 		super();
 	}
 
-	////////////////// Object Counts /////////////////////////////
 	
 	@GET
 	@Path("/" + NETWORKS + "/count")
@@ -80,24 +78,16 @@ public class NetworkDataService extends AbstractDataService {
 	@GET
 	@Path("/" + NETWORKS + "/{id}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNodeCount(@PathParam("id") String id) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-		return getNumberObjectString("nodeCount", network.getNodeCount());
+	public String getNodeCount(@PathParam("id") Long id) {
+		return getNumberObjectString("nodeCount", getNetwork(id).getNodeCount());
 	}
 
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}/edges/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdgeCount(@PathParam("id") String id) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-		return getNumberObjectString("edgeCount", network.getEdgeCount());
+	public String getEdgeCount(@PathParam("id") Long id) {
+		return getNumberObjectString("edgeCount", getNetwork(id).getEdgeCount());
 	}
 
 
@@ -118,7 +108,7 @@ public class NetworkDataService extends AbstractDataService {
 			stream.close();
 		} catch (IOException e) {
 			logger.error("Could not create stream.", e);
-			throw new WebApplicationException(500);
+			throw new WebApplicationException("Could not create object count.", 500);
 		}
 
 		return result;
@@ -147,13 +137,8 @@ public class NetworkDataService extends AbstractDataService {
 	@GET
 	@Path("/" + NETWORKS + "/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetwork(@PathParam("id") String id) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-
-		return getNetworkString(network);
+	public String getNetworkJSON(@PathParam("id") Long id) {
+		return getNetworkString(getNetwork(id));
 	}
 
 
@@ -166,26 +151,16 @@ public class NetworkDataService extends AbstractDataService {
 	@GET
 	@Path("/" + NETWORKS + "/{id}/nodes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNodes(@PathParam("id") String id) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-
-		return getGraphObjectArray(network, CyNode.class);
+	public String getNodes(@PathParam("id") Long id) {
+		return getGraphObjectArray(getNetwork(id), CyNode.class);
 	}
 
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}/edges")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdges(@PathParam("id") String id) {
-		final CyNetwork network = findNetwork("suid", id);
-		if (network == null) {
-			throw new WebApplicationException(404);
-		}
-
-		return getGraphObjectArray(network, CyEdge.class);
+	public String getEdges(@PathParam("id") Long id) {
+		return getGraphObjectArray(getNetwork(id), CyEdge.class);
 	}
 
 

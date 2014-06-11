@@ -40,13 +40,154 @@ public class GraphObjectSerializer {
 		return result;
 	}
 
+	public final String serializeRow(final CyRow row) throws IOException {
 
-	private final void serializeRow(JsonGenerator generator, final CyIdentifiable obj, final CyRow row) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartObject();
+		serializeSingleRow(generator, row);
+		generator.writeEndObject();
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+
+	public final String serializeCell(final CyRow row, final String columnName) throws IOException {
+
+		final CyColumn column = row.getTable().getColumn(columnName);
+		if (column == null) {
+			throw new IOException("No such column: " + columnName);
+		}
+
+		final Object value = row.get(columnName, column.getType());
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartObject();
+		serializeCell(generator, column, value);
+		generator.writeEndObject();
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+
+	public final String serializeAllRows(final Collection<CyRow> rows) throws IOException {
+
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+
+		generator.writeStartArray();
+		for (final CyRow row : rows) {
+			generator.writeStartObject();
+			serializeSingleRow(generator, row);
+			generator.writeEndObject();
+		}
+		generator.writeEndArray();
+
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+
+
+	public final String serializeColumns(final Collection<CyColumn> columns) throws IOException {
+
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+
+		generator.writeStartArray();
+		for (final CyColumn column : columns) {
+			generator.writeStartObject();
+			generator.writeStringField("name", column.getName());
+			generator.writeStringField("type", column.getType().getName());
+			generator.writeEndObject();
+		}
+		generator.writeEndArray();
+
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+
+	public final String serializeColumnValues(final CyColumn column, final Collection<Object> values) throws IOException {
+
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+
+		try {
+		generator.writeStartObject();
+		generator.writeStringField("name", column.getName());
+		generator.writeFieldName("values");
+		generator.writeStartArray();
+		for (final Object value : values) {
+			if (column.getType() == List.class) {
+				writeList(column.getListElementType(), (List<?>) value, generator);
+			} else {
+				writeValue(column.getType(), value, generator);
+			}
+			writeValue(column.getType(), value, generator);
+		}
+		generator.writeEndArray();
+		generator.writeEndObject();
+
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+
+	private final void serializeSingleRow(final JsonGenerator generator, final CyRow row) throws IOException {
 		final Collection<CyColumn> columns = row.getTable().getColumns();
 		final Map<String, Object> values = row.getAllValues();
-		if(obj instanceof CyEdge) {
-			final Long sourceId = ((CyEdge)obj).getSource().getSUID();
-			final Long targetId = ((CyEdge)obj).getSource().getSUID();
+		for (final CyColumn col : columns) {
+			final Object value = values.get(col.getName());
+			if (value == null)
+				continue;
+			Class<?> type = col.getType();
+			final String columnName = col.getName();
+			generator.writeFieldName(replaceColumnName(columnName));
+			if (type == List.class) {
+				writeList(col.getListElementType(), (List<?>) value, generator);
+			} else {
+				writeValue(type, value, generator);
+			}
+		}
+	}
+
+	private final void serializeRow(JsonGenerator generator, final CyIdentifiable obj, final CyRow row)
+			throws IOException {
+		final Collection<CyColumn> columns = row.getTable().getColumns();
+		final Map<String, Object> values = row.getAllValues();
+		if (obj instanceof CyEdge) {
+			final Long sourceId = ((CyEdge) obj).getSource().getSUID();
+			final Long targetId = ((CyEdge) obj).getSource().getSUID();
 			generator.writeNumberField("source", sourceId);
 			generator.writeNumberField("target", targetId);
 		}
@@ -66,8 +207,25 @@ public class GraphObjectSerializer {
 		}
 	}
 
+	private final void serializeCell(final JsonGenerator generator, final CyColumn col, Object value)
+			throws IOException {
+		Class<?> type = col.getType();
+		final String columnName = col.getName();
+		generator.writeFieldName(replaceColumnName(columnName));
+		if (type == List.class) {
+			writeList(col.getListElementType(), (List<?>) value, generator);
+		} else {
+			writeValue(type, value, generator);
+		}
+	}
+
 	private final void writeList(final Class<?> type, final List<?> values, final JsonGenerator jgen)
 			throws JsonGenerationException, IOException {
+		
+		if(values == null) {
+			return;
+		}
+		
 		jgen.writeStartArray();
 		for (final Object value : values)
 			writeValue(type, value, jgen);
@@ -81,6 +239,10 @@ public class GraphObjectSerializer {
 
 	private final void writeValue(final Class<?> type, final Object value, final JsonGenerator generator)
 			throws IOException {
+		if(value == null) {
+			return;
+		}
+		
 		if (type == String.class) {
 			generator.writeString(value.toString());
 		} else if (type == Boolean.class) {

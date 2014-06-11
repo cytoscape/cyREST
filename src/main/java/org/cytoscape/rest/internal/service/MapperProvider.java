@@ -2,15 +2,8 @@ package org.cytoscape.rest.internal.service;
 
 import javax.ws.rs.ext.ContextResolver;
 
-import org.codehaus.jackson.map.AnnotationIntrospector.Pair;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
-
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class MapperProvider implements ContextResolver<ObjectMapper> {
 

@@ -1,17 +1,12 @@
 package org.cytoscape.rest.internal.service;
 
-import java.util.Collection;
-
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.view.model.CyNetworkView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +46,7 @@ public class NetworkViewDataService extends AbstractDataService {
 	@Path("/" + NETWORKS + "/{id}/views/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Integer getNetworkViewCount(@PathParam("id") Long id) {
-		return this.networkViewManager.getNetworkViews(getNetwork(id)).size();
+		return this.networkViewManager.getNetworkViews(getCyNetwork(id)).size();
 	}
 
 

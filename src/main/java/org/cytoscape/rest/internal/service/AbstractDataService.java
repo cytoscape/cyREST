@@ -64,7 +64,7 @@ public abstract class AbstractDataService {
 		this.serializer = new GraphObjectSerializer();
 	}
 
-	protected final CyNetwork getNetwork(final Long id) {
+	protected final CyNetwork getCyNetwork(final Long id) {
 		if(id == null) {
 			throw new WebApplicationException("Network SUID is null.", 505);
 		}

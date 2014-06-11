@@ -3,23 +3,32 @@ package org.cytoscape.rest.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Application;
-
+import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkFactory;
+import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.NetworkTestSupport;
+import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.service.NetworkDataService;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import org.cytoscape.rest.internal.task.CyBinder;
+import org.cytoscape.view.model.CyNetworkViewFactory;
+import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.cytoscape.ding.NetworkViewTestSupport;
 
-public class NetworkDataServiceTest extends JerseyTest {
+import static org.mockito.Mockito.*;
 
-	private final NetworkTestSupport testSupport = new NetworkTestSupport();
+
+public class NetworkDataServiceTest {
+
+	private final NetworkViewTestSupport testSupport = new NetworkViewTestSupport();
 	private CyNetwork network;
 
 	private NetworkDataService nds = new NetworkDataService();
@@ -29,10 +38,26 @@ public class NetworkDataServiceTest extends JerseyTest {
 		network = buildNetwork();
 		nds = new NetworkDataService();
 		assertNotNull(nds);
+		
 	}
 
 	@After
 	public void tearDown() throws Exception {
+	}
+	
+	private final void createServer() {
+		
+		
+		CyNetworkFactory networkFactory = testSupport.getNetworkFactory();
+		CyNetworkManager networkManager = testSupport.getNetworkManager();
+		CyNetworkViewFactory networkViewFactory = testSupport.getNetworkViewFactory();
+		CyNetworkViewManager networkViewManager = mock(CyNetworkViewManager.class);
+		VisualMappingManager vmm = mock(VisualMappingManager.class);
+		CyApplicationManager applicationManager = mock(CyApplicationManager.class);
+
+		TaskFactoryManager tfManager = mock(TaskFactoryManager.class);
+		CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
+		//CyBinder binder = new CyBinder(networkManager, networkViewManager, networkFactory, tfManager , applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory)
 	}
 
 	private final CyNetwork buildNetwork() {
@@ -46,15 +71,6 @@ public class NetworkDataServiceTest extends JerseyTest {
 		return network;
 	}
 
-
-	@Override
-	protected Application configure() {
-		return new ResourceConfig(NetworkDataService.class);
-	}
-
-	@Test
-	public void test() {
-	}
 
 	@Test
 	public void testGetNetworkCount() {

@@ -50,7 +50,7 @@ public class TableDataService extends AbstractDataService {
 	public String getTable(@PathParam("id") Long id, @PathParam("tableType") String tableType,
 			@QueryParam("format") String format) {
 
-		final CyNetwork network = getNetwork(id);
+		final CyNetwork network = getCyNetwork(id);
 		final CyTable table;
 		List<? extends CyIdentifiable> objects = null;
 		

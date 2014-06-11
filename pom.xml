@@ -10,7 +10,7 @@
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.11</junit.version>
-		<jersey.version>2.6</jersey.version>
+		<jersey.version>2.9</jersey.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -261,7 +261,11 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
 			<artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.test-framework</groupId>
+			<artifactId>jersey-test-framework-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

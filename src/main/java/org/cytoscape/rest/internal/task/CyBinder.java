@@ -6,6 +6,7 @@ import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyTableManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -25,6 +26,7 @@ public class CyBinder extends AbstractBinder {
 	private final CyApplicationManager applicationManager;
 	private final VisualMappingManager vmm;
 	private final CyLayoutAlgorithmManager layoutManager;
+	private final CyTableManager tableMamanger;
 	
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
@@ -35,7 +37,8 @@ public class CyBinder extends AbstractBinder {
 			final TaskFactoryManager tfManager, final CyApplicationManager applicationManager,
 			final VisualMappingManager vmm, final CyNetworkViewWriterFactory cytoscapeJsWriterFactory,
 			final InputStreamTaskFactory cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
-			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor) 
+			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
+			final CyTableManager tableManager) 
 	{
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -48,6 +51,7 @@ public class CyBinder extends AbstractBinder {
 		this.layoutManager = layoutManager;
 		this.vizmapWriterFactoryListener = vizmapWriterFactoryListener;
 		this.headlessMonitor = headlessMonitor;
+		this.tableMamanger = tableManager;
 	}
 
 	@Override
@@ -63,5 +67,6 @@ public class CyBinder extends AbstractBinder {
 		bind(layoutManager).to(CyLayoutAlgorithmManager.class);
 		bind(vizmapWriterFactoryListener).to(WriterListener.class);
 		bind(headlessMonitor).to(TaskMonitor.class);
+		bind(tableMamanger).to(CyTableManager.class);
 	}
 }

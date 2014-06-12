@@ -81,7 +81,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		
 		CyTableFactory tabFact = getService(bc, CyTableFactory.class);
-		CyTableManager tabMan = getService(bc, CyTableManager.class);
+		CyTableManager tableManager = getService(bc, CyTableManager.class);
 
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
 				"(id=cytoscapejsNetworkWriterFactory)");
@@ -117,7 +117,8 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
-				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, writerListsner, headlessTaskMonitor);
+				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, writerListsner, 
+				headlessTaskMonitor, tableManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder);
 		try {
 			this.grizzlyServerManager.startServer();

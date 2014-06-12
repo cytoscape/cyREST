@@ -27,6 +27,9 @@ import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Singleton
 @Path("/v1")
 // API version
@@ -48,8 +51,11 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
+	private final CyTableSerializer tableSerializer;
+	
 	public TableDataService() {
 		super();
+		this.tableSerializer = new CyTableSerializer();
 	}
 
 	// ////////////// Count objects //////////////////////
@@ -81,6 +87,24 @@ public class TableDataService extends AbstractDataService {
 		return id.toString();
 	}
 
+
+	@POST
+	@Path("/networks/{id}/tables/{tableType}/columns")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public void createColumn(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+			final InputStream is) {
+		final CyNetwork network = getCyNetwork(id);
+		final CyTable table = getTableByType(network, tableType);
+		final ObjectMapper objMapper = new ObjectMapper();
+		try {
+			// FIXME
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+//			table.createColumn(columnName, type, isImmutable);
+		} catch (IOException e) {
+			throw new WebApplicationException(e, 500);
+		}
+	}
 
 	@GET
 	@Path("/networks/{id}/tables/{tableType}/rows/{primaryKey}")
@@ -150,7 +174,6 @@ public class TableDataService extends AbstractDataService {
 		final CyTable table = getTableByType(network, tableType);
 		final CyColumn column = table.getColumn(columnName);
 		final List<Object> values = column.getValues(column.getType());
-		System.out.println("####### values");
 		try {
 			return this.serializer.serializeColumnValues(column, values);
 		} catch (IOException e) {
@@ -161,12 +184,16 @@ public class TableDataService extends AbstractDataService {
 
 	@GET
 	@Path("/networks/{id}/tables")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getTables(@PathParam("id") Long id) {
-
 		final Set<CyTable> tables = this.tableManager.getAllTables(true);
 
-		return id.toString();
+		try {
+			return tableSerializer.serializeTables(tables);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
 	}
 
 	private final CyTable getTableByType(final CyNetwork network, final String tableType) {

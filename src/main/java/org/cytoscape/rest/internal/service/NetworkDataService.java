@@ -92,29 +92,6 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 
-	private final String getNumberObjectString(final String fieldName, final Number value) {
-		final JsonFactory factory = new JsonFactory();
-
-		String result = null;
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		JsonGenerator generator = null;
-		try {
-			generator = factory.createGenerator(stream);
-			generator.writeStartObject();
-			generator.writeFieldName(fieldName);
-			generator.writeNumber(value.longValue());
-			generator.writeEndObject();
-			generator.close();
-			result = stream.toString();
-			stream.close();
-		} catch (IOException e) {
-			logger.error("Could not create stream.", e);
-			throw new WebApplicationException("Could not create object count.", 500);
-		}
-
-		return result;
-	}
-
 	///////////////////// Get Operations
 
 	@GET

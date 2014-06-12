@@ -1,15 +1,14 @@
 package org.cytoscape.rest.internal.task;
 
-import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.cytoscape.rest.internal.service.AlgorithmicService;
 import org.cytoscape.rest.internal.service.MiscDataService;
 import org.cytoscape.rest.internal.service.NetworkDataService;
+import org.cytoscape.rest.internal.service.StyleService;
 import org.cytoscape.rest.internal.service.TableDataService;
-import org.cytoscape.work.AbstractTask;
-import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -43,7 +42,9 @@ public final class GrizzlyServerManager {
 			final ResourceConfig rc = new ResourceConfig(
 					NetworkDataService.class, 
 					TableDataService.class, 
-					MiscDataService.class);
+					MiscDataService.class,
+					AlgorithmicService.class,
+					StyleService.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

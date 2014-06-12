@@ -1,8 +1,9 @@
 package org.cytoscape.rest.internal.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 
@@ -20,6 +21,9 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 
 /**
@@ -95,4 +99,47 @@ public abstract class AbstractDataService {
 			throw new WebApplicationException(e, 500);
 		}
 	}
+
+
+	protected final String getNames(final Collection<String> names) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+
+		for (final String name : names) {
+			generator.writeString(name);
+		}
+
+		generator.writeEndArray();
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+	protected final String getNumberObjectString(final String fieldName, final Number value) {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(stream);
+			generator.writeStartObject();
+			generator.writeFieldName(fieldName);
+			generator.writeNumber(value.longValue());
+			generator.writeEndObject();
+			generator.close();
+			result = stream.toString();
+			stream.close();
+		} catch (IOException e) {
+			throw new WebApplicationException("Could not create object count.", 500);
+		}
+
+		return result;
+	}
+
 }

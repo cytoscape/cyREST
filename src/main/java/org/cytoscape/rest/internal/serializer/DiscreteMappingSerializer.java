@@ -21,7 +21,7 @@ public class DiscreteMappingSerializer extends JsonSerializer<DiscreteMapping> {
 	@Override
 	public void serialize(DiscreteMapping mapping, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 			JsonProcessingException {
-
+		jgen.useDefaultPrettyPrinter();
 		jgen.writeStartObject();
 		jgen.writeStringField("mapping_type", "discrete");
 		jgen.writeStringField("mappingColumn", mapping.getMappingColumnName());
@@ -30,7 +30,7 @@ public class DiscreteMappingSerializer extends JsonSerializer<DiscreteMapping> {
 		final Map valueMap = mapping.getAll();
 		jgen.writeArrayFieldStart("map");
 		for(Object key:valueMap.keySet()) {
-			jgen.writeStringField((String) key, valueMap.get(key).toString());
+			jgen.writeStringField((String) key, mapping.getVisualProperty().toSerializableString(valueMap.get(key)));
 		}
 		jgen.writeEndArray();
 		jgen.writeEndObject();

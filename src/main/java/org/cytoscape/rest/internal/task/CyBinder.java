@@ -9,9 +9,11 @@ import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
@@ -31,6 +33,9 @@ public class CyBinder extends AbstractBinder {
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
 	private final WriterListener vizmapWriterFactoryListener;
+	private final VisualStyleFactory vsFactory;
+	
+	private final MappingFactoryManager mappingFactoryManager;
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory,
@@ -38,7 +43,7 @@ public class CyBinder extends AbstractBinder {
 			final VisualMappingManager vmm, final CyNetworkViewWriterFactory cytoscapeJsWriterFactory,
 			final InputStreamTaskFactory cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
-			final CyTableManager tableManager) 
+			final CyTableManager tableManager, final VisualStyleFactory vsFactory, final MappingFactoryManager mappingFactoryManager) 
 	{
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -52,6 +57,8 @@ public class CyBinder extends AbstractBinder {
 		this.vizmapWriterFactoryListener = vizmapWriterFactoryListener;
 		this.headlessMonitor = headlessMonitor;
 		this.tableMamanger = tableManager;
+		this.vsFactory = vsFactory;
+		this.mappingFactoryManager = mappingFactoryManager;
 	}
 
 	@Override
@@ -68,5 +75,8 @@ public class CyBinder extends AbstractBinder {
 		bind(vizmapWriterFactoryListener).to(WriterListener.class);
 		bind(headlessMonitor).to(TaskMonitor.class);
 		bind(tableMamanger).to(CyTableManager.class);
+		bind(vsFactory).to(VisualStyleFactory.class);
+		bind(mappingFactoryManager).to(MappingFactoryManager.class);
+		
 	}
 }

@@ -20,6 +20,8 @@ public class ContinuousMappingSerializer extends JsonSerializer<ContinuousMappin
 	@Override
 	public void serialize(ContinuousMapping mapping, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 			JsonProcessingException {
+		jgen.useDefaultPrettyPrinter();
+		
 		jgen.writeStartObject();
 		jgen.writeStringField("mapping_type", mapping.getClass().getSimpleName());
 		jgen.writeStringField("mappingColumn", mapping.getMappingColumnName());

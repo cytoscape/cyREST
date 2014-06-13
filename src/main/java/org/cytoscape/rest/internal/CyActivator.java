@@ -26,7 +26,9 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.events.AddedNodeViewsListener;
+import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.TaskMonitor;
@@ -68,6 +70,9 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) {
 
+		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
+		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory", VisualMappingFunctionFactory.class);
+		
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 		// Importing Services:
 		StreamUtil streamUtil = getService(bc, StreamUtil.class);
@@ -79,6 +84,7 @@ public class CyActivator extends AbstractCyActivator {
 		CyApplicationManager applicationManager = getService(bc, CyApplicationManager.class);
 		CyLayoutAlgorithmManager layoutManager = getService(bc, CyLayoutAlgorithmManager.class);
 
+		final VisualStyleFactory vsFactory = getService(bc, VisualStyleFactory.class);
 		
 		CyTableFactory tabFact = getService(bc, CyTableFactory.class);
 		CyTableManager tableManager = getService(bc, CyTableManager.class);
@@ -118,7 +124,7 @@ public class CyActivator extends AbstractCyActivator {
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, writerListsner, 
-				headlessTaskMonitor, tableManager);
+				headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder);
 		try {
 			this.grizzlyServerManager.startServer();

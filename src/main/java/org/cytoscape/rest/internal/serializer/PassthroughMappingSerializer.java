@@ -20,6 +20,7 @@ public class PassthroughMappingSerializer extends JsonSerializer<PassthroughMapp
 	@Override
 	public void serialize(PassthroughMapping mapping, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 			JsonProcessingException {
+		jgen.useDefaultPrettyPrinter();
 		jgen.writeStartObject();
 		jgen.writeStringField("mapping_type", "passthrough");
 		jgen.writeStringField("mappingColumn", mapping.getMappingColumnName());

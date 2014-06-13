@@ -27,15 +27,18 @@ import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.view.model.VisualLexicon;
-import org.cytoscape.view.model.VisualLexiconNode;
 import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.model.Visualizable;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskMonitor;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +54,15 @@ public class StyleService extends AbstractDataService {
 	
 	@Context
 	private TaskMonitor tm;
+	
+	private final ObjectMapper styleMapper;
+	
+	
+	public StyleService() {
+		super();
+		this.styleMapper = new ObjectMapper();
+		this.styleMapper.registerModule(new VisualStyleModule());
+	}
 	
 	private final VisualStyle getStyleByName(final String name) {
 		final Collection<VisualStyle> styles = vmm.getAllVisualStyles();
@@ -118,6 +130,46 @@ public class StyleService extends AbstractDataService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getDefaultValue(@PathParam("name") String name, @PathParam("type") String type, @PathParam("vpName") String vpName) {
 		return getVp(name, type, vpName);
+	}
+
+
+	@GET
+	@Path("/{name}/{type}/mappings")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getMappings(@PathParam("name") String name) {
+		System.out.println("############# MAPPINGS");
+		final VisualStyle style = getStyleByName(name);
+		final Collection<VisualMappingFunction<?, ?>> mappings = style.getAllVisualMappingFunctions();
+		try {
+			return styleMapper.writeValueAsString(mappings);
+		} catch (JsonProcessingException e) {
+			throw new WebApplicationException(e, 500);
+		}
+	}
+
+
+	@GET
+	@Path("/{name}/{type}/mappings/{vp}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getMapping(@PathParam("name") String name, @PathParam("type") String type, @PathParam("vp") String vp) {
+		final VisualStyle style = getStyleByName(name);
+		final VisualLexicon lexicon = getLexicon();
+		VisualProperty<?> visualProp;
+		if(type.equals("node")) {
+			visualProp = lexicon.lookup(CyNode.class, vp);
+		} else if(type.equals("edge")) {
+			visualProp = lexicon.lookup(CyEdge.class, vp);
+		} else if(type.equals("network")) {
+			visualProp = lexicon.lookup(CyNetwork.class, vp);
+		} else {
+			throw new WebApplicationException("Incompatible data type.", 500);
+		}
+		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
+		try {
+			return styleMapper.writeValueAsString(mapping);
+		} catch (JsonProcessingException e) {
+			throw new WebApplicationException(e, 500);
+		}
 	}
 	
 	private final String getVp(String name, String type, String vpName ) {
@@ -200,24 +252,24 @@ public class StyleService extends AbstractDataService {
 	}
 
 
-	@GET
-	@Path("/{name}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getStyle(@PathParam("name") String name) {
-		final VisualStyle style = getStyleByName(name);
-		final Set<VisualStyle> styles = new HashSet<VisualStyle>();
-		styles.add(style);
-		
-		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CyWriter writer = this.writerListener.getFactory().createWriter(stream, styles);
-		String jsonString = null;
-		try {
-			writer.run(tm);
-			jsonString = stream.toString();
-			stream.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return jsonString;
-	}
+//	@GET
+//	@Path("/{name}")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public String getStyle(@PathParam("name") String name) {
+//		final VisualStyle style = getStyleByName(name);
+//		final Set<VisualStyle> styles = new HashSet<VisualStyle>();
+//		styles.add(style);
+//		
+//		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//		CyWriter writer = this.writerListener.getFactory().createWriter(stream, styles);
+//		String jsonString = null;
+//		try {
+//			writer.run(tm);
+//			jsonString = stream.toString();
+//			stream.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return jsonString;
+//	}
 }

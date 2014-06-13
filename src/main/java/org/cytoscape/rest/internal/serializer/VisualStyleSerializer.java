@@ -7,6 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualStyle;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -41,6 +42,22 @@ public class VisualStyleSerializer {
 		return result;
 	}
 	
+	public final String serializeMappings(final Collection<VisualMappingFunction<?, ?>> mappings, final VisualStyle style) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartObject();
+		for(final VisualMappingFunction<?, ?> mapping:mappings) {
+		}
+		generator.writeEndObject();
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
 	private final void writeValue(final VisualProperty<Object> vp, final Object value, final JsonGenerator generator)
 			throws IOException {
 		if(value == null) {

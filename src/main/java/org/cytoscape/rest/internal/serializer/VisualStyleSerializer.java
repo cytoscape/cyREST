@@ -15,6 +15,7 @@ import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class VisualStyleSerializer {
 
@@ -38,6 +39,40 @@ public class VisualStyleSerializer {
 		generator.useDefaultPrettyPrinter();
 		
 		generator.writeStartObject();
+		addDefaults(generator, names, style);
+		generator.writeEndObject();
+		
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+
+	public final String serializeStyle(final Collection<VisualProperty<?>> vps, final VisualStyle style) throws IOException {
+		final SortedMap<String, VisualProperty<?>> names = new TreeMap<String, VisualProperty<?>>();
+		for(final VisualProperty<?> vp:vps) {
+			names.put(vp.getIdString(), vp);
+		}
+		
+		final JsonFactory factory = new JsonFactory();
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartObject();
+		generator.writeStringField("title", style.getTitle());
+		addDefaults(generator, names, style);
+		addMappings(generator, style);
+		generator.writeEndObject();
+		
+		generator.close();
+		result = stream.toString();
+		stream.close();
+		return result;
+	}
+	
+	private void addDefaults(JsonGenerator generator, final SortedMap<String, VisualProperty<?>> names, VisualStyle style) throws IOException {
 		generator.writeArrayFieldStart("defaults");
 		for(final String name:names.keySet()) {
 			final VisualProperty<Object> vp = (VisualProperty<Object>) names.get(name);
@@ -45,13 +80,15 @@ public class VisualStyleSerializer {
 				continue;
 			}
 			generator.writeStartObject();
-			generator.writeStringField("name", vp.getIdString());
+			generator.writeStringField("visual_property", vp.getIdString());
 			generator.writeFieldName("value");
 			writeValue(vp, style.getDefaultValue(vp), generator);
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();
-		
+	}
+	
+	private void addMappings(JsonGenerator generator, VisualStyle style) throws JsonProcessingException, IOException {
 		// Mappings
 		generator.writeArrayFieldStart("mappings");
 		for(VisualMappingFunction mapping:style.getAllVisualMappingFunctions()) {
@@ -64,12 +101,6 @@ public class VisualStyleSerializer {
 			}
 		}
 		generator.writeEndArray();
-		
-		generator.writeEndObject();
-		generator.close();
-		result = stream.toString();
-		stream.close();
-		return result;
 	}
 	
 	private final void writeValue(final VisualProperty<Object> vp, final Object value, final JsonGenerator generator)

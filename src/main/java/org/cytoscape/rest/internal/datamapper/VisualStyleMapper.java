@@ -1,14 +1,20 @@
 package org.cytoscape.rest.internal.datamapper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
+import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
+import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,6 +34,10 @@ public class VisualStyleMapper {
 	private static final String MAPPING_COLUMN_TYPE = "column_type";
 	private static final String MAPPING_VP = "visual_property";
 
+	private static final String MAPPING_DISCRETE_MAP = "map";
+	private static final String MAPPING_DISCRETE_KEY = "key";
+	private static final String MAPPING_DISCRETE_VALUE = "value";
+
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
 
@@ -37,16 +47,27 @@ public class VisualStyleMapper {
 		final JsonNode defaults = rootNode.get(DEFAULTS);
 		final JsonNode mappings = rootNode.get(MAPPINGS);
 
-		parseDefaults(defaults, lexicon, style);
+		parseDefaults(defaults, style, lexicon);
 		parseMappings(mappings, style, lexicon, factoryManager);
 
 		return style;
 	}
 
+	public void buildMappings(final VisualStyle style, final MappingFactoryManager factoryManager,
+			final VisualLexicon lexicon, final JsonNode mappings) {
+		parseMappings(mappings, style, lexicon, factoryManager);
+	}
+	
+	public void updateStyleName(final VisualStyle style,
+			final VisualLexicon lexicon, final JsonNode rootNode) {
+		final String newTitle = rootNode.get(TITLE).textValue();
+		style.setTitle(newTitle);
+	}
+
 	@SuppressWarnings("rawtypes")
-	private final void parseDefaults(JsonNode defaults, VisualLexicon lexicon, VisualStyle style) {
+	private final void parseDefaults(final JsonNode defaults, final VisualStyle style, final VisualLexicon lexicon) {
 		for (final JsonNode vpNode : defaults) {
-			String vpName = vpNode.get("name").textValue();
+			String vpName = vpNode.get(MAPPING_VP).textValue();
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
 			if (vp == null) {
 				continue;
@@ -70,20 +91,22 @@ public class VisualStyleMapper {
 				return;
 			}
 
-			System.out.println("++++++++++++++++++++++++++++ type= " + type);
-
+			VisualMappingFunction newMapping = null;
 			if (type.equals(MAPPING_DISCRETE)) {
-				parseDiscrete();
+				final VisualMappingFunctionFactory factory = factoryManager.getFactory(DiscreteMapping.class);
+				newMapping = parseDiscrete(column, columnType, vp, factory, mapping.get(MAPPING_DISCRETE_MAP));
 			} else if (type.equals(MAPPING_CONTINUOUS)) {
-				parseContinuous();
+				final VisualMappingFunctionFactory factory = factoryManager.getFactory(ContinuousMapping.class);
+				newMapping = parseContinuous(column, columnType, vp, factory);
 			} else if (type.equals(MAPPING_PASSTHROUGH)) {
-				System.out.println("PT ++++++++++++++++++++++++++++");
 				final VisualMappingFunctionFactory factory = factoryManager.getFactory(PassthroughMapping.class);
-				PassthroughMapping pMapping = parsePassthrough(column, columnType, vp, factory);
-				style.addVisualMappingFunction(pMapping);
+				newMapping = parsePassthrough(column, columnType, vp, factory);
+			}
+
+			if (newMapping != null) {
+				style.addVisualMappingFunction(newMapping);
 			}
 		}
-
 	}
 
 	private final VisualProperty getVisualProperty(String vpName, VisualLexicon lexicon) {
@@ -117,18 +140,51 @@ public class VisualStyleMapper {
 		}
 	}
 
-	private final void parseDiscrete() {
-
+	private final Object parseKeyValue(final Class<?> type, final String value) {
+		if (type == Double.class) {
+			return Double.parseDouble(value);
+		} else if (type == Long.class) {
+			return Long.parseLong(value);
+		} else if (type == Integer.class) {
+			return Integer.parseInt(value);
+		} else if (type == Float.class) {
+			return Float.parseFloat(value);
+		} else if (type == Boolean.class) {
+			return Boolean.parseBoolean(value);
+		} else if (type == String.class) {
+			return value;
+		} else {
+			return null;
+		}
 	}
 
-	private final void parseContinuous() {
+	private final DiscreteMapping parseDiscrete(String columnName, Class<?> type, VisualProperty<?> vp,
+			VisualMappingFunctionFactory factory, JsonNode discreteMapping) {
+		DiscreteMapping mapping = (DiscreteMapping) factory.createVisualMappingFunction(columnName, type, vp);
 
+		final Map map = new HashMap();
+		for (JsonNode pair : discreteMapping) {
+			final Object key = parseKeyValue(type, pair.get(MAPPING_DISCRETE_KEY).textValue());
+			if (key != null) {
+				map.put(key, vp.parseSerializableString(pair.get(MAPPING_DISCRETE_VALUE).textValue()));
+			}
+		}
+		mapping.putAll(map);
+		return mapping;
+	}
+
+	private final ContinuousMapping parseContinuous(String columnName, Class<?> type, VisualProperty<?> vp,
+			VisualMappingFunctionFactory factory) {
+
+		ContinuousMapping mapping = (ContinuousMapping) factory.createVisualMappingFunction(columnName, type, vp);
+
+		return mapping;
 	}
 
 	private final PassthroughMapping parsePassthrough(String columnName, Class<?> type, VisualProperty<?> vp,
-			VisualMappingFunctionFactory pFactory) {
+			VisualMappingFunctionFactory factory) {
 
-		return (PassthroughMapping) pFactory.createVisualMappingFunction(columnName, type, vp);
+		return (PassthroughMapping) factory.createVisualMappingFunction(columnName, type, vp);
 
 	}
 

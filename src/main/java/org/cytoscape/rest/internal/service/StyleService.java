@@ -50,49 +50,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class StyleService extends AbstractDataService {
 
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
-	
+
 	@Context
 	private WriterListener writerListener;
-	
+
 	@Context
 	private TaskMonitor tm;
-	
+
 	@Context
 	private VisualStyleFactory vsFactory;
 
 	@Context
 	private MappingFactoryManager factoryManager;
-	
-	private final ObjectMapper styleMapper;
 
+	private final ObjectMapper styleMapper;
 	private final VisualStyleMapper visualStyleMapper;
-	
+
 	public StyleService() {
 		super();
 		this.styleMapper = new ObjectMapper();
 		this.styleMapper.registerModule(new VisualStyleModule());
-		
+
 		this.visualStyleMapper = new VisualStyleMapper();
 	}
-	
-	private final VisualStyle getStyleByName(final String name) {
-		final Collection<VisualStyle> styles = vmm.getAllVisualStyles();
-		for(final VisualStyle style: styles) {
-			if(style.getTitle().equals(name)) {
-				return style;
-			}
-		}
 
-		throw new NotFoundException("Could not find Visual Style: " + name);
-	}
-	
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStyleNames() {
 		final Collection<VisualStyle> styles = vmm.getAllVisualStyles();
 		final List<String> styleNames = new ArrayList<String>();
-		for(final VisualStyle style: styles) {
+		for (final VisualStyle style : styles) {
 			styleNames.add(style.getTitle());
 		}
 		try {
@@ -100,9 +88,8 @@ public class StyleService extends AbstractDataService {
 		} catch (IOException e) {
 			throw new WebApplicationException(e, 500);
 		}
-		
-	}
 
+	}
 
 	@GET
 	@Path("/count")
@@ -110,7 +97,6 @@ public class StyleService extends AbstractDataService {
 	public String getStylCount() {
 		return getNumberObjectString("styleCount", vmm.getAllVisualStyles().size());
 	}
-
 
 	@DELETE
 	@Path("/{name}")
@@ -121,28 +107,62 @@ public class StyleService extends AbstractDataService {
 	}
 
 
+	@DELETE
+	@Path("/{name}/mappings/{vpName}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void deleteMapping(@PathParam("name") String name, @PathParam("vpName") String vpName) {
+		final VisualStyle style = getStyleByName(name);
+		final VisualProperty<?> vp = getVisualProperty(vpName);
+		if(vp == null) {
+			throw new NotFoundException("Could not find Visual Property: " + vpName);
+		}
+		final VisualMappingFunction<?,?> mapping = style.getVisualMappingFunction(vp);
+		if(mapping == null) {
+			throw new NotFoundException("Could not find mapping for: " + vpName);
+		}
+		style.removeVisualMappingFunction(vp);
+	}
+
+
+	@DELETE
+	@Path("/{name}/mappings")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void deleteAllMappings(@PathParam("name") String name) {
+		final VisualStyle style = getStyleByName(name);
+		final Collection<VisualMappingFunction<?, ?>> mappings = style.getAllVisualMappingFunctions();
+		final Set<VisualProperty<?>> toBeRemoved = new HashSet<VisualProperty<?>>();
+		for(final VisualMappingFunction<?,?> mapping:mappings) {
+			toBeRemoved.add(mapping.getVisualProperty());
+		}
+		
+		for(final VisualProperty<?> vp: toBeRemoved) {
+			style.removeVisualMappingFunction(vp);
+		}
+	}
+
+
 	private final VisualLexicon getLexicon() {
 		final Set<VisualLexicon> lexicon = this.vmm.getAllVisualLexicon();
-		if(lexicon.isEmpty()) {
+		if (lexicon.isEmpty()) {
 			throw new WebApplicationException("Could not find lexicon.", 500);
 		}
 		return lexicon.iterator().next();
 	}
-	@GET
-	@Path("/{name}/{type}/defaults")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getDefaults(@PathParam("name") String name, @PathParam("type") String type) {
-		return getVp(name, type, null);
-	}
-
 
 	@GET
-	@Path("/{name}/{type}/defaults/{vpName}")
+	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getDefaultValue(@PathParam("name") String name, @PathParam("type") String type, @PathParam("vpName") String vpName) {
-		return getVp(name, type, vpName);
+	public String getDefaults(@PathParam("name") String name) {
+		return getVp(name, null);
 	}
 
+	@GET
+	@Path("/{name}/defaults/{vpName}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getDefaultValue(@PathParam("name") String name,
+			@PathParam("vpName") String vpName) {
+		return getVp(name, vpName);
+	}
 
 	@GET
 	@Path("/{name}/mappings")
@@ -157,7 +177,6 @@ public class StyleService extends AbstractDataService {
 		}
 	}
 
-
 	@GET
 	@Path("/{name}/mappings/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -166,13 +185,13 @@ public class StyleService extends AbstractDataService {
 		final VisualLexicon lexicon = getLexicon();
 		final Set<VisualProperty<?>> allVp = lexicon.getAllVisualProperties();
 		VisualProperty<?> visualProp = null;
-		for(VisualProperty<?> curVp: allVp) {
-			if(curVp.getIdString().equals(vp)) {
+		for (VisualProperty<?> curVp : allVp) {
+			if (curVp.getIdString().equals(vp)) {
 				visualProp = curVp;
 				break;
 			}
 		}
-		if(visualProp == null){
+		if (visualProp == null) {
 			throw new NotFoundException("Could not find VisualProperty: " + vp);
 		}
 		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
@@ -182,27 +201,19 @@ public class StyleService extends AbstractDataService {
 			throw new WebApplicationException(e, 500);
 		}
 	}
-	
-	private final String getVp(String name, String type, String vpName ) {
-		
+
+	private final String getVp(String name, String vpName) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualLexicon lexicon = getLexicon();
-		VisualProperty<?> vpClass = null;
-		if(type.equals("node")) {
-			vpClass = BasicVisualLexicon.NODE;
-		} else if(type.equals("edge")) {
-			vpClass = BasicVisualLexicon.EDGE;
-		} else if(type.equals("network")) {
-			vpClass = BasicVisualLexicon.NETWORK;
-		} else {
-			throw new WebApplicationException("Incompatible data type.", 500);
-		}
 		final Collection<VisualProperty<?>> vps;
-		if(vpName == null) {
-			vps = lexicon.getAllDescendants(vpClass);
+		if (vpName == null) {
+			vps = lexicon.getAllVisualProperties();
 		} else {
+			VisualProperty<?> vp = getVisualProperty(vpName);
 			vps = new HashSet<VisualProperty<?>>();
-			vps.add(lexicon.lookup(vpClass.getTargetDataType(), vpName));
+			if(vp != null) {
+				vps.add(vp);
+			}
 		}
 		try {
 			return styleSerializer.serializeDefaults(vps, style);
@@ -210,73 +221,63 @@ public class StyleService extends AbstractDataService {
 			throw new WebApplicationException(e, 500);
 		}
 	}
-	
-	
-	///////////// Update Default Values ///////////////
-	
+
+	private final VisualProperty getVisualProperty(String vpName) {
+		final VisualLexicon lexicon = getLexicon();
+		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		for (VisualProperty vp : vps) {
+			if (vp.getIdString().equals(vpName)) {
+				return vp;
+			}
+		}
+
+		return null;
+	}
+
+	// /////////// Update Default Values ///////////////
+
 	@PUT
-	@Path("/{name}/{type}/defaults")
+	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
 	public void updateDefaults(@PathParam("name") String name, @PathParam("type") String type, InputStream is) {
 		final VisualStyle style = getStyleByName(name);
-		final Set<VisualLexicon> lexicon = this.vmm.getAllVisualLexicon();
-		if(lexicon.isEmpty()) {
-			throw new WebApplicationException("Could not find lexicon.", 500);
-		}
-		final VisualLexicon lex = lexicon.iterator().next();
-		
-		Class<?> objectType;
-		if(type.equals("node")) {
-			objectType = CyNode.class;
-		} else if(type.equals("edge")) {
-			objectType = CyEdge.class;
-		} else if(type.equals("network")) {
-			objectType = CyNetwork.class;
-		} else {
-			throw new WebApplicationException("Incompatible data type.", 500);
-		}
-		
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			updateVisualProperties(rootNode, style, lex, objectType);
-		} catch (JsonParseException e) {
-			throw new WebApplicationException(e, 500);
-		} catch (JsonMappingException e) {
-			throw new WebApplicationException(e, 500);
-		} catch (IOException e) {
+			updateVisualProperties(rootNode, style);
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
 		}
 	}
-	
-	private final void updateVisualProperties(final JsonNode rootNode, VisualStyle style, VisualLexicon lexicon, Class<?> type) {
-		final Iterator<String> fieldNames = rootNode.fieldNames();
 
-		while (fieldNames.hasNext()) {
-			final String fieldName = fieldNames.next();
-			final VisualProperty<Object> vp = (VisualProperty<Object>) lexicon.lookup(type, fieldName);
-			if(vp == null) {
+	private final void updateVisualProperties(final JsonNode rootNode, VisualStyle style) {
+		for(JsonNode defaultNode: rootNode) {
+			final String vpName = defaultNode.get("visual_property").textValue();
+			@SuppressWarnings("unchecked")
+			final VisualProperty<Object> vp = getVisualProperty(vpName);
+			if (vp == null) {
 				continue;
 			}
-			style.setDefaultValue(vp, vp.parseSerializableString(rootNode.get(fieldName).asText()));
+			final Object value = vp.parseSerializableString(defaultNode.get("value").asText());
+			if(value != null) {
+				style.setDefaultValue(vp, value);
+			}
 		}
 	}
-
 
 	@GET
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStyle(@PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
-		
 		try {
-			return styleSerializer.serializeDefaults(getLexicon().getAllVisualProperties(), style);
+			return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
 		}
 	}
-
 
 	@POST
 	@Path("/")
@@ -287,12 +288,60 @@ public class StyleService extends AbstractDataService {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(), rootNode);
+			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(),
+					rootNode);
 			vmm.addVisualStyle(style);
 		} catch (Exception e) {
-			System.out.println("++++++++++++++++++++++++++++");
 			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
 		}
+	}
+
+
+	@POST
+	@Path("/{name}/mappings")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public void addMappings(@PathParam("name") String name,InputStream is) {
+		final VisualStyle style = getStyleByName(name);
+		final ObjectMapper objMapper = new ObjectMapper();
+		JsonNode rootNode;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
+	}
+
+
+	@PUT
+	@Path("/{name}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public void updateStyleTitle(@PathParam("name") String name, InputStream is) {
+		final VisualStyle style = getStyleByName(name);
+		final ObjectMapper objMapper = new ObjectMapper();
+		JsonNode rootNode;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+			this.visualStyleMapper.updateStyleName(style, getLexicon(), rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
+	}
+
+
+	private final VisualStyle getStyleByName(final String name) {
+		final Collection<VisualStyle> styles = vmm.getAllVisualStyles();
+		for (final VisualStyle style : styles) {
+			if (style.getTitle().equals(name)) {
+				return style;
+			}
+		}
+
+		throw new NotFoundException("Could not find Visual Style: " + name);
 	}
 }

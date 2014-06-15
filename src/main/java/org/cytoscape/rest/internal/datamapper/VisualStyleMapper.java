@@ -86,7 +86,7 @@ public class VisualStyleMapper {
 			final String vpName = mapping.get(MAPPING_VP).textValue();
 
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
-			final Class<?> columnType = getColumnClass(colType);
+			final Class<?> columnType = MapperUtil.getColumnClass(colType);
 			if (vp == null || columnType == null) {
 				return;
 			}
@@ -122,23 +122,6 @@ public class VisualStyleMapper {
 		return vp;
 	}
 
-	private final Class<?> getColumnClass(final String type) {
-		if (type.equals(Double.class.getSimpleName())) {
-			return Double.class;
-		} else if (type.equals(Long.class.getSimpleName())) {
-			return Long.class;
-		} else if (type.equals(Integer.class.getSimpleName())) {
-			return Integer.class;
-		} else if (type.equals(Float.class.getSimpleName())) {
-			return Float.class;
-		} else if (type.equals(Boolean.class.getSimpleName())) {
-			return Boolean.class;
-		} else if (type.equals(String.class.getSimpleName())) {
-			return String.class;
-		} else {
-			return null;
-		}
-	}
 
 	private final Object parseKeyValue(final Class<?> type, final String value) {
 		if (type == Double.class) {

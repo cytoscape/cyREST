@@ -26,9 +26,9 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
 import org.cytoscape.rest.internal.serializer.CyTableSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cytoscape.rest.internal.serializer.TableModule;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,8 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Path("/v1")
 // API version
 public class TableDataService extends AbstractDataService {
-
-	private final static Logger logger = LoggerFactory.getLogger(TableDataService.class);
 
 	private static enum TableType {
 		DEFAULT_NODE("defaultnode"), DEFAULT_EDGE("defaultedge"), DEFAULT_NETWORK("defaultnetwork");
@@ -53,13 +51,17 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
-	private final CyTableSerializer tableSerializer;
+//	private final CyTableSerializer tableSerializer;
 	private final TableMapper tableMapper;
-
+	
+	private final ObjectMapper tableObjectMapper;
+	
 	public TableDataService() {
 		super();
-		this.tableSerializer = new CyTableSerializer();
+//		this.tableSerializer = new CyTableSerializer();
 		this.tableMapper = new TableMapper();
+		this.tableObjectMapper = new ObjectMapper();
+		this.tableObjectMapper.registerModule(new TableModule());
 	}
 
 	// ////////////// Count objects //////////////////////
@@ -223,6 +225,13 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
+	
+	/**
+	 * Get all tables assigned for the network.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@GET
 	@Path("/networks/{id}/tables")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -230,7 +239,7 @@ public class TableDataService extends AbstractDataService {
 		final Set<CyTable> tables = this.tableManager.getAllTables(true);
 
 		try {
-			return tableSerializer.serializeTables(tables);
+			return tableObjectMapper.writeValueAsString(tables);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
@@ -271,15 +280,14 @@ public class TableDataService extends AbstractDataService {
 
 	@GET
 	@Path("/networks/{id}/tables/{tableType}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getTable(@PathParam("id") Long id, @PathParam("tableType") String tableType,
 			@QueryParam("format") String format) {
 
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
-		final List<? extends CyIdentifiable> objects = getGraphObjectsByType(network, tableType);
 
-		if (format.equals("csv")) {
+		if (format != null && format.equals("csv")) {
 			final CyTableSerializer tableSerializer = new CyTableSerializer();
 			try {
 				final String result = tableSerializer.toCSV(table);
@@ -288,21 +296,12 @@ public class TableDataService extends AbstractDataService {
 				throw new WebApplicationException(e, 500);
 			}
 		} else {
-			// Return as JSON
-			final StringBuilder builder = new StringBuilder();
-			builder.append("[");
-			for (final CyIdentifiable obj : objects) {
-				CyRow row = network.getRow(obj);
-				try {
-					builder.append(this.serializer.serializeGraphObject(obj, row) + ",");
-				} catch (IOException e) {
-					throw new WebApplicationException(e, 500);
-				}
+			try {
+				return this.tableObjectMapper.writeValueAsString(table);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+				throw new WebApplicationException(e, 500);
 			}
-			String result = builder.toString();
-			result = result.substring(0, result.length() - 1);
-
-			return result + "]";
 		}
 	}
 }

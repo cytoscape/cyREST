@@ -19,4 +19,21 @@ public class MapperUtil {
 			return null;
 		}
 	}
+	
+	public static final Object getRawValue(final String queryString, Class<?> type) {
+		Object raw = queryString;
+
+		if (type == Boolean.class) {
+			raw = Boolean.parseBoolean(queryString);
+		} else if (type == Double.class) {
+			raw = Double.parseDouble(queryString);
+		} else if (type == Integer.class) {
+			raw = Integer.parseInt(queryString);
+		} else if (type == Long.class) {
+			raw = Long.parseLong(queryString);
+		} else if (type == Float.class) {
+			raw = Float.parseFloat(queryString);
+		}
+		return raw;
+	}
 }

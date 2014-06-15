@@ -36,6 +36,7 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
+import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
@@ -110,7 +111,7 @@ public class NetworkDataService extends AbstractDataService {
 		} else if(query == null || column == null) {
 			throw new WebApplicationException("Query parameters are incomplete.", 500);
 		} else {
-			Object rawQuery = getRawValue(query, table.getColumn(column).getType());
+			Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
 			rows = table.getMatchingRows(column, rawQuery);
 		}
 
@@ -135,22 +136,6 @@ public class NetworkDataService extends AbstractDataService {
 		return result;
 	}
 
-	private final Object getRawValue(final String queryString, Class<?> type) {
-		Object raw = queryString;
-
-		if (type == Boolean.class) {
-			raw = Boolean.parseBoolean(queryString);
-		} else if (type == Double.class) {
-			raw = Double.parseDouble(queryString);
-		} else if (type == Integer.class) {
-			raw = Integer.parseInt(queryString);
-		} else if (type == Long.class) {
-			raw = Long.parseLong(queryString);
-		} else if (type == Float.class) {
-			raw = Float.parseFloat(queryString);
-		}
-		return raw;
-	}
 
 	@GET
 	@Path("/" + NETWORKS)
@@ -170,7 +155,7 @@ public class NetworkDataService extends AbstractDataService {
 		
 		for(final CyNetwork network:networks) {
 			final CyTable table=network.getDefaultNetworkTable();
-			final Object rawQuery = getRawValue(query, table.getColumn(column).getType());
+			final Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
 			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
 			if(rows.isEmpty() == false) {
 				matchedNetworks.add(network);

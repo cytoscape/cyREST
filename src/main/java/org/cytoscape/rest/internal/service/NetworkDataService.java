@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +67,6 @@ public class NetworkDataService extends AbstractDataService {
 		super();
 	}
 
-	// ////////////////// Count Objects ///////////////////////////
 
 	@GET
 	@Path("/" + NETWORKS + "/count")
@@ -75,12 +75,14 @@ public class NetworkDataService extends AbstractDataService {
 		return getNumberObjectString("networkCount", networkManager.getNetworkSet().size());
 	}
 
+
 	@GET
 	@Path("/" + NETWORKS + "/{id}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNodeCount(@PathParam("id") Long id) {
 		return getNumberObjectString("nodeCount", getCyNetwork(id).getNodeCount());
 	}
+
 
 	@GET
 	@Path("/" + NETWORKS + "/{id}/edges/count")
@@ -89,7 +91,7 @@ public class NetworkDataService extends AbstractDataService {
 		return getNumberObjectString("edgeCount", getCyNetwork(id).getEdgeCount());
 	}
 
-	// /////////////////// Get Operations
+
 
 	private String getByQuery(final Long id, final String objType, final String column, final String query) {
 		final CyNetwork network = getCyNetwork(id);
@@ -153,8 +155,32 @@ public class NetworkDataService extends AbstractDataService {
 	@GET
 	@Path("/" + NETWORKS)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworks() {
+	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
+		if(column == null && query == null) {
+			return getNetworks(networkManager.getNetworkSet());
+		} else {
+			return getNetworksByQuery(query, column);
+		}
+	}
+
+
+	private final String getNetworksByQuery(final String query, final String column) {
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
+		final Set<CyNetwork> matchedNetworks = new HashSet<CyNetwork>();
+		
+		for(final CyNetwork network:networks) {
+			final CyTable table=network.getDefaultNetworkTable();
+			final Object rawQuery = getRawValue(query, table.getColumn(column).getType());
+			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
+			if(rows.isEmpty() == false) {
+				matchedNetworks.add(network);
+			}
+		}
+		return getNetworks(matchedNetworks);
+	}
+
+
+	private final String getNetworks(final Set<CyNetwork> networks) {
 		StringBuilder result = new StringBuilder();
 		result.append("[");
 
@@ -168,12 +194,14 @@ public class NetworkDataService extends AbstractDataService {
 		return jsonString + "]";
 	}
 
+
 	@GET
-	@Path("/" + NETWORKS + "/{id}/")
+	@Path("/" + NETWORKS + "/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetwork(@PathParam("id") Long id) {
 		return getNetworkString(getCyNetwork(id));
 	}
+
 
 	/**
 	 * Get edges as array of SUID
@@ -196,6 +224,8 @@ public class NetworkDataService extends AbstractDataService {
 			@QueryParam("query") String query) {
 		return getByQuery(id, "edges", column, query);
 	}
+
+
 
 	/**
 	 * Returns a node or an edge.

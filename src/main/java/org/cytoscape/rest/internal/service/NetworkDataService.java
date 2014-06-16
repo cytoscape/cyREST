@@ -166,6 +166,10 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	private final String getNetworks(final Set<CyNetwork> networks) {
+		if(networks.isEmpty()) {
+			return "[]";
+		}
+
 		StringBuilder result = new StringBuilder();
 		result.append("[");
 

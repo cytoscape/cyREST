@@ -6,6 +6,8 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.group.CyGroupFactory;
+import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
@@ -45,24 +47,24 @@ public class CyActivator extends AbstractCyActivator {
 	public CyActivator() {
 		super();
 	}
-	
+
 	public class WriterListener {
-		
+
 		private VizmapWriterFactory jsFactory;
-		
+
 		@SuppressWarnings("rawtypes")
 		public void registerFactory(final VizmapWriterFactory factory, final Map props) {
 			System.out.println("########### W = " + factory.getClass().getSimpleName());
-			if(factory != null && factory.getClass().getSimpleName().equals("CytoscapeJsVisualStyleWriterFactory")) {
+			if (factory != null && factory.getClass().getSimpleName().equals("CytoscapeJsVisualStyleWriterFactory")) {
 				this.jsFactory = factory;
 			}
 		}
-		
+
 		@SuppressWarnings("rawtypes")
 		public void unregisterFactory(final VizmapWriterFactory factory, final Map props) {
-	
+
 		}
-		
+
 		public VizmapWriterFactory getFactory() {
 			return this.jsFactory;
 		}
@@ -71,8 +73,9 @@ public class CyActivator extends AbstractCyActivator {
 	public void start(BundleContext bc) {
 
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
-		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory", VisualMappingFunctionFactory.class);
-		
+		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
+				VisualMappingFunctionFactory.class);
+
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 		// Importing Services:
 		StreamUtil streamUtil = getService(bc, StreamUtil.class);
@@ -85,7 +88,9 @@ public class CyActivator extends AbstractCyActivator {
 		CyLayoutAlgorithmManager layoutManager = getService(bc, CyLayoutAlgorithmManager.class);
 
 		final VisualStyleFactory vsFactory = getService(bc, VisualStyleFactory.class);
-		
+		final CyGroupFactory groupFactory = getService(bc, CyGroupFactory.class);
+		final CyGroupManager groupManager = getService(bc, CyGroupManager.class);
+
 		CyTableFactory tabFact = getService(bc, CyTableFactory.class);
 		CyTableManager tableManager = getService(bc, CyTableManager.class);
 
@@ -94,14 +99,14 @@ public class CyActivator extends AbstractCyActivator {
 
 		InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
 				"(id=cytoscapejsNetworkReaderFactory)");
-		
+
 		WriterListener writerListsner = new WriterListener();
 		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
 
-		System.out.println("Writer = " + cytoscapeJsWriterFactory);
-		System.out.println("Reader = " + cytoscapeJsReaderFactory);
-		
-		final TaskManager<?,?> tm = getService(bc, TaskManager.class);
+//		System.out.println("Writer = " + cytoscapeJsWriterFactory);
+//		System.out.println("Reader = " + cytoscapeJsReaderFactory);
+
+		final TaskManager<?, ?> tm = getService(bc, TaskManager.class);
 
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
@@ -123,8 +128,9 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
-				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, writerListsner, 
-				headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager);
+				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
+				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
+				groupManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder);
 		try {
 			this.grizzlyServerManager.startServer();

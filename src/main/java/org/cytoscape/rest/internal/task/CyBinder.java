@@ -1,9 +1,10 @@
 package org.cytoscape.rest.internal.task;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.group.CyGroupFactory;
+import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
-import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableManager;
@@ -20,7 +21,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 public class CyBinder extends AbstractBinder {
 
 	private final TaskMonitor headlessMonitor;
-	
+
 	private final CyNetworkManager networkManager;
 	private final CyNetworkViewManager networkViewManager;
 	private final CyNetworkFactory networkFactory;
@@ -29,22 +30,25 @@ public class CyBinder extends AbstractBinder {
 	private final VisualMappingManager vmm;
 	private final CyLayoutAlgorithmManager layoutManager;
 	private final CyTableManager tableMamanger;
-	
+
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
 	private final WriterListener vizmapWriterFactoryListener;
 	private final VisualStyleFactory vsFactory;
-	
+
 	private final MappingFactoryManager mappingFactoryManager;
+	private final CyGroupFactory groupFactory;
+	private final CyGroupManager groupManager;
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
-			final CyNetworkFactory networkFactory,
-			final TaskFactoryManager tfManager, final CyApplicationManager applicationManager,
-			final VisualMappingManager vmm, final CyNetworkViewWriterFactory cytoscapeJsWriterFactory,
+			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
+			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
+			final CyNetworkViewWriterFactory cytoscapeJsWriterFactory,
 			final InputStreamTaskFactory cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
-			final CyTableManager tableManager, final VisualStyleFactory vsFactory, final MappingFactoryManager mappingFactoryManager) 
-	{
+			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
+			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
+			final CyGroupManager groupManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -59,6 +63,8 @@ public class CyBinder extends AbstractBinder {
 		this.tableMamanger = tableManager;
 		this.vsFactory = vsFactory;
 		this.mappingFactoryManager = mappingFactoryManager;
+		this.groupFactory = groupFactory;
+		this.groupManager = groupManager;
 	}
 
 	@Override
@@ -77,6 +83,7 @@ public class CyBinder extends AbstractBinder {
 		bind(tableMamanger).to(CyTableManager.class);
 		bind(vsFactory).to(VisualStyleFactory.class);
 		bind(mappingFactoryManager).to(MappingFactoryManager.class);
-		
+		bind(groupFactory).to(CyGroupFactory.class);
+		bind(groupManager).to(CyGroupManager.class);
 	}
 }

@@ -35,6 +35,9 @@ public class GroupSerializer extends JsonSerializer<CyGroup> {
 		final Set<CyEdge> externalEdges = group.getExternalEdgeList();
 		jgen.writeNumberField(CyIdentifiable.SUID, groupNode.getSUID());
 
+		// TODO: Bug?  Always false
+//		jgen.writeBooleanField("collapsed", group.isCollapsed(group.getRootNetwork()));
+		
 		jgen.writeArrayFieldStart("nodes");
 		for (final CyNode node : memberNodes) {
 			jgen.writeNumber(node.getSUID());

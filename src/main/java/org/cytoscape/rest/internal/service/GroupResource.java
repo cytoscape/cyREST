@@ -61,7 +61,6 @@ public class GroupResource extends AbstractDataService {
 		return getNumberObjectString("groupCount", groupManager.getGroupSet(network).size());
 	}
 
-
 	@GET
 	@Path("/{networkId}/groups")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -76,7 +75,6 @@ public class GroupResource extends AbstractDataService {
 		}
 	}
 
-
 	@GET
 	@Path("/{networkId}/groups/{suid}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -88,7 +86,7 @@ public class GroupResource extends AbstractDataService {
 		}
 
 		final CyGroup group = groupManager.getGroup(node, network);
-		if(group == null) {
+		if (group == null) {
 			throw new NotFoundException("Could not find group.");
 		}
 		try {
@@ -99,6 +97,20 @@ public class GroupResource extends AbstractDataService {
 		}
 	}
 
+	@DELETE
+	@Path("/{networkId}/groups")
+	public void deleteAllGroups(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final Set<CyGroup> groups = groupManager.getGroupSet(network);
+		try {
+			for (final CyGroup group : groups) {
+				groupManager.destroyGroup(group);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
+	}
 
 	@DELETE
 	@Path("/{networkId}/groups/{suid}")
@@ -112,22 +124,49 @@ public class GroupResource extends AbstractDataService {
 		}
 	}
 
+	@GET
+	@Path("/{networkId}/groups/{suid}/expand")
+	public void expandGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
+		toggle(networkId, suid, false);
+	}
+
+	@GET
+	@Path("/{networkId}/groups/{suid}/collapse")
+	public void collapseGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
+		toggle(networkId, suid, true);
+	}
+
+	private final void toggle(final Long networkId, final Long suid, boolean collapse) {
+		final CyGroup group = getGroupById(networkId, suid);
+		final CyNetwork network = getCyNetwork(networkId);
+		try {
+			if (collapse) {
+				group.collapse(network);
+			} else {
+				group.expand(network);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
+	}
 
 	private final CyGroup getGroupById(final Long networkId, final Long suid) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyNode node = network.getNode(suid);
+		CyNode node = network.getNode(suid);
 		if (node == null) {
-			throw new NotFoundException("Could not find the node with SUID: " + suid);
+			node = ((CySubNetwork)network).getRootNetwork().getNode(suid);
+			if(node == null)
+				throw new NotFoundException("Could not find the node with SUID: " + suid);
 		}
-		
+
 		final CyGroup group = groupManager.getGroup(node, network);
-		if(group == null) {
+		if (group == null) {
 			throw new NotFoundException("Could not find group.");
 		}
 		return group;
 	}
-	
-	
+
 	@POST
 	@Path("/{id}/groups")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -139,7 +178,7 @@ public class GroupResource extends AbstractDataService {
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
 			return getNumberObjectString(CyIdentifiable.SUID, newGroup.getGroupNode().getSUID());
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
 		}

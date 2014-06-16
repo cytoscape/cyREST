@@ -55,7 +55,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
-@Path("/v1")
+@Path("/v1/networks")
 // API version
 public class NetworkDataService extends AbstractDataService {
 
@@ -70,7 +70,7 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	@GET
-	@Path("/" + NETWORKS + "/count")
+	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworkCount() {
 		return getNumberObjectString("networkCount", networkManager.getNetworkSet().size());
@@ -78,7 +78,7 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes/count")
+	@Path("/{id}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNodeCount(@PathParam("id") Long id) {
 		return getNumberObjectString("nodeCount", getCyNetwork(id).getNodeCount());
@@ -86,13 +86,11 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/edges/count")
+	@Path("/{id}/edges/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEdgeCount(@PathParam("id") Long id) {
 		return getNumberObjectString("edgeCount", getCyNetwork(id).getEdgeCount());
 	}
-
-
 
 	private String getByQuery(final Long id, final String objType, final String column, final String query) {
 		final CyNetwork network = getCyNetwork(id);
@@ -138,7 +136,7 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	@GET
-	@Path("/" + NETWORKS)
+	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
 		if(column == null && query == null) {
@@ -185,7 +183,7 @@ public class NetworkDataService extends AbstractDataService {
 
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}")
+	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetwork(@PathParam("id") Long id) {
 		return getNetworkString(getCyNetwork(id));
@@ -199,7 +197,7 @@ public class NetworkDataService extends AbstractDataService {
 	 * @return
 	 */
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes")
+	@Path("/{id}/nodes")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNodes(@PathParam("id") Long id, @QueryParam("column") String column,
 			@QueryParam("query") String query) {
@@ -207,7 +205,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/edges")
+	@Path("/{id}/edges")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEdges(@PathParam("id") Long id, @QueryParam("column") String column,
 			@QueryParam("query") String query) {
@@ -225,33 +223,33 @@ public class NetworkDataService extends AbstractDataService {
 	 * @return
 	 */
 	@GET
-	@Path("/" + NETWORKS + "/{id}/{objType}/{objId}")
+	@Path("/{id}/nodes/{objId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGraphObject(@PathParam("id") Long id, @PathParam("objType") String objType,
-			@PathParam("objId") Long suid) {
+	public String getNode(@PathParam("id") Long id, @PathParam("objId") Long suid) {
 		final CyNetwork network = getCyNetwork(id);
-
-		CyIdentifiable obj = null;
-		try {
-			if (objType.equals("nodes")) {
-				obj = network.getNode(suid);
-			} else if (objType.equals("edges")) {
-				obj = network.getEdge(suid);
-			} else {
-				throw new WebApplicationException("Invalid graph object type: " + objType, 500);
-			}
-		} catch (Exception e) {
-			throw new WebApplicationException(e, 500);
-		}
-
-		if (obj == null) {
+		final CyNode node = network.getNode(suid);
+		if (node == null) {
 			throw new WebApplicationException("Could not find object: " + suid, 404);
 		}
-		return getGraphObject(network, obj);
+		return getGraphObject(network, node);
 	}
 
+
 	@GET
-	@Path("/" + NETWORKS + "/{id}/edges/{objId}/{type}")
+	@Path("/{id}/edges/{objId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEdge(@PathParam("id") Long id, @PathParam("objId") Long suid) {
+		final CyNetwork network = getCyNetwork(id);
+		final CyEdge edge = getCyNetwork(id).getEdge(suid);
+		if (edge == null) {
+			throw new WebApplicationException("Could not find object: " + suid, 404);
+		}
+		return getGraphObject(network, edge);
+	}
+
+
+	@GET
+	@Path("/{id}/edges/{objId}/{type}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEdgeComponent(@PathParam("id") Long id, @PathParam("objId") Long suid,
 			@PathParam("type") String type) {
@@ -275,7 +273,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/edges/{objId}/directed")
+	@Path("/{id}/edges/{objId}/directed")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEdgeDirected(@PathParam("id") Long id, @PathParam("objId") Long suid) {
 		final CyNetwork network = getCyNetwork(id);
@@ -321,7 +319,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/adjedges")
+	@Path("/{id}/nodes/{objId}/adjedges")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getAdjEdges(@PathParam("id") Long id, @PathParam("objId") Long objId) {
 		final CyNetwork network = getCyNetwork(id);
@@ -331,17 +329,21 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/pointer")
+	@Path("/{id}/nodes/{objId}/pointer")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNetworkPointer(@PathParam("id") Long id, @PathParam("objId") Long objId) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyNode node = getNode(network, objId);
 		final CyNetwork pointer = node.getNetworkPointer();
-		return getNumberObjectString("netwoirkPointer", pointer.getSUID());
+		System.out.println("##PTR = " + pointer);
+		if(pointer == null) {
+			return "{}";
+		}
+		return getNumberObjectString("networkPointer", pointer.getSUID());
 	}
 
 	@GET
-	@Path("/" + NETWORKS + "/{id}/nodes/{objId}/neignbours")
+	@Path("/{id}/nodes/{objId}/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getNeighbours(@PathParam("id") Long id, @PathParam("objId") Long objId) {
 		final CyNetwork network = getCyNetwork(id);
@@ -391,7 +393,7 @@ public class NetworkDataService extends AbstractDataService {
 	 * @throws Exception
 	 */
 	@POST
-	@Path("/" + NETWORKS + "/{id}/nodes")
+	@Path("/{id}/nodes")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNode(@PathParam("id") Long id, final InputStream is) throws Exception {
@@ -429,7 +431,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@POST
-	@Path("/" + NETWORKS + "/{id}/edges")
+	@Path("/{id}/edges")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createEdge(@PathParam("id") Long id, final InputStream is) throws Exception {
@@ -487,23 +489,11 @@ public class NetworkDataService extends AbstractDataService {
 		}
 	}
 
-	/**
-	 * TODO: Ask everyone (which is more natural?)
-	 * 
-	 * Merge nodes and edges
-	 * 
-	 * @param id
-	 */
-	@PUT
-	@Path("/" + NETWORKS + "/{id}/")
-	public void updateNetwork(@PathParam("id") Long id) {
-		final CyNetwork network = getCyNetwork(id);
-	}
 
 	// //////////////// Delete //////////////////////////////////
 
 	@DELETE
-	@Path("/" + NETWORKS)
+	@Path("/")
 	public void deleteAllNetworks() {
 		final Set<CyNetwork> allNetworks = this.networkManager.getNetworkSet();
 		for (final CyNetwork network : allNetworks) {
@@ -512,14 +502,14 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/" + NETWORKS + "/{id}/")
+	@Path("/{id}")
 	public void deleteNetwork(@PathParam("id") Long id) {
 		final CyNetwork network = getCyNetwork(id);
 		this.networkManager.destroyNetwork(network);
 	}
 
 	@DELETE
-	@Path("/" + NETWORKS + "/{id}/nodes")
+	@Path("/{id}/nodes")
 	public void deleteAllNodes(@PathParam("id") Long id) {
 		final CyNetwork network = getCyNetwork(id);
 		network.removeNodes(network.getNodeList());
@@ -527,7 +517,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/" + NETWORKS + "/{id}/edges")
+	@Path("/{id}/edges")
 	public void deleteAllEdges(@PathParam("id") Long id) {
 		final CyNetwork network = getCyNetwork(id);
 		network.removeEdges(network.getEdgeList());
@@ -535,7 +525,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/" + NETWORKS + "/{networkId}/nodes/{nodeId}")
+	@Path("/{networkId}/nodes/{nodeId}")
 	public void deleteNode(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
@@ -549,7 +539,7 @@ public class NetworkDataService extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/" + NETWORKS + "/{networkId}/edges/{edgeId}")
+	@Path("/{networkId}/edges/{edgeId}")
 	public void deleteEdge(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
@@ -585,7 +575,7 @@ public class NetworkDataService extends AbstractDataService {
 	 * @throws Exception
 	 */
 	@POST
-	@Path("/" + NETWORKS)
+	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,

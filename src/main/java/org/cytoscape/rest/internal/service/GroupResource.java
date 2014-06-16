@@ -1,6 +1,5 @@
 package org.cytoscape.rest.internal.service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -27,14 +26,12 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
-@Path("/v1/networks")
+@Path("/v1/networks/{networkId}/groups")
 public class GroupResource extends AbstractDataService {
 
 	private final ObjectMapper groupMapper;
@@ -54,7 +51,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/{networkId}/groups/count")
+	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getGroupCount(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
@@ -62,7 +59,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/{networkId}/groups")
+	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getGroups(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
@@ -76,7 +73,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/{networkId}/groups/{suid}")
+	@Path("/{suid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
 		final CyNetwork network = getCyNetwork(networkId);
@@ -98,7 +95,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/{networkId}/groups")
+	@Path("/")
 	public void deleteAllGroups(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
@@ -113,7 +110,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@DELETE
-	@Path("/{networkId}/groups/{suid}")
+	@Path("/{suid}")
 	public void deleteGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
 		final CyGroup group = getGroupById(networkId, suid);
 		try {
@@ -125,13 +122,13 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@GET
-	@Path("/{networkId}/groups/{suid}/expand")
+	@Path("/{suid}/expand")
 	public void expandGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
 		toggle(networkId, suid, false);
 	}
 
 	@GET
-	@Path("/{networkId}/groups/{suid}/collapse")
+	@Path("/{suid}/collapse")
 	public void collapseGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
 		toggle(networkId, suid, true);
 	}
@@ -155,8 +152,8 @@ public class GroupResource extends AbstractDataService {
 		final CyNetwork network = getCyNetwork(networkId);
 		CyNode node = network.getNode(suid);
 		if (node == null) {
-			node = ((CySubNetwork)network).getRootNetwork().getNode(suid);
-			if(node == null)
+			node = ((CySubNetwork) network).getRootNetwork().getNode(suid);
+			if (node == null)
 				throw new NotFoundException("Could not find the node with SUID: " + suid);
 		}
 
@@ -168,7 +165,7 @@ public class GroupResource extends AbstractDataService {
 	}
 
 	@POST
-	@Path("/{id}/groups")
+	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createGroup(@PathParam("id") Long id, final InputStream is) throws Exception {

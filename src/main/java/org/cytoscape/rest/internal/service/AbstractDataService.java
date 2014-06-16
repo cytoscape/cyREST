@@ -90,7 +90,6 @@ public abstract class AbstractDataService {
 
 
 	protected final String getGraphObject(final CyNetwork network, final CyIdentifiable obj) {
-
 		final CyRow row = network.getRow(obj);
 
 		try {

@@ -29,7 +29,7 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
 @Singleton
-@Path("/v1")
+@Path("/v1/apply")
 public class AlgorithmicService extends AbstractDataService {
 
 	@Context
@@ -39,7 +39,7 @@ public class AlgorithmicService extends AbstractDataService {
 	private CyLayoutAlgorithmManager layoutManager;
 
 	@GET
-	@Path("/apply/layouts/{algorithmName}/{targetId}")
+	@Path("/layouts/{algorithmName}/{targetId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String applyLayout(@PathParam("algorithmName") String algorithmName, @PathParam("targetId") Long targetId) {
 
@@ -64,7 +64,7 @@ public class AlgorithmicService extends AbstractDataService {
 
 
 	@GET
-	@Path("/apply/styles/{styleName}/{targetId}")
+	@Path("/styles/{styleName}/{targetId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String applyStyle(@PathParam("styleName") String styleName, @PathParam("targetId") Long targetId) {
 

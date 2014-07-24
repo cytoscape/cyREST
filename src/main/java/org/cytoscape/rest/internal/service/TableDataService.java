@@ -84,6 +84,8 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
+
+
 	/**
 	 * Delete a column from a table.
 	 * 
@@ -102,19 +104,45 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
+	/**
+	 * This if for update existing column name to a new one.
+	 * 
+	 * @param id
+	 * @param tableType
+	 * @param columnName
+	 * @param is
+	 */
 	@PUT
-	@Path("/{tableType}/columns/{columnName}")
+	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumn(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public void updateColumnName(@PathParam("id") Long id, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName, final InputStream is) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			final CyColumn column = table.getColumn(columnName);
-			tableMapper.updateColumnName(rootNode, column);
+			tableMapper.updateColumnName(rootNode, table);
 		} catch (IOException e) {
+			throw new WebApplicationException(e, 500);
+		}
+	}
+	
+
+	@PUT
+	@Path("/{tableType}/columns/{columnName}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void createColumnValues(@PathParam("id") Long id, @PathParam("tableType") String tableType, 
+			@PathParam("columnName") String columnName, final InputStream is) {
+		final CyNetwork network = getCyNetwork(id);
+		final CyTable table = getTableByType(network, tableType);
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+		try {
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			tableMapper.updateColumnValues(rootNode, table, columnName);
+		} catch (IOException e) {
+			e.printStackTrace();
 			throw new WebApplicationException(e, 500);
 		}
 	}

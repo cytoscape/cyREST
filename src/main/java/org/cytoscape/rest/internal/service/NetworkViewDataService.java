@@ -30,6 +30,7 @@ public class NetworkViewDataService extends AbstractDataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(NetworkViewDataService.class);
 
+	
 	public NetworkViewDataService() {
 		super();
 	}

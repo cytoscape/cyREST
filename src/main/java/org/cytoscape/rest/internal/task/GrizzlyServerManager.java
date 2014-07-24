@@ -8,6 +8,7 @@ import org.cytoscape.rest.internal.service.AlgorithmicService;
 import org.cytoscape.rest.internal.service.GroupResource;
 import org.cytoscape.rest.internal.service.MiscDataService;
 import org.cytoscape.rest.internal.service.NetworkDataService;
+import org.cytoscape.rest.internal.service.NetworkViewDataService;
 import org.cytoscape.rest.internal.service.StyleService;
 import org.cytoscape.rest.internal.service.TableDataService;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -41,7 +42,8 @@ public final class GrizzlyServerManager {
 		if (server == null) {
 			final URI baseURI = UriBuilder.fromUri(baseURL).port(port).build();
 			final ResourceConfig rc = new ResourceConfig(
-					NetworkDataService.class, 
+					NetworkDataService.class,
+					NetworkViewDataService.class,
 					TableDataService.class, 
 					MiscDataService.class,
 					AlgorithmicService.class,
@@ -51,7 +53,7 @@ public final class GrizzlyServerManager {
 					.register(JacksonFeature.class);
 
 			this.server = GrizzlyHttpServerFactory.createHttpServer(baseURI, rc);
-			System.out.println("**************REST Server started: " + server.toString());
+			System.out.println("***NEW REST Server started: " + server.toString());
 		}
 	}
 

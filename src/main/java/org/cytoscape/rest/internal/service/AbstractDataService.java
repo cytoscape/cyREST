@@ -19,6 +19,8 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
+import org.cytoscape.rest.internal.serializer.ViewSerializer;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 
@@ -79,6 +81,16 @@ public abstract class AbstractDataService {
 		}
 		return network;
 	}
+
+
+	protected final Collection<CyNetworkView> getCyNetworkViews(final Long id) {
+		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(id));
+		if (views.isEmpty()) {
+			throw new WebApplicationException("Now view available for network: " + id, 404);
+		}
+		return views;
+	}
+
 
 	protected final CyNode getNode(final CyNetwork network, final Long nodeId) {
 		final CyNode node = network.getNode(nodeId);

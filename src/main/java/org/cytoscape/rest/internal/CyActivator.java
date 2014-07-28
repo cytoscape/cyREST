@@ -131,7 +131,7 @@ public class CyActivator extends AbstractCyActivator {
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
 				groupManager);
-		this.grizzlyServerManager = new GrizzlyServerManager(binder);
+		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
 		} catch (Exception e) {

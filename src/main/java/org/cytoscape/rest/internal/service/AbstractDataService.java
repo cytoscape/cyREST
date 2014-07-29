@@ -17,6 +17,7 @@ import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.serializer.ViewSerializer;
@@ -42,6 +43,9 @@ public abstract class AbstractDataService {
 	@Context
 	protected CyNetworkManager networkManager;
 
+	@Context
+	protected CyRootNetworkManager cyRootNetworkManager;
+	
 	@Context
 	protected CyTableManager tableManager;
 	

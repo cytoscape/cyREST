@@ -16,6 +16,7 @@ import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.task.CyBinder;
@@ -81,6 +82,7 @@ public class CyActivator extends AbstractCyActivator {
 		StreamUtil streamUtil = getService(bc, StreamUtil.class);
 		CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
 		CyNetworkManager netMan = getService(bc, CyNetworkManager.class);
+		CyRootNetworkManager cyRootNetworkManager = getService(bc, CyRootNetworkManager.class);
 		CyNetworkViewFactory netViewFact = getService(bc, CyNetworkViewFactory.class);
 		CyNetworkViewManager netViewMan = getService(bc, CyNetworkViewManager.class);
 		VisualMappingManager visMan = getService(bc, VisualMappingManager.class);
@@ -130,7 +132,7 @@ public class CyActivator extends AbstractCyActivator {
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
-				groupManager);
+				groupManager, cyRootNetworkManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();

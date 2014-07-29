@@ -138,16 +138,16 @@ public class NetworkDataService extends AbstractDataService {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
+	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query, @QueryParam("format") String format) {
 		if(column == null && query == null) {
-			return getNetworks(networkManager.getNetworkSet());
+			return getNetworks(networkManager.getNetworkSet(), format);
 		} else {
-			return getNetworksByQuery(query, column);
+			return getNetworksByQuery(query, column, format);
 		}
 	}
 
 
-	private final String getNetworksByQuery(final String query, final String column) {
+	private final String getNetworksByQuery(final String query, final String column, final String format) {
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
 		final Set<CyNetwork> matchedNetworks = new HashSet<CyNetwork>();
 		
@@ -159,20 +159,26 @@ public class NetworkDataService extends AbstractDataService {
 				matchedNetworks.add(network);
 			}
 		}
-		return getNetworks(matchedNetworks);
+		return getNetworks(matchedNetworks, format);
 	}
 
 
-	private final String getNetworks(final Set<CyNetwork> networks) {
+	private final String getNetworks(final Set<CyNetwork> networks, final String format) {
 		if(networks.isEmpty()) {
 			return "[]";
 		}
 
 		StringBuilder result = new StringBuilder();
 		result.append("[");
+		
+		
 
 		for (final CyNetwork network : networks) {
-			result.append(getNetworkString(network));
+			if(format == null) {
+				result.append(getNetworkString(network));
+			} else if(format.equals("SUID")) {
+				result.append(network.getSUID());
+			}
 			result.append(",");
 		}
 		String jsonString = result.toString();
@@ -600,9 +606,8 @@ public class NetworkDataService extends AbstractDataService {
 
 		CyNetwork[] networks = reader.getNetworks();
 		CyNetwork newNetwork = networks[0];
-		System.out.println("###LEN = " + networks.length);
-		System.out.println("###read5 edges = " + newNetwork.getEdgeCount());
-		System.out.println("###read5 nodes = " + newNetwork.getNodeCount());
+		System.out.println("# of edges = " + newNetwork.getEdgeCount());
+		System.out.println("# of nodes = " + newNetwork.getNodeCount());
 		addNetwork(networks, reader, collectionName);
 		is.close();
 
@@ -624,11 +629,30 @@ public class NetworkDataService extends AbstractDataService {
 		return jsonString;
 	}
 
-	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName) {
+	
+	/**
+	 * Add network to the manager
+	 * 
+	 * @param networks
+	 * @param reader
+	 * @param collectionName
+	 */
+	private final void addNetwork(final CyNetwork[] networks, 
+			final CyNetworkReader reader, final String collectionName) {
+		
 		final VisualStyle style = vmm.getCurrentVisualStyle();
 		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
+		
+		final Set<CyRootNetwork> rootNetworks = new HashSet<CyRootNetwork>();
+		
+		for (final CyNetwork net : networkManager.getNetworkSet()){
+			final CyRootNetwork rootNet = cyRootNetworkManager.getRootNetwork(net);
+			rootNetworks.add(rootNet);
+		}
 
 		for (final CyNetwork network : networks) {
+			
+			// Set network name
 			String networkName = network.getRow(network).get(CyNetwork.NAME, String.class);
 			if (networkName == null || networkName.trim().length() == 0) {
 				if (networkName == null)
@@ -652,7 +676,7 @@ public class NetworkDataService extends AbstractDataService {
 					view.fitContent();
 				results.add(view);
 			} else {
-				// results.add(nullNetworkViewFactory.createNetworkView(network));
+				//results.add(nullNetworkViewFactory.createNetworkView(network));
 			}
 		}
 
@@ -667,56 +691,15 @@ public class NetworkDataService extends AbstractDataService {
 				final CyRootNetwork rootNet = subnet.getRootNetwork();
 				String rootNetName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
 				rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
-				// if (rootNetName == null || rootNetName.trim().length() == 0){
-				// // The root network does not have a name yet, set it the same
-				// as the base subnetwork
-				// rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
-				// }
+				if (rootNetName == null || rootNetName.trim().length() == 0) {
+					// The root network does not have a name yet, set it the same
+					// as the base subnetwork
+					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+				}
 			}
 		}
-
-		// // Make sure rootNetwork has a name
-		// for (CyNetwork network : networks) {
-		// if (network instanceof CySubNetwork){
-		// CySubNetwork subNet = (CySubNetwork) network;
-		// CyRootNetwork rootNet = subNet.getRootNetwork();
-		//
-		// String networkName = rootNet.getRow(rootNet).get(CyNetwork.NAME,
-		// String.class);
-		// if(networkName == null || networkName.trim().length() == 0) {
-		// networkName = name;
-		// if(networkName == null)
-		// networkName = "? (Name is missing)";
-		//
-		// rootNet.getRow(rootNet).set(CyNetwork.NAME,
-		// namingUtil.getSuggestedNetworkTitle(networkName));
-		// }
-		// }
-		// }
 	}
 
-	private CyNetwork findNetwork(final String idType, final String id) {
-		final CyNetwork network;
-		if (idType.equals("suid")) {
-			try {
-				final Long suid = Long.parseLong(id);
-				network = networkManager.getNetwork(suid);
-			} catch (NumberFormatException nfe) {
-				throw new WebApplicationException(400);
-			}
-
-		} else if (idType.equals("title")) {
-			network = getNetworkByTitle(id);
-		} else {
-			throw new WebApplicationException(400);
-		}
-
-		// Could not find network by the identifier.
-		if (network == null)
-			throw new WebApplicationException(404);
-
-		return network;
-	}
 
 	@GET
 	@Path("/execute/{taskId}/{suid}")

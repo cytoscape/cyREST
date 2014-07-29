@@ -8,6 +8,7 @@ import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -39,6 +40,8 @@ public class CyBinder extends AbstractBinder {
 	private final MappingFactoryManager mappingFactoryManager;
 	private final CyGroupFactory groupFactory;
 	private final CyGroupManager groupManager;
+	private final CyRootNetworkManager cyRootNetworkManager;
+
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -48,7 +51,7 @@ public class CyBinder extends AbstractBinder {
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
-			final CyGroupManager groupManager) {
+			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -65,6 +68,7 @@ public class CyBinder extends AbstractBinder {
 		this.mappingFactoryManager = mappingFactoryManager;
 		this.groupFactory = groupFactory;
 		this.groupManager = groupManager;
+		this.cyRootNetworkManager = cyRootNetworkManager;
 	}
 
 	@Override
@@ -85,5 +89,6 @@ public class CyBinder extends AbstractBinder {
 		bind(mappingFactoryManager).to(MappingFactoryManager.class);
 		bind(groupFactory).to(CyGroupFactory.class);
 		bind(groupManager).to(CyGroupManager.class);
+		bind(cyRootNetworkManager).to(CyRootNetworkManager.class);
 	}
 }

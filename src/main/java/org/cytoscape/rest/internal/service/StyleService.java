@@ -1,11 +1,11 @@
 package org.cytoscape.rest.internal.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,29 +19,27 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.cytoscape.model.CyEdge;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
+import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
+import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -269,13 +267,34 @@ public class StyleService extends AbstractDataService {
 	@GET
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getStyle(@PathParam("name") String name) {
+	public String getStyle(@PathParam("name") String name, @QueryParam("format") String format) {
 		final VisualStyle style = getStyleByName(name);
-		try {
-			return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+
+		if (format == null || format.trim().length() == 0) {
+			final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			final Set<VisualStyle> styleCollection = new HashSet<VisualStyle>();
+			styleCollection.add(style);
+			final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
+			try {
+				styleWriter.run(new HeadlessTaskMonitor());
+				String jsonString = os.toString();
+				os.close();
+				
+				return jsonString;
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new WebApplicationException("Could not serialize style.", 505);
+			}
+
+		} else {
+
+			try {
+				return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new WebApplicationException(e, 500);
+			}
 		}
 	}
 

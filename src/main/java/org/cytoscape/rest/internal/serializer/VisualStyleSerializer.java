@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualStyle;
@@ -80,7 +81,7 @@ public class VisualStyleSerializer {
 				continue;
 			}
 			generator.writeStartObject();
-			generator.writeStringField("visual_property", vp.getIdString());
+			generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
 			generator.writeFieldName("value");
 			writeValue(vp, style.getDefaultValue(vp), generator);
 			generator.writeEndObject();

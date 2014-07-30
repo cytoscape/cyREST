@@ -13,6 +13,7 @@ import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
+import org.cytoscape.view.vizmap.mappings.BoundaryRangeValues;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
@@ -25,14 +26,14 @@ public class VisualStyleMapper {
 	private static final String MAPPINGS = "mappings";
 	private static final String DEFAULTS = "defaults";
 
-	private static final String MAPPING_TYPE = "type";
+	public static final String MAPPING_TYPE = "mappingType";
 	private static final String MAPPING_DISCRETE = "discrete";
 	private static final String MAPPING_PASSTHROUGH = "passthrough";
 	private static final String MAPPING_CONTINUOUS = "continuous";
 
-	private static final String MAPPING_COLUMN = "column";
-	private static final String MAPPING_COLUMN_TYPE = "column_type";
-	private static final String MAPPING_VP = "visual_property";
+	public static final String MAPPING_COLUMN = "mappingColumn";
+	public static final String MAPPING_COLUMN_TYPE = "mappingColumnType";
+	public static final String MAPPING_VP = "visualProperty";
 
 	private static final String MAPPING_DISCRETE_MAP = "map";
 	private static final String MAPPING_DISCRETE_KEY = "key";
@@ -41,15 +42,20 @@ public class VisualStyleMapper {
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
 
+		System.out.println("--------- Style Builder ----------");
 		final JsonNode title = rootNode.get(TITLE);
 		final VisualStyle style = factory.createVisualStyle(title.textValue());
 
+		System.out.println("--------- Style Builder 1 ----------");
 		final JsonNode defaults = rootNode.get(DEFAULTS);
+		System.out.println("--------- Style Builder defaults ----------");
 		final JsonNode mappings = rootNode.get(MAPPINGS);
 
 		parseDefaults(defaults, style, lexicon);
+		System.out.println("--------- Style Builder def2 ----------");
 		parseMappings(mappings, style, lexicon, factoryManager);
 
+		System.out.println("--------- Style Builder end ----------");
 		return style;
 	}
 
@@ -69,35 +75,56 @@ public class VisualStyleMapper {
 		for (final JsonNode vpNode : defaults) {
 			String vpName = vpNode.get(MAPPING_VP).textValue();
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
-			if (vp == null) {
+			final JsonNode value = vpNode.get("value");
+			if (vp == null || value == null ) {
 				continue;
 			}
-			style.setDefaultValue(vp, vp.parseSerializableString(vpNode.get("value").textValue()));
 
+			System.out.println("VP = " + vp.getDisplayName());
+			Object parsedValue = null;
+			if(value.isTextual()) {
+				parsedValue = vp.parseSerializableString(value.asText());
+				System.out.println("valTX = " + value.asText());
+			} else {
+				parsedValue = vp.parseSerializableString(value.toString());
+				System.out.println("val other3 = " + value.toString());
+			}
+			
+			System.out.println("Parsed = " + parsedValue);
+			style.setDefaultValue(vp, parsedValue);
 		}
 	}
 
+
 	private final void parseMappings(JsonNode mappings, VisualStyle style, VisualLexicon lexicon,
 			MappingFactoryManager factoryManager) {
+		
+		System.out.println("-------------- Mapping Start:");
+		
 		for (final JsonNode mapping : mappings) {
 			final String type = mapping.get(MAPPING_TYPE).textValue();
 			final String column = mapping.get(MAPPING_COLUMN).textValue();
 			final String colType = mapping.get(MAPPING_COLUMN_TYPE).textValue();
 			final String vpName = mapping.get(MAPPING_VP).textValue();
 
+			System.out.println("Mapping 0 = " + colType);
+
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
 			final Class<?> columnType = MapperUtil.getColumnClass(colType);
 			if (vp == null || columnType == null) {
-				return;
+				continue;
 			}
 
+			System.out.println("Mapping = " + vpName);
+			
+			
 			VisualMappingFunction newMapping = null;
 			if (type.equals(MAPPING_DISCRETE)) {
 				final VisualMappingFunctionFactory factory = factoryManager.getFactory(DiscreteMapping.class);
 				newMapping = parseDiscrete(column, columnType, vp, factory, mapping.get(MAPPING_DISCRETE_MAP));
 			} else if (type.equals(MAPPING_CONTINUOUS)) {
 				final VisualMappingFunctionFactory factory = factoryManager.getFactory(ContinuousMapping.class);
-				newMapping = parseContinuous(column, columnType, vp, factory);
+				newMapping = parseContinuous(column, columnType, vp, factory, mapping);
 			} else if (type.equals(MAPPING_PASSTHROUGH)) {
 				final VisualMappingFunctionFactory factory = factoryManager.getFactory(PassthroughMapping.class);
 				newMapping = parsePassthrough(column, columnType, vp, factory);
@@ -157,10 +184,22 @@ public class VisualStyleMapper {
 	}
 
 	private final ContinuousMapping parseContinuous(String columnName, Class<?> type, VisualProperty<?> vp,
-			VisualMappingFunctionFactory factory) {
+			VisualMappingFunctionFactory factory, JsonNode mappingNode) {
 
-		ContinuousMapping mapping = (ContinuousMapping) factory.createVisualMappingFunction(columnName, type, vp);
-
+		final ContinuousMapping mapping = (ContinuousMapping) factory.createVisualMappingFunction(columnName, type, vp);
+		for(JsonNode point:mappingNode.get("points")) {
+			JsonNode val = point.get("value");
+			JsonNode lesser = point.get("lesser");
+			JsonNode equal = point.get("equal");
+			JsonNode greater = point.get("greater");
+			
+			final BoundaryRangeValues newPoint = 
+					new BoundaryRangeValues(vp.parseSerializableString(lesser.asText()), 
+							vp.parseSerializableString(equal.asText()), 
+							vp.parseSerializableString(greater.asText()));
+			mapping.addPoint(val.asDouble(), newPoint);
+		}
+		
 		return mapping;
 	}
 

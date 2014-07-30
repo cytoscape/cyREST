@@ -19,6 +19,7 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.serializer.ViewSerializer;
 import org.cytoscape.view.model.CyNetworkView;
@@ -66,6 +67,9 @@ public abstract class AbstractDataService {
 
 	@Context
 	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
+	
+	@Context
+	protected WriterListener vizmapWriterFactoryListener;
 
 	protected final GraphObjectSerializer serializer;
 	

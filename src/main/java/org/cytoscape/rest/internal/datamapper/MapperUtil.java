@@ -15,6 +15,8 @@ public class MapperUtil {
 			return Boolean.class;
 		} else if (type.equals(String.class.getSimpleName())) {
 			return String.class;
+		} else if (type.equals(Number.class.getSimpleName())) {
+			return Double.class;
 		} else {
 			return null;
 		}

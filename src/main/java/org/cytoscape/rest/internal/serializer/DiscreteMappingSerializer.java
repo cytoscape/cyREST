@@ -3,6 +3,8 @@ package org.cytoscape.rest.internal.serializer;
 import java.io.IOException;
 import java.util.Map;
 
+import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
+import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,17 +24,34 @@ public class DiscreteMappingSerializer extends JsonSerializer<DiscreteMapping> {
 	public void serialize(DiscreteMapping mapping, JsonGenerator jgen, SerializerProvider provider) throws IOException,
 			JsonProcessingException {
 		jgen.useDefaultPrettyPrinter();
+		
 		jgen.writeStartObject();
-		jgen.writeStringField("mapping_type", "discrete");
-		jgen.writeStringField("mappingColumn", mapping.getMappingColumnName());
-		jgen.writeStringField("mappingColumnType", mapping.getMappingColumnType().getSimpleName());
-		jgen.writeStringField("visualProperty", mapping.getVisualProperty().getIdString());
+		
+		jgen.writeStringField(VisualStyleMapper.MAPPING_TYPE, "discrete");
+		jgen.writeStringField(VisualStyleMapper.MAPPING_COLUMN, mapping.getMappingColumnName());
+		jgen.writeStringField(VisualStyleMapper.MAPPING_COLUMN_TYPE, mapping.getMappingColumnType().getSimpleName());
+		jgen.writeStringField(VisualStyleMapper.MAPPING_VP, mapping.getVisualProperty().getIdString());
+		
+		serializeMapping(mapping, jgen);
+		
+		jgen.writeEndObject();
+	}
+
+
+	private final void serializeMapping(final DiscreteMapping mapping, JsonGenerator jgen) throws IOException {
 		final Map valueMap = mapping.getAll();
+	
+		final VisualProperty<Object> vp = mapping.getVisualProperty();
+		
 		jgen.writeArrayFieldStart("map");
-		for(Object key:valueMap.keySet()) {
-			jgen.writeStringField((String) key, mapping.getVisualProperty().toSerializableString(valueMap.get(key)));
+		
+		for(final Object key:valueMap.keySet()) {
+			final Object value = valueMap.get(key);
+			jgen.writeStartObject();
+			jgen.writeStringField("key", key.toString());
+			jgen.writeStringField("value", vp.toSerializableString(value));
+			jgen.writeEndObject();
 		}
 		jgen.writeEndArray();
-		jgen.writeEndObject();
 	}
 }

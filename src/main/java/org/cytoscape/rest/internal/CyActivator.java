@@ -25,6 +25,7 @@ import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.read.OpenSessionTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -105,6 +106,8 @@ public class CyActivator extends AbstractCyActivator {
 		WriterListener writerListsner = new WriterListener();
 		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
 
+//		OpenSessionTaskFactory openSessionTaskFactory = getService(bc, OpenSessionTaskFactory.class);
+		
 //		System.out.println("Writer = " + cytoscapeJsWriterFactory);
 //		System.out.println("Reader = " + cytoscapeJsReaderFactory);
 

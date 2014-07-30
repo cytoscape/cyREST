@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.serializer;
 
 import java.io.IOException;
 
+import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,10 +23,10 @@ public class PassthroughMappingSerializer extends JsonSerializer<PassthroughMapp
 			JsonProcessingException {
 		jgen.useDefaultPrettyPrinter();
 		jgen.writeStartObject();
-		jgen.writeStringField("mapping_type", "passthrough");
-		jgen.writeStringField("mappingColumn", mapping.getMappingColumnName());
-		jgen.writeStringField("mappingColumnType", mapping.getMappingColumnType().getSimpleName());
-		jgen.writeStringField("visualProperty", mapping.getVisualProperty().getIdString());
+		jgen.writeStringField(VisualStyleMapper.MAPPING_TYPE, "passthrough");
+		jgen.writeStringField(VisualStyleMapper.MAPPING_COLUMN, mapping.getMappingColumnName());
+		jgen.writeStringField(VisualStyleMapper.MAPPING_COLUMN_TYPE, mapping.getMappingColumnType().getSimpleName());
+		jgen.writeStringField(VisualStyleMapper.MAPPING_VP, mapping.getVisualProperty().getIdString());
 		jgen.writeEndObject();
 	}
 }

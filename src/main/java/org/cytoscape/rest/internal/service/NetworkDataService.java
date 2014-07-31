@@ -3,10 +3,13 @@ package org.cytoscape.rest.internal.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Singleton;
@@ -15,7 +18,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -37,12 +39,14 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
+import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.RestTaskManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualStyle;
+import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
@@ -585,8 +589,13 @@ public class NetworkDataService extends AbstractDataService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
+			@QueryParam("source") String source,
 			final InputStream is, @Context HttpHeaders headers) throws Exception {
 
+		if(source.equals("url")) {
+			return loadNetwork(is);
+		}
+		
 		// Check user agent if available
 		final List<String> agent = headers.getRequestHeader("user-agent");
 		String userAgent = "";
@@ -614,6 +623,87 @@ public class NetworkDataService extends AbstractDataService {
 		// Return SUID-to-Original map
 		return getNumberObjectString("networkSUID", newNetwork.getSUID());
 	}
+	
+	
+	private final String loadNetwork(final InputStream is) throws IOException {
+		final ObjectMapper objMapper = new ObjectMapper();
+		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+
+		final Map<String, Long[]> results = new HashMap<String, Long[]>();
+		// Input should be array of URLs.
+		for (final JsonNode node : rootNode) {
+			final String sourceUrl = node.asText();
+			System.out.println(sourceUrl);
+			TaskIterator itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
+			CyNetworkReader currentReader = null;
+			
+			while (itr.hasNext()) {
+				final Task task = itr.next();
+				try {
+					task.run(new HeadlessTaskMonitor());
+					if (task instanceof CyNetworkReader) {
+						System.out.println("This is reader: " + task);
+						currentReader = (CyNetworkReader) task;
+					} else {
+						System.out.println("!!!!!!!!Other task: " + task);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			final CyNetwork[] networks = currentReader.getNetworks();
+			final Long[] suids = new Long[networks.length];
+			int counter = 0;
+			for(CyNetwork network: networks) {
+				suids[counter] = network.getSUID();
+				counter++;
+			}
+			System.out.println("Networks = " + suids[0]);
+			results.put(sourceUrl, suids);
+			System.out.println("=================== task for " + sourceUrl + " end ===================\n\n");
+		}
+		
+		is.close();
+		return generateNetworkLoadResults(results);
+	}
+
+
+	private final String generateNetworkLoadResults(final Map<String, Long[]> results) {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(stream);
+			
+			generator.writeStartArray();
+			
+			for(final String url: results.keySet()) {
+				generator.writeStartObject();
+
+				generator.writeStringField("source", url);
+				generator.writeArrayFieldStart("networkSUID");
+				for(final Long suid: results.get(url)) {
+					generator.writeNumber(suid);
+				}
+				generator.writeEndArray();
+				
+				generator.writeEndObject();
+			}
+			generator.writeEndArray();
+			
+			generator.close();
+			result = stream.toString();
+			stream.close();
+		} catch (IOException e) {
+			throw new WebApplicationException("Could not create object count.", 500);
+		}
+
+		return result;
+	}
+
 
 	private final String getNetworkString(final CyNetwork network) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();

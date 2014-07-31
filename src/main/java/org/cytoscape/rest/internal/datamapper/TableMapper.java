@@ -1,12 +1,18 @@
 package org.cytoscape.rest.internal.datamapper;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.ws.rs.NotFoundException;
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
+import com.fasterxml.jackson.annotation.JsonFormat.Value;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -60,6 +66,70 @@ public class TableMapper {
 		}
 	}
 	
+
+	public void updateTableValues(final JsonNode rootNode, final CyTable table) {
+		// Extract required fields
+		System.out.println("========== UPDATE START ============= ");
+		
+		JsonNode keyCol = rootNode.get("key");
+		if(keyCol == null) {
+			throw new NotFoundException("Key column name is required.");
+		}
+		final String keyColName = keyCol.asText();
+		
+		// Check such column exists or not.
+		CyColumn col = table.getColumn(keyColName);
+		if(col==null) {
+			throw new NotFoundException("No such column in the table: " + keyColName);
+		}
+		
+		JsonNode dataKeyCol = rootNode.get("dataKey");
+		if(dataKeyCol == null) {
+			throw new NotFoundException("Data key name is required.");
+		}
+		final String dataKeyColName = dataKeyCol.asText();
+		
+		// Data should be an array object.
+		JsonNode data = rootNode.get("data");
+		if(data == null) {
+			throw new NotFoundException("Data field is required.");
+		}
+		
+		// This should be an array of objects
+		for(final JsonNode entry:data) {
+			
+			final JsonNode keyValue = entry.get(dataKeyColName);
+			if(keyValue == null) {
+				continue;
+			}
+			final Collection<CyRow> machingRows = table.getMatchingRows(keyColName, keyValue.asText());
+			
+			System.out.println("KEY VAL = " + keyValue.asText());
+			
+			if(machingRows.isEmpty()) {
+				continue;
+			}
+			
+			System.out.println("HIT: " + keyValue.asText());
+			for (CyRow row : machingRows) {
+				final Iterator<String> fields = entry.fieldNames();
+				while (fields.hasNext()) {
+					final String field = fields.next();
+					final JsonNode value = entry.get(field);
+					final Class<?> type = testValueType(value);
+					
+					System.out.println(": " + keyValue.asText());
+					if (table.getColumn(field) == null) {
+						// Need to create new column
+						table.createColumn(field, type, false);
+					}
+					setValue(type, value, row, field);
+				}
+			}
+		}
+	}
+
+
 	private final void setValue(final Class<?> type, JsonNode value, final CyRow row, final String columnName) {
 		if (type == String.class) {
 			row.set(columnName, value.asText());
@@ -73,6 +143,23 @@ public class TableMapper {
 			row.set(columnName, value.asLong());
 		} else if (type == Float.class) {
 			row.set(columnName, value.asDouble());
+		}
+	}
+
+
+	private final Class<?> testValueType(final JsonNode value) {
+		if (value.isArray()) {
+			return List.class;
+		} else if (value.isBoolean()) {
+			return Boolean.class;
+		} else if (value.isInt()) {
+			return Integer.class;
+		} else if (value.isLong()) {
+			return Long.class;
+		} else if (value.isFloatingPointNumber()) {
+			return Double.class;
+		} else {
+			return String.class;
 		}
 	}
 }

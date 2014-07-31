@@ -12,6 +12,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
+import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
@@ -41,6 +42,8 @@ public class CyBinder extends AbstractBinder {
 	private final CyGroupFactory groupFactory;
 	private final CyGroupManager groupManager;
 	private final CyRootNetworkManager cyRootNetworkManager;
+	
+	private final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
@@ -51,7 +54,8 @@ public class CyBinder extends AbstractBinder {
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
-			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager) {
+			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
+			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -69,6 +73,7 @@ public class CyBinder extends AbstractBinder {
 		this.groupFactory = groupFactory;
 		this.groupManager = groupManager;
 		this.cyRootNetworkManager = cyRootNetworkManager;
+		this.loadNetworkURLTaskFactory = loadNetworkURLTaskFactory;
 	}
 
 	@Override
@@ -90,5 +95,6 @@ public class CyBinder extends AbstractBinder {
 		bind(groupFactory).to(CyGroupFactory.class);
 		bind(groupManager).to(CyGroupManager.class);
 		bind(cyRootNetworkManager).to(CyRootNetworkManager.class);
+		bind(loadNetworkURLTaskFactory).to(LoadNetworkURLTaskFactory.class);
 	}
 }

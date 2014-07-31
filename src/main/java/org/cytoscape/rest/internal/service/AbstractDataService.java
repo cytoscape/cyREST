@@ -22,6 +22,7 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.serializer.ViewSerializer;
+import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
@@ -70,6 +71,10 @@ public abstract class AbstractDataService {
 	
 	@Context
 	protected WriterListener vizmapWriterFactoryListener;
+	
+	@Context
+	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
+	
 
 	protected final GraphObjectSerializer serializer;
 	

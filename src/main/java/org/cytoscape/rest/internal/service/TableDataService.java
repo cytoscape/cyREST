@@ -147,6 +147,26 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
+
+	@PUT
+	@Path("/{tableType}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateTable(@PathParam("id") Long id, @PathParam("tableType") String tableType, final InputStream is) {
+		System.out.println("========== CALL ============= ");
+		final CyNetwork network = getCyNetwork(id);
+		final CyTable table = getTableByType(network, tableType);
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+		try {
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			tableMapper.updateTableValues(rootNode, table);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new WebApplicationException(e, 500);
+		}
+	}
+
+
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -212,6 +232,7 @@ public class TableDataService extends AbstractDataService {
 		final CyTable table = getTableByType(network, tableType);
 		final CyColumn column = table.getColumn(columnName);
 		final List<Object> values = column.getValues(column.getType());
+
 		try {
 			return this.serializer.serializeColumnValues(column, values);
 		} catch (IOException e) {

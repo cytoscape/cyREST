@@ -592,7 +592,7 @@ public class NetworkDataService extends AbstractDataService {
 			@QueryParam("source") String source,
 			final InputStream is, @Context HttpHeaders headers) throws Exception {
 
-		if(source.equals("url")) {
+		if(source != null && source.equals("url")) {
 			return loadNetwork(is);
 		}
 		
@@ -611,7 +611,7 @@ public class NetworkDataService extends AbstractDataService {
 			collectionName = collectionName + userAgent;
 		}
 
-		reader.run(null);
+		reader.run(new HeadlessTaskMonitor());
 
 		CyNetwork[] networks = reader.getNetworks();
 		CyNetwork newNetwork = networks[0];

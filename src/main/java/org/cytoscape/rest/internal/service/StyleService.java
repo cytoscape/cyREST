@@ -302,7 +302,7 @@ public class StyleService extends AbstractDataService {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public void createStyle(InputStream is) {
+	public String createStyle(InputStream is) {
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {
@@ -310,6 +310,9 @@ public class StyleService extends AbstractDataService {
 			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(),
 					rootNode);
 			vmm.addVisualStyle(style);
+			
+			// This may be different from the original one if same name exists.
+			return "{\"title\": \""+ style.getTitle() + "\"}";
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new WebApplicationException(e, 500);

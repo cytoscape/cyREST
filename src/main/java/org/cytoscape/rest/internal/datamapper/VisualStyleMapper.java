@@ -42,20 +42,14 @@ public class VisualStyleMapper {
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
 
-		System.out.println("--------- Style Builder ----------");
 		final JsonNode title = rootNode.get(TITLE);
 		final VisualStyle style = factory.createVisualStyle(title.textValue());
 
-		System.out.println("--------- Style Builder 1 ----------");
 		final JsonNode defaults = rootNode.get(DEFAULTS);
-		System.out.println("--------- Style Builder defaults ----------");
 		final JsonNode mappings = rootNode.get(MAPPINGS);
 
 		parseDefaults(defaults, style, lexicon);
-		System.out.println("--------- Style Builder def2 ----------");
 		parseMappings(mappings, style, lexicon, factoryManager);
-
-		System.out.println("--------- Style Builder end ----------");
 		return style;
 	}
 

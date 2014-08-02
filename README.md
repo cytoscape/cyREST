@@ -1,5 +1,7 @@
 # RESTful API Module for Cytoscape
 
+[![Build Status](https://travis-ci.org/keiono/cy-rest.svg?branch=develop)](https://travis-ci.org/keiono/cy-rest)
+
 ## Introduction
 This is an App for Cytoscape 3.1+ to provide full programmatic access from R, Python, MATLAB, and other tools via RESTful API.
 
@@ -12,3 +14,6 @@ __This app is still experimental.__  When it is ready for testing, app will be d
 
 ### Working with IPython Notebook
 
+## Documentation
+
+* Complete REST API (V1)

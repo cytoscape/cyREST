@@ -2,18 +2,20 @@
 
 [![Build Status](https://travis-ci.org/keiono/cy-rest.svg?branch=develop)](https://travis-ci.org/keiono/cy-rest)
 
+
 ## Introduction
-This is an App for Cytoscape 3.1+ to provide full programmatic access from R, Python, MATLAB, and other tools via RESTful API.
+This is an App for Cytoscape 3.1+ to provide low-level access to Cytoscape data objects for R, Python, MATLAB, and other tools via RESTful API.  __This app is still experimental and we need your feedback!__
 
-__This app is still experimental.__  When it is ready for testing, app will be deployed to [Cytoscape App Store](http://apps.cytoscape.org/).
-
-## How to Use
-
-### R Examples
-(Comming soon...)
-
-### Working with IPython Notebook
 
 ## Documentation
+All documents are available as [Wiki](https://github.com/keiono/cy-rest/wiki).
 
-* Complete REST API (V1)
+
+## Problems or Feature Requests?
+The API is not finalized yet.  Please send your feature requests to our [mailing list](https://groups.google.com/forum/#!forum/cytoscape-discuss).
+
+## License
+* Source Code: [The MIT license](http://opensource.org/licenses/MIT)
+* Documentation: [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
+
+&copy; 2014 [Cytoscape Consortium](http://www.cytoscape.org/).  Developed and maintained by [Keiichiro Ono](http://keiono.github.io/) (UCSD Trey Ideker Lab).

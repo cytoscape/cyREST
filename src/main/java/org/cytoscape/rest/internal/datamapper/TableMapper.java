@@ -51,10 +51,8 @@ public class TableMapper {
 	}
 
 	public void updateColumnValues(final JsonNode rootNode, final CyTable table, final String columnName) {
-		// Extract required fields
-		
 		// This should be an array of objects
-		for(JsonNode entry:rootNode) {
+		for(final JsonNode entry:rootNode) {
 			final Long primaryKey = entry.get(CyIdentifiable.SUID).asLong();
 			final CyRow row = table.getRow(primaryKey);
 			if(row == null) {
@@ -68,9 +66,6 @@ public class TableMapper {
 	
 
 	public void updateTableValues(final JsonNode rootNode, final CyTable table) {
-		// Extract required fields
-		System.out.println("========== UPDATE START ============= ");
-		
 		JsonNode keyCol = rootNode.get("key");
 		if(keyCol == null) {
 			throw new NotFoundException("Key column name is required.");
@@ -104,13 +99,10 @@ public class TableMapper {
 			}
 			final Collection<CyRow> machingRows = table.getMatchingRows(keyColName, keyValue.asText());
 			
-			System.out.println("KEY VAL = " + keyValue.asText());
-			
 			if(machingRows.isEmpty()) {
 				continue;
 			}
 			
-			System.out.println("HIT: " + keyValue.asText());
 			for (CyRow row : machingRows) {
 				final Iterator<String> fields = entry.fieldNames();
 				while (fields.hasNext()) {
@@ -118,7 +110,6 @@ public class TableMapper {
 					final JsonNode value = entry.get(field);
 					final Class<?> type = testValueType(value);
 					
-					System.out.println(": " + keyValue.asText());
 					if (table.getColumn(field) == null) {
 						// Need to create new column
 						table.createColumn(field, type, false);

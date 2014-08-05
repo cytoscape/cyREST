@@ -68,7 +68,7 @@ public final class GrizzlyServerManager {
 					.register(JacksonFeature.class);
 
 			this.server = GrizzlyHttpServerFactory.createHttpServer(baseURI, rc);
-			System.out.println("Cytoscape RESTful API service started.  Listening at port: " + portNumber);
+			logger.info("Cytoscape RESTful API service started.  Listening at port: " + portNumber);
 		}
 	}
 

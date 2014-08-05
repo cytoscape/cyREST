@@ -1,5 +1,7 @@
 package org.cytoscape.rest.internal.task;
 
+import java.util.Properties;
+
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
@@ -9,9 +11,11 @@ import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
+import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
+import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -45,6 +49,10 @@ public class CyBinder extends AbstractBinder {
 	
 	private final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
+	private final CyProperty<Properties> props;
+	
+	// TFs
+	private final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -55,7 +63,8 @@ public class CyBinder extends AbstractBinder {
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
 			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
-			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory) {
+			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
+			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -74,7 +83,10 @@ public class CyBinder extends AbstractBinder {
 		this.groupManager = groupManager;
 		this.cyRootNetworkManager = cyRootNetworkManager;
 		this.loadNetworkURLTaskFactory = loadNetworkURLTaskFactory;
+		this.props = props;
+		this.newNetworkSelectedNodesAndEdgesTaskFactory = newNetworkSelectedNodesAndEdgesTaskFactory;
 	}
+
 
 	@Override
 	protected void configure() {
@@ -96,5 +108,8 @@ public class CyBinder extends AbstractBinder {
 		bind(groupManager).to(CyGroupManager.class);
 		bind(cyRootNetworkManager).to(CyRootNetworkManager.class);
 		bind(loadNetworkURLTaskFactory).to(LoadNetworkURLTaskFactory.class);
+		bind(props).to(CyProperty.class);
+		bind(newNetworkSelectedNodesAndEdgesTaskFactory).to(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		
 	}
 }

@@ -152,7 +152,6 @@ public class TableDataService extends AbstractDataService {
 	@Path("/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateTable(@PathParam("id") Long id, @PathParam("tableType") String tableType, final InputStream is) {
-		System.out.println("========== CALL ============= ");
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		

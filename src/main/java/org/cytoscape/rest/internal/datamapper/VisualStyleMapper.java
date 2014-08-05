@@ -74,17 +74,13 @@ public class VisualStyleMapper {
 				continue;
 			}
 
-			System.out.println("VP = " + vp.getDisplayName());
 			Object parsedValue = null;
 			if(value.isTextual()) {
 				parsedValue = vp.parseSerializableString(value.asText());
-				System.out.println("valTX = " + value.asText());
 			} else {
 				parsedValue = vp.parseSerializableString(value.toString());
-				System.out.println("val other3 = " + value.toString());
 			}
 			
-			System.out.println("Parsed = " + parsedValue);
 			style.setDefaultValue(vp, parsedValue);
 		}
 	}
@@ -93,15 +89,11 @@ public class VisualStyleMapper {
 	private final void parseMappings(JsonNode mappings, VisualStyle style, VisualLexicon lexicon,
 			MappingFactoryManager factoryManager) {
 		
-		System.out.println("-------------- Mapping Start:");
-		
 		for (final JsonNode mapping : mappings) {
 			final String type = mapping.get(MAPPING_TYPE).textValue();
 			final String column = mapping.get(MAPPING_COLUMN).textValue();
 			final String colType = mapping.get(MAPPING_COLUMN_TYPE).textValue();
 			final String vpName = mapping.get(MAPPING_VP).textValue();
-
-			System.out.println("Mapping 0 = " + colType);
 
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
 			final Class<?> columnType = MapperUtil.getColumnClass(colType);
@@ -109,9 +101,6 @@ public class VisualStyleMapper {
 				continue;
 			}
 
-			System.out.println("Mapping = " + vpName);
-			
-			
 			VisualMappingFunction newMapping = null;
 			if (type.equals(MAPPING_DISCRETE)) {
 				final VisualMappingFunctionFactory factory = factoryManager.getFactory(DiscreteMapping.class);

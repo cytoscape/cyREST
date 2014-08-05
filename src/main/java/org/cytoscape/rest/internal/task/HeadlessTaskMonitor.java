@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Task monitor for non-interactive task execution.
  *
+ * TODO: print out more meaningful message.
  */
 public class HeadlessTaskMonitor implements TaskMonitor {
 	
@@ -34,14 +35,10 @@ public class HeadlessTaskMonitor implements TaskMonitor {
 	
 	@Override
 	public void setProgress(final double progress) {
-		int prog = (int) Math.floor(progress * 100);
-		logger.info(taskName + " % completed: " + prog);
 	}
 
 
 	@Override
 	public void showMessage(Level level, String message) {
-		// TODO Auto-generated method stub
-		
 	}
 }

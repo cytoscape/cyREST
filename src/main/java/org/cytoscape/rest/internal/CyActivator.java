@@ -1,11 +1,9 @@
 package org.cytoscape.rest.internal;
 
-//import org.cytoscape.rest.internal.net.server.CytoBridgePostResponder;
 import java.util.Map;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -25,8 +23,8 @@ import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
-import org.cytoscape.task.read.OpenSessionTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -57,7 +55,6 @@ public class CyActivator extends AbstractCyActivator {
 
 		@SuppressWarnings("rawtypes")
 		public void registerFactory(final VizmapWriterFactory factory, final Map props) {
-			System.out.println("########### W = " + factory.getClass().getSimpleName());
 			if (factory != null && factory.getClass().getSimpleName().equals("CytoscapeJsVisualStyleWriterFactory")) {
 				this.jsFactory = factory;
 			}
@@ -91,6 +88,8 @@ public class CyActivator extends AbstractCyActivator {
 		CyApplicationManager applicationManager = getService(bc, CyApplicationManager.class);
 		CyLayoutAlgorithmManager layoutManager = getService(bc, CyLayoutAlgorithmManager.class);
 
+		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory 
+			= getService(bc, NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		final VisualStyleFactory vsFactory = getService(bc, VisualStyleFactory.class);
 		final CyGroupFactory groupFactory = getService(bc, CyGroupFactory.class);
 		final CyGroupManager groupManager = getService(bc, CyGroupManager.class);
@@ -101,8 +100,12 @@ public class CyActivator extends AbstractCyActivator {
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
 				"(id=cytoscapejsNetworkWriterFactory)");
 
-		InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
+		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
 				"(id=cytoscapejsNetworkReaderFactory)");
+		
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
 
 		WriterListener writerListsner = new WriterListener();
 		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
@@ -111,20 +114,13 @@ public class CyActivator extends AbstractCyActivator {
 
 //		OpenSessionTaskFactory openSessionTaskFactory = getService(bc, OpenSessionTaskFactory.class);
 		
-//		System.out.println("Writer = " + cytoscapeJsWriterFactory);
-//		System.out.println("Reader = " + cytoscapeJsReaderFactory);
-
 		final TaskManager<?, ?> tm = getService(bc, TaskManager.class);
-
-		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
 
 		NodeViewListener listen = new NodeViewListener(visMan, layoutManager, tm, cyPropertyServiceRef);
 		registerService(bc, listen, AddedNodeViewsListener.class, new Properties());
 
-		CySwingApplication swingApp = getService(bc, CySwingApplication.class);
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
+		
 		// Get all compatible tasks
 		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
 		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory",
@@ -132,27 +128,27 @@ public class CyActivator extends AbstractCyActivator {
 		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",
 				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
-		// ///////////////// Writers ////////////////////////////
-
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
-				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory);
+				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
 		} catch (Exception e) {
-			logger.error("############## Could not start server ###############", e);
+			logger.error("Could not start server!", e);
 			e.printStackTrace();
 		}
 	}
 
+
 	@Override
 	public void shutDown() {
-		System.out.println("Shutting down server...");
+		logger.info("Shutting down server...");
 		if (grizzlyServerManager != null) {
 			grizzlyServerManager.stopServer();
 		}
 	}
+
 }

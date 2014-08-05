@@ -41,11 +41,13 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.RestTaskManager;
+import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualStyle;
+import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskIterator;
@@ -345,7 +347,6 @@ public class NetworkDataService extends AbstractDataService {
 		final CyNetwork network = getCyNetwork(id);
 		final CyNode node = getNode(network, objId);
 		final CyNetwork pointer = node.getNetworkPointer();
-		System.out.println("##PTR = " + pointer);
 		if(pointer == null) {
 			return "{}";
 		}
@@ -615,8 +616,6 @@ public class NetworkDataService extends AbstractDataService {
 
 		CyNetwork[] networks = reader.getNetworks();
 		CyNetwork newNetwork = networks[0];
-		System.out.println("# of edges = " + newNetwork.getEdgeCount());
-		System.out.println("# of nodes = " + newNetwork.getNodeCount());
 		addNetwork(networks, reader, collectionName);
 		is.close();
 
@@ -624,6 +623,43 @@ public class NetworkDataService extends AbstractDataService {
 		return getNumberObjectString("networkSUID", newNetwork.getSUID());
 	}
 	
+	@POST
+	@Path("/{networkId}/fromSelected")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createNetworkFromSelected(@PathParam("networkId") Long networkId,
+			final InputStream is, @Context HttpHeaders headers) throws Exception {
+
+		final CyNetwork network = getCyNetwork(networkId);
+		final TaskIterator itr = newNetworkSelectedNodesAndEdgesTaskFactory.createTaskIterator(network);
+	
+		// TODO: This is very hackey... We need a method to get the new network SUID.
+		AbstractNetworkCollectionTask viewTask = null;
+
+		while (itr.hasNext()) {
+			final Task task = itr.next();
+			try {
+				task.run(new HeadlessTaskMonitor());
+				if (task instanceof AbstractNetworkCollectionTask && task instanceof ObservableTask) {
+					viewTask = (AbstractNetworkCollectionTask) task;
+				} else {
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		is.close();
+
+		if(viewTask != null) {
+			final Collection result = ((ObservableTask)viewTask).getResults(Collection.class);
+			if(result.size() == 1) {
+				final Long suid = ((CyNetworkView)result.iterator().next()).getModel().getSUID();
+				return getNumberObjectString("networkSUID", suid);
+			}
+	 	}
+	 	
+		throw new WebApplicationException("Could not get new network SUID.", 500);
+	}
 	
 	private final String loadNetwork(final InputStream is) throws IOException {
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -633,7 +669,6 @@ public class NetworkDataService extends AbstractDataService {
 		// Input should be array of URLs.
 		for (final JsonNode node : rootNode) {
 			final String sourceUrl = node.asText();
-			System.out.println(sourceUrl);
 			TaskIterator itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
 			CyNetworkReader currentReader = null;
 			
@@ -642,10 +677,8 @@ public class NetworkDataService extends AbstractDataService {
 				try {
 					task.run(new HeadlessTaskMonitor());
 					if (task instanceof CyNetworkReader) {
-						System.out.println("This is reader: " + task);
 						currentReader = (CyNetworkReader) task;
 					} else {
-						System.out.println("!!!!!!!!Other task: " + task);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -659,9 +692,7 @@ public class NetworkDataService extends AbstractDataService {
 				suids[counter] = network.getSUID();
 				counter++;
 			}
-			System.out.println("Networks = " + suids[0]);
 			results.put(sourceUrl, suids);
-			System.out.println("=================== task for " + sourceUrl + " end ===================\n\n");
 		}
 		
 		is.close();
@@ -775,7 +806,6 @@ public class NetworkDataService extends AbstractDataService {
 		// If there is no name yet for the root network, set it the same as its
 		// base subnetwork
 		if (networks.length == 1) {
-			System.out.println("####### root: " + collectionName);
 			if (networks[0] instanceof CySubNetwork) {
 				CySubNetwork subnet = (CySubNetwork) networks[0];
 				final CyRootNetwork rootNet = subnet.getRootNetwork();
@@ -797,12 +827,10 @@ public class NetworkDataService extends AbstractDataService {
 	public String runNetworkTask(@PathParam("suid") String suid, @PathParam("taskId") String taskName) {
 		if (taskName != null) {
 			NetworkTaskFactory tf = tfManager.getNetworkTaskFactory(taskName);
-			System.out.println("TF from Map: " + tf);
 
 			if (tf != null) {
 				TaskIterator ti;
 
-				System.out.println("## Got network tf: " + taskName);
 				NetworkTaskFactory ntf = (NetworkTaskFactory) tf;
 				final Long networkSUID = parseSUID(suid);
 				final CyNetwork network = networkManager.getNetwork(networkSUID);
@@ -810,7 +838,6 @@ public class NetworkDataService extends AbstractDataService {
 
 				TaskManager tm = new RestTaskManager();
 				tm.execute(ti);
-				System.out.println("Finished Task: " + taskName);
 			}
 			return "{ \"currentNetwork\": " + applicationManager.getCurrentNetwork().getSUID() + "}";
 		} else {
@@ -824,11 +851,9 @@ public class NetworkDataService extends AbstractDataService {
 	public String runNetworkCollectionTask(@PathParam("suid") String suid, @PathParam("taskId") String taskName) {
 		if (taskName != null) {
 			NetworkCollectionTaskFactory tf = tfManager.getNetworkCollectionTaskFactory(taskName);
-			System.out.println("Got TF: " + taskName);
 			if (tf != null) {
 				TaskIterator ti;
 
-				System.out.println("Got network collection tf: " + taskName);
 				NetworkCollectionTaskFactory ntf = (NetworkCollectionTaskFactory) tf;
 				final Long networkSUID = parseSUID(suid);
 				final CyNetwork network = networkManager.getNetwork(networkSUID);
@@ -838,7 +863,6 @@ public class NetworkDataService extends AbstractDataService {
 
 				TaskManager tm = new RestTaskManager();
 				tm.execute(ti);
-				System.out.println("Finished Task: " + taskName);
 			}
 			return "OK";
 		} else {
@@ -857,7 +881,6 @@ public class NetworkDataService extends AbstractDataService {
 
 				TaskManager tm = new RestTaskManager();
 				tm.execute(ti);
-				System.out.println("Finished Task: " + taskName);
 			}
 			return "OK";
 		} else {

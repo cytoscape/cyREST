@@ -6,6 +6,7 @@ import java.util.List;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.rest.internal.service.JsonTags;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,13 +28,14 @@ public class TableSerializer extends JsonSerializer<CyTable> {
 		generator.writeStartObject();
 
 		generator.writeNumberField(CyIdentifiable.SUID, table.getSUID());
-		generator.writeStringField("title", table.getTitle());
-		generator.writeBooleanField("public", table.isPublic());
-		generator.writeStringField("mutable", table.getMutability().name());
-		generator.writeStringField("primary_key", table.getPrimaryKey().getName());
+		generator.writeStringField(JsonTags.TITLE, table.getTitle());
+		generator.writeBooleanField(JsonTags.PUBLIC, table.isPublic());
+		generator.writeStringField(JsonTags.MUTABLE, table.getMutability().name());
+		generator.writeStringField(JsonTags.PRIMARY_KEY, table.getPrimaryKey().getName());
 
 		final List<CyRow> rows = table.getAllRows();
-		generator.writeObjectField("rows", rows);
+		generator.writeObjectField(JsonTags.ROWS, rows);
+
 		generator.writeEndObject();
 	}
 }

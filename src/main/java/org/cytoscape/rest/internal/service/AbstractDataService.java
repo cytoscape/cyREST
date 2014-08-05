@@ -18,10 +18,11 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
+import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
-import org.cytoscape.rest.internal.serializer.ViewSerializer;
+import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -37,7 +38,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public abstract class AbstractDataService {
 
-	protected static final String NETWORKS = "networks";
+	// TODO: do we need this level of version granularity?
+	protected static final String API_VERSION = "1.0.0";
 	
 	@Context
 	protected CyApplicationManager applicationManager;
@@ -75,6 +77,13 @@ public abstract class AbstractDataService {
 	@Context
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 	
+	@Context
+	protected CyProperty props;
+	
+
+	@Context
+	protected NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
+
 
 	protected final GraphObjectSerializer serializer;
 	

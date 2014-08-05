@@ -12,6 +12,7 @@ import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.rest.internal.service.JsonTags;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -116,8 +117,8 @@ public class GraphObjectSerializer {
 		generator.writeStartArray();
 		for (final CyColumn column : columns) {
 			generator.writeStartObject();
-			generator.writeStringField("name", column.getName());
-			generator.writeStringField("type", column.getType().getName());
+			generator.writeStringField(JsonTags.COLUMN_NAME, column.getName());
+			generator.writeStringField(JsonTags.COLUMN_TYPE, column.getType().getSimpleName());
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();
@@ -139,8 +140,8 @@ public class GraphObjectSerializer {
 
 		try {
 		generator.writeStartObject();
-		generator.writeStringField("name", column.getName());
-		generator.writeFieldName("values");
+		generator.writeStringField(JsonTags.COLUMN_NAME, column.getName());
+		generator.writeFieldName(JsonTags.COLUMN_VALUES);
 		generator.writeStartArray();
 		for (final Object value : values) {
 			if (column.getType() == List.class) {

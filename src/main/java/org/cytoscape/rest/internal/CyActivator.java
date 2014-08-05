@@ -76,57 +76,40 @@ public class CyActivator extends AbstractCyActivator {
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
 				VisualMappingFunctionFactory.class);
 
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
-		// Importing Services:
-		StreamUtil streamUtil = getService(bc, StreamUtil.class);
-		CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
-		CyNetworkManager netMan = getService(bc, CyNetworkManager.class);
-		CyRootNetworkManager cyRootNetworkManager = getService(bc, CyRootNetworkManager.class);
-		CyNetworkViewFactory netViewFact = getService(bc, CyNetworkViewFactory.class);
-		CyNetworkViewManager netViewMan = getService(bc, CyNetworkViewManager.class);
-		VisualMappingManager visMan = getService(bc, VisualMappingManager.class);
-		CyApplicationManager applicationManager = getService(bc, CyApplicationManager.class);
-		CyLayoutAlgorithmManager layoutManager = getService(bc, CyLayoutAlgorithmManager.class);
-
-		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory 
-			= getService(bc, NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		final CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
+		final CyNetworkManager netMan = getService(bc, CyNetworkManager.class);
+		final CyRootNetworkManager cyRootNetworkManager = getService(bc, CyRootNetworkManager.class);
+		final CyNetworkViewManager netViewMan = getService(bc, CyNetworkViewManager.class);
+		final VisualMappingManager visMan = getService(bc, VisualMappingManager.class);
+		final CyApplicationManager applicationManager = getService(bc, CyApplicationManager.class);
+		final CyLayoutAlgorithmManager layoutManager = getService(bc, CyLayoutAlgorithmManager.class);
 		final VisualStyleFactory vsFactory = getService(bc, VisualStyleFactory.class);
 		final CyGroupFactory groupFactory = getService(bc, CyGroupFactory.class);
 		final CyGroupManager groupManager = getService(bc, CyGroupManager.class);
-
-		CyTableFactory tabFact = getService(bc, CyTableFactory.class);
-		CyTableManager tableManager = getService(bc, CyTableManager.class);
-
-		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
-				"(id=cytoscapejsNetworkWriterFactory)");
-
-		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
-				"(id=cytoscapejsNetworkReaderFactory)");
-		
-		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
-
-		WriterListener writerListsner = new WriterListener();
-		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
-		
-		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
-
-//		OpenSessionTaskFactory openSessionTaskFactory = getService(bc, OpenSessionTaskFactory.class);
-		
+		final CyTableManager tableManager = getService(bc, CyTableManager.class);
 		final TaskManager<?, ?> tm = getService(bc, TaskManager.class);
 
-		NodeViewListener listen = new NodeViewListener(visMan, layoutManager, tm, cyPropertyServiceRef);
+		// Task factories
+		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc, NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		final CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cytoscapejsNetworkWriterFactory)");
+		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class, "(id=cytoscapejsNetworkReaderFactory)");
+		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
+
+		final WriterListener writerListsner = new WriterListener();
+		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
+
+		final NodeViewListener listen = new NodeViewListener(visMan, layoutManager, tm, cyPropertyServiceRef);
 		registerService(bc, listen, AddedNodeViewsListener.class, new Properties());
 
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 		
 		// Get all compatible tasks
 		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
-		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory",
-				NetworkTaskFactory.class);
-		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",
-				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory", NetworkTaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory", "removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,

@@ -590,9 +590,11 @@ public class NetworkDataService extends AbstractDataService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
-			@QueryParam("source") String source,
+			@QueryParam("source") String source, @QueryParam("format") String format,
 			final InputStream is, @Context HttpHeaders headers) throws Exception {
 
+		
+		// 1. If source is URL, load from the array of URL
 		if(source != null && source.equals("url")) {
 			return loadNetwork(is);
 		}
@@ -604,7 +606,14 @@ public class NetworkDataService extends AbstractDataService {
 			userAgent = agent.get(0);
 		}
 
-		final TaskIterator it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+		
+		final TaskIterator it;
+		if(format != null && format.trim().equals("edgelist")) {
+			it = edgeListReaderFactory.createTaskIterator(is, "test123");
+		} else {
+			it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+		}
+		
 		final CyNetworkReader reader = (CyNetworkReader) it.next();
 
 		String collectionName = collection;

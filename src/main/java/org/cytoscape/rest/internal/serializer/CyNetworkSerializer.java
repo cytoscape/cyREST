@@ -30,5 +30,4 @@ public class CyNetworkSerializer {
 		}
 		return null;
 	}
-
 }

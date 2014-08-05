@@ -3,6 +3,7 @@ package org.cytoscape.rest.internal.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Properties;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
@@ -21,6 +22,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -40,7 +42,8 @@ public abstract class AbstractDataService {
 
 	// TODO: do we need this level of version granularity?
 	protected static final String API_VERSION = "1.0.0";
-	
+
+
 	@Context
 	protected CyApplicationManager applicationManager;
 
@@ -79,22 +82,25 @@ public abstract class AbstractDataService {
 	
 	@Context
 	protected CyProperty props;
-	
 
 	@Context
 	protected NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
 
+	@Context
+	protected EdgeListReaderFactory edgeListReaderFactory;
+
 
 	protected final GraphObjectSerializer serializer;
-	
+
 
 	public AbstractDataService() {
 		this.serializer = new GraphObjectSerializer();
 	}
 
+
 	protected final CyNetwork getCyNetwork(final Long id) {
 		if(id == null) {
-			throw new WebApplicationException("Network SUID is null.", 505);
+			throw new WebApplicationException("Network SUID is null.", 500);
 		}
 		
 		final CyNetwork network = networkManager.getNetwork(id);
@@ -153,6 +159,8 @@ public abstract class AbstractDataService {
 		stream.close();
 		return result;
 	}
+
+
 	protected final String getNumberObjectString(final String fieldName, final Number value) {
 		final JsonFactory factory = new JsonFactory();
 
@@ -174,5 +182,4 @@ public abstract class AbstractDataService {
 
 		return result;
 	}
-
 }

@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cytoscape.io.read.AbstractCyNetworkReader;
@@ -28,6 +27,9 @@ import org.cytoscape.work.TaskMonitor;
 public class EdgeListReader extends AbstractCyNetworkReader {
 
 	private final static Pattern SPLIT_PATTERN = Pattern.compile("[\\s\\t]+");
+	private final static String SOURCE = "source";
+	private final static String TARGET= "target";
+
 
 	public EdgeListReader(final InputStream inputStream, final CyNetworkViewFactory cyNetworkViewFactory,
 			final CyNetworkFactory cyNetworkFactory, final CyNetworkManager cyNetworkManager,
@@ -37,9 +39,10 @@ public class EdgeListReader extends AbstractCyNetworkReader {
 
 	@Override
 	public CyNetworkView buildCyNetworkView(final CyNetwork network) {
-		final CyNetworkView view = this.cyNetworkViewFactory.createNetworkView(network);
-		return view;
+		// No layout will be applied for performance.
+		return this.cyNetworkViewFactory.createNetworkView(network);
 	}
+
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
@@ -51,14 +54,10 @@ public class EdgeListReader extends AbstractCyNetworkReader {
 				inputStream = null;
 			}
 		}
-
 	}
 
-	private final void read(TaskMonitor tm) throws IOException {
-		if (tm != null) {
-			tm.setProgress(0.0);
-		}
 
+	private final void read(TaskMonitor tm) throws IOException {
 		String line;
 		final BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")
 				.newDecoder()), 128 * 1024);
@@ -73,11 +72,18 @@ public class EdgeListReader extends AbstractCyNetworkReader {
 			subNetwork = (CySubNetwork) cyNetworkFactory.createNetwork();
 		}
 
+		// Create default columns
+		if(subNetwork.getDefaultEdgeTable().getColumn(SOURCE) == null)
+			subNetwork.getDefaultEdgeTable().createColumn(SOURCE, String.class, true);
+		if(subNetwork.getDefaultEdgeTable().getColumn(TARGET) == null)
+			subNetwork.getDefaultEdgeTable().createColumn(TARGET, String.class, true);
+		
 		Map<Object, CyNode> nMap = getNodeMap();
 
 		while ((line = br.readLine()) != null) {
+			
+			// Cancel called. Clean up the garbage.
 			if (cancelled) {
-				// Cancel called. Clean up the garbage.
 				nMap.clear();
 				nMap = null;
 				subNetwork = null;
@@ -105,9 +111,12 @@ public class EdgeListReader extends AbstractCyNetworkReader {
 				}
 				
 				final CyEdge edge = subNetwork.addEdge(sourceNode, targetNode, true);
+				subNetwork.getRow(edge).set(CyEdge.INTERACTION, "-");
+				subNetwork.getRow(edge).set(SOURCE, parts[0]);
+				subNetwork.getRow(edge).set(TARGET, parts[1]);
 				
-			} else {
-				// TODO: Self Edge
+			} else if(parts.length == 1){
+				// No edge will be added.  Node only.
 			}
 		}
 

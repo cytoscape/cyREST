@@ -1,43 +1,14 @@
 package org.cytoscape.rest.internal.serializer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
 import org.cytoscape.model.CyColumn;
-import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-
 public class CyTableSerializer {
 
-	public final String serializeTables(final Collection<CyTable> tables) throws IOException {
-
-		final JsonFactory factory = new JsonFactory();
-
-		String result = null;
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		JsonGenerator generator = null;
-		generator = factory.createGenerator(stream);
-		generator.writeStartArray();
-		for(CyTable table:tables) {
-			generator.writeStartObject();
-			generator.writeNumberField(CyIdentifiable.SUID, table.getSUID());
-			generator.writeStringField("title", table.getTitle());
-			generator.writeBooleanField("public", table.isPublic());
-			generator.writeStringField("mutable", table.getMutability().name());
-			generator.writeEndObject();
-		}
-		generator.writeEndArray();
-		generator.close();
-		result = stream.toString();
-		stream.close();
-		return result;
-	}
 
 	public String toCSV(final CyTable table) throws Exception {
 

@@ -1,27 +1,20 @@
 package org.cytoscape.rest;
 
-import static org.junit.Assert.*;
-
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyTable;
 import org.cytoscape.model.NetworkTestSupport;
-import org.cytoscape.rest.internal.translator.CyNetwork2JSONTranslator;
-import org.cytoscape.rest.internal.translator.CyTable2JSONTranslator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CyTable2JSONTranslatorTest {
+public class TableMapperTest {
 
-	private Translator<String, CyTable> translator;
 	private final NetworkTestSupport testSupport = new NetworkTestSupport();
 
 
 	@Before
 	public void setUp() throws Exception {
-		translator = new CyTable2JSONTranslator();
 	}
 
 	@After
@@ -30,8 +23,9 @@ public class CyTable2JSONTranslatorTest {
 
 	@Test
 	public void testSanity() {
-		
+
 	}
+
 	@Test
 	public void testTranslation() {
 		final CyNetwork network = testSupport.getNetwork();
@@ -40,9 +34,9 @@ public class CyTable2JSONTranslatorTest {
 		final CyNode node3 = network.addNode();
 		final CyEdge edge = network.addEdge(node1, node2, true);
 
-		
-		final String result = translator.translate(network.getDefaultNetworkTable());
-		//assertEquals("{\"SUID\":"+network.getSUID()+"}", result);
+		// final String result =
+		// translator.translate(network.getDefaultNetworkTable());
+		// assertEquals("{\"SUID\":"+network.getSUID()+"}", result);
 	}
 
 }

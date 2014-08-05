@@ -50,9 +50,10 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
-	// private final CyTableSerializer tableSerializer;
+
 	private final TableMapper tableMapper;
 	private final ObjectMapper tableObjectMapper;
+
 
 	public TableDataService() {
 		super();
@@ -60,6 +61,7 @@ public class TableDataService extends AbstractDataService {
 		this.tableObjectMapper = new ObjectMapper();
 		this.tableObjectMapper.registerModule(new TableModule());
 	}
+
 
 	/**
 	 * Create new column to the target table.
@@ -291,11 +293,12 @@ public class TableDataService extends AbstractDataService {
 		return objects;
 	}
 
+
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getTable(@PathParam("id") Long id, @PathParam("tableType") String tableType,
-			@QueryParam("format") String format) {
+			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
 
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);

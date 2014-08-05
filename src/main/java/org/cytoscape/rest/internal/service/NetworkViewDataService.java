@@ -12,8 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.io.write.CyWriter;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.rest.internal.serializer.ViewSerializer;
 import org.cytoscape.view.model.CyNetworkView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,7 +7,7 @@ import org.cytoscape.work.TaskFactory;
 public interface TaskFactoryManager {
 	
 	/**
-	 * Get task factory by ID metadata.
+	 * Get task factory by ID meta data.
 	 * 
 	 * @param id
 	 * @return Matching TaskFactory

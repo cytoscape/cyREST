@@ -1,9 +1,7 @@
 package org.cytoscape.rest.internal;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
@@ -11,6 +9,8 @@ import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 
+
+@SuppressWarnings("rawtypes")
 public class TaskFactoryManagerImpl implements TaskFactoryManager {
 
 	private Map<String, Object> tfMap = new HashMap<String, Object>();
@@ -22,11 +22,11 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 		Object tfID = props.get(ServiceProperties.ID);
 		if (tfID != null) {
 			tfMap.put(tfID.toString(), tf);
-//			System.out.println("## got TF: " + tfID);
+			// System.out.println("## got TF: " + tfID);
 		} else {
 			// generate ID from class Name
 			String tfName = tf.toString();
-//			System.out.println("tfName = " + tfName);
+			// System.out.println("tfName = " + tfName);
 			tfMap.put(tfName, tf);
 		}
 	}
@@ -38,11 +38,11 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 		Object tfID = props.get(ServiceProperties.ID);
 		if (tfID != null) {
 			tfMap.put(tfID.toString(), tf);
-//			System.out.println("## got TF: " + tfID);
+			// System.out.println("## got TF: " + tfID);
 		} else {
 			// generate ID from class Name
 			String tfName = tf.toString();
-//			System.out.println("tfName = " + tfName);
+			// System.out.println("tfName = " + tfName);
 			tfMap.put(tfName, tf);
 		}
 	}
@@ -54,11 +54,11 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 		Object tfID = props.get(ServiceProperties.ID);
 		if (tfID != null) {
 			tfMap.put(tfID.toString(), tf);
-//			System.out.println("## got NC TF: " + tfID);
+			// System.out.println("## got NC TF: " + tfID);
 		} else {
 			// generate ID from class Name
 			String tfName = tf.getClass().getSimpleName();
-//			System.out.println("NC = " + tfName);
+			// System.out.println("NC = " + tfName);
 			tfMap.put(tfName, tf);
 		}
 	}
@@ -79,7 +79,7 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 		else
 			return null;
 	}
-	
+
 	public NetworkTaskFactory getNetworkTaskFactory(final String id) {
 		Object tf = tfMap.get(id);
 		if (tf instanceof NetworkTaskFactory)
@@ -87,7 +87,7 @@ public class TaskFactoryManagerImpl implements TaskFactoryManager {
 		else
 			return null;
 	}
-	
+
 	public NetworkCollectionTaskFactory getNetworkCollectionTaskFactory(final String id) {
 		Object tf = tfMap.get(id);
 		if (tf instanceof NetworkCollectionTaskFactory)

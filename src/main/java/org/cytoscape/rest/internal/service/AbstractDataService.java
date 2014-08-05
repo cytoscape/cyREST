@@ -22,6 +22,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -84,6 +85,9 @@ public abstract class AbstractDataService {
 
 	@Context
 	protected NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
+
+	@Context
+	protected EdgeListReaderFactory edgeListReaderFactory;
 
 
 	protected final GraphObjectSerializer serializer;

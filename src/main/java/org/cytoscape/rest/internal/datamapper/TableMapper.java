@@ -5,14 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.NotFoundException;
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
-import com.fasterxml.jackson.annotation.JsonFormat.Value;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**

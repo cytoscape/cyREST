@@ -42,8 +42,7 @@ public class RestTaskManager extends AbstractTaskManager {
 
 	@Override
 	public void execute(TaskIterator iterator, TaskObserver observer) {
-		// TODO Auto-generated method stub
-		
+		throw new IllegalArgumentException("Observable task is not supported.");
 	}
 
 }

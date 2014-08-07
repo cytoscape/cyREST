@@ -631,9 +631,22 @@ public class NetworkDataService extends AbstractDataService {
 		// Return SUID-to-Original map
 		return getNumberObjectString("networkSUID", newNetwork.getSUID());
 	}
+
 	
+	/**
+	 * Create a subnetwork from selected nodes & edges
+	 * 
+	 * if body is empty, it simply creates new network from current selection.
+	 * Otherwise, select from the list of SUID.
+	 * 
+	 * @param networkId
+	 * @param is
+	 * @param headers
+	 * @return
+	 * @throws Exception
+	 */
 	@POST
-	@Path("/{networkId}/fromSelected")
+	@Path("/{networkId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNetworkFromSelected(@PathParam("networkId") Long networkId,
@@ -655,10 +668,15 @@ public class NetworkDataService extends AbstractDataService {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+				throw new WebApplicationException("Could not create sub network from selection.", 500);
 			}
 		}
 		is.close();
 
+		
+		/**
+		 * 
+		 */
 		if(viewTask != null) {
 			final Collection result = ((ObservableTask)viewTask).getResults(Collection.class);
 			if(result.size() == 1) {

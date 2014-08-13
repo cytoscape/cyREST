@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Singleton
-@Path("/v1/networks/{id}/views") // API version
+@Path("/v1/networks/{networkId}/views") // API version
 public class NetworkViewDataService extends AbstractDataService {
 
 	private final static Logger logger = LoggerFactory.getLogger(NetworkViewDataService.class);
@@ -35,56 +35,63 @@ public class NetworkViewDataService extends AbstractDataService {
 
 
 	/**
+	 * Get number of views for the given network model
 	 * 
-	 * @param id
-	 * @return
+	 * @param networkId Network SUID
+	 * 
+	 * @return Number of views for the network model
+	 * 
 	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Integer getNetworkViewCount(@PathParam("id") Long id) {
-		return this.networkViewManager.getNetworkViews(getCyNetwork(id)).size();
+	public Integer getNetworkViewCount(@PathParam("networkId") Long networkId) {
+		return this.networkViewManager.getNetworkViews(getCyNetwork(networkId)).size();
 	}
 
-	
+
 	/**
-	 * Delete all views for the target network.
+	 * Delete all network views
 	 * 
-	 * @param id
+	 * @param networkId Network SUID
+	 * 
 	 */
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteAllNetworkViews(@PathParam("id") Long id) {
-		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(id));
+	public void deleteAllNetworkViews(@PathParam("networkId") Long networkId) {
+		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(networkId));
 		for(final CyNetworkView view: views) {
 			networkViewManager.destroyNetworkView(view);
 		}
 	}
 
+
 	/**
 	 * Convenience method to get the first view object.
 	 * 
-	 * @param id Network SUID
+	 * @param networkId Network SUID
 	 * 
 	 * @return
 	 */
 	@GET
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getFirstNetworkView(@PathParam("id") Long id) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(id);
+	public String getFirstNetworkView(@PathParam("networkId") Long networkId) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		return getNetworkViewString(views.iterator().next());
 	}
-	
+
+
 	@DELETE
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteFirstNetworkView(@PathParam("id") Long id) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(id);
+	public void deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		networkViewManager.destroyNetworkView(views.iterator().next());
 	}
-	
+
+
 	/**
 	 * Get the entire view object as JSON.
 	 * 
@@ -94,8 +101,8 @@ public class NetworkViewDataService extends AbstractDataService {
 	@GET
 	@Path("/{viewId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkView(@PathParam("id") Long id, @PathParam("viewId") Long viewId) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(id);
+	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		for(final CyNetworkView view:views) {
 			final Long vid = view.getSUID();
 			if(vid.equals(viewId)) {
@@ -105,6 +112,7 @@ public class NetworkViewDataService extends AbstractDataService {
 		
 		return "{}";
 	}
+
 
 	private final String getNetworkViewString(final CyNetworkView networkView) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();

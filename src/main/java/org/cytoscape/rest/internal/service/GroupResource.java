@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -19,14 +20,15 @@ import javax.ws.rs.core.MediaType;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
-import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -50,18 +52,19 @@ public class GroupResource extends AbstractDataService {
 		this.mapper = new GroupMapper();
 	}
 
-	@GET
-	@Path("/count")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroupCount(@PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
-		return getNumberObjectString("groupCount", groupManager.getGroupSet(network).size());
-	}
-
+	/**
+	 * Get all groups for a network
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * 
+	 * @return List of all groups for the network
+	 * 
+	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroups(@PathParam("networkId") Long networkId) {
+	public String getAllGroups(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
@@ -72,14 +75,40 @@ public class GroupResource extends AbstractDataService {
 		}
 	}
 
+	/**
+	 * Get number of groups for a network
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * 
+	 * @return Number of groups for the network
+	 */
 	@GET
-	@Path("/{suid}")
+	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
+	public Integer getGroupCount(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyNode node = network.getNode(suid);
+		return groupManager.getGroupSet(network).size();
+	}
+
+	/**
+	 * Get group for a node
+	 * 
+	 * @param networkId
+	 *            Networks SUID
+	 * @param nodeId
+	 *            Node SUID
+	 * 
+	 * @return A group where the node belongs to
+	 */
+	@GET
+	@Path("/{nodeId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new NotFoundException("Could not find the node with SUID: " + suid);
+			throw new NotFoundException("Could not find the node with SUID: " + nodeId);
 		}
 
 		final CyGroup group = groupManager.getGroup(node, network);
@@ -90,10 +119,17 @@ public class GroupResource extends AbstractDataService {
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw new WebApplicationException("Could not serialize Group.", e, 500);
 		}
 	}
 
+	/**
+	 * Delete all groups for a network
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * 
+	 */
 	@DELETE
 	@Path("/")
 	public void deleteAllGroups(@PathParam("networkId") Long networkId) {
@@ -109,28 +145,55 @@ public class GroupResource extends AbstractDataService {
 		}
 	}
 
+	/**
+	 * 
+	 * Delete a group
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param groupNodeId
+	 *            Group node SUID
+	 */
 	@DELETE
-	@Path("/{suid}")
-	public void deleteGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
-		final CyGroup group = getGroupById(networkId, suid);
+	@Path("/{groupId}")
+	public void deleteGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
 			groupManager.destroyGroup(group);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw new WebApplicationException("Could not delete a group.", e, 500);
 		}
 	}
 
+	/**
+	 * Expand group nodes
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param groupNodeId
+	 *            Group node SUID
+	 * 
+	 */
 	@GET
-	@Path("/{suid}/expand")
-	public void expandGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
-		toggle(networkId, suid, false);
+	@Path("/{groupNodeId}/expand")
+	public void expandGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+		toggle(networkId, groupNodeId, false);
 	}
 
+	/**
+	 * Collapse group nodes
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param groupNodeId
+	 *            Group node SUID
+	 * 
+	 */
 	@GET
-	@Path("/{suid}/collapse")
-	public void collapseGroup(@PathParam("networkId") Long networkId, @PathParam("suid") Long suid) {
-		toggle(networkId, suid, true);
+	@Path("/{groupNodeId}/collapse")
+	public void collapseGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+		toggle(networkId, groupNodeId, true);
 	}
 
 	private final void toggle(final Long networkId, final Long suid, boolean collapse) {
@@ -164,20 +227,31 @@ public class GroupResource extends AbstractDataService {
 		return group;
 	}
 
+	/**
+	 * Create a new group node
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * 
+	 * @return New group node's SUID
+	 * 
+	 * @throws Exception
+	 */
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createGroup(@PathParam("id") Long id, final InputStream is) throws Exception {
-		final CyNetwork network = getCyNetwork(id);
+	public Long createGroup(@PathParam("networkId") Long networkId, final InputStream is) throws JsonParseException,
+			JsonMappingException, IOException {
+		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
-			return getNumberObjectString(CyIdentifiable.SUID, newGroup.getGroupNode().getSUID());
+			return newGroup.getGroupNode().getSUID();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw new WebApplicationException("Could not create new group.", e, 500);
 		}
 	}
 }

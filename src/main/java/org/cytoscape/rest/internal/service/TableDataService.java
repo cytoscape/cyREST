@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
-@Path("/v1/networks/{id}/tables")
+@Path("/v1/networks/{networkId}/tables")
 public class TableDataService extends AbstractDataService {
 
 	private static enum TableType {
@@ -73,7 +73,7 @@ public class TableDataService extends AbstractDataService {
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createColumn(@PathParam("id") Long id, @PathParam("tableType") String tableType, final InputStream is) {
+	public void createColumn(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, final InputStream is) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -97,7 +97,7 @@ public class TableDataService extends AbstractDataService {
 	 */
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
-	public void deleteColumn(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public void deleteColumn(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -117,7 +117,7 @@ public class TableDataService extends AbstractDataService {
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumnName(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public void updateColumnName(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName, final InputStream is) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -134,7 +134,7 @@ public class TableDataService extends AbstractDataService {
 	@PUT
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createColumnValues(@PathParam("id") Long id, @PathParam("tableType") String tableType, 
+	public void createColumnValues(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, 
 			@PathParam("columnName") String columnName, final InputStream is) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -153,7 +153,7 @@ public class TableDataService extends AbstractDataService {
 	@PUT
 	@Path("/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateTable(@PathParam("id") Long id, @PathParam("tableType") String tableType, final InputStream is) {
+	public void updateTable(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, final InputStream is) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		
@@ -171,7 +171,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRow(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public String getRow(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -186,7 +186,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCell(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public String getCell(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey, @PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -201,7 +201,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/rows")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRows(@PathParam("id") Long id, @PathParam("tableType") String tableType) {
+	public String getRows(@PathParam("networkId") Long id, @PathParam("tableType") String tableType) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		try {
@@ -214,7 +214,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/columns")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnNames(@PathParam("id") Long id, @PathParam("tableType") String tableType) {
+	public String getColumnNames(@PathParam("networkId") Long id, @PathParam("tableType") String tableType) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
 		try {
@@ -227,7 +227,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/columns/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnValues(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public String getColumnValues(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(id);
 		final CyTable table = getTableByType(network, tableType);
@@ -250,7 +250,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTables(@PathParam("id") Long id) {
+	public String getTables(@PathParam("networkId") Long id) {
 		final Set<CyTable> tables = this.tableManager.getAllTables(true);
 
 		try {
@@ -297,7 +297,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTable(@PathParam("id") Long id, @PathParam("tableType") String tableType,
+	public String getTable(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
 			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
 
 		final CyNetwork network = getCyNetwork(id);

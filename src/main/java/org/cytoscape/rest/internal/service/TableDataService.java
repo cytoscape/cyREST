@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -27,14 +28,24 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
 import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.TableModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * REST API for CyTable objects. This is for assigned table only.
+ * 
+ * @author kono
+ * 
+ */
 @Singleton
 @Path("/v1/networks/{networkId}/tables")
 public class TableDataService extends AbstractDataService {
+
+	private final static Logger logger = LoggerFactory.getLogger(TableDataService.class);
 
 	private static enum TableType {
 		DEFAULT_NODE("defaultnode"), DEFAULT_EDGE("defaultedge"), DEFAULT_NETWORK("defaultnetwork");
@@ -50,10 +61,8 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
-
 	private final TableMapper tableMapper;
 	private final ObjectMapper tableObjectMapper;
-
 
 	public TableDataService() {
 		super();
@@ -62,133 +71,176 @@ public class TableDataService extends AbstractDataService {
 		this.tableObjectMapper.registerModule(new TableModule());
 	}
 
-
 	/**
-	 * Create new column to the target table.
 	 * 
-	 * @param id
+	 * @title Create new column in the target table.
+	 * 
+	 *        This method creates a new, empty column in the specified table.
+	 * 
+	 * @param networkId
+	 *            Network ID
 	 * @param tableType
-	 * @param is
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * 
 	 */
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createColumn(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, final InputStream is) {
-		final CyNetwork network = getCyNetwork(id);
+	public void createColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+			final InputStream is) {
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.createNewColumn(rootNode, table);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Failed to create column.", e);
 			throw new WebApplicationException("Could not create column.", e, 500);
 		}
 	}
 
-
-
 	/**
-	 * Delete a column from a table.
+	 * Delete a column from a table
 	 * 
-	 * @param id
+	 * @param networkId
+	 *            Network SUID
 	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 * @param columnName
+	 *            Name of the column to be deleted
+	 * 
 	 */
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
-	public void deleteColumn(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public void deleteColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		if (table != null) {
 			table.deleteColumn(columnName);
+		} else {
+			logger.error("Failed to delete a column. (Missing table?)");
+			throw new NotFoundException("Could not find the table.  (This should not happen!)");
 		}
 	}
 
 	/**
-	 * This if for update existing column name to a new one.
+	 * @title Update a column name
 	 * 
-	 * @param id
+	 * @param networkId
+	 *            Network SUID
 	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 * @param columnName
-	 * @param is
+	 *            Original name of the column to be updated.
+	 * 
 	 */
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumnName(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public void updateColumnName(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName, final InputStream is) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnName(rootNode, table);
 		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
+			logger.error("Could not parse the input JSON (new column name)", e);
+			throw new WebApplicationException("Could not parse the input JSON.", e, 412);
 		}
 	}
-	
 
+	/**
+	 * @title Update a values in a column
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * @param columnName
+	 *            Target column name.
+	 * 
+	 */
 	@PUT
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createColumnValues(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, 
+	public void updateColumnValues(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName, final InputStream is) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-		
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnValues(rootNode, table, columnName);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			logger.error("Could not read JSON for new column values.", e);
+			throw new WebApplicationException("Could not parse the input JSON.", e, 412);
 		}
 	}
 
-
+	/**
+	 * @title Update table data
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 */
 	@PUT
 	@Path("/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateTable(@PathParam("networkId") Long id, @PathParam("tableType") String tableType, final InputStream is) {
-		final CyNetwork network = getCyNetwork(id);
+	public void updateTable(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+			final InputStream is) {
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-		
+
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateTableValues(rootNode, table);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			logger.error("Could not parse JSON for new table entries.", e);
+			throw new WebApplicationException("Could not parse new table data JSON.", e, 412);
 		}
 	}
 
-
+	/**
+	 * @title Get a row in a table
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * @param primaryKey
+	 *            Name of primary key column
+	 * 
+	 * @return Row in the table
+	 */
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRow(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public String getRow(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final CyRow row = table.getRow(primaryKey);
 		try {
 			return this.serializer.serializeRow(row);
 		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
+			logger.error("Copuld not serialize a table.");
+			throw new WebApplicationException("Could not serialize the table.", e, 500);
 		}
 	}
 
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCell(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public String getCell(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey, @PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final CyRow row = table.getRow(primaryKey);
 		try {
@@ -201,8 +253,8 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/rows")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRows(@PathParam("networkId") Long id, @PathParam("tableType") String tableType) {
-		final CyNetwork network = getCyNetwork(id);
+	public String getRows(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		try {
 			return this.serializer.serializeAllRows(table.getAllRows());
@@ -214,8 +266,8 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/{tableType}/columns")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnNames(@PathParam("networkId") Long id, @PathParam("tableType") String tableType) {
-		final CyNetwork network = getCyNetwork(id);
+	public String getColumnNames(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		try {
 			return this.serializer.serializeColumns(table.getColumns());
@@ -224,13 +276,12 @@ public class TableDataService extends AbstractDataService {
 		}
 	}
 
-
 	@GET
 	@Path("/{tableType}/columns/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnValues(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public String getColumnValues(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final CyColumn column = table.getColumn(columnName);
 		final List<Object> values = column.getValues(column.getType());
@@ -251,7 +302,7 @@ public class TableDataService extends AbstractDataService {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTables(@PathParam("networkId") Long id) {
+	public String getTables(@PathParam("networkId") Long networkId) {
 		final Set<CyTable> tables = this.tableManager.getAllTables(true);
 
 		try {
@@ -294,14 +345,13 @@ public class TableDataService extends AbstractDataService {
 		return objects;
 	}
 
-
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTable(@PathParam("networkId") Long id, @PathParam("tableType") String tableType,
+	public String getTable(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
 
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 
 		if (format != null && format.equals("csv")) {
@@ -319,6 +369,34 @@ public class TableDataService extends AbstractDataService {
 				e.printStackTrace();
 				throw new WebApplicationException(e, 500);
 			}
+		}
+	}
+
+	/**
+	 * @title Get a table as CSV
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * 
+	 * @return Entire table as CSV
+	 * 
+	 */
+	@GET
+	@Path("/{tableType}.csv")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTableAsCsv(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
+
+		final CyNetwork network = getCyNetwork(networkId);
+		final CyTable table = getTableByType(network, tableType);
+		final CyTableSerializer tableSerializer = new CyTableSerializer();
+		try {
+			final String result = tableSerializer.toCSV(table);
+			return result;
+		} catch (Exception e) {
+			throw new WebApplicationException("Could not serialize table to CSV.", e, 500);
 		}
 	}
 }

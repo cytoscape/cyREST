@@ -10,6 +10,7 @@ import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.rest.internal.service.JsonTags;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -41,7 +42,7 @@ public class TableMapper {
 		
 		// Optional: mutability
 		boolean isImmutable = false;
-		final JsonNode immutable = rootNode.get("immutable");
+		final JsonNode immutable = rootNode.get(JsonTags.COLUMN_IMMUTABLE);
 		if(immutable != null) {
 			isImmutable = immutable.asBoolean();
 		}

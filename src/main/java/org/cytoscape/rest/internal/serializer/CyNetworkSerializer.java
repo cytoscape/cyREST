@@ -1,14 +1,20 @@
 package org.cytoscape.rest.internal.serializer;
 
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
-public class CyNetworkSerializer { 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
-	public final String toMatrix(final CyNetwork network) {
+public class CyNetworkSerializer extends JsonSerializer<CyNetwork> { 
+
+	private final String toMatrix(final CyNetwork network) {
 		// Create header
 		final SortedSet<Long> sortedNodeIds = new TreeSet<Long>();
 		for (CyNode node : network.getNodeList()) {
@@ -29,5 +35,11 @@ public class CyNetworkSerializer {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void serialize(CyNetwork network, JsonGenerator arg1, SerializerProvider arg2) throws IOException,
+			JsonProcessingException {
+		
 	}
 }

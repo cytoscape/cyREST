@@ -119,6 +119,8 @@ public class GraphObjectSerializer {
 			generator.writeStartObject();
 			generator.writeStringField(JsonTags.COLUMN_NAME, column.getName());
 			generator.writeStringField(JsonTags.COLUMN_TYPE, column.getType().getSimpleName());
+			generator.writeBooleanField(JsonTags.COLUMN_IMMUTABLE, column.isImmutable());
+			generator.writeBooleanField(JsonTags.PRIMARY_KEY, column.isPrimaryKey());
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();

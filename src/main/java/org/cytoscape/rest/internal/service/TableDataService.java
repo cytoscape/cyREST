@@ -82,7 +82,7 @@ public class TableDataService extends AbstractDataService {
 			tableMapper.createNewColumn(rootNode, table);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw new WebApplicationException("Could not create column.", e, 500);
 		}
 	}
 
@@ -220,9 +220,10 @@ public class TableDataService extends AbstractDataService {
 		try {
 			return this.serializer.serializeColumns(table.getColumns());
 		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
+			throw new WebApplicationException("Could not get column names.", e, 500);
 		}
 	}
+
 
 	@GET
 	@Path("/{tableType}/columns/{columnName}")

@@ -3,10 +3,12 @@ package org.cytoscape.rest.internal.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Properties;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -41,7 +43,21 @@ import com.fasterxml.jackson.core.JsonGenerator;
 public abstract class AbstractDataService {
 
 	// TODO: do we need this level of version granularity?
-	protected static final String API_VERSION = "1.0.0";
+	protected static final String API_VERSION = "v1";
+	
+	protected static final String ERROR_TAG = "\"error\":";
+	
+
+	// Utilities to build error messages.
+	
+	protected final WebApplicationException getError(final String errorMessage, final Status status) {
+		return new NotFoundException(Response.status(status)
+				.entity("{" + ERROR_TAG + "\"" + errorMessage + "\"}").build());
+	}
+	
+	protected final WebApplicationException getError(final Exception ex, final Status status) {
+		return new NotFoundException(Response.status(status).entity(ex).build());
+	}
 
 
 	@Context
@@ -100,12 +116,12 @@ public abstract class AbstractDataService {
 
 	protected final CyNetwork getCyNetwork(final Long id) {
 		if(id == null) {
-			throw new WebApplicationException("Network SUID is null.", 500);
+			throw getError("SUID is null.", Response.Status.NOT_FOUND);
 		}
 		
 		final CyNetwork network = networkManager.getNetwork(id);
 		if (network == null) {
-			throw new WebApplicationException("Could not find network with SUID: " + id, 404);
+			throw getError("Could not find network with SUID: " + id, Response.Status.NOT_FOUND);
 		}
 		return network;
 	}
@@ -123,7 +139,7 @@ public abstract class AbstractDataService {
 	protected final CyNode getNode(final CyNetwork network, final Long nodeId) {
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new WebApplicationException("Could not find object: " + nodeId, 404);
+			throw getError("Could not find node with SUID: " + nodeId, Response.Status.NOT_FOUND);
 		}
 		return node;
 	}

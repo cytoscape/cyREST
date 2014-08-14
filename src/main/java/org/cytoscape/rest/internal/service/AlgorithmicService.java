@@ -1,20 +1,15 @@
 package org.cytoscape.rest.internal.service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,105 +22,137 @@ import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
+
+
+/**
+ * Algorithmic resources.  Essentially, this is a high-level task executor.
+ * 
+ * @author kono
+ *
+ */
 @Singleton
 @Path("/v1/apply")
 public class AlgorithmicService extends AbstractDataService {
 
 	@Context
 	private TaskMonitor headlessTaskMonitor;
-	
+
 	@Context
 	private CyLayoutAlgorithmManager layoutManager;
 
+	
+	/**
+	 * 
+	 * @summary Apply layout to a network
+	 * 
+	 * @param algorithmName Name of layout algorithm ("circular", "force-directed", etc.)
+	 * @param networkId Target network SUID
+	 * 
+	 * @return Success message
+	 */
 	@GET
-	@Path("/layouts/{algorithmName}/{targetId}")
+	@Path("/layouts/{algorithmName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String applyLayout(@PathParam("algorithmName") String algorithmName, @PathParam("targetId") Long targetId) {
-
-		final CyNetwork network = getCyNetwork(targetId);
-		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+	public Response applyLayout(@PathParam("algorithmName") String algorithmName, @PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException("View is not available for the network " + targetId);
+			throw getError("Could not find view for the network with SUID: " + networkId, Response.Status.NOT_FOUND);
 		}
 
 		final CyNetworkView view = views.iterator().next();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
-
+		if(layout == null) {
+			throw getError("No such layout algorithm: " + algorithmName, Response.Status.NOT_FOUND);
+		}
+		
 		final TaskIterator itr = layout.createTaskIterator(view, layout.getDefaultLayoutContext(),
 				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw getError(e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return "{\"status\":\"OK\"}";
+		return Response.status(Response.Status.OK).entity("{\"message\":\"Layout finished.\"}").build();
 	}
 
 
-	@GET
-	@Path("/styles/{styleName}/{targetId}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String applyStyle(@PathParam("styleName") String styleName, @PathParam("targetId") Long targetId) {
 
-		final CyNetwork network = getCyNetwork(targetId);
+	
+	/**
+	 * Apply Visual Style to a network.
+	 * 
+	 * @param styleName Visual Style name (title)
+	 * @param networkId Target network SUID
+	 * 
+	 * @return Success message.
+	 */
+	@GET
+	@Path("/styles/{styleName}/{networkId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response applyStyle(@PathParam("styleName") String styleName, @PathParam("networkId") Long networkId) {
+
+		final CyNetwork network = getCyNetwork(networkId);
 		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		VisualStyle targetStyle = null;
-		for(final VisualStyle style:styles) {
+		for (final VisualStyle style : styles) {
 			final String name = style.getTitle();
-			if(name.equals(styleName)) {
+			if (name.equals(styleName)) {
 				targetStyle = style;
 				break;
 			}
 		}
-		if(targetStyle == null) {
-			throw new NotFoundException("Could not find Visual Style: " + styleName);
-		}
-		
-		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
-		if (views.isEmpty()) {
-			throw new NotFoundException("View is not available for the network " + targetId);
+
+		if (targetStyle == null) {
+			throw getError("Visual Style does not exist: " + styleName, Response.Status.NOT_FOUND);
 		}
 
-		
+		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		if (views.isEmpty()) {
+			throw getError("Network view does not exist for the network with SUID: " + networkId, Response.Status.NOT_FOUND);
+		}
+
 		final CyNetworkView view = views.iterator().next();
 		vmm.setVisualStyle(targetStyle, view);
 		vmm.setCurrentVisualStyle(targetStyle);
 		targetStyle.apply(view);
-		
-		return "{\"status\":\"OK\"}";
+
+		return Response.status(Response.Status.OK).entity("{\"message\":\"Visual Style applied.\"}").build();
 	}
 
+	/**
+	 * @summary Get list of available layout algorithm names
+	 * 
+	 * @return List of layout algorithm names.
+	 */
 	@GET
 	@Path("/layouts")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getLayouts() {
+	public Collection<String> getLayoutNames() {
 		final Collection<CyLayoutAlgorithm> layouts = layoutManager.getAllLayouts();
-		final List<String> layoutNames= new ArrayList<String>();
-		for(final CyLayoutAlgorithm layout: layouts) {
+		final List<String> layoutNames = new ArrayList<String>();
+		for (final CyLayoutAlgorithm layout : layouts) {
 			layoutNames.add(layout.getName());
 		}
-		try {
-			return getNames(layoutNames);
-		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
-		}
+		return layoutNames;
 	}
+	
 
-
-
+	/**
+	 * @summary Get list of all Visual Style names.
+	 * 
+	 * @return List of Style names.
+	 * 
+	 */
 	@GET
-	@Path("/images/{image}")
-	@Produces("image/*")
-	public Response getImage(@PathParam("image") String image) {
-		// TODO implement this
-		File f = new File(image);
-		
-
-		if (!f.exists()) {
-			throw new WebApplicationException(404);
+	@Path("/styles")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<String> getStyleNames() {
+		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
+		final List<String> styleNames = new ArrayList<String>();
+		for (final VisualStyle style : styles) {
+			styleNames.add(style.getTitle());
 		}
-
-		final String mt = new MimetypesFileTypeMap().getContentType(f);
-		return Response.ok(f, mt).build();
+		return styleNames;
 	}
 }

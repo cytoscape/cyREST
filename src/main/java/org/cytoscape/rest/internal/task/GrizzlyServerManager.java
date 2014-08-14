@@ -11,6 +11,7 @@ import org.cytoscape.rest.internal.service.GroupResource;
 import org.cytoscape.rest.internal.service.MiscDataService;
 import org.cytoscape.rest.internal.service.NetworkDataService;
 import org.cytoscape.rest.internal.service.NetworkViewDataService;
+import org.cytoscape.rest.internal.service.RootService;
 import org.cytoscape.rest.internal.service.StyleService;
 import org.cytoscape.rest.internal.service.TableDataService;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -57,6 +58,7 @@ public final class GrizzlyServerManager {
 		if (server == null) {
 			final URI baseURI = UriBuilder.fromUri(baseURL).port(portNumber).build();
 			final ResourceConfig rc = new ResourceConfig(
+					RootService.class,
 					NetworkDataService.class,
 					NetworkViewDataService.class,
 					TableDataService.class, 
@@ -68,7 +70,7 @@ public final class GrizzlyServerManager {
 					.register(JacksonFeature.class);
 
 			this.server = GrizzlyHttpServerFactory.createHttpServer(baseURI, rc);
-			logger.info("Cytoscape RESTful API service started.  Listening at port: " + portNumber);
+			logger.info("========== Cytoscape RESTful API service started.  Listening at port: " + portNumber + " ==============");
 		}
 	}
 

@@ -33,7 +33,8 @@
 			<name>Cytoscape Releases</name>
 			<url>http://code.cytoscape.org/nexus/content/repositories/releases/</url>
 		</repository>
-
+		
+		<!-- For API document generation -->
 		<repository>
 			<id>miredot</id>
 			<name>MireDot Releases</name>
@@ -111,9 +112,6 @@
 					<!-- insert other configuration here (optional) -->
 					<output>
 						<title>RESTful API for Cytoscape ${rest.api.version}</title>
-						<html>
-							<jsonDoc>Disabled</jsonDoc>
-						</html>
 					</output>
 
 
@@ -127,7 +125,7 @@
 							<httpStatusCode>
 								<httpCode>412</httpCode>
 								<document>put,post</document>
-								<defaultMessage>Invalid JSON/XML input.</defaultMessage>
+								<defaultMessage>Invalid JSON input.</defaultMessage>
 							</httpStatusCode>
 						</httpStatusCodes>
 					</restModel>
@@ -135,6 +133,39 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.qmino</groupId>
+										<artifactId>
+											miredot-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.4,)
+										</versionRange>
+										<goals>
+											<goal>restdoc</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 

@@ -27,6 +27,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.write.CyWriter;
@@ -302,7 +303,7 @@ public class NetworkDataService extends AbstractDataService {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw new NotFoundException("Could not find edge with SUID: " + edgeId);
+			throw getError("Could not find edge with SUID: " + edgeId, Response.Status.NOT_FOUND);
 		}
 		return getGraphObject(network, edge);
 	}
@@ -854,11 +855,11 @@ public class NetworkDataService extends AbstractDataService {
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
 		String jsonString = null;
 		try {
-			writer.run(null);
+			writer.run(new HeadlessTaskMonitor());
 			jsonString = stream.toString();
 			stream.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw getError(e, Response.Status.PRECONDITION_FAILED);
 		}
 		return jsonString;
 	}

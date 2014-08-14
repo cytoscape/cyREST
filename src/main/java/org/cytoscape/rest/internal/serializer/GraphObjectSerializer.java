@@ -193,6 +193,8 @@ public class GraphObjectSerializer {
 			final Long targetId = ((CyEdge) obj).getSource().getSUID();
 			generator.writeNumberField("source", sourceId);
 			generator.writeNumberField("target", targetId);
+		} else {
+			generator.writeNumberField("id", obj.getSUID());
 		}
 		for (final CyColumn col : columns) {
 			final Object value = values.get(col.getName());

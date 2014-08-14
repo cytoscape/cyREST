@@ -19,6 +19,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
@@ -95,8 +97,7 @@ public class TableDataService extends AbstractDataService {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.createNewColumn(rootNode, table);
 		} catch (IOException e) {
-			logger.error("Failed to create column.", e);
-			throw new WebApplicationException("Could not create column.", e, 500);
+			throw getError(e, Response.Status.PRECONDITION_FAILED);
 		}
 	}
 
@@ -226,29 +227,76 @@ public class TableDataService extends AbstractDataService {
 			@PathParam("primaryKey") Long primaryKey) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
+		if(!table.rowExists(primaryKey)) {
+			throw getError("Could not find the row with primary key: " + primaryKey, Response.Status.NOT_FOUND);
+		}
+		
 		final CyRow row = table.getRow(primaryKey);
+		
 		try {
 			return this.serializer.serializeRow(row);
 		} catch (IOException e) {
 			logger.error("Copuld not serialize a table.");
-			throw new WebApplicationException("Could not serialize the table.", e, 500);
+			throw getError(e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
+	/**
+	 * 
+	 * Get a cell entry
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * @param primaryKey
+	 *            Name of primary key column
+	 * @param columnName
+	 *            Name of the column
+	 * 
+	 * @return Value in the cell. String, Boolean, Number, or List.
+	 * 
+	 */
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCell(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Object getCell(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey, @PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
+		
 		final CyTable table = getTableByType(network, tableType);
+		if(!table.rowExists(primaryKey)) {
+			throw getError("Could not find the row with promary key: " + primaryKey, Response.Status.NOT_FOUND);
+		}
+		
+		final CyColumn column = table.getColumn(columnName);
+		if(column == null) {
+			throw getError("Could not find the column: " + columnName, Response.Status.NOT_FOUND);
+		}
+		
 		final CyRow row = table.getRow(primaryKey);
-		try {
-			return this.serializer.serializeCell(row, columnName);
-		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
+
+		if (column.getType() == List.class) {
+			List<?> listCell = row.getList(columnName, column.getListElementType());
+			if (listCell == null) {
+				throw getError("Could not find list value.",Response.Status.NOT_FOUND);
+			} else {
+				return listCell;
+			}
+		} else {
+			final Object cell = row.get(columnName, column.getType());
+			if (cell == null) {
+				throw getError("Could not find value." ,Response.Status.NOT_FOUND); 
+			}
+
+			if (column.getType() == String.class) {
+				return cell.toString();
+			} else {
+				return cell;
+			}
 		}
 	}
+	
 
 	@GET
 	@Path("/{tableType}/rows")

@@ -12,7 +12,7 @@ import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.rest.TaskFactoryManager;
-import org.cytoscape.rest.internal.service.NetworkDataService;
+import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -31,12 +31,12 @@ public class NetworkDataServiceTest {
 	private final NetworkViewTestSupport testSupport = new NetworkViewTestSupport();
 	private CyNetwork network;
 
-	private NetworkDataService nds = new NetworkDataService();
+	private NetworkResource nds = new NetworkResource();
 
 	@Before
 	public void setUp() throws Exception {
 		network = buildNetwork();
-		nds = new NetworkDataService();
+		nds = new NetworkResource();
 		assertNotNull(nds);
 		
 	}

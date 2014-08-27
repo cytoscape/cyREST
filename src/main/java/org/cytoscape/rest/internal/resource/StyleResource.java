@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
 @Path("/v1/styles")
-public class StyleService extends AbstractDataService {
+public class StyleResource extends AbstractResource {
 
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
@@ -64,7 +64,7 @@ public class StyleService extends AbstractDataService {
 	private final ObjectMapper styleMapper;
 	private final VisualStyleMapper visualStyleMapper;
 
-	public StyleService() {
+	public StyleResource() {
 		super();
 		this.styleMapper = new ObjectMapper();
 		this.styleMapper.registerModule(new VisualStyleModule());

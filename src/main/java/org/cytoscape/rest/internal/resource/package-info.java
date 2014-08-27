@@ -4,4 +4,4 @@
  * 
  * 
 */
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;

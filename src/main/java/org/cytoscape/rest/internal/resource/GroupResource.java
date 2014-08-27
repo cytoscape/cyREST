@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
-public class GroupResource extends AbstractDataService {
+public class GroupResource extends AbstractResource {
 
 	private final ObjectMapper groupMapper;
 	private final GroupMapper mapper;

@@ -34,7 +34,6 @@ import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskFactory;
-import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.TaskMonitor;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -95,7 +94,6 @@ public class CyActivator extends AbstractCyActivator {
 		final CyGroupFactory groupFactory = getService(bc, CyGroupFactory.class);
 		final CyGroupManager groupManager = getService(bc, CyGroupManager.class);
 		final CyTableManager tableManager = getService(bc, CyTableManager.class);
-		final TaskManager<?, ?> tm = getService(bc, TaskManager.class);
 		final StreamUtil streamUtil = getService(bc, StreamUtil.class);
 
 		// Task factories
@@ -144,5 +142,4 @@ public class CyActivator extends AbstractCyActivator {
 			grizzlyServerManager.stopServer();
 		}
 	}
-
 }

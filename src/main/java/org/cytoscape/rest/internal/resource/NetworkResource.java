@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,14 +60,14 @@ import com.qmino.miredot.annotations.ReturnType;
 
 @Singleton
 @Path("/v1/networks")
-public class NetworkDataService extends AbstractDataService {
+public class NetworkResource extends AbstractResource {
 
-	private final static Logger logger = LoggerFactory.getLogger(NetworkDataService.class);
+	private final static Logger logger = LoggerFactory.getLogger(NetworkResource.class);
 
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
 
-	public NetworkDataService() {
+	public NetworkResource() {
 		super();
 	}
 

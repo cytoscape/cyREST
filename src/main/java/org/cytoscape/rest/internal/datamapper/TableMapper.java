@@ -10,7 +10,7 @@ import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.rest.internal.service.JsonTags;
+import org.cytoscape.rest.internal.resource.JsonTags;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

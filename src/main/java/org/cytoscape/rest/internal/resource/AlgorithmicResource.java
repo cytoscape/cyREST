@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,14 +25,13 @@ import org.cytoscape.work.TaskMonitor;
 
 
 /**
+ * 
  * Algorithmic resources.  Essentially, this is a high-level task executor.
  * 
- * @author kono
- *
  */
 @Singleton
 @Path("/v1/apply")
-public class AlgorithmicService extends AbstractDataService {
+public class AlgorithmicResource extends AbstractResource {
 
 	@Context
 	private TaskMonitor headlessTaskMonitor;

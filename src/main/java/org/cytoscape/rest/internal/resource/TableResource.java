@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +45,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Singleton
 @Path("/v1/networks/{networkId}/tables")
-public class TableDataService extends AbstractDataService {
+public class TableResource extends AbstractResource {
 
-	private final static Logger logger = LoggerFactory.getLogger(TableDataService.class);
+	private final static Logger logger = LoggerFactory.getLogger(TableResource.class);
 
 	private static enum TableType {
 		DEFAULT_NODE("defaultnode"), DEFAULT_EDGE("defaultedge"), DEFAULT_NETWORK("defaultnetwork");
@@ -66,7 +66,7 @@ public class TableDataService extends AbstractDataService {
 	private final TableMapper tableMapper;
 	private final ObjectMapper tableObjectMapper;
 
-	public TableDataService() {
+	public TableResource() {
 		super();
 		this.tableMapper = new TableMapper();
 		this.tableObjectMapper = new ObjectMapper();

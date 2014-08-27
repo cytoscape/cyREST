@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.util.Properties;
 
@@ -22,7 +22,7 @@ import org.cytoscape.rest.internal.model.ServerStatus;
  */
 @Singleton
 @Path("/v1")
-public class MiscDataService extends AbstractDataService {
+public class MiscResource extends AbstractResource {
 
 	
 

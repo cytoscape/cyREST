@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
  */
 @Singleton
 @Path("/")
-public class RootService extends AbstractDataService {
+public class RootResource extends AbstractResource {
 
 	private static final String[] VERSION_LIST = { API_VERSION };
 	private static final Map<String, String[]> VERSION_MAP = new HashMap<String, String[]>();

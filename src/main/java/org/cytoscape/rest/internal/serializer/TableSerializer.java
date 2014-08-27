@@ -6,7 +6,7 @@ import java.util.List;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.rest.internal.service.JsonTags;
+import org.cytoscape.rest.internal.resource.JsonTags;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

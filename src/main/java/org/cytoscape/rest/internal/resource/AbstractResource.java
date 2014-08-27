@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
  * Prepare services to be injected.
  *
  */
-public abstract class AbstractDataService {
+public abstract class AbstractResource {
 
 	// TODO: do we need this level of version granularity?
 	protected static final String API_VERSION = "v1";
@@ -109,7 +109,7 @@ public abstract class AbstractDataService {
 	protected final GraphObjectSerializer serializer;
 
 
-	public AbstractDataService() {
+	public AbstractResource() {
 		this.serializer = new GraphObjectSerializer();
 	}
 

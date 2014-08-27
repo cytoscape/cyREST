@@ -6,14 +6,14 @@ import java.util.Properties;
 import javax.ws.rs.core.UriBuilder;
 
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.rest.internal.service.AlgorithmicService;
-import org.cytoscape.rest.internal.service.GroupResource;
-import org.cytoscape.rest.internal.service.MiscDataService;
-import org.cytoscape.rest.internal.service.NetworkDataService;
-import org.cytoscape.rest.internal.service.NetworkViewDataService;
-import org.cytoscape.rest.internal.service.RootService;
-import org.cytoscape.rest.internal.service.StyleService;
-import org.cytoscape.rest.internal.service.TableDataService;
+import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.GroupResource;
+import org.cytoscape.rest.internal.resource.MiscResource;
+import org.cytoscape.rest.internal.resource.NetworkResource;
+import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.RootResource;
+import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.TableResource;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -58,13 +58,13 @@ public final class GrizzlyServerManager {
 		if (server == null) {
 			final URI baseURI = UriBuilder.fromUri(baseURL).port(portNumber).build();
 			final ResourceConfig rc = new ResourceConfig(
-					RootService.class,
-					NetworkDataService.class,
-					NetworkViewDataService.class,
-					TableDataService.class, 
-					MiscDataService.class,
-					AlgorithmicService.class,
-					StyleService.class,
+					RootResource.class,
+					NetworkResource.class,
+					NetworkViewResource.class,
+					TableResource.class, 
+					MiscResource.class,
+					AlgorithmicResource.class,
+					StyleResource.class,
 					GroupResource.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);

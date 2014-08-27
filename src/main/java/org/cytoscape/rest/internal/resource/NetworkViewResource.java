@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.service;
+package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Path("/v1/networks/{networkId}/views") // API version
-public class NetworkViewDataService extends AbstractDataService {
+public class NetworkViewResource extends AbstractResource {
 
-	private final static Logger logger = LoggerFactory.getLogger(NetworkViewDataService.class);
+	private final static Logger logger = LoggerFactory.getLogger(NetworkViewResource.class);
 
 	
-	public NetworkViewDataService() {
+	public NetworkViewResource() {
 		super();
 	}
 

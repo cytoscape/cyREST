@@ -19,6 +19,7 @@ import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
+import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
@@ -32,6 +33,7 @@ public class CyBinder extends AbstractBinder {
 	private final CyNetworkManager networkManager;
 	private final CyNetworkViewManager networkViewManager;
 	private final CyNetworkFactory networkFactory;
+	private final CyNetworkViewFactory networkViewFactory;
 	private final TaskFactoryManager tfManager;
 	private final CyApplicationManager applicationManager;
 	private final VisualMappingManager vmm;
@@ -69,7 +71,7 @@ public class CyBinder extends AbstractBinder {
 			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
-			final EdgeListReaderFactory edgelistReaderFactory) {
+			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -91,6 +93,7 @@ public class CyBinder extends AbstractBinder {
 		this.props = props;
 		this.newNetworkSelectedNodesAndEdgesTaskFactory = newNetworkSelectedNodesAndEdgesTaskFactory;
 		this.edgelistReaderFactory = edgelistReaderFactory;
+		this.networkViewFactory = networkViewFactory;
 	}
 
 
@@ -117,5 +120,6 @@ public class CyBinder extends AbstractBinder {
 		bind(props).to(CyProperty.class);
 		bind(newNetworkSelectedNodesAndEdgesTaskFactory).to(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		bind(edgelistReaderFactory).to(EdgeListReaderFactory.class);
+		bind(networkViewFactory).to(CyNetworkViewFactory.class);
 	}
 }

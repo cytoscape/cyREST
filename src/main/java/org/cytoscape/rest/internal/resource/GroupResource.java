@@ -13,9 +13,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
@@ -26,9 +26,7 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -70,8 +68,7 @@ public class GroupResource extends AbstractResource {
 		try {
 			return this.groupMapper.writeValueAsString(groups);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw  getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -118,8 +115,7 @@ public class GroupResource extends AbstractResource {
 		try {
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			throw new WebApplicationException("Could not serialize Group.", e, 500);
+			throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -140,8 +136,7 @@ public class GroupResource extends AbstractResource {
 				groupManager.destroyGroup(group);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -161,8 +156,7 @@ public class GroupResource extends AbstractResource {
 		try {
 			groupManager.destroyGroup(group);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebApplicationException("Could not delete a group.", e, 500);
+			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -206,8 +200,7 @@ public class GroupResource extends AbstractResource {
 				group.expand(network);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebApplicationException(e, 500);
+			throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -228,30 +221,34 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Create a new group node
+	 * 
+	 * @summary Create a new group node
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * 
 	 * @return New group node's SUID
 	 * 
-	 * @throws Exception
 	 */
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Long createGroup(@PathParam("networkId") Long networkId, final InputStream is) throws JsonParseException,
-			JsonMappingException, IOException {
+	public Long createGroup(@PathParam("networkId") Long networkId, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
-		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+
+		JsonNode rootNode = null;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+		} catch (IOException ex) {
+			throw getError("Could not create JSON root node.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+		}
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
 			return newGroup.getGroupNode().getSUID();
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebApplicationException("Could not create new group.", e, 500);
+			throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

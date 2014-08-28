@@ -20,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
@@ -97,7 +96,7 @@ public class TableResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.createNewColumn(rootNode, table);
 		} catch (IOException e) {
-			throw getError(e, Response.Status.PRECONDITION_FAILED);
+			throw getError("Could not process column JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
 	}
 
@@ -227,17 +226,17 @@ public class TableResource extends AbstractResource {
 			@PathParam("primaryKey") Long primaryKey) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-		if(!table.rowExists(primaryKey)) {
-			throw getError("Could not find the row with primary key: " + primaryKey, Response.Status.NOT_FOUND);
+		if (!table.rowExists(primaryKey)) {
+			throw new NotFoundException("Could not find the row with primary key: " + primaryKey);
 		}
-		
+
 		final CyRow row = table.getRow(primaryKey);
-		
+
 		try {
 			return this.serializer.serializeRow(row);
 		} catch (IOException e) {
-			logger.error("Copuld not serialize a table.");
-			throw getError(e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not serialize a row with primary key: " + primaryKey, e,
+					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -263,30 +262,30 @@ public class TableResource extends AbstractResource {
 	public Object getCell(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey, @PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
-		
+
 		final CyTable table = getTableByType(network, tableType);
-		if(!table.rowExists(primaryKey)) {
-			throw getError("Could not find the row with promary key: " + primaryKey, Response.Status.NOT_FOUND);
+		if (!table.rowExists(primaryKey)) {
+			throw new NotFoundException("Could not find the row with promary key: " + primaryKey);
 		}
-		
+
 		final CyColumn column = table.getColumn(columnName);
-		if(column == null) {
-			throw getError("Could not find the column: " + columnName, Response.Status.NOT_FOUND);
+		if (column == null) {
+			throw new NotFoundException("Could not find the column: " + columnName);
 		}
-		
+
 		final CyRow row = table.getRow(primaryKey);
 
 		if (column.getType() == List.class) {
 			List<?> listCell = row.getList(columnName, column.getListElementType());
 			if (listCell == null) {
-				throw getError("Could not find list value.",Response.Status.NOT_FOUND);
+				throw new NotFoundException("Could not find list value.");
 			} else {
 				return listCell;
 			}
 		} else {
 			final Object cell = row.get(columnName, column.getType());
 			if (cell == null) {
-				throw getError("Could not find value." ,Response.Status.NOT_FOUND); 
+				throw new NotFoundException("Could not find value.");
 			}
 
 			if (column.getType() == String.class) {
@@ -296,7 +295,6 @@ public class TableResource extends AbstractResource {
 			}
 		}
 	}
-	
 
 	@GET
 	@Path("/{tableType}/rows")

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -22,11 +24,9 @@ import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
-
-
 /**
  * 
- * Algorithmic resources.  Essentially, this is a high-level task executor.
+ * Algorithmic resources. Essentially, this is a high-level task executor.
  * 
  */
 @Singleton
@@ -34,18 +34,21 @@ import org.cytoscape.work.TaskMonitor;
 public class AlgorithmicResource extends AbstractResource {
 
 	@Context
+	@NotNull
 	private TaskMonitor headlessTaskMonitor;
 
 	@Context
+	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
 
-	
 	/**
 	 * 
 	 * @summary Apply layout to a network
 	 * 
-	 * @param algorithmName Name of layout algorithm ("circular", "force-directed", etc.)
-	 * @param networkId Target network SUID
+	 * @param algorithmName
+	 *            Name of layout algorithm ("circular", "force-directed", etc.)
+	 * @param networkId
+	 *            Target network SUID
 	 * 
 	 * @return Success message
 	 */
@@ -56,33 +59,33 @@ public class AlgorithmicResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw getError("Could not find view for the network with SUID: " + networkId, Response.Status.NOT_FOUND);
+			throw new NotFoundException("Could not find view for the network with SUID: " + networkId);
 		}
 
 		final CyNetworkView view = views.iterator().next();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
-		if(layout == null) {
-			throw getError("No such layout algorithm: " + algorithmName, Response.Status.NOT_FOUND);
+		if (layout == null) {
+			throw new NotFoundException("No such layout algorithm: " + algorithmName);
 		}
-		
+
 		final TaskIterator itr = layout.createTaskIterator(view, layout.getDefaultLayoutContext(),
 				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError(e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not apply layout.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return Response.status(Response.Status.OK).entity("{\"message\":\"Layout finished.\"}").build();
+		return Response.status(Response.Status.OK).entity("{\"message\":\"Layout finished.\"}")
+				.type(MediaType.APPLICATION_JSON).build();
 	}
 
-
-
-	
 	/**
 	 * Apply Visual Style to a network.
 	 * 
-	 * @param styleName Visual Style name (title)
-	 * @param networkId Target network SUID
+	 * @param styleName
+	 *            Visual Style name (title)
+	 * @param networkId
+	 *            Target network SUID
 	 * 
 	 * @return Success message.
 	 */
@@ -103,12 +106,12 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 
 		if (targetStyle == null) {
-			throw getError("Visual Style does not exist: " + styleName, Response.Status.NOT_FOUND);
+			throw new NotFoundException("Visual Style does not exist: " + styleName);
 		}
 
 		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw getError("Network view does not exist for the network with SUID: " + networkId, Response.Status.NOT_FOUND);
+			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
 		}
 
 		final CyNetworkView view = views.iterator().next();
@@ -116,7 +119,8 @@ public class AlgorithmicResource extends AbstractResource {
 		vmm.setCurrentVisualStyle(targetStyle);
 		targetStyle.apply(view);
 
-		return Response.status(Response.Status.OK).entity("{\"message\":\"Visual Style applied.\"}").build();
+		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+				.entity("{\"message\":\"Visual Style applied.\"}").build();
 	}
 
 	/**
@@ -135,7 +139,6 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 		return layoutNames;
 	}
-	
 
 	/**
 	 * @summary Get list of all Visual Style names.

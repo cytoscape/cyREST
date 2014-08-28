@@ -4,9 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -29,38 +32,48 @@ import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
-
 /**
  * Prepare services to be injected.
- *
+ * 
  */
 public abstract class AbstractResource {
 
 	// TODO: do we need this level of version granularity?
 	protected static final String API_VERSION = "v1";
-	
+
 	protected static final String ERROR_TAG = "\"error\":";
-	
 
-	// Utilities to build error messages.
-	
-	protected final WebApplicationException getError(final String errorMessage, final Status status) {
-		return new NotFoundException(Response.status(status)
-				.entity("{" + ERROR_TAG + "\"" + errorMessage + "\"}").build());
-	}
-	
-	protected final WebApplicationException getError(final Exception ex, final Status status) {
-		return new NotFoundException(Response.status(status).entity(ex).build());
-	}
 
+	/**
+	 * Create a informative error message instead of plain 500.
+	 * 
+	 * @param errorMessage
+	 * @param ex
+	 * @param status
+	 * @return
+	 */
+	protected final WebApplicationException getError(final String errorMessage, final Exception ex, final Status status) {
+		final Exception wrapped = new IllegalStateException(errorMessage, ex);
+		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
+			// Otherwise, 500.
+			return new InternalServerErrorException(Response.status(status).type(MediaType.APPLICATION_JSON)
+					.entity(wrapped).build());
+		} else {
+			// All other types
+			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON).entity(wrapped)
+					.build());
+		}
+	}
 
 	@Context
+	@NotNull
 	protected CyApplicationManager applicationManager;
 
 	@Context
@@ -68,15 +81,18 @@ public abstract class AbstractResource {
 
 	@Context
 	protected CyRootNetworkManager cyRootNetworkManager;
-	
+
 	@Context
 	protected CyTableManager tableManager;
-	
+
 	@Context
 	protected CyNetworkViewManager networkViewManager;
 
 	@Context
 	protected CyNetworkFactory networkFactory;
+
+	@Context
+	protected CyNetworkViewFactory networkViewFactory;
 
 	@Context
 	protected TaskFactoryManager tfManager;
@@ -89,13 +105,13 @@ public abstract class AbstractResource {
 
 	@Context
 	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
-	
+
 	@Context
 	protected WriterListener vizmapWriterFactoryListener;
-	
+
 	@Context
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
-	
+
 	@Context
 	protected CyProperty props;
 
@@ -105,45 +121,39 @@ public abstract class AbstractResource {
 	@Context
 	protected EdgeListReaderFactory edgeListReaderFactory;
 
-
 	protected final GraphObjectSerializer serializer;
-
 
 	public AbstractResource() {
 		this.serializer = new GraphObjectSerializer();
 	}
 
-
 	protected final CyNetwork getCyNetwork(final Long id) {
-		if(id == null) {
-			throw getError("SUID is null.", Response.Status.NOT_FOUND);
+		if (id == null) {
+			throw new NotFoundException("SUID is null.");
 		}
-		
+
 		final CyNetwork network = networkManager.getNetwork(id);
 		if (network == null) {
-			throw getError("Could not find network with SUID: " + id, Response.Status.NOT_FOUND);
+			throw new NotFoundException("Could not find network with SUID: " + id);
 		}
 		return network;
 	}
 
-
 	protected final Collection<CyNetworkView> getCyNetworkViews(final Long id) {
 		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(id));
 		if (views.isEmpty()) {
-			throw new WebApplicationException("Now view available for network: " + id, 404);
+			throw new NotFoundException("No view is available for network with SUID: " + id);
 		}
 		return views;
 	}
 
-
 	protected final CyNode getNode(final CyNetwork network, final Long nodeId) {
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw getError("Could not find node with SUID: " + nodeId, Response.Status.NOT_FOUND);
+			throw new NotFoundException("Could not find node with SUID: " + nodeId);
 		}
 		return node;
 	}
-
 
 	protected final String getGraphObject(final CyNetwork network, final CyIdentifiable obj) {
 		final CyRow row = network.getRow(obj);
@@ -151,10 +161,10 @@ public abstract class AbstractResource {
 		try {
 			return this.serializer.serializeGraphObject(obj, row);
 		} catch (IOException e) {
-			throw new WebApplicationException(e, 500);
+			throw getError("Could not serialize graph object with SUID: " + obj.getSUID(), e,
+					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 
 	protected final String getNames(final Collection<String> names) throws IOException {
 		final JsonFactory factory = new JsonFactory();
@@ -176,7 +186,6 @@ public abstract class AbstractResource {
 		return result;
 	}
 
-
 	protected final String getNumberObjectString(final String fieldName, final Number value) {
 		final JsonFactory factory = new JsonFactory();
 
@@ -193,7 +202,7 @@ public abstract class AbstractResource {
 			result = stream.toString();
 			stream.close();
 		} catch (IOException e) {
-			throw new WebApplicationException("Could not create object count.", 500);
+			throw getError("Could not serialize number: " + value, e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		return result;

@@ -66,6 +66,7 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
+					<encoding>UTF-8</encoding>
 					<optimize>true</optimize>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
@@ -97,7 +98,7 @@
 			<plugin>
 				<groupId>com.qmino</groupId>
 				<artifactId>miredot-maven-plugin</artifactId>
-				<version>1.4</version>
+				<version>1.4.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -250,12 +251,12 @@
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-servlet_2.5_spec</artifactId>
 			<version>1.1.2</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> -->
 
 		<!-- 3rd party libraries -->
 		<dependency>

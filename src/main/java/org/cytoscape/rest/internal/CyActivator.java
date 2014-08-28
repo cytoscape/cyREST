@@ -124,7 +124,7 @@ public class CyActivator extends AbstractCyActivator {
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
-				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory);
+				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();

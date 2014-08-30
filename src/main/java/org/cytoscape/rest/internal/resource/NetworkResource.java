@@ -23,7 +23,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -54,8 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qmino.miredot.annotations.ReturnType;
@@ -340,7 +337,7 @@ public class NetworkResource extends AbstractResource {
 		} else if (type.equals("target")) {
 			nodeSUID = edge.getTarget().getSUID();
 		} else {
-			throw new WebApplicationException("Invalid parameter for edge: " + type, 500);
+			throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return nodeSUID;
 	}
@@ -645,7 +642,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new WebApplicationException("Node does not exist.", 404);
+			throw new NotFoundException("Node does not exist.");
 		}
 		final List<CyNode> nodes = new ArrayList<CyNode>();
 		nodes.add(node);
@@ -667,7 +664,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw new WebApplicationException("Edge does not exist.", 404);
+			throw new NotFoundException("Edge does not exist.");
 		}
 		final List<CyEdge> edges = new ArrayList<CyEdge>();
 		edges.add(edge);
@@ -806,7 +803,7 @@ public class NetworkResource extends AbstractResource {
 			}
 		}
 
-		throw new WebApplicationException("Could not get new network SUID.", 500);
+		throw getError("Could not get new network SUID.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
 	}
 
 	private final String loadNetwork(final InputStream is) throws IOException {
@@ -876,7 +873,7 @@ public class NetworkResource extends AbstractResource {
 			result = stream.toString();
 			stream.close();
 		} catch (IOException e) {
-			throw new WebApplicationException("Could not create object count.", 500);
+			throw getError("Could not create object count.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		return result;

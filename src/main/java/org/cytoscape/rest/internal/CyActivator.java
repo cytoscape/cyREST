@@ -14,6 +14,7 @@ import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
@@ -43,7 +44,6 @@ public class CyActivator extends AbstractCyActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
 
-
 	public class WriterListener {
 
 		private VizmapWriterFactory jsFactory;
@@ -67,11 +67,9 @@ public class CyActivator extends AbstractCyActivator {
 
 	private GrizzlyServerManager grizzlyServerManager = null;
 
-
 	public CyActivator() {
 		super();
 	}
-
 
 	public void start(BundleContext bc) {
 
@@ -80,7 +78,8 @@ public class CyActivator extends AbstractCyActivator {
 				VisualMappingFunctionFactory.class);
 
 		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 		final CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
 		final CyNetworkViewFactory netViewFact = getService(bc, CyNetworkViewFactory.class);
@@ -94,37 +93,45 @@ public class CyActivator extends AbstractCyActivator {
 		final CyGroupFactory groupFactory = getService(bc, CyGroupFactory.class);
 		final CyGroupManager groupManager = getService(bc, CyGroupManager.class);
 		final CyTableManager tableManager = getService(bc, CyTableManager.class);
+		final CyTableFactory tableFactory = getService(bc, CyTableFactory.class);
 		final StreamUtil streamUtil = getService(bc, StreamUtil.class);
 
 		// Task factories
-		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc, NewNetworkSelectedNodesAndEdgesTaskFactory.class);
-		final CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cytoscapejsNetworkWriterFactory)");
-		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class, "(id=cytoscapejsNetworkReaderFactory)");
+		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
+				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		final CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
+				"(id=cytoscapejsNetworkWriterFactory)");
+		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
+				"(id=cytoscapejsNetworkReaderFactory)");
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 
 		final WriterListener writerListsner = new WriterListener();
 		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
 
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
-		
+
 		// Get all compatible tasks
 		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
-		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory", NetworkTaskFactory.class);
-		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory", "removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory",
+				NetworkTaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",
+				"removeNetworkCollectionTaskFactory", NetworkCollectionTaskFactory.class);
 
 		// Extra readers and writers
-		final BasicCyFileFilter elFilter = new BasicCyFileFilter(
-				new String[]{"el"}, new String[]{"text/edgelist"}, "Edgelist files",DataCategory.NETWORK, streamUtil);
-		final EdgeListReaderFactory edgeListReaderFactory = new EdgeListReaderFactory(elFilter, netViewFact, netFact, netMan, cyRootNetworkManager);
-		final Properties edgeListReaderFactoryProps = new Properties(); 
+		final BasicCyFileFilter elFilter = new BasicCyFileFilter(new String[] { "el" },
+				new String[] { "text/edgelist" }, "Edgelist files", DataCategory.NETWORK, streamUtil);
+		final EdgeListReaderFactory edgeListReaderFactory = new EdgeListReaderFactory(elFilter, netViewFact, netFact,
+				netMan, cyRootNetworkManager);
+		final Properties edgeListReaderFactoryProps = new Properties();
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
-		
+
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
-				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact);
+				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
+				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
@@ -133,7 +140,6 @@ public class CyActivator extends AbstractCyActivator {
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	public void shutDown() {

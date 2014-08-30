@@ -7,6 +7,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
@@ -65,7 +66,8 @@ public final class GrizzlyServerManager {
 					MiscResource.class,
 					AlgorithmicResource.class,
 					StyleResource.class,
-					GroupResource.class);
+					GroupResource.class,
+					GlobalTableResource.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

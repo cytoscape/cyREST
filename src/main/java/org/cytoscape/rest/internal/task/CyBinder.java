@@ -9,6 +9,7 @@ import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
@@ -39,6 +40,7 @@ public class CyBinder extends AbstractBinder {
 	private final VisualMappingManager vmm;
 	private final CyLayoutAlgorithmManager layoutManager;
 	private final CyTableManager tableMamanger;
+	private final CyTableFactory tableFactory;
 
 	private final WriterListener vizmapWriterFactoryListener;
 	private final VisualStyleFactory vsFactory;
@@ -71,7 +73,8 @@ public class CyBinder extends AbstractBinder {
 			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
-			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory) {
+			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
+			final CyTableFactory tableFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -94,6 +97,7 @@ public class CyBinder extends AbstractBinder {
 		this.newNetworkSelectedNodesAndEdgesTaskFactory = newNetworkSelectedNodesAndEdgesTaskFactory;
 		this.edgelistReaderFactory = edgelistReaderFactory;
 		this.networkViewFactory = networkViewFactory;
+		this.tableFactory = tableFactory;
 	}
 
 
@@ -121,5 +125,6 @@ public class CyBinder extends AbstractBinder {
 		bind(newNetworkSelectedNodesAndEdgesTaskFactory).to(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		bind(edgelistReaderFactory).to(EdgeListReaderFactory.class);
 		bind(networkViewFactory).to(CyNetworkViewFactory.class);
+		bind(tableFactory).to(CyTableFactory.class);
 	}
 }

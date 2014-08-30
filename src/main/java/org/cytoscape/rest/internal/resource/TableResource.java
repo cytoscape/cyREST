@@ -61,12 +61,14 @@ public class TableResource extends AbstractResource {
 
 	private final TableMapper tableMapper;
 	private final ObjectMapper tableObjectMapper;
+	private final CyTableSerializer tableSerializer;
 
 	public TableResource() {
 		super();
 		this.tableMapper = new TableMapper();
 		this.tableObjectMapper = new ObjectMapper();
 		this.tableObjectMapper.registerModule(new TableModule());
+		this.tableSerializer = new CyTableSerializer();
 	}
 
 	/**
@@ -396,13 +398,12 @@ public class TableResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{tableType}.csv")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String getTableAsCsv(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
 
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-		final CyTableSerializer tableSerializer = new CyTableSerializer();
 		try {
 			final String result = tableSerializer.toCSV(table);
 			return result;

@@ -47,7 +47,6 @@ public abstract class AbstractResource {
 
 	// TODO: do we need this level of version granularity?
 	protected static final String API_VERSION = "v1";
-
 	protected static final String ERROR_TAG = "\"error\":";
 
 

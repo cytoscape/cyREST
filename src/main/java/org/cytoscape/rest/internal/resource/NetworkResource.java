@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -48,8 +49,6 @@ import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -60,8 +59,6 @@ import com.qmino.miredot.annotations.ReturnType;
 @Singleton
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
-
-	private final static Logger logger = LoggerFactory.getLogger(NetworkResource.class);
 
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
@@ -321,7 +318,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}/edges/{edgeId}/{type}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Long getEdgeComponent(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId,
 			@PathParam("type") String type) {
 		final CyNetwork network = getCyNetwork(networkId);
@@ -399,7 +396,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/pointer")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Long getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
@@ -796,7 +793,7 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		if (viewTask != null) {
-			final Collection result = ((ObservableTask) viewTask).getResults(Collection.class);
+			final Collection<?> result = ((ObservableTask) viewTask).getResults(Collection.class);
 			if (result.size() == 1) {
 				final Long suid = ((CyNetworkView) result.iterator().next()).getModel().getSUID();
 				return getNumberObjectString("networkSUID", suid);

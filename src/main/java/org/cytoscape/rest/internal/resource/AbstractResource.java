@@ -59,15 +59,19 @@ public abstract class AbstractResource {
 	 * @return
 	 */
 	protected final WebApplicationException getError(final String errorMessage, final Exception ex, final Status status) {
-		final Exception wrapped = new IllegalStateException(errorMessage, ex);
+		// This is necessary to avoid threading issues.
+		final Exception cause = new Exception(ex.getMessage());
+		cause.setStackTrace(ex.getStackTrace());
+		final Exception wrapped = new IllegalStateException(errorMessage, cause);
+	
 		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
 			// Otherwise, 500.
 			return new InternalServerErrorException(Response.status(status).type(MediaType.APPLICATION_JSON)
 					.entity(wrapped).build());
 		} else {
 			// All other types
-			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON).entity(wrapped)
-					.build());
+			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON)
+					.entity(wrapped).build());
 		}
 	}
 
@@ -112,7 +116,7 @@ public abstract class AbstractResource {
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
 	@Context
-	protected CyProperty props;
+	protected CyProperty<?> props;
 
 	@Context
 	protected NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;

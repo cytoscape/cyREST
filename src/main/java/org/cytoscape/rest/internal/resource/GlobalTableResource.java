@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -36,6 +37,12 @@ public class GlobalTableResource extends AbstractResource {
 	}
 
 
+	/**
+	 * 
+	 * @summary Get number of global tables
+	 * 
+	 * @return Number of global tables.
+	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -48,15 +55,18 @@ public class GlobalTableResource extends AbstractResource {
 	 * Create global table.
 	 * 
 	 * @param is
+	 * 
+	 * TODO: Implement this.
 	 */
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createTable(final InputStream is) {
-		final CyTable newTable = tableFactory.createTable("foo", "SUID", Long.class, true, true);
-		tableManager.addTable(newTable);
-		
-		return getNumberObjectString("tableSUID", newTable.getSUID());
+		throw new NotSupportedException("CREATE method for Global table creation is not implemented.");
+//		final CyTable newTable = tableFactory.createTable("foo", "SUID", Long.class, true, true);
+//		tableManager.addTable(newTable);
+//		
+//		return getNumberObjectString("tableSUID", newTable.getSUID());
 	}
 }

@@ -5,11 +5,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ServerStatus {
 	
-	
-	private static final String[] PRESET_PROPS = {
-		"java.version", "os.name", "os.version", "karaf.version"
-	};
-	
 	private String apiVersion;
 	private Integer numberOfCores;
 	

@@ -11,6 +11,8 @@ public class JsonTags {
 	public static final String PRIMARY_KEY = "primaryKey";
 	public static final String ROWS = "rows";
 	
+	public static final String COUNT = "count";
+	
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_TYPE = "type";
 	public static final String COLUMN_VALUES = "values";

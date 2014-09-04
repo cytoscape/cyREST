@@ -83,9 +83,9 @@ public class GroupResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Integer getGroupCount(@PathParam("networkId") Long networkId) {
+	public String getGroupCount(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		return groupManager.getGroupSet(network).size();
+		return getNumberObjectString(JsonTags.COUNT, groupManager.getGroupSet(network).size());
 	}
 
 	/**

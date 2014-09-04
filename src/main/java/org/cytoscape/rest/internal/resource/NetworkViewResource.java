@@ -65,8 +65,8 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Integer getNetworkViewCount(@PathParam("networkId") Long networkId) {
-		return this.networkViewManager.getNetworkViews(getCyNetwork(networkId)).size();
+	public String getNetworkViewCount(@PathParam("networkId") Long networkId) {
+		return getNumberObjectString(JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(networkId)).size());
 	}
 
 	/**

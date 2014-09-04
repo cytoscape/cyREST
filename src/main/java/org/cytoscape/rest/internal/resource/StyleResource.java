@@ -93,7 +93,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStylCount() {
-		return getNumberObjectString("styleCount", vmm.getAllVisualStyles().size());
+		return getNumberObjectString(JsonTags.COUNT, vmm.getAllVisualStyles().size());
 	}
 
 	@DELETE

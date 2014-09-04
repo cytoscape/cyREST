@@ -45,10 +45,10 @@ public class GlobalTableResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/count")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Integer getTableCount() {
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTableCount() {
 		final Set<CyTable> globals = tableManager.getGlobalTables();
-		return globals.size();
+		return getNumberObjectString(JsonTags.COUNT, globals.size());
 	}
 
 	/**

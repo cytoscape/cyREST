@@ -75,9 +75,9 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/count")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Integer getNetworkCount() {
-		return networkManager.getNetworkSet().size();
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkCount() {
+		return getNumberObjectString(JsonTags.COUNT, networkManager.getNetworkSet().size());
 	}
 
 	/**
@@ -90,9 +90,9 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}/nodes/count")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Integer getNodeCount(@PathParam("networkId") Long networkId) {
-		return getCyNetwork(networkId).getNodeCount();
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNodeCount(@PathParam("networkId") Long networkId) {
+		return getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getNodeCount());
 	}
 
 	/**
@@ -106,9 +106,9 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}/edges/count")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Integer getEdgeCount(@PathParam("networkId") Long networkId) {
-		return getCyNetwork(networkId).getEdgeCount();
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEdgeCount(@PathParam("networkId") Long networkId) {
+		return getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getEdgeCount());
 	}
 
 	private final Collection<Long> getByQuery(final Long id, final String objType, final String column,

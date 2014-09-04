@@ -36,7 +36,7 @@ public class GraphObjectSerializer {
 		generator.writeEndObject();
 		generator.writeEndObject();
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -53,7 +53,7 @@ public class GraphObjectSerializer {
 		serializeSingleRow(generator, row);
 		generator.writeEndObject();
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -76,7 +76,7 @@ public class GraphObjectSerializer {
 		serializeCell(generator, column, value);
 		generator.writeEndObject();
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -99,7 +99,7 @@ public class GraphObjectSerializer {
 		generator.writeEndArray();
 
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -126,7 +126,7 @@ public class GraphObjectSerializer {
 		generator.writeEndArray();
 
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -157,7 +157,7 @@ public class GraphObjectSerializer {
 		generator.writeEndObject();
 
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		} catch(Exception e) {
 			e.printStackTrace();

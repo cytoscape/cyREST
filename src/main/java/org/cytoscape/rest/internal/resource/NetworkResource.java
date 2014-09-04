@@ -23,7 +23,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -154,7 +153,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ReturnType("java.util.List<org.cytoscape.rest.internal.model.CyNetworkWrapper>")
 	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query,
 			@QueryParam("format") String format) {
@@ -214,7 +213,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ReturnType("org.cytoscape.rest.internal.model.CyNetworkWrapper")
 	public String getNetwork(@PathParam("networkId") Long networkId) {
 		return getNetworkString(getCyNetwork(networkId));
@@ -488,7 +487,7 @@ public class NetworkResource extends AbstractResource {
 				}
 				generator.writeEndArray();
 				generator.close();
-				result = stream.toString();
+				result = stream.toString("UTF-8");
 				stream.close();
 				updateViews(network);
 			} catch (Exception e) {
@@ -558,7 +557,7 @@ public class NetworkResource extends AbstractResource {
 				}
 				generator.writeEndArray();
 				generator.close();
-				result = stream.toString();
+				result = stream.toString("UTF-8");
 				stream.close();
 				updateViews(network);
 			} catch (Exception e) {
@@ -867,7 +866,7 @@ public class NetworkResource extends AbstractResource {
 			generator.writeEndArray();
 
 			generator.close();
-			result = stream.toString();
+			result = stream.toString("UTF-8");
 			stream.close();
 		} catch (IOException e) {
 			throw getError("Could not create object count.", e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -882,11 +881,12 @@ public class NetworkResource extends AbstractResource {
 		String jsonString = null;
 		try {
 			writer.run(new HeadlessTaskMonitor());
-			jsonString = stream.toString();
+			jsonString = stream.toString("UTF-8");
 			stream.close();
 		} catch (Exception e) {
 			throw getError("Could not serialize network into JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
+		
 		return jsonString;
 	}
 

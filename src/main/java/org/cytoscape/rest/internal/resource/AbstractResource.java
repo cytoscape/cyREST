@@ -184,7 +184,7 @@ public abstract class AbstractResource {
 
 		generator.writeEndArray();
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -202,7 +202,7 @@ public abstract class AbstractResource {
 			generator.writeNumber(value.longValue());
 			generator.writeEndObject();
 			generator.close();
-			result = stream.toString();
+			result = stream.toString("UTF-8");
 			stream.close();
 		} catch (IOException e) {
 			throw getError("Could not serialize number: " + value, e, Response.Status.INTERNAL_SERVER_ERROR);

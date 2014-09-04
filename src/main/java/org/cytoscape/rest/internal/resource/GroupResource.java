@@ -234,7 +234,7 @@ public class GroupResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Long createGroup(@PathParam("networkId") Long networkId, final InputStream is) {
+	public String createGroup(@PathParam("networkId") Long networkId, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -246,7 +246,7 @@ public class GroupResource extends AbstractResource {
 		}
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
-			return newGroup.getGroupNode().getSUID();
+			return getNumberObjectString("groupSUID", newGroup.getGroupNode().getSUID());
 		} catch (Exception e) {
 			throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

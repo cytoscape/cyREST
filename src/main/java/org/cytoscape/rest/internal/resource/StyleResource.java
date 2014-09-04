@@ -277,7 +277,7 @@ public class StyleResource extends AbstractResource {
 			final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
 			try {
 				styleWriter.run(new HeadlessTaskMonitor());
-				String jsonString = os.toString();
+				String jsonString = os.toString("UTF-8");
 				os.close();
 				
 				return jsonString;

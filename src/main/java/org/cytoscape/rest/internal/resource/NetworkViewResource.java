@@ -143,7 +143,7 @@ public class NetworkViewResource extends AbstractResource {
 		String jsonString = null;
 		try {
 			writer.run(null);
-			jsonString = stream.toString();
+			jsonString = stream.toString("UTF-8");
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();

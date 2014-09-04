@@ -44,7 +44,7 @@ public class VisualStyleSerializer {
 		generator.writeEndObject();
 		
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}
@@ -68,7 +68,7 @@ public class VisualStyleSerializer {
 		generator.writeEndObject();
 		
 		generator.close();
-		result = stream.toString();
+		result = stream.toString("UTF-8");
 		stream.close();
 		return result;
 	}

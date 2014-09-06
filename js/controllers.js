@@ -8,17 +8,11 @@
  * @param $scope
  * @constructor
  */
-function DocRoot($scope, $location, $localStorage, $filter, $http) {
+function DocRoot($scope, $location, $localStorage, $filter, $http, $anchorScroll, $timeout) {
 
     $scope.restBase = 'http://www.miredot.com/miredot/rest/';
     $scope.visitWebsiteForProVersion = 'Visit our <a href="http://www.miredot.com/price/?licencerequest=pro" target="_blank">website</a> to get the full version (free for open source).';
 
-    $scope.$storage = $localStorage.$default({
-        //baseUrl: com.qmino.miredot.restApiSource.baseUrl || "http://example.com",
-        globalCollapsedState: false
-    });
-    $scope.$storage.baseUrl = com.qmino.miredot.restApiSource.baseUrl || "http://example.com";
-    $scope.editingBaseUrl = false;
     $scope.projectTitle = com.qmino.miredot.restApiSource.projectTitle;
     $scope.miredotVersion = com.qmino.miredot.restApiSource.miredotVersion;
     $scope.validLicence = com.qmino.miredot.restApiSource.validLicence;
@@ -27,6 +21,19 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
     $scope.licenceHash = com.qmino.miredot.restApiSource.licenceHash;
     $scope.allowUsageTracking = com.qmino.miredot.restApiSource.allowUsageTracking;
     $scope.dateOfGeneration = com.qmino.miredot.restApiSource.dateOfGeneration;
+
+    $scope.$storage = $localStorage.$default({
+        //baseUrl: com.qmino.miredot.restApiSource.baseUrl || "http://example.com",
+        globalCollapsedState: false
+    });
+    $scope.$storage.baseUrl = (function() {
+        var baseUrl = "http://example.com";
+        if ($scope.validLicence && $scope.licenceType == 'PRO') {
+            baseUrl = $location.search().baseUrl || com.qmino.miredot.restApiSource.baseUrl || baseUrl;
+        }
+        return baseUrl;
+    })();
+    $scope.editingBaseUrl = false;
     $scope.projectWarnings = com.qmino.miredot.projectWarnings;
     $scope.interfaces = com.qmino.miredot.restApiSource.interfaces;
     $scope.tos = com.qmino.miredot.restApiSource.tos;
@@ -110,6 +117,15 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
         }
     }
 
+    $scope.toggleJsonDoc = function(anchor) {
+        $scope.jsonDocConfig.hidden = !$scope.jsonDocConfig.hidden;
+        //scroll after digest
+        $timeout(function(){
+            $location.hash(anchor);
+            $anchorScroll();
+        });
+    };
+
     /**
      * Ensures that all links in the API intro have a target.
      */
@@ -169,7 +185,7 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
         return result;
     }());
 
-    function appendUrl(rootParts, leafPart, url, method, hash, rootResource) {
+    function appendUrl(rootParts, url, method, hash, rootResource) {
 
         var currentResource = null;
         var parentResource = rootResource;
@@ -200,7 +216,7 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
             existingLeaf.methods.push({method: method, hash: hash});
         } else {
             currentResource.leafResources.push({
-                name: leafPart,
+                name: '',
                 url: url,
                 methods: [{method: method, hash: hash}]
             });
@@ -208,7 +224,7 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
     }
 
     /**
-     * Constructs a tree structure of the available resources. Stops on the first path parameter (starts with '{')
+     * Constructs a tree structure of the available resources.
      * {
      *    '/rest' :{
      *       resource: '/rest',
@@ -239,21 +255,17 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
                 element.url = '/' + element.url;
             }
 
-            var baseUrl, varUrl;
-            var varSplitIndex = element.url.indexOf('{');
-            if (varSplitIndex > -1) {
-                baseUrl = element.url.substring(0, varSplitIndex);
-                varUrl = element.url.substring(varSplitIndex, element.url.length);
-            } else {
-                baseUrl = element.url;
-                varUrl = undefined;
-            }
-
+            var baseUrl = element.url;
             if (baseUrl === '/') {
                 baseUrl = '';
             }
 
-            appendUrl(baseUrl.split('/'), varUrl, element.url, element.http, element.hash, resources[0]);
+            appendUrl(baseUrl.split('/'), element.url, element.http, element.hash, resources[0]);
+        });
+
+        //compact empty middle resources: like IntelliJ IDEA's "Compact Empty Middle Packages"
+        _.each(resources, function(subResource, index, list) {
+            compactEmptyMiddleResources(subResource.resources, subResource.leafResources);
         });
 
         //remove the root resource if not used
@@ -265,6 +277,64 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
         resources.sort(function(r1, r2) { return r1.name.localeCompare(r2.name) } );
 
         return resources;
+    }
+
+    function compactEmptyMiddleResources(resources, leafResources) {
+        var subResourcesToRemove = [];
+        _.each(resources, function(subResource, index, list) {
+            var foundLeafResult = findSolitaryLeaf(subResource, "");
+            if (foundLeafResult) {
+                foundLeafResult.leaf.name = foundLeafResult.aggregatedName;
+                leafResources.push(foundLeafResult.leaf);
+                subResourcesToRemove.push(index);
+            } else {
+                compactEmptyMiddleResources(subResource.resources, subResource.leafResources);
+            }
+        });
+        //remove sub resources after iterating: splice from highest index to lowest
+        for (var i = subResourcesToRemove.length - 1; i >= 0; i--) {
+            resources.splice(subResourcesToRemove[i], 1);
+        }
+    }
+
+    /**
+     * Searches and returns a solitary leaf with it's aggregated name.
+     * Returns false if the given resource contains more than 1 leaf.
+     *
+     * returns {
+     *             leaf: //the solitary leaf,
+     *             aggregatedName: //the aggregated name of the solitary leaf
+     *         }
+     * @param subResource the sub resource to scan for solitary leafs (recursive)
+     * @param name the aggregated leaf name (path)
+     */
+    function findSolitaryLeaf(subResource, name) {
+        if (subResource.resources.length + subResource.leafResources.length !== 1) {
+            return false; //we need exactly 1
+        }
+        var aggregatedName = concatenateWithSlash(name, subResource.name);
+        if (subResource.leafResources.length === 1) {
+            return {
+                leaf: subResource.leafResources[0],
+                aggregatedName : concatenateWithSlash(aggregatedName, subResource.leafResources[0].name)
+            };
+        } else {
+            return findSolitaryLeaf(subResource.resources[0], aggregatedName);
+        }
+    }
+
+    function concatenateWithSlash(firstPart, secondPart) {
+        var result = '';
+        if (firstPart) {
+            result += firstPart;
+        }
+        if (firstPart && secondPart) {
+            result += '/';
+        }
+        if (secondPart) {
+            result += secondPart;
+        }
+        return result;
     }
 
     $scope.resourceTree = splitPaths(com.qmino.miredot.restApiSource.interfaces);
@@ -322,21 +392,52 @@ function DocRoot($scope, $location, $localStorage, $filter, $http) {
         }
     };
 
-    /*
     $scope.collapseTree = function() {
-
-        collapseResources($scope.resourceTree);
+        collapseResources($scope.resourceTree, false);
     };
 
-    function collapseResources(resources) {
-        _.each(resources, function(resource) {
-            resource.hierarchyOpen = false;
-            collapseResources(resource.resources);
-        })
+    $scope.expandTree = function() {
+        collapseResources($scope.resourceTree, true);
+    };
+
+    function collapseResources(resources, open, stopLevel) {
+        if (stopLevel === undefined || stopLevel === null ) {
+            _.each(resources, function(resource) {
+                resource.hierarchyOpen = open;
+                collapseResources(resource.resources, open);
+            })
+        } else if (stopLevel < com.qmino.miredot.restApiSource.initialCollapseLevel) {
+            _.each(resources, function(resource) {
+                resource.hierarchyOpen = open;
+                collapseResources(resource.resources, open, stopLevel+1);
+            })
+        }
     }
 
-    $scope.collapseTree();
-    */
+    function countResources(resources, leafResources) {
+        var count = 0;
+        if (leafResources) {
+            count += leafResources.length;
+        }
+        if (resources) {
+            count += resources.length;
+            _.each(resources, function(resource) {
+                count += countResources(resource.resources, resource.leafResources);
+            });
+        }
+        return count;
+    }
+
+    if (com.qmino.miredot.restApiSource.initialCollapseLevel === undefined || com.qmino.miredot.restApiSource.initialCollapseLevel === null) {
+        if (countResources($scope.resourceTree, null) > 35) {
+            $scope.collapseTree();
+        } else {
+            $scope.expandTree();
+        }
+    } else {
+        $scope.collapseTree();
+        collapseResources($scope.resourceTree, true, 0);
+    }
 }
 
 /**

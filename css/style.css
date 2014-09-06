@@ -114,6 +114,20 @@ body, html, #content {
     margin-left: 10px;
 }
 
+.expandCollapse {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.expandCollapse span.icon-stack {
+    width: 1em;
+    font-size: 18px;
+}
+
 #expandCollapse {
     position: fixed;
     right: 400px;
@@ -121,9 +135,13 @@ body, html, #content {
     cursor: pointer;
 }
 
-#expandCollapse span.icon-stack {
-    width: 1em;
-    font-size: 18px;
+#expandCollapseTree {
+    position: fixed;
+    right: 20px;
+    z-index: 4;
+    cursor: pointer;
+    /*top: 45px;*/
+    /*float: right;*/
 }
 
 .text-gray {
@@ -543,6 +561,7 @@ ul.toContainer {
     font-size: 90%;
     padding: 0 4px;
     vertical-align: top;
+    background: none;
 }
 
 .toContainer .parameterType {
@@ -686,6 +705,7 @@ ul.toContainer {
 
 .parameterType .btn-group>.btn {
     font-family: "Droid Sans Mono", monospace;
+    font-style: normal;
     line-height: normal;
     padding: 0 6px;
     overflow: visible;
@@ -741,6 +761,90 @@ ul.toContainer {
     border-bottom-left-radius: 3px;
 }
 
+.subTypeSwitch .btn-group-vertical {
+    font-family: "Droid Sans Mono", monospace;
+    font-size: 90%;
+    line-height: normal;
+    vertical-align: text-bottom;
+    max-width: 95%;
+    margin-left: 20px;
+    display: table;
+}
+.subTypeSwitch .btn-group-vertical>span {
+    display: table-row;
+}
+.subTypeSwitch .btn-group-vertical>span>* {
+    display: table-cell;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.propertyComment {
+    padding-left: 10px;
+    white-space: nowrap;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn {
+    font-family: "Droid Sans Mono", monospace;
+    line-height: normal;
+    padding: 0 6px;
+    overflow: visible;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-shadow: none;
+    outline: 0;
+    box-shadow: none;
+    background: #f2f2f2;
+    max-width: 100%;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn:before {
+    content: open-quote;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn:after {
+    content: close-quote;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn:hover {
+    border-color: #444;
+    background-color: #ddd;
+}
+
+
+.subTypeSwitch .btn-group-vertical>span>.btn.active {
+    background: #777;
+    color: white;
+    border-color: #444;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn:active {
+    border-color: #444;
+    background-color: #bbb;
+}
+
+.subTypeSwitch .btn-group-vertical>span>.btn {
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.subTypeSwitch .btn-group-vertical>span:last-child>.btn {
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.subTypeSwitch .btn-group-vertical>span:first-child>.btn {
+    -webkit-border-top-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-right-radius: 3px;
+}
+
 .parameterItem {
     white-space: nowrap;
 }
@@ -752,23 +856,4 @@ a.recursionLink {
 a.recursionLink:hover {
     text-decoration: none;
     color: #0088cc;
-}
-
-.treeCollapse {
-    position: fixed;
-    top: 45px;
-    right: 10px;
-    float: right;
-    cursor: pointer;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: -moz-none;
-    -ms-user-select: none;
-    user-select: none;
-    font-size: 12px;
-    color: black;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 100;
-    opacity: 0.5;
 }

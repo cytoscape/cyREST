@@ -31,7 +31,8 @@ angular.module('miredot.directives')
             transclude: false,
             scope: {
                 to:'=',
-                jsonDocConfig:'='
+                jsonDocConfig:'=',
+                toggleJsonDoc:'='
             },
             link: function (scope, element, attrs) {
 
@@ -133,6 +134,20 @@ angular.module('miredot.directives')
                     return result;
                 }
 
+                function buildSubTypeSwitcher(to, beforeFieldComment, afterFieldComment) {
+                    var html = '';
+                    //property name
+                    html += '<li class="parameterItem">';
+                    if (to.property) { //property name used in JsonTypeInfo
+                        html += '<span class="parameterName">' + to.property + ':</span>';
+                    }
+                    html += beforeFieldComment;
+                    html += buildComment(to.propertyComment);
+                    html += '</li>';
+                    html += afterFieldComment;
+                    return html;
+                }
+
                 /**
                  * Lists properties of complex to.
                  * @param {Object | string} to The current object to render.
@@ -176,13 +191,6 @@ angular.module('miredot.directives')
                     //list properties of this class
                     html += buildComplexToProperties(to, history, listedProperties);
 
-                    //show subType switcher
-                    html += '<li class="parameterItem">';
-                    if (to.property) { //property name used in JsonTypeInfo
-                        html += '<span class="parameterName">' + to.property + ':</span>';
-                    }
-                    html += '<span class="parameterType"><div class="btn-group">';
-
                     var first = true;
                     _.each(to.subTypes, function(subType) {
                         //set a unique id for this subType
@@ -191,15 +199,43 @@ angular.module('miredot.directives')
                             scope[subTypeModel] = subType.to.__sub_id; //set the default model value to the first subType id
                             first = false;
                         }
-                        //show the button with the name of the subType (based on JsonTypeInfo)
-                        //clicking this button changes the value of the current subTypeModel property to the id of the subType
-                        html += '<button type="button" class="btn" ng-model="' + subTypeModel + '" ' +
-                            'btn-radio="\'' + subType.to.__sub_id + '\'">' + subType.name + '</button>';
                     });
 
-                    html += '</div></span>';
-                    html += buildComment(to.comment);
-                    html += '</li>';
+                    function createSubTypeButton(subType) {
+                        //show the button with the name of the subType (based on JsonTypeInfo)
+                        //clicking this button changes the value of the current subTypeModel property to the id of the subType
+                        return '<div class="btn" ng-model="' + subTypeModel + '" ' +
+                            'btn-radio="\'' + subType.to.__sub_id + '\'">' + subType.name + '</div>';
+                    }
+
+                    //horizontal row of sub types
+                    html += '<span ng-show="jsonDocConfig.hidden">';
+                    var beforeFieldComment = '<span class="parameterType"><div class="btn-group">';
+                    _.each(to.subTypes, function(subType) {
+                        beforeFieldComment += createSubTypeButton(subType);
+                    });
+                    beforeFieldComment += '</div></span>';
+                    html += buildSubTypeSwitcher(to, beforeFieldComment, '');
+                    html += '</span>';
+
+                    //vertically stacked with comments
+                    html += '<span ng-show="!jsonDocConfig.hidden">';
+                    var afterFieldComment = '<span class="subTypeSwitch">';
+                    afterFieldComment += '<span class="btn-group-vertical">';
+                    _.each(to.subTypes, function(subType) {
+                        afterFieldComment += '<span>';
+                        afterFieldComment +=      createSubTypeButton(subType);
+                        if (subType.comment) {
+                            afterFieldComment += '<span class="propertyComment">';
+                            afterFieldComment +=      subType.comment;
+                            afterFieldComment += '</span>';
+                        }
+                        afterFieldComment += '</span>';
+                    });
+                    afterFieldComment += '</span>';
+                    afterFieldComment += '</span>';
+                    html += buildSubTypeSwitcher(to, '', afterFieldComment);
+                    html += '</span>';
 
 
                     //show subTypes, like complex type, but inline fields & only shown when subTypeModel is set to it's id
@@ -225,18 +261,19 @@ angular.module('miredot.directives')
                     return html;
                 }
 
+                var anchorName = 'json_' + getNewId();
+                var anchorHtml = '<a name="' + anchorName + '"/>';
 
                 var togglePropertyCommentsHtml = '';
-
                 if (scope.jsonDocConfig.enabled) {
                     togglePropertyCommentsHtml += '<span class="togglePropertyComments" ' +
-                    'ng-click="jsonDocConfig.hidden = !jsonDocConfig.hidden">' +
+                    'ng-click="toggleJsonDoc(\'' + anchorName + '\')">' +
                     '<span ng-show="jsonDocConfig.hidden">Show</span>' +
                     '<span ng-show="!jsonDocConfig.hidden">Hide</span>' +
                     ' descriptions</span>';
                 }
 
-                var newElement = angular.element(togglePropertyCommentsHtml + build(scope.to));
+                var newElement = angular.element(anchorHtml + togglePropertyCommentsHtml + build(scope.to));
                 $compile(newElement)(scope);
                 element.replaceWith(newElement);
             }

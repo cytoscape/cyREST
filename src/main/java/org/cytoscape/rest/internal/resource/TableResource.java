@@ -36,8 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * REST API for CyTable objects. This is for assigned table only.
  * 
- * @author kono
- * 
  */
 @Singleton
 @Path("/v1/networks/{networkId}/tables")
@@ -72,15 +70,15 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
+	 * Create a new, empty column in an assigned table.
 	 * 
-	 * @title Create new column in the target table.
+	 * @summary Create new column in the table
 	 * 
-	 *        This method creates a new, empty column in the specified table.
 	 * 
 	 * @param networkId
-	 *            Network ID
+	 *            Network SUID
 	 * @param tableType
-	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
 	 * 
 	 */
 	@POST
@@ -100,12 +98,13 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
-	 * Delete a column from a table
+	 * 
+	 * @summary Delete a column in a table
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
-	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
 	 * @param columnName
 	 *            Name of the column to be deleted
 	 * 
@@ -125,12 +124,13 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
-	 * @title Update a column name
+	 * 
+	 * @summary Update a column name
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
-	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
 	 * @param columnName
 	 *            Original name of the column to be updated.
 	 * 
@@ -151,15 +151,17 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+
 	/**
-	 * @title Update a values in a column
+	 * 
+	 * @summary Update values in a column
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
-	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
 	 * @param columnName
-	 *            Target column name.
+	 *            Target column name
 	 * 
 	 */
 	@PUT
@@ -178,8 +180,9 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+
 	/**
-	 * @title Update table data
+	 * @summary Update table data
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -204,7 +207,7 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
-	 * @title Get a row in a table
+	 * @summary Get a row in a table
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -238,7 +241,7 @@ public class TableResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Get a cell entry
+	 * @summary Get a value in the cell
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -292,6 +295,18 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get all rows in the table
+	 * 
+	 * @param networkId Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *
+	 * @return All rows in the table
+	 * 
+	 */
 	@GET
 	@Path("/{tableType}/rows")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -305,6 +320,18 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get all columns in the table
+	 * 
+	 * @param networkId Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 *
+	 * @return All columns in the table
+	 * 
+	 */
 	@GET
 	@Path("/{tableType}/columns")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -318,6 +345,19 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get all values in the column
+	 * 
+	 * @param networkId Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * @param columnName Column name
+	 *
+	 * @return All values in the column
+	 * 
+	 */
 	@GET
 	@Path("/{tableType}/columns/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -335,11 +375,13 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
+	
 	/**
-	 * Get all tables assigned for the network.
+	 * @summary Get all tables assigned to the network
 	 * 
-	 * @param id
-	 * @return
+	 * @param networkId network SUID
+	 * 
+	 * @return All tables in JSON
 	 */
 	@GET
 	@Path("/")
@@ -370,6 +412,15 @@ public class TableResource extends AbstractResource {
 	}
 
 
+	/**
+	 * @summary Get a default table
+	 * 
+	 * @param networkId Network SUID
+	 * @param tableType Table type (defaultnode, defaultedge or defaultnetwork)
+	 * 
+	 * @return The Table in JSON
+	 * 
+	 */
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -386,14 +437,14 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
-	 * @title Get a table as CSV
+	 * @summary Get a table as CSV
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 * 
-	 * @return Entire table as CSV
+	 * @return Table in CSV format
 	 * 
 	 */
 	@GET

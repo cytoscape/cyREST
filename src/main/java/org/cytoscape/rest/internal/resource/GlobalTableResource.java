@@ -51,22 +51,22 @@ public class GlobalTableResource extends AbstractResource {
 		return getNumberObjectString(JsonTags.COUNT, globals.size());
 	}
 
-	/**
-	 * Create global table.
-	 * 
-	 * @param is
-	 * 
-	 * TODO: Implement this.
-	 */
-	@POST
-	@Path("/")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public String createTable(final InputStream is) {
-		throw new NotSupportedException("CREATE method for Global table creation is not implemented.");
+//	/**
+//	 * Create global table.
+//	 * 
+//	 * @param is
+//	 * 
+//	 * TODO: Implement this.
+//	 */
+//	@POST
+//	@Path("/")
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public String createTable(final InputStream is) {
+//		throw new NotSupportedException("CREATE method for Global table creation is not implemented.");
 //		final CyTable newTable = tableFactory.createTable("foo", "SUID", Long.class, true, true);
 //		tableManager.addTable(newTable);
 //		
 //		return getNumberObjectString("tableSUID", newTable.getSUID());
-	}
+//	}
 }

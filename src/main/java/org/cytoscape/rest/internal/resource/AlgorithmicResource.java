@@ -80,7 +80,8 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 
 	/**
-	 * Apply Visual Style to a network.
+	 * 
+	 * @summary Apply Visual Style to a network
 	 * 
 	 * @param styleName
 	 *            Visual Style name (title)
@@ -124,7 +125,11 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 
 	/**
-	 * @summary Get list of available layout algorithm names
+	 *	List of all available layout algorithm names.  
+	 *	This <strong>does not include yFiles</strong> algorithms due to license issues. 
+	 *	
+	 *	@summary Get list of available layout algorithm names
+	 *
 	 * 
 	 * @return List of layout algorithm names.
 	 */
@@ -141,9 +146,11 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 
 	/**
-	 * @summary Get list of all Visual Style names.
+	 * Get list of all Visual Style names.  This may not be unique.
 	 * 
-	 * @return List of Style names.
+	 * @summary Get list of all Visual Style names
+	 * 
+	 * @return List of Visual Style names.
 	 * 
 	 */
 	@GET

@@ -51,12 +51,12 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Get all groups for a network
+	 * @summary Get all groups in the network
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * 
-	 * @return List of all groups for the network
+	 * @return List of all groups in the network
 	 * 
 	 */
 	@GET
@@ -68,17 +68,19 @@ public class GroupResource extends AbstractResource {
 		try {
 			return this.groupMapper.writeValueAsString(groups);
 		} catch (JsonProcessingException e) {
-			throw  getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
+
 	/**
-	 * Get number of groups for a network
+	 * 
+	 * @summary Get number of groups in the network
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * 
-	 * @return Number of groups for the network
+	 * @return Number of groups in the network
 	 */
 	@GET
 	@Path("/count")
@@ -89,7 +91,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Get group for a node
+	 * @summary Get group for a node
 	 * 
 	 * @param networkId
 	 *            Networks SUID
@@ -120,7 +122,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Delete all groups for a network
+	 * @summary Delete all groups in the network
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -142,7 +144,7 @@ public class GroupResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Delete a group
+	 * @summary Delete a group
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -161,7 +163,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Expand group nodes
+	 * @summary Expand group nodes
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -176,7 +178,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
-	 * Collapse group nodes
+	 * @summary Collapse group nodes
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -221,8 +223,19 @@ public class GroupResource extends AbstractResource {
 	}
 
 	/**
+	 * Create a new group from a list of nodes.  The Body should be in the following format:
 	 * 
-	 * @summary Create a new group node
+	 * <pre>
+	 * 	{
+	 * 		"name": (New group node name),
+	 * 		"nodes": [
+	 * 			nodeSUID1, nodeSUID2, ...
+	 * 		]
+	 * 	}
+	 * </pre>
+	 * 
+	 * 
+	 * @summary Create a new group
 	 * 
 	 * @param networkId
 	 *            Network SUID

@@ -12,10 +12,6 @@ import javax.ws.rs.core.MediaType;
 /**
  * Root of the REST API server.
  * 
- * @summary Simply displays available API versions.
- * 
- * @author kono
- * 
  */
 @Singleton
 @Path("/")

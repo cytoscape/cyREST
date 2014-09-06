@@ -54,7 +54,8 @@ public class GroupMapper {
 				nodes.add(n);
 			}
 		}
-		
+	
+		// Phase 2: Create group from the list of nodes.
 		final CyGroup group = factory.createGroup(network, nodes, null, true);
 		final CyRow groupRow = ((CySubNetwork)network).getRootNetwork().getRow(group.getGroupNode(), CyRootNetwork.SHARED_ATTRS);
 		groupRow.set(CyRootNetwork.SHARED_NAME, groupName);

@@ -33,7 +33,7 @@
 			<name>Cytoscape Releases</name>
 			<url>http://code.cytoscape.org/nexus/content/repositories/releases/</url>
 		</repository>
-		
+
 		<!-- For API document generation -->
 		<repository>
 			<id>miredot</id>
@@ -128,6 +128,11 @@
 								<document>put,post</document>
 								<defaultMessage>Invalid JSON input.</defaultMessage>
 							</httpStatusCode>
+							<httpStatusCode>
+								<httpCode>500</httpCode>
+								<document>always</document>
+								<defaultMessage>The API call has not succeeded.</defaultMessage>
+							</httpStatusCode>
 						</httpStatusCodes>
 					</restModel>
 
@@ -136,7 +141,8 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -251,12 +257,8 @@
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-<!-- 		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-servlet_2.5_spec</artifactId>
-			<version>1.1.2</version>
-			<scope>provided</scope>
-		</dependency> -->
+		<!-- <dependency> <groupId>org.apache.geronimo.specs</groupId> <artifactId>geronimo-servlet_2.5_spec</artifactId> 
+			<version>1.1.2</version> <scope>provided</scope> </dependency> -->
 
 		<!-- 3rd party libraries -->
 		<dependency>

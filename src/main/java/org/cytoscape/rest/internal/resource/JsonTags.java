@@ -19,4 +19,16 @@ public class JsonTags {
 	public static final String COLUMN_IMMUTABLE = "immutable";
 	
 	public static final String TABLE_FORMAT = "format";
+	
+	public static final String SOURCE = "source";
+	public static final String TARGET= "target";
+	public static final String DIRECTED = "directed";
+	
+	public static final String NETWORK_SUID = "networkSUID";
+	
+	public static final String URL = "url";
+	public static final String FORMAT_EDGELIST = "edgelist";
+	
+	
+	
 }

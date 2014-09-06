@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,7 +28,6 @@ import org.cytoscape.view.model.CyNetworkView;
  */
 @Singleton
 @Path("/v1/networks/{networkId}/views")
-// API version
 public class NetworkViewResource extends AbstractResource {
 
 	public NetworkViewResource() {
@@ -54,7 +54,10 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	/**
-	 * Get number of views for the given network model
+	 * Cytoscape can have multiple views per network model.
+	 * This feature is not exposed to end-users, but you can access it from this API.
+	 * 
+	 * @summary Get number of views for the given network model
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -70,6 +73,9 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	/**
+	 * 
+	 * In general, a network has one view.  But if there are multiple views, this deletes all of them.
+	 * 
 	 * @summary Delete all network views
 	 * 
 	 * @param networkId
@@ -93,7 +99,11 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	/**
-	 * Convenience method to get the first view object.
+	 * 
+	 * This returns a view for the network.
+	 * 
+	 * 
+	 * @summary Convenience method to get the first view object.
 	 * 
 	 * @param networkId
 	 *            Network SUID
@@ -105,22 +115,38 @@ public class NetworkViewResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		if(views.isEmpty()) {
+			throw new NotFoundException("Could not find view for the network: " + networkId);
+		}
 		return getNetworkViewString(views.iterator().next());
 	}
 
+	/**
+	 * @summary Delete a view whatever found first.
+	 *  
+	 * @param networkId Network SUID
+	 * 
+	 */
 	@DELETE
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
 	public void deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		if(views.isEmpty()) {
+			return;
+		}
 		networkViewManager.destroyNetworkView(views.iterator().next());
 	}
 
 	/**
-	 * Get the entire view object as JSON.
+	 * To use this API, you need to know SUID of the CyNetworkView, in addition to CyNetwork SUID.
 	 * 
-	 * @param id
-	 * @return
+	 * @summary Get a network view
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network View SUID
+	 * 
+	 * @return View in Cytoscape.js JSON.  Currently, view information is (x, y) location only.
 	 */
 	@GET
 	@Path("/{viewId}")
@@ -135,6 +161,29 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		return "{}";
+	}
+	
+	/**
+	 * @summary Get SUID of all network views
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return Array of all network view SUIDs
+	 *  
+	 */
+	@GET
+	@Path("/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Long> getAllNetworkViews(@PathParam("networkId") Long networkId) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		
+		final Collection<Long> suids = new HashSet<Long>();
+		
+		for(final CyNetworkView view:views) {
+			final Long viewId = view.getSUID();
+			suids.add(viewId);
+		}
+		return suids;
 	}
 
 	private final String getNetworkViewString(final CyNetworkView networkView) {

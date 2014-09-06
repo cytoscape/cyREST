@@ -10,6 +10,7 @@ import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
+import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
@@ -61,6 +62,7 @@ public final class GrizzlyServerManager {
 			final ResourceConfig rc = new ResourceConfig(
 					RootResource.class,
 					NetworkResource.class,
+					NetworkFullResource.class,
 					NetworkViewResource.class,
 					TableResource.class, 
 					MiscResource.class,

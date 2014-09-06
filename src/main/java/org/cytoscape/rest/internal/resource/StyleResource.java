@@ -72,6 +72,13 @@ public class StyleResource extends AbstractResource {
 		this.visualStyleMapper = new VisualStyleMapper();
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get list of Visual Style titles
+	 * 
+	 * @return List of Visual Style titles.
+	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -89,6 +96,12 @@ public class StyleResource extends AbstractResource {
 
 	}
 
+	/**
+	 * @summary Get number of Visual Styles
+	 * 
+	 * @return Number of Visual Styles available in current session.
+	 * 
+	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -96,6 +109,12 @@ public class StyleResource extends AbstractResource {
 		return getNumberObjectString(JsonTags.COUNT, vmm.getAllVisualStyles().size());
 	}
 
+	/**
+	 * 
+	 * @summary Delete a Visual Style
+	 * 
+	 * @param name
+	 */
 	@DELETE
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -103,8 +122,37 @@ public class StyleResource extends AbstractResource {
 		final VisualStyle style = getStyleByName(name);
 		vmm.removeVisualStyle(style);
 	}
+	
+	
+	/**
+	 * @summary Delete all Visual Styles except default style
+	 * 
+	 */
+	@DELETE
+	@Path("/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void deleteAllStyles() {
+		Set<VisualStyle> styles = vmm.getAllVisualStyles();
+		Set<VisualStyle> toBeDeleted = new HashSet<VisualStyle>();
+		for(final VisualStyle style: styles) {
+			if(style.getTitle().equals("default") == false) {
+				toBeDeleted.add(style);
+			}
+		}
+		for(final VisualStyle style: toBeDeleted) {
+			vmm.removeVisualStyle(style);
+		}
+	}
 
 
+	/**
+	 * 
+	 * @summary Delete a Visual Mapping from a Visual Style
+	 * 
+	 * @param name Name of the Visual Style
+	 * @param vpName Visual Property name associated with the mapping
+	 * 
+	 */
 	@DELETE
 	@Path("/{name}/mappings/{vpName}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -122,23 +170,6 @@ public class StyleResource extends AbstractResource {
 	}
 
 
-	@DELETE
-	@Path("/{name}/mappings")
-	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteAllMappings(@PathParam("name") String name) {
-		final VisualStyle style = getStyleByName(name);
-		final Collection<VisualMappingFunction<?, ?>> mappings = style.getAllVisualMappingFunctions();
-		final Set<VisualProperty<?>> toBeRemoved = new HashSet<VisualProperty<?>>();
-		for(final VisualMappingFunction<?,?> mapping:mappings) {
-			toBeRemoved.add(mapping.getVisualProperty());
-		}
-		
-		for(final VisualProperty<?> vp: toBeRemoved) {
-			style.removeVisualMappingFunction(vp);
-		}
-	}
-
-
 	private final VisualLexicon getLexicon() {
 		final Set<VisualLexicon> lexicon = this.vmm.getAllVisualLexicon();
 		if (lexicon.isEmpty()) {
@@ -147,6 +178,16 @@ public class StyleResource extends AbstractResource {
 		return lexicon.iterator().next();
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get all default values for the Visual Style
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 * @return List of all default values
+	 * 
+	 */
 	@GET
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -154,14 +195,35 @@ public class StyleResource extends AbstractResource {
 		return getVp(name, null);
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get a default value for the Visual Property
+	 * 
+	 * @param name Name of Visual Style
+	 * @param vp Unique ID of the Visual Property.  This should be the unique ID of the VP.
+	 * 
+	 * @return Default value for the Visual Property
+	 * 
+	 */
 	@GET
-	@Path("/{name}/defaults/{vpName}")
+	@Path("/{name}/defaults/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getDefaultValue(@PathParam("name") String name,
-			@PathParam("vpName") String vpName) {
-		return getVp(name, vpName);
+			@PathParam("vp") String vp) {
+		return getVp(name, vp);
 	}
 
+
+	/**
+	 * 
+	 * @summary Get all Visual Mappings for the Visual Style
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 * @return List of all Visual Mappings.
+	 * 
+	 */
 	@GET
 	@Path("/{name}/mappings")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -175,10 +237,21 @@ public class StyleResource extends AbstractResource {
 		}
 	}
 
+	
+	/**
+	 * 
+	 * @summary Get a Visual Mapping associated with the Visual Property
+	 * 
+	 * @param name Name of the Visual Style
+	 * @param vp Unique ID of the Visual Property.  This should be the unique ID of the VP.
+	 * 
+	 * @return Visual Mapping assigned to the Visual Property
+	 * 
+	 */
 	@GET
 	@Path("/{name}/mappings/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getMapping(@PathParam("name") String name, @PathParam("type") String type, @PathParam("vp") String vp) {
+	public String getMapping(@PathParam("name") String name, @PathParam("vp") String vp) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualLexicon lexicon = getLexicon();
 		final Set<VisualProperty<?>> allVp = lexicon.getAllVisualProperties();
@@ -220,10 +293,10 @@ public class StyleResource extends AbstractResource {
 		}
 	}
 
-	private final VisualProperty getVisualProperty(String vpName) {
+	private final VisualProperty<?> getVisualProperty(String vpName) {
 		final VisualLexicon lexicon = getLexicon();
 		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
-		for (VisualProperty vp : vps) {
+		for (VisualProperty<?> vp : vps) {
 			if (vp.getIdString().equals(vpName)) {
 				return vp;
 			}
@@ -234,10 +307,18 @@ public class StyleResource extends AbstractResource {
 
 	// /////////// Update Default Values ///////////////
 
+	
+	/**
+	 * 
+	 * @summary Update a default value for the Visual Property
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 */
 	@PUT
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void updateDefaults(@PathParam("name") String name, @PathParam("type") String type, InputStream is) {
+	public void updateDefaults(@PathParam("name") String name, InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
@@ -248,11 +329,13 @@ public class StyleResource extends AbstractResource {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private final void updateVisualProperties(final JsonNode rootNode, VisualStyle style) {
 		for(JsonNode defaultNode: rootNode) {
 			final String vpName = defaultNode.get("visual_property").textValue();
-			@SuppressWarnings("unchecked")
-			final VisualProperty<Object> vp = getVisualProperty(vpName);
+
+			@SuppressWarnings("rawtypes")
+			final VisualProperty vp = getVisualProperty(vpName);
 			if (vp == null) {
 				continue;
 			}
@@ -263,37 +346,76 @@ public class StyleResource extends AbstractResource {
 		}
 	}
 
+
+	/**
+	 * 
+	 * @summary Get a Visual Style in Cytoscape.js CSS format.
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 * @return Visual Style in Cytoscape.js CSS format.  This is always in an array.
+	 * 
+	 */
 	@GET
-	@Path("/{name}")
+	@Path("/{name}.json")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getStyle(@PathParam("name") String name, @QueryParam("format") String format) {
+	public String getStyle(@PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
 
-		if (format == null || format.trim().length() == 0) {
-			final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
-			final ByteArrayOutputStream os = new ByteArrayOutputStream();
-			final Set<VisualStyle> styleCollection = new HashSet<VisualStyle>();
-			styleCollection.add(style);
-			final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
-			try {
-				styleWriter.run(new HeadlessTaskMonitor());
-				String jsonString = os.toString("UTF-8");
-				os.close();
-				
-				return jsonString;
-			} catch (Exception e) {
-				throw getError("Could not get Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
-			}
-
-		} else {
-			try {
-				return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
-			} catch (IOException e) {
-				throw getError("Could not get Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
-			}
+		final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
+		final ByteArrayOutputStream os = new ByteArrayOutputStream();
+		final Set<VisualStyle> styleCollection = new HashSet<VisualStyle>();
+		styleCollection.add(style);
+		final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
+		try {
+			styleWriter.run(new HeadlessTaskMonitor());
+			String jsonString = os.toString("UTF-8");
+			os.close();
+			return jsonString;
+		} catch (Exception e) {
+			throw getError("Could not get Visual Style in Cytoscape.js format.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
+	/**
+	 * 
+	 * This returns JSON version of Visual Style object with full details.  Format is simple:
+	 * 
+	 * <pre>
+	 * {
+	 * 	"title": (name of this Visual Style),
+	 * 	"defaults": [ default values ],
+	 * 	"mappings": [ Mappings ]
+	 * }
+	 * </pre>
+	 * 
+	 * Essentially, this is a JSON version of the Visual Style XML file.
+	 * 
+	 * 
+	 * @summary Get a Visual Style with full details
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 * @return Visual Style in Cytoscape JSON format 
+	 */
+	@GET
+	@Path("/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getStyleFull(@PathParam("name") String name) {
+		final VisualStyle style = getStyleByName(name);
+		try {
+			return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
+		} catch (IOException e) {
+			throw getError("Could not get Visual Style JSON.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	/**
+	 * @summary Create a new Visual Style from JSON.
+	 * 
+	 * @return Title of the new Visual Style.
+	 */
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -315,6 +437,15 @@ public class StyleResource extends AbstractResource {
 	}
 
 
+
+	/**
+	 * 
+	 * Create a new Visual Mapping from JSON and add it to the Style.
+	 * 
+	 * @summary Add a new Visual Mapping
+	 * 
+	 * @param name Name of the Visual Style
+	 */
 	@POST
 	@Path("/{name}/mappings")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -332,11 +463,18 @@ public class StyleResource extends AbstractResource {
 	}
 
 
+	/**
+	 * 
+	 * @summary Update name of a Visual Style
+	 * 
+	 * @param name Original name of the Visual Style
+	 * 
+	 */
 	@PUT
 	@Path("/{name}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public void updateStyleTitle(@PathParam("name") String name, InputStream is) {
+	public void updateStyleName(@PathParam("name") String name, InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;

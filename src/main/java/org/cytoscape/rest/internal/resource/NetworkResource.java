@@ -29,7 +29,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.read.CyNetworkReader;
-import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyIdentifiable;
@@ -68,9 +67,10 @@ public class NetworkResource extends AbstractResource {
 
 	/**
 	 * 
-	 * @summary Get number of networks in the current session
+	 * @summary Get number of networks in current session
 	 * 
 	 * @return Number of networks in current Cytoscape session
+	 * 
 	 */
 	@GET
 	@Path("/count")
@@ -142,64 +142,45 @@ public class NetworkResource extends AbstractResource {
 		return suids;
 	}
 
+
 	/**
 	 * 
-	 * @summary Get all networks in current session
+	 * Returns list of networks as an array of network SUID.
 	 * 
-	 * @param column
-	 * @param query
-	 * @param format
-	 * @return
+	 * @summary Get SUID list of networks
+	 * 
+	 * @param column Optional.  Network table column name to be used for search.
+	 * @param query Optional.  Search query.
+	 * 
+	 * @return Matched networks as list of SUIDs.  If no query is given, returns all network SUIDs.
+	 * 
 	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	@ReturnType("java.util.List<org.cytoscape.rest.internal.model.CyNetworkWrapper>")
-	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query,
-			@QueryParam("format") String format) {
+	public Collection<Long> getNetworksAsSUID(@QueryParam("column") String column, @QueryParam("query") String query) {
+		Collection<CyNetwork> networks;
+		
 		if (column == null && query == null) {
-			return getNetworks(networkManager.getNetworkSet(), format);
+			networks = networkManager.getNetworkSet();
 		} else {
-			return getNetworksByQuery(query, column, format);
-		}
-	}
-
-	private final String getNetworksByQuery(final String query, final String column, final String format) {
-		final Set<CyNetwork> networks = networkManager.getNetworkSet();
-		final Set<CyNetwork> matchedNetworks = new HashSet<CyNetwork>();
-
-		for (final CyNetwork network : networks) {
-			final CyTable table = network.getDefaultNetworkTable();
-			final Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
-			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
-			if (rows.isEmpty() == false) {
-				matchedNetworks.add(network);
+			if(column == null || column.length() == 0) {
+				throw getError("Column name parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 			}
-		}
-		return getNetworks(matchedNetworks, format);
-	}
-
-	private final String getNetworks(final Set<CyNetwork> networks, final String format) {
-		if (networks.isEmpty()) {
-			return "[]";
-		}
-
-		StringBuilder result = new StringBuilder();
-		result.append("[");
-
-		for (final CyNetwork network : networks) {
-			if (format == null) {
-				result.append(getNetworkString(network));
-			} else if (format.equals(CyIdentifiable.SUID)) {
-				result.append(network.getSUID());
+			if(query == null || query.length() == 0) {
+				throw getError("Query parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 			}
-			result.append(",");
+			networks = getNetworksByQuery(query, column);
 		}
-		String jsonString = result.toString();
-		jsonString = jsonString.substring(0, jsonString.length() - 1);
-
-		return jsonString + "]";
+		
+		final Collection<Long> suids = new HashSet<Long>();
+		for(final CyNetwork network: networks) {
+			suids.add(network.getSUID());
+		}
+		
+		return suids;
 	}
+
 
 	/**
 	 * 
@@ -208,7 +189,7 @@ public class NetworkResource extends AbstractResource {
 	 * @param networkId
 	 *            Network SUID
 	 * 
-	 * @return Network with all associated table
+	 * @return Network with all associated tables in Cytoscape.js format.
 	 * 
 	 */
 	@GET
@@ -220,11 +201,13 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * @summary Get all nodes as an array of SUIDs
+	 * @summary Get matching nodes
 	 * 
-	 * @param id
-	 *            Network SUID
-	 * @return list of node SUIDs.
+	 * @param networkId Network SUID
+	 * @param column Optional.  Node table column name to be used for search.
+	 * @param query Optional.  Search query.
+	 * 
+	 * @return List of matched node SUIDs.  If no parameter is given, returns all node SUIDs.
 	 */
 	@GET
 	@Path("/{networkId}/nodes")
@@ -234,22 +217,22 @@ public class NetworkResource extends AbstractResource {
 		return getByQuery(networkId, "nodes", column, query);
 	}
 
+
 	/**
+	 * @summary Get matching edges
 	 * 
-	 * @summary Get all edges as an array of SUIDs
+	 * @param networkId Network SUID
+	 * @param column Optional.  Edge table column name to be used for search.
+	 * @param query Optional.  Search query.
 	 * 
-	 * @param id
-	 *            SUID of the network edges belong to.
-	 * @param column
-	 * @param query
-	 * @return
+	 * @return List of matched edge SUIDs.  If no parameter is given, returns all edge SUIDs.
 	 */
 	@GET
 	@Path("/{networkId}/edges")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Long> getEdges(@PathParam("networkId") Long id, @QueryParam("column") String column,
+	public Collection<Long> getEdges(@PathParam("networkId") Long networkId, @QueryParam("column") String column,
 			@QueryParam("query") String query) {
-		return getByQuery(id, "edges", column, query);
+		return getByQuery(networkId, "edges", column, query);
 	}
 
 	/**
@@ -261,7 +244,7 @@ public class NetworkResource extends AbstractResource {
 	 * @param nodeId
 	 *            Node SUID
 	 * 
-	 * @return Node with associated table data
+	 * @return Node with associated row data.
 	 * 
 	 */
 	@GET
@@ -279,14 +262,14 @@ public class NetworkResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Get an edge
+	 * @summary Get an edge
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param edgeId
 	 *            Edge SUID
 	 * 
-	 * @return Edge with associated table data
+	 * @return Edge with associated row data
 	 * 
 	 */
 	@GET
@@ -303,50 +286,51 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Get source or target node of a edge
+	 * @summary Get source/target node of an edge
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param edgeId
 	 *            Edge SUID
 	 * @param type
-	 *            source or target
+	 *            "source" or "target"
 	 * 
 	 * @return SUID of the source/target node
 	 * 
 	 */
 	@GET
 	@Path("/{networkId}/edges/{edgeId}/{type}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Long getEdgeComponent(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId,
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEdgeComponent(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId,
 			@PathParam("type") String type) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 
 		if (edge == null) {
-			throw new NotFoundException("Could not find edge: " + edgeId);
+			throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
 		}
 
 		Long nodeSUID = null;
-		if (type.equals("source")) {
+		if (type.equals(JsonTags.SOURCE)) {
 			nodeSUID = edge.getSource().getSUID();
-		} else if (type.equals("target")) {
+		} else if (type.equals(JsonTags.TARGET)) {
 			nodeSUID = edge.getTarget().getSUID();
 		} else {
 			throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return nodeSUID;
+		return getNumberObjectString(type, nodeSUID);
 	}
 
 	/**
-	 * Get the edge is directed or not.
+	 * 
+	 * @summary Get edge directionality
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param edgeId
 	 *            Target edge SUID
 	 * 
-	 * @return True if the edge is directed.
+	 * @return true if the edge is directed.
 	 * 
 	 */
 	@GET
@@ -356,21 +340,21 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw new NotFoundException("Could not find edge with SUID: " + edgeId);
+			throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
 		}
 		return edge.isDirected();
 	}
 
 	/**
 	 * 
-	 * Get adjacent edges for a node
+	 * @summary Get adjacent edges for a node
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param nodeId
 	 *            Target node SUID
 	 * 
-	 * @return List of edge SUIDs
+	 * @return List of connected edges (as SUID)
 	 * 
 	 */
 	@GET
@@ -384,7 +368,7 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Get network pointer (nested network SUID)
+	 * @summary Get network pointer (nested network SUID)
 	 * 
 	 * @param networkId
 	 *            Network SUID.
@@ -395,27 +379,27 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/pointer")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Long getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final CyNetwork pointer = node.getNetworkPointer();
 		if (pointer == null) {
-			throw new NotFoundException("Could not find network pointer.");
+			throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
 		}
-		return pointer.getSUID();
+		return getNumberObjectString(JsonTags.NETWORK_SUID, pointer.getSUID());
 	}
 
 	/**
 	 * 
-	 * Get first neighbors of node
+	 * @summary Get first neighbors of the node
 	 * 
 	 * @param networkId
 	 *            Target network SUID.
 	 * @param nodeId
 	 *            Node SUID.
 	 * 
-	 * @return Neighbors as a list of SUIDs.
+	 * @return Neighbors of the node as a list of SUIDs.
 	 * 
 	 */
 	@GET
@@ -430,7 +414,7 @@ public class NetworkResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Get array of SUIDs for given collection of graph objects.
+	 * Get SUIDs for given collection of graph objects.
 	 * 
 	 * @param objects
 	 * @return
@@ -444,13 +428,21 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Add a new node to existing network
+	 * Add new node(s) to the network.  Body should include an array of new node names.
+	 * <br/>
 	 * 
-	 * @param id
-	 *            network SUID
-	 * @param is
+	 * <pre>
+	 * [ "nodeName1", "nodeName2", ... ]
+	 * </pre>
 	 * 
-	 * @return
+	 * <br />
+	 * Node name will be used for "name" column. 
+	 * 
+	 * @summary Add node(s) to existing network
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return SUID of the new node(s) with the name.
 	 */
 	@POST
 	@Path("/{networkId}/nodes")
@@ -499,7 +491,28 @@ public class NetworkResource extends AbstractResource {
 					Response.Status.PRECONDITION_FAILED);
 		}
 	}
-
+	
+	
+	/**
+	 * Add new edge(s) to the network.  Body should include an array of new node names.
+	 * <pre>
+	 * [
+	 * 	{
+	 * 		"source": SOURCE_NODE_SUID,
+	 * 		"target": TARGET_NODE_SUID,
+	 * 		"directed": (Optional boolean value.  Default is True),
+	 * 		"interaction": (Optional.  Will be used for Interaction column.)
+	 * 	} ...
+	 * ]
+	 * </pre>
+	 * 
+	 * @summary Add edge(s) to existing network
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return SUIDs of the new edges with source and target SUIDs.
+	 * 
+	 */
 	@POST
 	@Path("/{networkId}/edges")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -526,10 +539,10 @@ public class NetworkResource extends AbstractResource {
 				generator = factory.createGenerator(stream);
 				generator.writeStartArray();
 				for (final JsonNode node : rootNode) {
-					JsonNode source = node.get("source");
-					JsonNode target = node.get("target");
+					JsonNode source = node.get(JsonTags.SOURCE);
+					JsonNode target = node.get(JsonTags.TARGET);
 					JsonNode interaction = node.get(CyEdge.INTERACTION);
-					JsonNode isDirected = node.get("directed");
+					JsonNode isDirected = node.get(JsonTags.DIRECTED);
 					if (source == null || target == null) {
 						continue;
 					}
@@ -551,8 +564,8 @@ public class NetworkResource extends AbstractResource {
 
 					generator.writeStartObject();
 					generator.writeNumberField(CyIdentifiable.SUID, edge.getSUID());
-					generator.writeNumberField("source", sourceSUID);
-					generator.writeNumberField("target", targetSUID);
+					generator.writeNumberField(JsonTags.SOURCE, sourceSUID);
+					generator.writeNumberField(JsonTags.TARGET, targetSUID);
 					generator.writeEndObject();
 				}
 				generator.writeEndArray();
@@ -572,10 +585,10 @@ public class NetworkResource extends AbstractResource {
 
 	// //////////////// Delete //////////////////////////////////
 
+	
 	/**
 	 * 
-	 * Delete all networks
-	 * 
+	 * @summary Delete all networks in current session
 	 */
 	@DELETE
 	@Path("/")
@@ -587,9 +600,9 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Delete a network
+	 * @summary Delete a network
 	 * 
-	 * @param networkId
+	 * @param networkId Network SUID
 	 */
 	@DELETE
 	@Path("/{networkId}")
@@ -599,10 +612,10 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Delete all nodes in a network
+	 * @summary Delete all nodes in the network
 	 * 
 	 * @param networkId
-	 *            target network ID.
+	 *            Network SUID.
 	 */
 	@DELETE
 	@Path("/{networkId}/nodes")
@@ -613,10 +626,10 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	/**
-	 * Delete all edges in a network
+	 * @summary Delete all edges in the network
 	 * 
 	 * @param networkId
-	 *            target network ID
+	 *            Network SUID
 	 */
 	@DELETE
 	@Path("/{networkId}/edges")
@@ -626,11 +639,14 @@ public class NetworkResource extends AbstractResource {
 		updateViews(network);
 	}
 
+
 	/**
-	 * Delete a node in a network
 	 * 
-	 * @param networkId
-	 * @param nodeId
+	 * @summary Delete a node in the network
+	 * 
+	 * @param networkId Network SUID
+	 * @param nodeId Node SUID
+	 * 
 	 */
 	@DELETE
 	@Path("/{networkId}/nodes/{nodeId}")
@@ -646,13 +662,15 @@ public class NetworkResource extends AbstractResource {
 		updateViews(network);
 	}
 
+
 	/**
-	 * Delete an edge in a network.
+	 * 
+	 * @summary Delete an edge in the network.
 	 * 
 	 * @param networkId
-	 *            network ID
+	 *            Network SUID
 	 * @param edgeId
-	 *            SUID of an edge to be deleted
+	 *            SUID of the edge to be deleted
 	 */
 	@DELETE
 	@Path("/{networkId}/edges/{edgeId}")
@@ -682,12 +700,15 @@ public class NetworkResource extends AbstractResource {
 
 	// ///////////////////// Object Creation ////////////////////
 
+	
 	/**
-	 * Create network from Cytoscape.js style JSON.
+	 * @summary Create a new network from Cytoscape.js JSON or Edgelist
 	 * 
-	 * @param collection
-	 *            Name of network collection.
-	 * @param is
+	 * @param collection Name of new network collection
+	 * @param source Optional.  "url"
+	 * @param format "edgelist" or "json" 
+	 * 
+	 * @return SUID of the new network
 	 */
 	@POST
 	@Path("/")
@@ -698,7 +719,7 @@ public class NetworkResource extends AbstractResource {
 			@Context HttpHeaders headers) {
 
 		// 1. If source is URL, load from the array of URL
-		if (source != null && source.equals("url")) {
+		if (source != null && source.equals(JsonTags.URL)) {
 			try {
 				return loadNetwork(is);
 			} catch (IOException e) {
@@ -715,7 +736,7 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		final TaskIterator it;
-		if (format != null && format.trim().equals("edgelist")) {
+		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
 			it = edgeListReaderFactory.createTaskIterator(is, "test123");
 		} else {
 			it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
@@ -745,19 +766,20 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		// Return SUID-to-Original map
-		return getNumberObjectString("networkSUID", newNetwork.getSUID());
+		return getNumberObjectString(JsonTags.NETWORK_SUID, newNetwork.getSUID());
 	}
 
 	/**
-	 * Create a subnetwork from selected nodes & edges
 	 * 
-	 * if body is empty, it simply creates new network from current selection.
+	 * If body is empty, it simply creates new network from current selection.
 	 * Otherwise, select from the list of SUID.
 	 * 
-	 * @param networkId
-	 * @param is
-	 * @param headers
-	 * @return
+	 * @summary Create a subnetwork from selected nodes and edges
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return SUID of the new network.
+	 * 
 	 */
 	@POST
 	@Path("/{networkId}")
@@ -795,12 +817,13 @@ public class NetworkResource extends AbstractResource {
 			final Collection<?> result = ((ObservableTask) viewTask).getResults(Collection.class);
 			if (result.size() == 1) {
 				final Long suid = ((CyNetworkView) result.iterator().next()).getModel().getSUID();
-				return getNumberObjectString("networkSUID", suid);
+				return getNumberObjectString(JsonTags.NETWORK_SUID, suid);
 			}
 		}
 
 		throw getError("Could not get new network SUID.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
 	}
+
 
 	private final String loadNetwork(final InputStream is) throws IOException {
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -875,20 +898,6 @@ public class NetworkResource extends AbstractResource {
 		return result;
 	}
 
-	private final String getNetworkString(final CyNetwork network) {
-		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
-		String jsonString = null;
-		try {
-			writer.run(new HeadlessTaskMonitor());
-			jsonString = stream.toString("UTF-8");
-			stream.close();
-		} catch (Exception e) {
-			throw getError("Could not serialize network into JSON.", e, Response.Status.PRECONDITION_FAILED);
-		}
-		
-		return jsonString;
-	}
 
 	/**
 	 * Add network to the manager

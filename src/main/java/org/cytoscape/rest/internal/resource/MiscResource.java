@@ -42,8 +42,9 @@ public class MiscResource extends AbstractResource {
 
 
 	/**
+	 * Run System.gc().  In general, this is not necessary.
 	 * 
-	 * Force to run garbage collection to free up memory
+	 * @summary Force to run garbage collection to free up memory
 	 */
 	@GET
 	@Path("/gc")
@@ -55,7 +56,7 @@ public class MiscResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * Get Cytoscape and API version.
+	 * @summary Get Cytoscape and REST API version
 	 * 
 	 * @return Cytoscape version and REST API version
 	 * 

@@ -3,6 +3,8 @@ package org.cytoscape.rest.internal.resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.InternalServerErrorException;
@@ -16,19 +18,23 @@ import javax.ws.rs.core.Response.Status;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
+import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
+import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
@@ -209,5 +215,36 @@ public abstract class AbstractResource {
 		}
 
 		return result;
+	}
+	
+	protected final Set<CyNetwork> getNetworksByQuery(final String query, final String column) {
+		final Set<CyNetwork> networks = networkManager.getNetworkSet();
+		final Set<CyNetwork> matchedNetworks = new HashSet<CyNetwork>();
+
+		for (final CyNetwork network : networks) {
+			final CyTable table = network.getDefaultNetworkTable();
+			final Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
+			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
+			if (rows.isEmpty() == false) {
+				matchedNetworks.add(network);
+			}
+		}
+		return matchedNetworks;
+	}
+	
+	
+	protected final String getNetworkString(final CyNetwork network) {
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
+		String jsonString = null;
+		try {
+			writer.run(new HeadlessTaskMonitor());
+			jsonString = stream.toString("UTF-8");
+			stream.close();
+		} catch (Exception e) {
+			throw getError("Could not serialize network into JSON.", e, Response.Status.PRECONDITION_FAILED);
+		}
+		
+		return jsonString;
 	}
 }

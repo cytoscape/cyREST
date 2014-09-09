@@ -28,6 +28,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.cytoscape.io.read.AbstractCyNetworkReader;
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyEdge.Type;
@@ -721,7 +722,7 @@ public class NetworkResource extends AbstractResource {
 		// 1. If source is URL, load from the array of URL
 		if (source != null && source.equals(JsonTags.URL)) {
 			try {
-				return loadNetwork(is);
+				return loadNetwork(collection, is);
 			} catch (IOException e) {
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
@@ -737,16 +738,18 @@ public class NetworkResource extends AbstractResource {
 
 		final TaskIterator it;
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
-			it = edgeListReaderFactory.createTaskIterator(is, "test123");
+			it = edgeListReaderFactory.createTaskIterator(is, collection);
 		} else {
-			it = cytoscapeJsReaderFactory.createTaskIterator(is, "test123");
+			it = cytoscapeJsReaderFactory.createTaskIterator(is, collection);
 		}
 
 		final CyNetworkReader reader = (CyNetworkReader) it.next();
 
-		String collectionName = collection;
-		if (collection.equals(DEF_COLLECTION_PREFIX)) {
-			collectionName = collectionName + userAgent;
+		final String collectionName;
+		if (collection == null) {
+			collectionName = DEF_COLLECTION_PREFIX + userAgent;
+		} else {
+			collectionName = collection;
 		}
 
 		try {
@@ -825,7 +828,7 @@ public class NetworkResource extends AbstractResource {
 	}
 
 
-	private final String loadNetwork(final InputStream is) throws IOException {
+	private final String loadNetwork(final String collectionName, final InputStream is) throws IOException {
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 
@@ -839,13 +842,17 @@ public class NetworkResource extends AbstractResource {
 			while (itr.hasNext()) {
 				final Task task = itr.next();
 				try {
-					task.run(new HeadlessTaskMonitor());
 					if (task instanceof CyNetworkReader) {
 						currentReader = (CyNetworkReader) task;
+						if(currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
+							((AbstractCyNetworkReader)currentReader).getRootNetworkList().setSelectedValue(collectionName);
+						}
+						currentReader.run(new HeadlessTaskMonitor());
 					} else {
+						task.run(new HeadlessTaskMonitor());
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new IOException("Could not execute network reader.", e);
 				}
 			}
 
@@ -853,6 +860,10 @@ public class NetworkResource extends AbstractResource {
 			final Long[] suids = new Long[networks.length];
 			int counter = 0;
 			for (CyNetwork network : networks) {
+				if(collectionName != null) {
+					final CyRootNetwork rootNetwork = ((CySubNetwork)network).getRootNetwork();
+					rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
+				}
 				suids[counter] = network.getSUID();
 				counter++;
 			}
@@ -878,7 +889,7 @@ public class NetworkResource extends AbstractResource {
 				generator.writeStartObject();
 
 				generator.writeStringField("source", url);
-				generator.writeArrayFieldStart("networkSUID");
+				generator.writeArrayFieldStart(JsonTags.NETWORK_SUID);
 				for (final Long suid : results.get(url)) {
 					generator.writeNumber(suid);
 				}
@@ -959,8 +970,7 @@ public class NetworkResource extends AbstractResource {
 				String rootNetName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
 				rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
 				if (rootNetName == null || rootNetName.trim().length() == 0) {
-					// The root network does not have a name yet, set it the
-					// same
+					// The root network does not have a name yet, set it the same
 					// as the base subnetwork
 					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
 				}

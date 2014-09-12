@@ -37,16 +37,30 @@ public class TableMapper {
 
 	public void createNewColumn(final JsonNode rootNode, final CyTable table) {
 		// Extract required fields
-		final String columnName = rootNode.get("name").textValue();
-		final Class<?> type = MapperUtil.getColumnClass(rootNode.get("type").textValue());
+		final String columnName = rootNode.get(JsonTags.COLUMN_NAME).textValue();
+		final Class<?> type = MapperUtil.getColumnClass(rootNode.get(JsonTags.COLUMN_TYPE).textValue());
 		
-		// Optional: mutability
+		if(table.getColumn(columnName) !=null) {
+			throw new IllegalArgumentException("Column already exists: " + columnName);
+		}
+		
+		// Optional: fields
 		boolean isImmutable = false;
+		boolean isList = false;
 		final JsonNode immutable = rootNode.get(JsonTags.COLUMN_IMMUTABLE);
+		final JsonNode list = rootNode.get(JsonTags.COLUMN_IS_LIST);
+		if(list != null) {
+			isList = list.asBoolean();
+		}
 		if(immutable != null) {
 			isImmutable = immutable.asBoolean();
 		}
-		table.createColumn(columnName, type, isImmutable);
+	
+		if(isList) {			
+			table.createListColumn(columnName, type, isImmutable);
+		} else {
+			table.createColumn(columnName, type, isImmutable);
+		}
 	}
 
 	public void updateColumnValues(final JsonNode rootNode, final CyTable table, final String columnName) {

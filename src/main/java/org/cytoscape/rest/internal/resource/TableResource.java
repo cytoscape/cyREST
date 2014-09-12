@@ -70,9 +70,19 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
-	 * Create a new, empty column in an assigned table.
+	 * Create new, empty column in an assigned table.
+	 * This accepts the following object OR allay of this objects:
 	 * 
-	 * @summary Create new column in the table
+	 * <pre>
+	 * 		{
+	 * 			"name":"COLUMN NAME",
+	 * 			"type":"data type, Double, String, Boolean, Long, Integer",
+	 * 			"immutable": "Optional: boolean value to specify immutable or not",
+	 * 			"isList": "Optional.  If true, return create List column for the given type."
+	 * 		}
+	 * </pre>
+	 * 
+	 * @summary Create new column(s) in the table
 	 * 
 	 * 
 	 * @param networkId
@@ -91,8 +101,14 @@ public class TableResource extends AbstractResource {
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			tableMapper.createNewColumn(rootNode, table);
-		} catch (IOException e) {
+			if(rootNode.isArray()) {
+				for(JsonNode node: rootNode) {
+					tableMapper.createNewColumn(node, table);
+				}
+			} else {
+				tableMapper.createNewColumn(rootNode, table);
+			}
+		} catch (Exception e) {
 			throw getError("Could not process column JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
 	}

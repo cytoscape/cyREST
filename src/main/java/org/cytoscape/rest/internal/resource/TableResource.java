@@ -78,7 +78,7 @@ public class TableResource extends AbstractResource {
 	 * 			"name":"COLUMN NAME",
 	 * 			"type":"data type, Double, String, Boolean, Long, Integer",
 	 * 			"immutable": "Optional: boolean value to specify immutable or not",
-	 * 			"isList": "Optional.  If true, return create List column for the given type."
+	 * 			"list": "Optional.  If true, return create List column for the given type."
 	 * 		}
 	 * </pre>
 	 * 
@@ -217,7 +217,7 @@ public class TableResource extends AbstractResource {
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateTableValues(rootNode, table);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating table.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}

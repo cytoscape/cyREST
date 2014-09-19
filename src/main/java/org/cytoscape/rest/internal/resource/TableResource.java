@@ -198,6 +198,11 @@ public class TableResource extends AbstractResource {
 
 
 	/**
+	 * 
+	 * This API is for updating default node/edge/network data table at once.
+	 * 
+	 * If not specified, SUID will be used for mapping.
+	 * 
 	 * @summary Update table data
 	 * 
 	 * @param networkId
@@ -212,13 +217,14 @@ public class TableResource extends AbstractResource {
 			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-
 		final ObjectMapper objMapper = new ObjectMapper();
+
 		try {
+			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateTableValues(rootNode, table);
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating table.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 

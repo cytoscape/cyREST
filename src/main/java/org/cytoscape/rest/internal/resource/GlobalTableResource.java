@@ -1,14 +1,10 @@
 package org.cytoscape.rest.internal.resource;
 
-import java.io.InputStream;
 import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -27,7 +23,7 @@ public class GlobalTableResource extends AbstractResource {
 	@Context
 	@NotNull
 	private CyTableFactory tableFactory;
-	
+
 	private final ObjectMapper tableObjectMapper;
 
 	public GlobalTableResource() {
@@ -35,7 +31,6 @@ public class GlobalTableResource extends AbstractResource {
 		this.tableObjectMapper = new ObjectMapper();
 		this.tableObjectMapper.registerModule(new TableModule());
 	}
-
 
 	/**
 	 * 
@@ -50,23 +45,4 @@ public class GlobalTableResource extends AbstractResource {
 		final Set<CyTable> globals = tableManager.getGlobalTables();
 		return getNumberObjectString(JsonTags.COUNT, globals.size());
 	}
-
-//	/**
-//	 * Create global table.
-//	 * 
-//	 * @param is
-//	 * 
-//	 * TODO: Implement this.
-//	 */
-//	@POST
-//	@Path("/")
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public String createTable(final InputStream is) {
-//		throw new NotSupportedException("CREATE method for Global table creation is not implemented.");
-//		final CyTable newTable = tableFactory.createTable("foo", "SUID", Long.class, true, true);
-//		tableManager.addTable(newTable);
-//		
-//		return getNumberObjectString("tableSUID", newTable.getSUID());
-//	}
 }

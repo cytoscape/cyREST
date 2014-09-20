@@ -19,7 +19,7 @@
 	<packaging>bundle</packaging>
 	<name>${bundle.symbolicName}</name>
 
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.9.0-beta</version>
 
 	<repositories>
 		<repository>
@@ -114,7 +114,6 @@
 					<output>
 						<title>RESTful API for Cytoscape ${rest.api.version}</title>
 					</output>
-
 
 					<restModel>
 						<httpStatusCodes>
@@ -373,7 +372,6 @@
 			<artifactId>jersey-test-framework-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 
 		<dependency>
 			<groupId>com.qmino</groupId>

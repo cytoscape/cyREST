@@ -73,6 +73,7 @@ public class VisualStyleSerializer {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void addDefaults(JsonGenerator generator, final SortedMap<String, VisualProperty<?>> names, VisualStyle style) throws IOException {
 		generator.writeArrayFieldStart("defaults");
 		for(final String name:names.keySet()) {
@@ -89,6 +90,7 @@ public class VisualStyleSerializer {
 		generator.writeEndArray();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void addMappings(JsonGenerator generator, VisualStyle style) throws JsonProcessingException, IOException {
 		// Mappings
 		generator.writeArrayFieldStart("mappings");

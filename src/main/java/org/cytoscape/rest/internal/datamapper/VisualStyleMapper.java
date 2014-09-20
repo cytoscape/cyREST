@@ -64,7 +64,7 @@ public class VisualStyleMapper {
 		style.setTitle(newTitle);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final void parseDefaults(final JsonNode defaults, final VisualStyle style, final VisualLexicon lexicon) {
 		for (final JsonNode vpNode : defaults) {
 			String vpName = vpNode.get(MAPPING_VP).textValue();
@@ -86,6 +86,7 @@ public class VisualStyleMapper {
 	}
 
 
+	@SuppressWarnings("rawtypes")
 	private final void parseMappings(JsonNode mappings, VisualStyle style, VisualLexicon lexicon,
 			MappingFactoryManager factoryManager) {
 		
@@ -119,6 +120,7 @@ public class VisualStyleMapper {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private final VisualProperty getVisualProperty(String vpName, VisualLexicon lexicon) {
 		VisualProperty vp = null;
 
@@ -151,6 +153,7 @@ public class VisualStyleMapper {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final DiscreteMapping parseDiscrete(String columnName, Class<?> type, VisualProperty<?> vp,
 			VisualMappingFunctionFactory factory, JsonNode discreteMapping) {
 		DiscreteMapping mapping = (DiscreteMapping) factory.createVisualMappingFunction(columnName, type, vp);
@@ -166,6 +169,7 @@ public class VisualStyleMapper {
 		return mapping;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final ContinuousMapping parseContinuous(String columnName, Class<?> type, VisualProperty<?> vp,
 			VisualMappingFunctionFactory factory, JsonNode mappingNode) {
 
@@ -186,11 +190,10 @@ public class VisualStyleMapper {
 		return mapping;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private final PassthroughMapping parsePassthrough(String columnName, Class<?> type, VisualProperty<?> vp,
 			VisualMappingFunctionFactory factory) {
 
 		return (PassthroughMapping) factory.createVisualMappingFunction(columnName, type, vp);
-
 	}
-
 }

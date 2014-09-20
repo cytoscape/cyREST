@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
 public class EdgeListReaderTest {
 
 	protected TaskMonitor taskMonitor;
@@ -44,6 +43,7 @@ public class EdgeListReaderTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
 		taskMonitor = mock(TaskMonitor.class);
@@ -101,7 +101,6 @@ public class EdgeListReaderTest {
 		int edgeCount = network.getEdgeCount();
 		assertEquals(999, edgeCount);
 	}
-
 
 	private EdgeListReader readFile(final String fileName) throws Exception {
 		File f = new File("./src/test/resources/" + fileName);

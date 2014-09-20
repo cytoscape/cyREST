@@ -1,16 +1,12 @@
 package org.cytoscape.rest;
 
-import org.cytoscape.model.CyEdge;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
-import org.cytoscape.model.NetworkTestSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TableMapperTest {
 
-	private final NetworkTestSupport testSupport = new NetworkTestSupport();
+//	private final NetworkTestSupport testSupport = new NetworkTestSupport();
 
 
 	@Before
@@ -28,11 +24,11 @@ public class TableMapperTest {
 
 	@Test
 	public void testTranslation() {
-		final CyNetwork network = testSupport.getNetwork();
-		final CyNode node1 = network.addNode();
-		final CyNode node2 = network.addNode();
-		final CyNode node3 = network.addNode();
-		final CyEdge edge = network.addEdge(node1, node2, true);
+//		final CyNetwork network = testSupport.getNetwork();
+//		final CyNode node1 = network.addNode();
+//		final CyNode node2 = network.addNode();
+//		final CyNode node3 = network.addNode();
+//		final CyEdge edge = network.addEdge(node1, node2, true);
 
 		// final String result =
 		// translator.translate(network.getDefaultNetworkTable());

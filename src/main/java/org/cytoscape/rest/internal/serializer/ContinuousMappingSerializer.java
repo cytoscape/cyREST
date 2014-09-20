@@ -38,6 +38,7 @@ public class ContinuousMappingSerializer extends JsonSerializer<ContinuousMappin
 		jgen.writeEndObject();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private final void serializePoints(final ContinuousMapping mapping, final JsonGenerator jgen) throws IOException {
 		
 		final VisualProperty<Object> vp = mapping.getVisualProperty();

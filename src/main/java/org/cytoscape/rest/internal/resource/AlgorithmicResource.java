@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -46,6 +48,10 @@ public class AlgorithmicResource extends AbstractResource {
 	@NotNull
 	private NetworkTaskFactory fitContent;
 
+	@Context
+	@NotNull
+	private EdgeBundler edgeBundler;
+	
 	/**
 	 * 
 	 * @summary Apply layout to a network
@@ -150,6 +156,28 @@ public class AlgorithmicResource extends AbstractResource {
 		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
 				.entity("{\"message\":\"Fit content success.\"}").build();
 	}
+
+	@GET
+	@Path("/edgebundling/{networkId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response bundleEdge(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+
+		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		if (views.isEmpty()) {
+			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+		}
+		final TaskIterator bundler = edgeBundler.getBundlerTF().createTaskIterator(network);
+		try {
+			bundler.next().run(headlessTaskMonitor);
+		} catch (Exception e) {
+			throw getError("Could not finish edge bundling.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+				.entity("{\"message\":\"Edge bundling success.\"}").build();
+	}
+
 
 	/**
 	 *	List of all available layout algorithm names.  

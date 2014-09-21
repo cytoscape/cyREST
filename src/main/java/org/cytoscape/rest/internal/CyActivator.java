@@ -106,6 +106,7 @@ public class CyActivator extends AbstractCyActivator {
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 
 		final NetworkTaskFactory fitContent = getService(bc, NetworkTaskFactory.class, "(title=Fit Content)");
+		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
 		
 		final WriterListener writerListsner = new WriterListener();
 		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
@@ -133,7 +134,7 @@ public class CyActivator extends AbstractCyActivator {
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
-				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent);
+				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent, new EdgeBundlerImpl(edgeBundler));
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
@@ -149,5 +150,20 @@ public class CyActivator extends AbstractCyActivator {
 		if (grizzlyServerManager != null) {
 			grizzlyServerManager.stopServer();
 		}
+	}
+	
+	class EdgeBundlerImpl implements EdgeBundler {
+
+		private final NetworkTaskFactory bundler;
+		
+		public EdgeBundlerImpl(final NetworkTaskFactory tf) {
+			this.bundler = tf;
+		}
+		
+		@Override
+		public NetworkTaskFactory getBundlerTF() {
+			return bundler;
+		}
+		
 	}
 }

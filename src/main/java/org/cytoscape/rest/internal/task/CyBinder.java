@@ -17,6 +17,7 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -59,6 +60,7 @@ public class CyBinder extends AbstractBinder {
 	private final EdgeListReaderFactory edgelistReaderFactory;
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
+	private final NetworkTaskFactory fitContent;
 
 
 
@@ -74,7 +76,7 @@ public class CyBinder extends AbstractBinder {
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
-			final CyTableFactory tableFactory) {
+			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -98,6 +100,7 @@ public class CyBinder extends AbstractBinder {
 		this.edgelistReaderFactory = edgelistReaderFactory;
 		this.networkViewFactory = networkViewFactory;
 		this.tableFactory = tableFactory;
+		this.fitContent = fitContent;
 	}
 
 
@@ -126,5 +129,6 @@ public class CyBinder extends AbstractBinder {
 		bind(edgelistReaderFactory).to(EdgeListReaderFactory.class);
 		bind(networkViewFactory).to(CyNetworkViewFactory.class);
 		bind(tableFactory).to(CyTableFactory.class);
+		bind(fitContent).to(NetworkTaskFactory.class);
 	}
 }

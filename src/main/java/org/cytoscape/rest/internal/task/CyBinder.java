@@ -15,13 +15,16 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
@@ -59,7 +62,9 @@ public class CyBinder extends AbstractBinder {
 	private final EdgeListReaderFactory edgelistReaderFactory;
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
-
+	private final NetworkTaskFactory fitContent;
+	private final EdgeBundler edgeBundler;
+	private final RenderingEngineManager renderingEngineManager;
 
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
@@ -74,7 +79,8 @@ public class CyBinder extends AbstractBinder {
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
-			final CyTableFactory tableFactory) {
+			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
+			final RenderingEngineManager renderingEngineManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -98,6 +104,9 @@ public class CyBinder extends AbstractBinder {
 		this.edgelistReaderFactory = edgelistReaderFactory;
 		this.networkViewFactory = networkViewFactory;
 		this.tableFactory = tableFactory;
+		this.fitContent = fitContent;
+		this.edgeBundler = edgeBundler;
+		this.renderingEngineManager = renderingEngineManager;
 	}
 
 
@@ -126,5 +135,8 @@ public class CyBinder extends AbstractBinder {
 		bind(edgelistReaderFactory).to(EdgeListReaderFactory.class);
 		bind(networkViewFactory).to(CyNetworkViewFactory.class);
 		bind(tableFactory).to(CyTableFactory.class);
+		bind(fitContent).to(NetworkTaskFactory.class);
+		bind(edgeBundler).to(EdgeBundler.class);
+		bind(renderingEngineManager).to(RenderingEngineManager.class);
 	}
 }

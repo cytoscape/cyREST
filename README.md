@@ -2,10 +2,13 @@
 
 [![Build Status](https://travis-ci.org/keiono/cy-rest.svg?branch=develop)](https://travis-ci.org/keiono/cy-rest)
 
+
 ## Introduction
+
 
 ### In One Sentence
 __Control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://www.rstudio.com/), [IPython Notebook](http://ipython.org/notebook.html), or [Node.js](http://nodejs.org/)__
+
 
 ### More Details
 This is an App for Cytoscape 3.1+ to provide low-level access to Cytoscape data objects from R, Python, MATLAB, and other tools via RESTful API.  You can write your Cytoscape workflows in standard programming languages.
@@ -13,12 +16,14 @@ This is an App for Cytoscape 3.1+ to provide low-level access to Cytoscape data 
 __This app is still experimental and we need your feedback!__
 
 
+
 ## System Requirments
 * [Java 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
     * __Not tested on Java 8 yet!__
     * Oracle JDK recommended, but should be compatible with OpenJDK.
 * [Cytoscape 3.1.1+](http://www.cytoscape.org/)
-    * Will be supported in Cytoscape 3.2.x, but currently tested with v3.1.1.
+    * Some of the new features are available only in Cytoscape 3.2.0 or later.
+
 
 
 ## Documentation

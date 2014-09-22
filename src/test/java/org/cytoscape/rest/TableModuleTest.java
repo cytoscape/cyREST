@@ -12,9 +12,7 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.rest.internal.serializer.TableModule;
@@ -74,10 +72,10 @@ public class TableModuleTest {
 		network.getDefaultNetworkTable().createColumn("description", String.class, false);
 		network.getRow(network).set("description", "this is a test");
 		
-		final CyNode node1 = network.addNode();
-		final CyNode node2 = network.addNode();
-		final CyNode node3 = network.addNode();
-		final CyEdge edge = network.addEdge(node1, node2, true);
+		// final CyNode node1 = network.addNode();
+		// final CyNode node2 = network.addNode();
+		// final CyNode node3 = network.addNode();
+		// final CyEdge edge = network.addEdge(node1, node2, true);
 		
 		return network;
 	}
@@ -96,5 +94,4 @@ public class TableModuleTest {
 		assertTrue(jsResult instanceof Boolean);
 		assertTrue((Boolean)jsResult);
 	}
-
 }

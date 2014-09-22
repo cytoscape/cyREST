@@ -17,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.EdgeBundler;
+import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
@@ -40,7 +42,15 @@ public class AlgorithmicResource extends AbstractResource {
 	@Context
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
+	
+	@Context
+	@NotNull
+	private NetworkTaskFactory fitContent;
 
+	@Context
+	@NotNull
+	private EdgeBundler edgeBundler;
+	
 	/**
 	 * 
 	 * @summary Apply layout to a network
@@ -123,6 +133,69 @@ public class AlgorithmicResource extends AbstractResource {
 		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
 				.entity("{\"message\":\"Visual Style applied.\"}").build();
 	}
+
+
+	/**
+	 * 
+	 * Fit an existing network view to current window.
+	 * 
+	 * @summary Fit network to the window
+	 * 
+	 * @param networkId Network SUID
+	 * @return Success message
+	 */
+	@GET
+	@Path("/fit/{networkId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response fitContent(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+
+		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		if (views.isEmpty()) {
+			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+		}
+		TaskIterator fit = fitContent.createTaskIterator(network);
+		try {
+			fit.next().run(headlessTaskMonitor);
+		} catch (Exception e) {
+			throw getError("Could not fit content.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+				.entity("{\"message\":\"Fit content success.\"}").build();
+	}
+
+	/**
+	 * Apply edge bundling with default parameters.  
+	 * Currently optional parameters are not supported.
+	 * 
+	 * @summary Apply Edge Bundling to a network
+	 * 
+	 * @param networkId Target network SUID
+	 * @return Success message
+	 * 
+	 */
+	@GET
+	@Path("/edgebundling/{networkId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response bundleEdge(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+
+		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		if (views.isEmpty()) {
+			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+		}
+		final TaskIterator bundler = edgeBundler.getBundlerTF().createTaskIterator(network);
+		try {
+			bundler.next().run(headlessTaskMonitor);
+		} catch (Exception e) {
+			throw getError("Could not finish edge bundling.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+				.entity("{\"message\":\"Edge bundling success.\"}").build();
+	}
+
 
 	/**
 	 *	List of all available layout algorithm names.  

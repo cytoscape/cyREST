@@ -38,6 +38,7 @@ public class DiscreteMappingSerializer extends JsonSerializer<DiscreteMapping> {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	private final void serializeMapping(final DiscreteMapping mapping, JsonGenerator jgen) throws IOException {
 		final Map valueMap = mapping.getAll();
 	

@@ -42,8 +42,7 @@ public class NetworkViewResource extends AbstractResource {
 	// Filter rendering engine by ID.
 	private static final String DING_ID = "org.cytoscape.ding";
 
-	private static final String DEF_WIDTH = "800";
-	private static final String DEF_HEIGHT = "800";
+	private static final String DEF_HEIGHT = "600";
 
 	@Context
 	@NotNull
@@ -227,7 +226,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	/**
-	 * Generate a PNG image as stream. Default size is 800 px.
+	 * Generate a PNG image as stream. Default size is 600 px.
 	 * 
 	 * @summary Get PNG image of a network view
 	 * 
@@ -255,7 +254,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	/**
-	 * Generate a PNG image as stream. Default size is 800 px.
+	 * Generate a PNG network image as stream. Default size is 600 px.
 	 * 
 	 * @summary Get PNG image of a network view
 	 * 
@@ -302,11 +301,11 @@ public class NetworkViewResource extends AbstractResource {
 				throw new IllegalArgumentException("Could not find Ding rendering eigine.");
 			}
 
+			// This is safe for Ding network view.
 			final BufferedImage image = (BufferedImage) engine.createImage(width, height);
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", baos);
-			byte[] imageData = baos.toByteArray();
+			final byte[] imageData = baos.toByteArray();
 
 			return Response.ok(new ByteArrayInputStream(imageData)).build();
 		} catch (Exception e) {
@@ -314,5 +313,4 @@ public class NetworkViewResource extends AbstractResource {
 			throw getError("Could not create image.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 }

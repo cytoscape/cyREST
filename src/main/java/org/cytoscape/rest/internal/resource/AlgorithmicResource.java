@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -136,6 +135,15 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 
 
+	/**
+	 * 
+	 * Fit an existing network view to current window.
+	 * 
+	 * @summary Fit network to the window
+	 * 
+	 * @param networkId Network SUID
+	 * @return Success message
+	 */
 	@GET
 	@Path("/fit/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -157,6 +165,16 @@ public class AlgorithmicResource extends AbstractResource {
 				.entity("{\"message\":\"Fit content success.\"}").build();
 	}
 
+	/**
+	 * Apply edge bundling with default parameters.  
+	 * Currently optional parameters are not supported.
+	 * 
+	 * @summary Apply Edge Bundling to a network
+	 * 
+	 * @param networkId Target network SUID
+	 * @return Success message
+	 * 
+	 */
 	@GET
 	@Path("/edgebundling/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)

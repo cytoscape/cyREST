@@ -1,8 +1,8 @@
+![](http://cl.ly/XohP/logo300.png)
+
 # cyREST: RESTful API for Cytoscape
 
 [![Build Status](https://travis-ci.org/keiono/cy-rest.svg?branch=develop)](https://travis-ci.org/keiono/cy-rest)
-
-![](http://cl.ly/Xk5o/cytoscape-flat-logo-orange-100.png)
 
 ![](http://cl.ly/Xemf/networkx_cytoscape.png)
 

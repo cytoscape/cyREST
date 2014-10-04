@@ -5,7 +5,6 @@
 	<properties>
 		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
-		<cytoscape.api.version>[3.1.1,)</cytoscape.api.version>
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.11</junit.version>
@@ -191,55 +190,55 @@
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>property-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>io-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>swing-application-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>layout-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>core-task-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>work-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>service-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>group-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -298,54 +297,54 @@
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>model-impl</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>model-impl</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>viewmodel-impl</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>viewmodel-impl</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>ding-presentation-impl</artifactId>
-			<version>3.1.0</version>
+			<version>3.1.1</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>ding-presentation-impl</artifactId>
-			<version>${cytoscape.api.version}</version>
+			<version>3.1.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

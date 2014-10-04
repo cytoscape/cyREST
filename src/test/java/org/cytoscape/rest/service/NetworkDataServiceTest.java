@@ -2,28 +2,24 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.ding.NetworkViewTestSupport;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.resource.NetworkResource;
-import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.cytoscape.ding.NetworkViewTestSupport;
-
-import static org.mockito.Mockito.*;
 
 
 public class NetworkDataServiceTest {

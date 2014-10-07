@@ -15,10 +15,10 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
+	<version>1.0.0-beta</version>
 	<packaging>bundle</packaging>
 	<name>cyREST: RESTful API module for Cytoscape (${bundle.symbolicName})</name>
 
-	<version>0.9.0</version>
 
 	<repositories>
 		<repository>

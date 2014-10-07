@@ -42,7 +42,7 @@ public class AlgorithmicResource extends AbstractResource {
 	@Context
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
-	
+
 	@Context
 	@NotNull
 	private NetworkTaskFactory fitContent;
@@ -50,7 +50,7 @@ public class AlgorithmicResource extends AbstractResource {
 	@Context
 	@NotNull
 	private EdgeBundler edgeBundler;
-	
+
 	/**
 	 * 
 	 * @summary Apply layout to a network
@@ -65,27 +65,37 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response applyLayout(@PathParam("algorithmName") String algorithmName, @PathParam("networkId") Long networkId) {
+	public Response applyLayout(
+			@PathParam("algorithmName") String algorithmName,
+			@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		final Collection<CyNetworkView> views = this.networkViewManager
+				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Could not find view for the network with SUID: " + networkId);
+			throw new NotFoundException(
+					"Could not find view for the network with SUID: "
+							+ networkId);
 		}
 
 		final CyNetworkView view = views.iterator().next();
-		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
+		final CyLayoutAlgorithm layout = this.layoutManager
+				.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw new NotFoundException("No such layout algorithm: "
+					+ algorithmName);
 		}
 
-		final TaskIterator itr = layout.createTaskIterator(view, layout.getDefaultLayoutContext(),
+		final TaskIterator itr = layout.createTaskIterator(view,
+				layout.getDefaultLayoutContext(),
 				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not apply layout.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not apply layout.", e,
+					Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return Response.status(Response.Status.OK).entity("{\"message\":\"Layout finished.\"}")
+		return Response.status(Response.Status.OK)
+				.entity("{\"message\":\"Layout finished.\"}")
 				.type(MediaType.APPLICATION_JSON).build();
 	}
 
@@ -103,7 +113,8 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/styles/{styleName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response applyStyle(@PathParam("styleName") String styleName, @PathParam("networkId") Long networkId) {
+	public Response applyStyle(@PathParam("styleName") String styleName,
+			@PathParam("networkId") Long networkId) {
 
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
@@ -117,12 +128,16 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 
 		if (targetStyle == null) {
-			throw new NotFoundException("Visual Style does not exist: " + styleName);
+			throw new NotFoundException("Visual Style does not exist: "
+					+ styleName);
 		}
 
-		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		Collection<CyNetworkView> views = this.networkViewManager
+				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+			throw new NotFoundException(
+					"Network view does not exist for the network with SUID: "
+							+ networkId);
 		}
 
 		final CyNetworkView view = views.iterator().next();
@@ -130,10 +145,10 @@ public class AlgorithmicResource extends AbstractResource {
 		vmm.setCurrentVisualStyle(targetStyle);
 		targetStyle.apply(view);
 
-		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+		return Response.status(Response.Status.OK)
+				.type(MediaType.APPLICATION_JSON)
 				.entity("{\"message\":\"Visual Style applied.\"}").build();
 	}
-
 
 	/**
 	 * 
@@ -141,7 +156,8 @@ public class AlgorithmicResource extends AbstractResource {
 	 * 
 	 * @summary Fit network to the window
 	 * 
-	 * @param networkId Network SUID
+	 * @param networkId
+	 *            Network SUID
 	 * @return Success message
 	 */
 	@GET
@@ -150,28 +166,34 @@ public class AlgorithmicResource extends AbstractResource {
 	public Response fitContent(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
-		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		Collection<CyNetworkView> views = this.networkViewManager
+				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+			throw new NotFoundException(
+					"Network view does not exist for the network with SUID: "
+							+ networkId);
 		}
 		TaskIterator fit = fitContent.createTaskIterator(network);
 		try {
 			fit.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not fit content.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not fit content.", e,
+					Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		
-		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+
+		return Response.status(Response.Status.OK)
+				.type(MediaType.APPLICATION_JSON)
 				.entity("{\"message\":\"Fit content success.\"}").build();
 	}
 
 	/**
-	 * Apply edge bundling with default parameters.  
-	 * Currently optional parameters are not supported.
+	 * Apply edge bundling with default parameters. Currently optional
+	 * parameters are not supported.
 	 * 
 	 * @summary Apply Edge Bundling to a network
 	 * 
-	 * @param networkId Target network SUID
+	 * @param networkId
+	 *            Target network SUID
 	 * @return Success message
 	 * 
 	 */
@@ -181,27 +203,32 @@ public class AlgorithmicResource extends AbstractResource {
 	public Response bundleEdge(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
-		Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		Collection<CyNetworkView> views = this.networkViewManager
+				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Network view does not exist for the network with SUID: " + networkId);
+			throw new NotFoundException(
+					"Network view does not exist for the network with SUID: "
+							+ networkId);
 		}
-		final TaskIterator bundler = edgeBundler.getBundlerTF().createTaskIterator(network);
+		final TaskIterator bundler = edgeBundler.getBundlerTF()
+				.createTaskIterator(network);
 		try {
 			bundler.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not finish edge bundling.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not finish edge bundling.", e,
+					Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		
-		return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
+
+		return Response.status(Response.Status.OK)
+				.type(MediaType.APPLICATION_JSON)
 				.entity("{\"message\":\"Edge bundling success.\"}").build();
 	}
 
-
 	/**
-	 *	List of all available layout algorithm names.  
-	 *	This <strong>does not include yFiles</strong> algorithms due to license issues. 
-	 *	
-	 *	@summary Get list of available layout algorithm names
+	 * List of all available layout algorithm names. This <strong>does not
+	 * include yFiles</strong> algorithms due to license issues.
+	 *
+	 * @summary Get list of available layout algorithm names
 	 *
 	 * 
 	 * @return List of layout algorithm names.
@@ -210,16 +237,22 @@ public class AlgorithmicResource extends AbstractResource {
 	@Path("/layouts")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<String> getLayoutNames() {
-		final Collection<CyLayoutAlgorithm> layouts = layoutManager.getAllLayouts();
-		final List<String> layoutNames = new ArrayList<String>();
-		for (final CyLayoutAlgorithm layout : layouts) {
-			layoutNames.add(layout.getName());
+		try {
+			final Collection<CyLayoutAlgorithm> layouts = layoutManager
+					.getAllLayouts();
+			final List<String> layoutNames = new ArrayList<String>();
+			for (final CyLayoutAlgorithm layout : layouts) {
+				layoutNames.add(layout.getName());
+			}
+			return layoutNames;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Could not get layout names.");
 		}
-		return layoutNames;
 	}
 
 	/**
-	 * Get list of all Visual Style names.  This may not be unique.
+	 * Get list of all Visual Style names. This may not be unique.
 	 * 
 	 * @summary Get list of all Visual Style names
 	 * 

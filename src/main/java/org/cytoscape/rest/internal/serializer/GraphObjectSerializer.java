@@ -190,7 +190,7 @@ public class GraphObjectSerializer {
 		final Map<String, Object> values = row.getAllValues();
 		if (obj instanceof CyEdge) {
 			final Long sourceId = ((CyEdge) obj).getSource().getSUID();
-			final Long targetId = ((CyEdge) obj).getSource().getSUID();
+			final Long targetId = ((CyEdge) obj).getTarget().getSUID();
 			generator.writeNumberField("source", sourceId);
 			generator.writeNumberField("target", targetId);
 		} else {

@@ -346,6 +346,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
+			<artifactId>vizmap-impl</artifactId>
+			<version>3.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>
 			<version>3.1.1</version>
 			<type>test-jar</type>

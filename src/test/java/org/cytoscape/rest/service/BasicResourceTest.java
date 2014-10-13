@@ -53,6 +53,7 @@ import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -176,6 +177,8 @@ public class BasicResourceTest extends JerseyTest {
 		EdgeBundler edgeBundler = mock(EdgeBundler.class);
 		RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 
+		CySessionManager sessionManager = mock(CySessionManager.class);
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -184,7 +187,7 @@ public class BasicResourceTest extends JerseyTest {
 				rootNetworkManager, loadNetworkURLTaskFactory,
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
-				edgeBundler, renderingEngineManager);
+				edgeBundler, renderingEngineManager, sessionManager);
 
 	}
 

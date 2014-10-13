@@ -27,9 +27,14 @@ public class SessionResource extends AbstractResource {
 
 
 	@GET
-	@Path("/")
+	@Path("/name")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getSessionName() {
-		return sessionManager.getCurrentSessionFileName();
+		String sessionName = sessionManager.getCurrentSessionFileName();
+		if(sessionName == null || sessionName.isEmpty()) {
+			sessionName = "";
+		}
+		
+		return "{\"name\": \"" + sessionName +"\"}";
 	}
 }

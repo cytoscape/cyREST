@@ -140,6 +140,17 @@ public class TableResource extends AbstractResource {
 	}
 
 	/**
+	 * To update the column name, you need to provide the parameters in the body:
+	 * 
+	 * <pre>
+	 * {
+	 * 		"oldName": OLD_COLUMN_NAME,
+	 * 		"newName": NEW_COLUMN_NAME
+	 * }
+	 * </pre>
+	 * 
+	 * Both parameters are required.
+	 * 
 	 * 
 	 * @summary Update a column name
 	 * 
@@ -147,22 +158,20 @@ public class TableResource extends AbstractResource {
 	 *            Network SUID
 	 * @param tableType
 	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
-	 * @param columnName
-	 *            Original name of the column to be updated.
 	 * 
 	 */
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateColumnName(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
-			@PathParam("columnName") String columnName, final InputStream is) {
+			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnName(rootNode, table);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}

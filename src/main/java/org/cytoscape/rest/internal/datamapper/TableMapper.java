@@ -22,15 +22,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class TableMapper {
 
 	public void updateColumnName(final JsonNode rootNode, final CyTable table) {
-		final String currentName = rootNode.get("old_name").textValue();
-		final CyColumn column = table.getColumn(currentName);
+		final JsonNode currentNameTag = rootNode.get(JsonTags.COLUMN_NAME_OLD);
+		if(currentNameTag == null) {
+			throw new IllegalArgumentException("Original column name is missing.");
+		}
 		
+		final JsonNode newNameTag = rootNode.get(JsonTags.COLUMN_NAME_NEW);
+		if(newNameTag == null) {
+			throw new IllegalArgumentException("New column name is missing.");
+		}
+
+		final String currentName = currentNameTag.asText();
+		if(currentName == null || currentName.isEmpty()) {
+			throw new IllegalArgumentException("Original column name is missing.");
+		}
+		final String newName = newNameTag.asText();
+		if(newName == null || newName.isEmpty()) {
+			throw new IllegalArgumentException("New column name is missing.");
+		}
+		
+		final CyColumn column = table.getColumn(currentName);
 		if (column == null) {
 			throw new NotFoundException("Column does not exist.");
-		}
-		final String newName = rootNode.get("new_name").textValue();
-		if (newName == null) {
-			throw new NotFoundException("New column name is required.");
 		}
 		column.setName(newName);
 	}

@@ -48,6 +48,7 @@ import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
+import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.task.CyBinder;
@@ -178,6 +179,7 @@ public class BasicResourceTest extends JerseyTest {
 		RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 
 		CySessionManager sessionManager = mock(CySessionManager.class);
+		when(sessionManager.getCurrentSessionFileName()).thenReturn("testSession");
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -433,7 +435,8 @@ public class BasicResourceTest extends JerseyTest {
 									TableResource.class, MiscResource.class,
 									AlgorithmicResource.class,
 									StyleResource.class, GroupResource.class,
-									GlobalTableResource.class);
+									GlobalTableResource.class,
+									SessionResource.class);
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")

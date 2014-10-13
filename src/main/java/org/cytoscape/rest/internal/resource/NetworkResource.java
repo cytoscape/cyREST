@@ -160,7 +160,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	public Collection<Long> getNetworksAsSUID(@QueryParam("column") String column, @QueryParam("query") String query) {
-		Collection<CyNetwork> networks;
+		Collection<CyNetwork> networks = new HashSet<>();
 		
 		if (column == null && query == null) {
 			networks = networkManager.getNetworkSet();
@@ -171,7 +171,12 @@ public class NetworkResource extends AbstractResource {
 			if(query == null || query.length() == 0) {
 				throw getError("Query parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 			}
-			networks = getNetworksByQuery(query, column);
+
+			try {
+				networks = getNetworksByQuery(query, column);
+			} catch(Exception e) {
+				throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
 		}
 		
 		final Collection<Long> suids = new HashSet<Long>();

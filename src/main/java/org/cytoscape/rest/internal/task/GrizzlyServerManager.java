@@ -14,6 +14,7 @@ import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
+import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -69,7 +70,8 @@ public final class GrizzlyServerManager {
 					AlgorithmicResource.class,
 					StyleResource.class,
 					GroupResource.class,
-					GlobalTableResource.class);
+					GlobalTableResource.class,
+					SessionResource.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

@@ -24,6 +24,7 @@ import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.GrizzlyServerManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.AbstractCyActivator;
+import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
@@ -96,6 +97,7 @@ public class CyActivator extends AbstractCyActivator {
 		final CyTableManager tableManager = getService(bc, CyTableManager.class);
 		final CyTableFactory tableFactory = getService(bc, CyTableFactory.class);
 		final StreamUtil streamUtil = getService(bc, StreamUtil.class);
+		final CySessionManager sessionManager = getService(bc, CySessionManager.class); 
 
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
@@ -138,7 +140,7 @@ public class CyActivator extends AbstractCyActivator {
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
-				new EdgeBundlerImpl(edgeBundler), renderingEngineManager);
+				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();

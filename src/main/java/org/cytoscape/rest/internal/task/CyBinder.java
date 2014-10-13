@@ -18,6 +18,7 @@ import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -36,6 +37,7 @@ public class CyBinder extends AbstractBinder {
 
 	private final CyNetworkManager networkManager;
 	private final CyNetworkViewManager networkViewManager;
+	private final CySessionManager sessionManager;
 	private final CyNetworkFactory networkFactory;
 	private final CyNetworkViewFactory networkViewFactory;
 	private final TaskFactoryManager tfManager;
@@ -80,7 +82,7 @@ public class CyBinder extends AbstractBinder {
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
 			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
-			final RenderingEngineManager renderingEngineManager) {
+			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -107,6 +109,7 @@ public class CyBinder extends AbstractBinder {
 		this.fitContent = fitContent;
 		this.edgeBundler = edgeBundler;
 		this.renderingEngineManager = renderingEngineManager;
+		this.sessionManager = sessionManager;
 	}
 
 
@@ -138,5 +141,6 @@ public class CyBinder extends AbstractBinder {
 		bind(fitContent).to(NetworkTaskFactory.class);
 		bind(edgeBundler).to(EdgeBundler.class);
 		bind(renderingEngineManager).to(RenderingEngineManager.class);
+		bind(sessionManager).to(CySessionManager.class);
 	}
 }

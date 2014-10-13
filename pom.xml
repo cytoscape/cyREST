@@ -11,6 +11,7 @@
 		<jersey.version>2.13</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>

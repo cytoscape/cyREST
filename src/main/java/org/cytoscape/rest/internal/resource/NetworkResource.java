@@ -201,7 +201,7 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@ReturnType("org.cytoscape.rest.internal.model.CyNetworkWrapper")
+	@ReturnType("org.cytoscape.rest.internal.model.CyJsNetwork")
 	public String getNetwork(@PathParam("networkId") Long networkId) {
 		return getNetworkString(getCyNetwork(networkId));
 	}

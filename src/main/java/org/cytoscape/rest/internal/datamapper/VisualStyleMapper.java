@@ -19,7 +19,9 @@ import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.qmino.miredot.annotations.MireDotIgnore;
 
+@MireDotIgnore
 public class VisualStyleMapper {
 
 	private static final String TITLE = "title";
@@ -38,6 +40,11 @@ public class VisualStyleMapper {
 	private static final String MAPPING_DISCRETE_MAP = "map";
 	private static final String MAPPING_DISCRETE_KEY = "key";
 	private static final String MAPPING_DISCRETE_VALUE = "value";
+	
+	
+	public VisualStyleMapper() {
+		
+	}
 
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {

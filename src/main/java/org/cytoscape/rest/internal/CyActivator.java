@@ -28,7 +28,10 @@ import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
+import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
+import org.cytoscape.task.read.OpenSessionTaskFactory;
+import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -98,6 +101,9 @@ public class CyActivator extends AbstractCyActivator {
 		final CyTableFactory tableFactory = getService(bc, CyTableFactory.class);
 		final StreamUtil streamUtil = getService(bc, StreamUtil.class);
 		final CySessionManager sessionManager = getService(bc, CySessionManager.class); 
+		final SaveSessionAsTaskFactory saveSessionAsTaskFactory = getService(bc, SaveSessionAsTaskFactory.class);
+		final OpenSessionTaskFactory openSessionTaskFactory = getService(bc, OpenSessionTaskFactory.class);
+		final NewSessionTaskFactory newSessionTaskFactory = getService(bc, NewSessionTaskFactory.class);
 
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
@@ -140,8 +146,8 @@ public class CyActivator extends AbstractCyActivator {
 				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
-				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager);
-		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
+				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory);
+				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
 		} catch (Exception e) {

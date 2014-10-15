@@ -41,7 +41,6 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
-import org.cytoscape.view.vizmap.VisualStyle;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -130,6 +129,7 @@ public abstract class AbstractResource {
 
 	@Context
 	protected EdgeListReaderFactory edgeListReaderFactory;
+	
 
 	protected final GraphObjectSerializer serializer;
 

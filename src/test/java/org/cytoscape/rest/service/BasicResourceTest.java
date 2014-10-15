@@ -57,7 +57,10 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
+import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
+import org.cytoscape.task.read.OpenSessionTaskFactory;
+import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
@@ -181,6 +184,10 @@ public class BasicResourceTest extends JerseyTest {
 		CySessionManager sessionManager = mock(CySessionManager.class);
 		when(sessionManager.getCurrentSessionFileName()).thenReturn("testSession");
 		
+		final SaveSessionAsTaskFactory saveSessionAsTaskFactory = mock(SaveSessionAsTaskFactory.class);
+		final OpenSessionTaskFactory openSessionTaskFactory = mock(OpenSessionTaskFactory.class);
+		final NewSessionTaskFactory newSessionTaskFactory = mock(NewSessionTaskFactory.class);
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -189,11 +196,9 @@ public class BasicResourceTest extends JerseyTest {
 				rootNetworkManager, loadNetworkURLTaskFactory,
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
-				edgeBundler, renderingEngineManager, sessionManager);
-
+				edgeBundler, renderingEngineManager, sessionManager, 
+				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory);
 	}
-
-
 	
 	
 	private VisualStyle initStyle() throws Exception {

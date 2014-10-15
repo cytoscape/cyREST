@@ -16,9 +16,9 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>0.9.3</version>
+	<version>0.9.5</version>
 	<packaging>bundle</packaging>
-	<name>cyREST: RESTful API module for Cytoscape (${bundle.symbolicName})</name>
+	<name>cyREST</name>
 
 
 	<repositories>

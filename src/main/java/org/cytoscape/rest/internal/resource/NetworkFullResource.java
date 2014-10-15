@@ -39,7 +39,7 @@ public class NetworkFullResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	@ReturnType("java.util.List<org.cytoscape.rest.internal.model.CyNetworkWrapper>")
+	@ReturnType("java.util.List<org.cytoscape.rest.internal.model.CyJsNetwork>")
 	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 		

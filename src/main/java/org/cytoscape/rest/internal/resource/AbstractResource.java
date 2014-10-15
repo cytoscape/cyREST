@@ -129,6 +129,7 @@ public abstract class AbstractResource {
 
 	@Context
 	protected EdgeListReaderFactory edgeListReaderFactory;
+	
 
 	protected final GraphObjectSerializer serializer;
 
@@ -219,10 +220,20 @@ public abstract class AbstractResource {
 	
 	protected final Set<CyNetwork> getNetworksByQuery(final String query, final String column) {
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
-		final Set<CyNetwork> matchedNetworks = new HashSet<CyNetwork>();
+		final Set<CyNetwork> matchedNetworks = new HashSet<>();
 
 		for (final CyNetwork network : networks) {
-			final CyTable table = network.getDefaultNetworkTable();
+			// First, check shared table
+			CyTable table = network.getDefaultNetworkTable();
+			if(table.getColumn(column) == null) {
+				table = network.getTable(CyNetwork.class, CyNetwork.LOCAL_ATTRS);
+			}
+			// If column does not exists in the default table, check local one:
+			if(table.getColumn(column) == null) {
+				// Still not found?  Give up and continue.
+				// TODO: should we check hidden tables, too?
+				continue;
+			}
 			final Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
 			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
 			if (rows.isEmpty() == false) {
@@ -247,4 +258,6 @@ public abstract class AbstractResource {
 		
 		return jsonString;
 	}
+	
+	
 }

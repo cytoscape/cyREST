@@ -32,7 +32,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		final Collection styles = target("/v1/apply/styles").request().get(
 				Collection.class);
 		assertNotNull(styles);
-		assertEquals(styles.size(), 0);
+		assertEquals(2, styles.size());
 	}
 	
 	@Test

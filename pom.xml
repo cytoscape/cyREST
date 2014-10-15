@@ -11,14 +11,15 @@
 		<jersey.version>2.13</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
+	<version>0.9.3</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
-	<version>0.9.0</version>
 
 	<repositories>
 		<repository>
@@ -96,8 +97,8 @@
 
 			<plugin>
 				<groupId>com.qmino</groupId>
-				<artifactId>miredot-maven-plugin</artifactId>
-				<version>1.4.1</version>
+				<artifactId>miredot-plugin</artifactId>
+				<version>1.5</version>
 				<executions>
 					<execution>
 						<goals>
@@ -134,6 +135,22 @@
 						</httpStatusCodes>
 					</restModel>
 
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>2.2.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<format>xml</format>
+					<maxmem>256m</maxmem>
+					<!-- aggregated reports for multi-module projects -->
+					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -241,6 +258,12 @@
 			<version>3.1.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>vizmap-api</artifactId>
+			<version>3.1.1</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- OSGi core dependency -->
 		<dependency>
@@ -329,9 +352,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
-			<artifactId>event-api</artifactId>
+			<artifactId>vizmap-impl</artifactId>
 			<version>3.1.1</version>
-			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

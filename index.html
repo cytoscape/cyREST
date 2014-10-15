@@ -76,7 +76,7 @@
 <script type="text/ng-template"  id="resource_nav_item_renderer.html">
     <div class="summaryBaseResource">
         <span ng-click="resource.hierarchyOpen = !resource.hierarchyOpen" class="hierarchy-toggle">
-            <i ng-class="{'icon-caret-down': resource.hierarchyOpen, 'icon-caret-right': !resource.hierarchyOpen}"></i></span>
+            <i ng-class="{'icon-angle-down': resource.hierarchyOpen, 'icon-angle-right': !resource.hierarchyOpen}"></i></span>
         <a set-href="'#' + getFirstLeaf(resource).hash"
            set-text="resource.name"
            target="_self"></a>
@@ -121,14 +121,7 @@
 
     <div id="right">
     <div id="expandCollapseTree" class="expandCollapse" ng-show="navigationView=='hierarchical'">
-        <span ng-click="collapseTree()" class="collapse icon-stack">
-            <i class="icon-sign-blank text-gray" title="collapse all"></i>
-            <i class="icon-collapse-top" title="collapse all"></i>
-        </span>
-        <span ng-click="expandTree()" class="expand icon-stack">
-            <i class="icon-sign-blank text-gray" title="expand all"></i>
-            <i class="icon-collapse" title="expand all"></i>
-        </span>
+        <a ng-click="expandTree()">expand</a>&nbsp;/&nbsp;<a ng-click="collapseTree()">collapse</a>&nbsp;all
     </div>
 
     <div id="rightContent">
@@ -201,7 +194,7 @@
 
 <div id="leftwithnavbar">
     <div class="navbar navbartop">
-        <div class="navbar-inner">
+        <div class="navbar-inner" style="background: white; border-radius: 0; border-left: none;">
             <div class="container">
 
                 <a class="brand" href="#home" target="_self" set-text="projectTitle"></a>
@@ -245,15 +238,8 @@
                 <span set-html="licenceErrorMessage"></span>
             </div>
 
-            <div id="expandCollapse" class="expandCollapse" ng-show="view=='interfaces'">
-                <span ng-click="setGlobalCollapsedState(true)" class="collapse icon-stack">
-                    <i class="icon-sign-blank text-gray" title="collapse all"></i>
-                    <i class="icon-collapse-top" title="collapse all"></i>
-                </span>
-                <span ng-click="setGlobalCollapsedState(false)" class="expand icon-stack">
-                    <i class="icon-sign-blank text-gray" title="expand all"></i>
-                    <i class="icon-collapse" title="expand all"></i>
-                </span>
+            <div id="expandCollapseMain" class="expandCollapse" ng-show="view=='interfaces'">
+                <a ng-click="setGlobalCollapsedState(false)">expand</a>&nbsp;/&nbsp;<a ng-click="setGlobalCollapsedState(true)">collapse</a>&nbsp;all
             </div>
 
             <div id="intro" ng-show="view=='interfaces'"></div>
@@ -268,7 +254,6 @@
             <li ng-repeat="interface in interfaces | orderBy:['url', interfaceHttpOrderFunction]">
 
                 <div ng-click="interface.collapsed = !interface.collapsed" style="cursor: pointer;" set-id="interface.hash">
-                    <i class="icon-bookmark methodIcon"></i>
                     <h3 class="methodTitle"
                         set-class="deprecated : interface.deprecated, valueMissing : ! interface.title"
                         set-html="interface.title || 'title missing'">
@@ -276,15 +261,17 @@
                 </div>
 
                 <div ng-show="!interface.collapsed">
-                <div>
-                    <div class="tag" ng-repeat="tag in interface.tags | arraySort" ng-class="{tagSelected: isServiceTagSelected(tag)}">
-                        <i class="icon-circle" style="color: #eee; text-shadow: 0 0 -1px rgba(0,0,0,0.3);"></i>
-                        <span set-text="'&nbsp;' + tag"></span>
+                    <div>
+                        <div class="tag" ng-repeat="tag in interface.tags | arraySort"
+                             ng-class="{tagSelected: isServiceTagSelected(tag)}">
+                            <i class="icon-circle" style="color: #eee; text-shadow: 0 0 -1px rgba(0,0,0,0.3);"></i>
+                            <span set-text="'&nbsp;' + tag"></span>
+                        </div>
                     </div>
-                </div>
 
-                <p class="methodDescription" set-if="interface.deprecated"><b>Deprecated.</b></p>
-                <p class="methodDescription" set-html="interface.beschrijving"></p>
+                    <p class="methodDescription" set-if="interface.deprecated"><b>Deprecated.</b></p>
+
+                    <p class="methodDescription" set-html="interface.beschrijving"></p>
                 </div>
 
                 <div class="methodCall" set-class='interface.http'>
@@ -293,6 +280,7 @@
                           ng-show="editingBaseUrl == false"
                           ng-click="editingBaseUrl = true; baseUrl = $storage.baseUrl">{{$storage.baseUrl || ' '}}</span><!--
                  --><input
+                        class="baseUrlInput"
                         ng-model="baseUrl"
                         ng-show="editingBaseUrl == true"
                         focus-when="editingBaseUrl == true"
@@ -303,123 +291,139 @@
                 </div>
 
                 <div ng-show="!interface.collapsed">
-                <div ng-repeat="inputType in ['PATH', 'QUERY', 'MATRIX', 'FORM', 'COOKIE', 'HEADER']">
-                    <div set-if="interface.inputs[inputType].length > 0">
-                        <h4 set-text="(inputType | capitaliseFirstLetter) + ' Parameters'"></h4>
+                    <div ng-repeat="inputType in ['PATH', 'QUERY', 'MATRIX', 'FORM', 'COOKIE', 'HEADER']">
+                        <div set-if="interface.inputs[inputType].length > 0">
+                            <h4 set-text="(inputType | capitaliseFirstLetter) + ' Parameters'"></h4>
 
-                        <table class="methodParams">
-                            <tr ng-repeat="input in interface.inputs[inputType]">
-                                <td>
-                                <span class="parameterContainer">
-                                    <span class="parameterName" set-text="input.name"></span>
-                                    <span class="parameterTypeAndValue">
-                                        <span class="parameterType" set-text="formatTypeValue(input.typeValue)"></span>
-                                        <span class="parameterDefaultValue" set-html="formatDefaultValue(input.typeValue, input.defaultValue)"></span>
+                            <table class="methodParams">
+                                <tr ng-repeat="input in interface.inputs[inputType]">
+                                    <td>
+                                    <span class="parameterContainer">
+                                        <span class="parameterName" set-text="input.name"></span>
+                                        <span class="parameterTypeAndValue">
+                                            <span class="parameterType"
+                                                  set-text="formatTypeValue(input.typeValue)"></span>
+                                            <span class="parameterDefaultValue"
+                                                  set-html="formatDefaultValue(input.typeValue, input.defaultValue)"></span>
+                                        </span>
                                     </span>
-                                </span>
 
+                                    </td>
+                                    <td>
+                                        <div set-class="valueMissing : !input.comment"
+                                             set-html="input.comment || 'comment missing'"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div set-if="interface.inputs.BODY.length > 0">
+
+                        <h4>Body</h4>
+
+                        <div class="returnsBodyContainer">
+                            <p class="methodDescription"
+                               set-class="valueMissing : !interface.inputs.BODY[0].comment"
+                               set-html="interface.inputs.BODY[0].comment || 'comment missing'">
+                            </p>
+
+                            <div class="headerContainer">
+                                <span class="headerName">Accept:</span>
+
+                                <div class="mediaTypeContainer">
+                                    <div class="mediaType">
+                                        <span set-if="interface.consumes.length > 0"
+                                              set-text="interface.consumes"></span>
+                                        <span set-if="interface.consumes.length == 0">no type</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div set-if="interface.compressed" class="gzip"></div>
+
+                            <div class="typeValueContainer">
+                                <div set-if="interface.inputs.BODY[0].typeValue.type == 'simple'
+                                          || interface.inputs.BODY[0].typeValue.type == 'enum'">
+                                    <span class="parameterType"
+                                          set-text="formatTypeValue(interface.inputs.BODY[0].typeValue)">
+                                    </span>
+                                    <span class="parameterDefaultValue"
+                                          set-html="formatDefaultValue(interface.inputs.BODY[0].typeValue)"></span>
+                                </div>
+                                <div set-if="!(interface.inputs.BODY[0].typeValue.type == 'simple'
+                                          || interface.inputs.BODY[0].typeValue.type == 'enum')">
+                                    <json-to to="interface.inputs.BODY[0].typeValue" json-doc-config="jsonDocConfig"
+                                             toggle-json-doc="toggleJsonDoc"></json-to>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div set-if="interface.output.typeValue != undefined" class="returnsContainer">
+                        <h4>Returns</h4>
+
+                        <div class="returnsBodyContainer">
+
+                            <p class="methodDescription"
+                               set-class="valueMissing : !interface.output.comment"
+                               set-html="interface.output.comment || 'comment missing'">
+                            </p>
+
+                            <div class="headerContainer">
+                                <span class="headerName">Content-Type:</span>
+
+                                <div class="mediaTypeContainer">
+                                    <div class="mediaType">
+                                        <span set-if="interface.produces.length > 0"
+                                              set-text="interface.produces"></span>
+                                        <span set-if="interface.produces.length == 0">no type</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div set-if="interface.compressed" class="gzip"></div>
+
+                            <div class="typeValueContainer">
+                                <div set-if="interface.output.typeValue.type == 'simple'
+                                          || interface.output.typeValue.type == 'enum'">
+                                    <span class="parameterType"
+                                          set-text="formatTypeValue(interface.output.typeValue)">
+                                    </span>
+                                    <span class="parameterDefaultValue"
+                                          set-html="formatDefaultValue(interface.output.typeValue)"></span>
+                                </div>
+                                <div set-if="!(interface.output.typeValue.type == 'simple'
+                                          || interface.output.typeValue.type == 'enum')">
+                                    <json-to to="interface.output.typeValue" json-doc-config="jsonDocConfig"
+                                             toggle-json-doc="toggleJsonDoc"></json-to>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div set-if="interface.statusCodes.length > 0" class="statusCodeContainer">
+                        <h4>Status codes</h4>
+
+                        <table class="statusCodes">
+                            <tr ng-repeat="statusCode in interface.statusCodes">
+                                <td>
+                                    <span class="parameterContainer" set-if="statusCode.httpCode">
+                                        <span class="parameterName" set-text="statusCode.httpCode"></span>
+                                    </span>
                                 </td>
                                 <td>
-                                    <div set-class="valueMissing : !input.comment"
-                                         set-html="input.comment || 'comment missing'"></div>
+                                    <span class="statusCodeComment"
+                                          set-class="valueMissing : !statusCode.comment"
+                                          set-html="statusCode.comment || 'comment missing'"></span>
                                 </td>
                             </tr>
                         </table>
                     </div>
+
+                    <hr class="interfaceSeparator"/>
                 </div>
 
-                <div set-if="interface.inputs.BODY.length > 0">
-
-                    <h4>Body</h4>
-
-                    <div class="returnsBodyContainer">
-                        <p class="methodDescription"
-                           set-class="valueMissing : !interface.inputs.BODY[0].comment"
-                           set-html="interface.inputs.BODY[0].comment || 'comment missing'">
-                        </p>
-
-                        <div class="mediaTypeContainer">
-                            <div class="mediaType">
-                                <span set-if="interface.consumes.length > 0" set-text="interface.consumes"></span>
-                                <span set-if="interface.consumes.length == 0">no type</span>
-                            </div>
-                        </div>
-                        <div set-if="interface.compressed" class="gzip"></div>
-
-                        <div class="typeValueContainer">
-                            <div set-if="interface.inputs.BODY[0].typeValue.type == 'simple'
-                                      || interface.inputs.BODY[0].typeValue.type == 'enum'">
-                                <span class="parameterType"
-                                      set-text="formatTypeValue(interface.inputs.BODY[0].typeValue)">
-                                </span>
-                                <span class="parameterDefaultValue"
-                                      set-html="formatDefaultValue(interface.inputs.BODY[0].typeValue)"></span>
-                            </div>
-                            <div set-if="!(interface.inputs.BODY[0].typeValue.type == 'simple'
-                                      || interface.inputs.BODY[0].typeValue.type == 'enum')">
-                                <json-to to="interface.inputs.BODY[0].typeValue" json-doc-config="jsonDocConfig"
-                                        toggle-json-doc="toggleJsonDoc"></json-to>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div set-if="interface.output.typeValue != undefined" class="returnsContainer">
-                    <h4>Returns</h4>
-
-                    <div class="returnsBodyContainer">
-
-                        <p class="methodDescription"
-                           set-class="valueMissing : !interface.output.comment"
-                           set-html="interface.output.comment || 'comment missing'">
-                        </p>
-
-                        <div class="mediaTypeContainer">
-                            <div class="mediaType">
-                                <span set-if="interface.produces.length > 0" set-text="interface.produces"></span>
-                                <span set-if="interface.produces.length == 0">no type</span>
-                            </div>
-                        </div>
-                        <div set-if="interface.compressed" class="gzip"></div>
-
-                        <div class="typeValueContainer">
-                            <div set-if="interface.output.typeValue.type == 'simple'
-                                      || interface.output.typeValue.type == 'enum'">
-                                <span class="parameterType"
-                                      set-text="formatTypeValue(interface.output.typeValue)">
-                                </span>
-                                <span class="parameterDefaultValue"
-                                      set-html="formatDefaultValue(interface.output.typeValue)"></span>
-                            </div>
-                            <div set-if="!(interface.output.typeValue.type == 'simple'
-                                      || interface.output.typeValue.type == 'enum')">
-                                <json-to to="interface.output.typeValue" json-doc-config="jsonDocConfig"
-                                        toggle-json-doc="toggleJsonDoc"></json-to>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div set-if="interface.statusCodes.length > 0" class="statusCodeContainer">
-                    <h4>Status codes</h4>
-
-                    <table class="statusCodes">
-                        <tr ng-repeat="statusCode in interface.statusCodes">
-                            <td>
-                                <span class="parameterContainer" set-if="statusCode.httpCode">
-                                    <span class="parameterName" set-text="statusCode.httpCode"></span>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="statusCodeComment"
-                                      set-class="valueMissing : !statusCode.comment"
-                                      set-html="statusCode.comment || 'comment missing'"></span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <hr class="interfaceSeparator"/>
+                <div ng-show="interface.collapsed">
+                    <hr class="interfaceSeparator" style="margin-top: 10px; margin-bottom: 10px; border-color: #eee;"/>
                 </div>
             </li>
         </ul>

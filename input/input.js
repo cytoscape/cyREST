@@ -1,6 +1,8 @@
 var com = { qmino : { miredot : {}}};
-com.qmino.miredot.restApiSource = {"licenceType":"FREE","projectVersion":"1.0.0-beta","allowUsageTracking":true,"jsonDocHidden":true,"licenceHash":"96920848577151415","licenceErrorMessage":null,"miredotVersion":"1.4.1","validLicence":true,"projectTitle":"RESTful API for Cytoscape v1","projectName":"cyREST: RESTful API module for Cytoscape (org.cytoscape.rest.cy-rest)","dateOfGeneration":"2014-10-13 16:08:08","jsonDocEnabled":false};
+com.qmino.miredot.restApiSource = {"licenceType":"FREE","projectVersion":"1.0.0-beta","allowUsageTracking":true,"jsonDocHidden":true,"licenceHash":"96920848577151415","licenceErrorMessage":null,"miredotVersion":"1.5","buildSystem":"maven 3","validLicence":true,"projectTitle":"RESTful API for Cytoscape v1","projectName":"cyREST: RESTful API module for Cytoscape (org.cytoscape.rest.cy-rest)","dateOfGeneration":"2014-10-14 17:33:09","jsonDocEnabled":false};
 com.qmino.miredot.restApiSource.tos = {
+	org_cytoscape_rest_internal_model_NetworkData_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_NetworkData_in", "content": [] },
+	org_cytoscape_rest_internal_model_NetworkData_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_NetworkData_out", "content": [] },
 	org_cytoscape_rest_internal_model_EdgeData_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_EdgeData_in", "content": [] },
 	org_cytoscape_rest_internal_model_EdgeData_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_EdgeData_out", "content": [] },
 	org_cytoscape_rest_internal_model_Node_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Node_in", "content": [] },
@@ -11,38 +13,54 @@ com.qmino.miredot.restApiSource.tos = {
 	org_cytoscape_rest_internal_model_ServerStatus_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_ServerStatus_out", "content": [] },
 	org_cytoscape_rest_internal_model_Edge_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Edge_in", "content": [] },
 	org_cytoscape_rest_internal_model_Edge_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Edge_out", "content": [] },
+	org_cytoscape_rest_internal_model_CyJsNetwork_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_CyJsNetwork_in", "content": [] },
+	org_cytoscape_rest_internal_model_CyJsNetwork_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_CyJsNetwork_out", "content": [] },
 	org_cytoscape_rest_internal_model_MemoryStatus_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_MemoryStatus_in", "content": [] },
 	org_cytoscape_rest_internal_model_MemoryStatus_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_MemoryStatus_out", "content": [] },
 	org_cytoscape_rest_internal_model_NodeData_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_NodeData_in", "content": [] },
-	org_cytoscape_rest_internal_model_NodeData_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_NodeData_out", "content": [] }
+	org_cytoscape_rest_internal_model_NodeData_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_NodeData_out", "content": [] },
+	org_cytoscape_rest_internal_model_Elements_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_in", "content": [] },
+	org_cytoscape_rest_internal_model_Elements_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_out", "content": [] }
 };
 
 com.qmino.miredot.restApiSource.enums = {
 
 };
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_in"].content = [ 
+
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_in"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_in"].comment = null;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_out"].content = [ 
+
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_out"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"].content = [ 
 	{
-		"name": "source",
+		"name": "target",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }
 	},
 	{
-		"name": "target",
+		"name": "source",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"].content = [ 
 	{
-		"name": "source",
+		"name": "target",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }
 	},
 	{
-		"name": "target",
+		"name": "source",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"].content = [ 
 	{
@@ -50,6 +68,7 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"]
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"].content = [ 
 	{
@@ -57,10 +76,12 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_in"].content = [ 
 
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"].content = [ 
 	{
@@ -73,6 +94,7 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Cytoscape
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].content = [ 
 	{
@@ -81,15 +103,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerSta
 		"typeValue": { "type": "simple", "typeValue": "string" }
 	},
 	{
-		"name": "memoryStatus",
-		"comment": null,
-		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"]
-	},
-	{
 		"name": "numberOfCores",
 		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "number" }}
+		"typeValue": { "type": "simple", "typeValue": "number" }
+	},
+	{
+		"name": "memoryStatus",
+		"comment": null,
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].content = [ 
 	{
@@ -98,15 +121,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerSta
 		"typeValue": { "type": "simple", "typeValue": "string" }
 	},
 	{
-		"name": "memoryStatus",
-		"comment": null,
-		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"]
-	},
-	{
 		"name": "numberOfCores",
 		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "number" }}
+		"typeValue": { "type": "simple", "typeValue": "number" }
+	},
+	{
+		"name": "memoryStatus",
+		"comment": null,
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"].content = [ 
 	{
@@ -114,6 +138,7 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"]
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"].content = [ 
 	{
@@ -121,14 +146,42 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"]}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"].comment = null;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_in"].content = [ 
+	{
+		"name": "data",
+		"comment": null,
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_in"]}
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_in"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_in"].comment = null;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"].content = [ 
+	{
+		"name": "elements",
+		"comment": null,
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"]
+	},
+	{
+		"name": "data",
+		"comment": null,
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_out"]}
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"].content = [ 
 
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].content = [ 
 	{
 		"name": "usedMemory",
+		"comment": null,
+		"typeValue": { "type": "simple", "typeValue": "number" }
+	},
+	{
+		"name": "freeMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" }
 	},
@@ -140,13 +193,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemorySta
 	{
 		"name": "maxMemory",
 		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "number" }
-	},
-	{
-		"name": "freeMemory",
-		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"].content = [ 
 	{
@@ -154,6 +203,7 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"].content = [ 
 	{
@@ -161,8 +211,95 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" }}
 ];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"].comment = null;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].content = [ 
+	{
+		"name": "edges",
+		"comment": null,
+		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"] }
+	},
+	{
+		"name": "nodes",
+		"comment": null,
+		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"] }}
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].comment = null;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"].content = [ 
+	{
+		"name": "edges",
+		"comment": null,
+		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"] }
+	},
+	{
+		"name": "nodes",
+		"comment": null,
+		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"] }}
+];
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"].ordered = false;
+com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"].comment = null;
 com.qmino.miredot.restApiSource.interfaces = [
+	{
+		"beschrijving": "Create a new Visual Mapping from JSON and add it to the Style.",
+		"url": "/v1/styles/{name}/mappings",
+		"http": "POST",
+		"title": "Add a new Visual Mapping",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-533871140",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}/defaults/{vp}",
+		"http": "GET",
+		"title": "Get a default value for the Visual Property",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Default value for the Visual Property"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "978939159",
+		"inputs": {
+                "PATH": [
+                    {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of Visual Style", "jaxrs": "PATH"},
+                    {"name": "vp", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Unique ID of the Visual Property. This should be the unique ID of the VP.", "jaxrs": "PATH"}
+                ],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
 	{
 		"beschrijving": "List of all available layout algorithm names. This <strong>does not include yFiles</strong> algorithms due to license issues.",
 		"url": "/v1/apply/layouts",
@@ -279,6 +416,63 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/{name}",
+		"http": "PUT",
+		"title": "Update name of a Visual Style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1238918577",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Original name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "This returns JSON version of Visual Style object with full details. Format is simple: <pre>\n {\n        \"title\": (name of this Visual Style),\n        \"defaults\": [ default values ],\n        \"mappings\": [ Mappings ]\n }\n </pre> Essentially, this is a JSON version of the Visual Style XML file.",
+		"url": "/v1/styles/{name}",
+		"http": "GET",
+		"title": "Get a Visual Style with full details",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Style in Cytoscape JSON format"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-727286072",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/groups/",
 		"http": "DELETE",
 		"title": "Delete all groups in the network",
@@ -366,6 +560,34 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/{name}/mappings",
+		"http": "GET",
+		"title": "Get all Visual Mappings for the Visual Style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all Visual Mappings."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1435114727",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/groups/{groupNodeId}/collapse",
 		"http": "GET",
 		"title": "Collapse group nodes",
@@ -387,6 +609,34 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
                     {"name": "groupNodeId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Group node SUID", "jaxrs": "PATH"}
                 ],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/count",
+		"http": "GET",
+		"title": "Get number of Visual Styles",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of Visual Styles available in current session."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1653011134",
+		"inputs": {
+                "PATH": [],
                 "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
@@ -453,6 +703,34 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/",
+		"http": "GET",
+		"title": "Get list of Visual Style titles",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of Visual Style titles."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "646055412",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/nodes/{nodeId}/adjEdges",
 		"http": "GET",
 		"title": "Get adjacent edges for a node",
@@ -473,6 +751,65 @@ com.qmino.miredot.restApiSource.interfaces = [
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
                     {"name": "nodeId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target node SUID", "jaxrs": "PATH"}
+                ],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}.json",
+		"http": "GET",
+		"title": "Get a Visual Style in Cytoscape.js CSS format.",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Style in Cytoscape.js CSS format. This is always in an array."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1467604967",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}/mappings/{vp}",
+		"http": "GET",
+		"title": "Get a Visual Mapping associated with the Visual Property",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Mapping assigned to the Visual Property"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1738123557",
+		"inputs": {
+                "PATH": [
+                    {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"},
+                    {"name": "vp", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Unique ID of the Visual Property. This should be the unique ID of the VP.", "jaxrs": "PATH"}
                 ],
                 "QUERY": [],
                 "BODY": [],
@@ -607,34 +944,6 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "This returns a view for the network.",
-		"url": "/v1/networks/{networkId}/views/first",
-		"http": "GET",
-		"title": "Convenience method to get the first view object.",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["application/json"],
-		"roles": [],
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": ""},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "-1601429362",
-		"inputs": {
-                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
-                "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
 		"beschrijving": "To use this API, you need to know SUID of the CyNetworkView, in addition to CyNetwork SUID.",
 		"url": "/v1/networks/{networkId}/views/{viewId}",
 		"http": "GET",
@@ -657,6 +966,34 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
                     {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network View SUID", "jaxrs": "PATH"}
                 ],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "This returns a view for the network.",
+		"url": "/v1/networks/{networkId}/views/first",
+		"http": "GET",
+		"title": "Convenience method to get the first view object.",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": ""},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1601429362",
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
@@ -934,7 +1271,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"beschrijving": "",
 		"url": "/v1/session/name",
 		"http": "GET",
-		"title": null,
+		"title": "Get current session name",
 		"tags": [],
 		"authors": [],
 		"compressed": false,
@@ -942,7 +1279,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Current session name"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
@@ -1166,6 +1503,34 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
+		"beschrijving": "This get method save the current session into a local file system. Make sure you have a write permission to the directory.",
+		"url": "/v1/session/",
+		"http": "GET",
+		"title": "Save session to a local file",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file name as string"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-753481263",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [{"name": "file", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "File name as (should be absolute path)", "jaxrs": "QUERY"}],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
 		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/tables/{tableType}.csv",
 		"http": "GET",
@@ -1256,6 +1621,34 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/{name}",
+		"http": "DELETE",
+		"title": "Delete a Visual Style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1398070574",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/edges/{edgeId}/isDirected",
 		"http": "GET",
 		"title": "Get edge directionality",
@@ -1278,6 +1671,66 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "edgeId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target edge SUID", "jaxrs": "PATH"}
                 ],
                 "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "Returns full list of network data as a JSON array. JSON is in <a href=\"http://cytoscape.github.io/cytoscape.js/\">Cytoscape.js</a> format. If no query parameter is given, returns all networks in current session.",
+		"url": "/v1/networks.json/",
+		"http": "GET",
+		"title": "Get networks in Cytoscape.js JSON format",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json; charset=UTF-8"],
+		"roles": [],
+		"output": {"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"] }, "comment": "Matched networks in Cytoscape.js JSON. If no query is given, all networks."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-116750400",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [
+                    {"name": "column", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Network table column name to be used for search.", "jaxrs": "QUERY"},
+                    {"name": "query", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Search query.", "jaxrs": "QUERY"}
+                ],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/session/",
+		"http": "POST",
+		"title": "Create a session from a CYS file",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file name loaded to the current instance of Cytoscape"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1896834407",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [{"name": "file", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file location (should be absolute path)", "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -1651,6 +2104,37 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}/mappings/{vpName}",
+		"http": "DELETE",
+		"title": "Delete a Visual Mapping from a Visual Style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1305510572",
+		"inputs": {
+                "PATH": [
+                    {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"},
+                    {"name": "vpName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Property name associated with the mapping", "jaxrs": "PATH"}
+                ],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
 		"beschrijving": "Run System.gc(). In general, this is not necessary.",
 		"url": "/v1/gc",
 		"http": "GET",
@@ -1739,6 +2223,35 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/",
+		"http": "POST",
+		"title": "Create a new Visual Style from JSON.",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Title of the new Visual Style."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-844810990",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/tables/{tableType}/columns/{columnName}",
 		"http": "GET",
 		"title": "Get all values in the column",
@@ -1801,6 +2314,34 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
+		"beschrijving": "",
+		"url": "/v1/session/",
+		"http": "DELETE",
+		"title": "Delete current session and start new one",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Success message"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1845618931",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
 		"beschrijving": "Create new, empty column in an assigned table. This accepts the following object OR allay of this objects: <pre>\n                {\n                        \"name\":\"COLUMN NAME\",\n                        \"type\":\"data type, Double, String, Boolean, Long, Integer\",\n                        \"immutable\": \"Optional: boolean value to specify immutable or not\",\n                        \"list\": \"Optional.  If true, return create List column for the given type.\"\n                }\n </pre>",
 		"url": "/v1/networks/{networkId}/tables/{tableType}/columns",
 		"http": "POST",
@@ -1826,6 +2367,62 @@ com.qmino.miredot.restApiSource.interfaces = [
                 ],
                 "QUERY": [],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}/defaults",
+		"http": "GET",
+		"title": "Get all default values for the Visual Style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all default values"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-541289516",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}",
+		"http": "GET",
+		"title": "Get a network in Cytoscape.js format",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json;charset=utf-8"],
+		"roles": [],
+		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"], "comment": "Network with all associated tables in Cytoscape.js format."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "839244670",
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -1952,6 +2549,34 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/styles/",
+		"http": "DELETE",
+		"title": "Delete all Visual Styles except default style",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1940190049",
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/edges",
 		"http": "GET",
 		"title": "Get matching edges",
@@ -1975,6 +2600,35 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "query", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Search query.", "jaxrs": "QUERY"}
                 ],
                 "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/styles/{name}/defaults",
+		"http": "PUT",
+		"title": "Update a default value for the Visual Property",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"output": {},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "774617109",
+		"inputs": {
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2103,6 +2757,34 @@ com.qmino.miredot.restApiSource.interfaces = [
 	}];
 com.qmino.miredot.projectWarnings = [
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -2152,6 +2834,13 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -2161,6 +2850,97 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -2280,6 +3060,13 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -2306,13 +3093,6 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -2453,22 +3233,8 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_SUMMARY",
-		"description": "Missing summary tag",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing return type documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -2572,6 +3338,13 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -2609,6 +3382,48 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
 		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -2796,6 +3611,20 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -2805,6 +3634,41 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -2943,6 +3807,76 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_CONSUMES",
+		"description": "Interface specifies a JAXRS-BODY parameter, but does not specify a Consumes value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -2985,165 +3919,5 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	}];
 com.qmino.miredot.processErrors  = [
-	{
-		"class": "org.cytoscape.rest.internal.datamapper.VisualStyleMapper",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualMappingFunction",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.MappingFactoryManager",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualMappingFunctionFactory",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.NetworkFullResource",
-		"method": "getNetworks",
-		"exception": "java.lang.NullPointerException",
-		"exceptionmessage": null,
-		"stacktrace": "com.qmino.miredot.model.objectmodel.TypeConstructionInfoContainer@TypeConstructionInfoContainer.java:274|com.qmino.miredot.model.objectmodel.TypeConstructionInfoContainer@TypeConstructionInfoContainer.java:243|com.qmino.miredot.model.objectmodel.JavaTypeFactory@JavaTypeFactory.java:44|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:213|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.NetworkResource",
-		"method": "getNetwork",
-		"exception": "java.lang.NullPointerException",
-		"exceptionmessage": null,
-		"stacktrace": "com.qmino.miredot.model.objectmodel.TypeConstructionInfoContainer@TypeConstructionInfoContainer.java:66|com.qmino.miredot.model.objectmodel.TypeConstructionInfoContainer@TypeConstructionInfoContainer.java:41|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:213|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getDefaultValue",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "updateStyleName",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getStyleNames",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getStylCount",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "deleteStyle",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "deleteAllStyles",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "deleteMapping",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getDefaults",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getMappings",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getMapping",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "updateDefaults",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getStyle",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "getStyleFull",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "createStyle",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.resource.StyleResource",
-		"method": "addMappings",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2002|com.qmino.miredot.construction.reflection.AnnotationHelper@AnnotationHelper.java:187|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:207|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:112|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.serializer.ContinuousMappingSerializer",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/mappings/ContinuousMapping",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.serializer.DiscreteMappingSerializer",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/mappings/DiscreteMapping",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.serializer.PassthroughMappingSerializer",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/mappings/PassthroughMapping",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	},
-	{
-		"class": "org.cytoscape.rest.internal.serializer.VisualStyleSerializer",
-		"method": "?",
-		"exception": "java.lang.NoClassDefFoundError",
-		"exceptionmessage": "org/cytoscape/view/vizmap/VisualStyle",
-		"stacktrace": "java.lang.Class@Class.java:-2|java.lang.Class@Class.java:2570|java.lang.Class@Class.java:2690|java.lang.Class@Class.java:1467|com.qmino.miredot.construction.reflection.RestInterfaceHandler@RestInterfaceHandler.java:96|com.qmino.miredot.construction.reflection.RestModelFactory@RestModelFactory.java:45|com.qmino.miredot.maven.Mojo@Mojo.java:168|org.apache.maven.plugin.DefaultBuildPluginManager@DefaultBuildPluginManager.java:132|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:208|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:153|org.apache.maven.lifecycle.internal.MojoExecutor@MojoExecutor.java:145|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:116|org.apache.maven.lifecycle.internal.LifecycleModuleBuilder@LifecycleModuleBuilder.java:80|org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder@SingleThreadedBuilder.java:51|org.apache.maven.lifecycle.internal.LifecycleStarter@LifecycleStarter.java:120|org.apache.maven.DefaultMaven@DefaultMaven.java:347|org.apache.maven.DefaultMaven@DefaultMaven.java:154|org.apache.maven.cli.MavenCli@MavenCli.java:582|org.apache.maven.cli.MavenCli@MavenCli.java:214|org.apache.maven.cli.MavenCli@MavenCli.java:158|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:-2|sun.reflect.NativeMethodAccessorImpl@NativeMethodAccessorImpl.java:57|sun.reflect.DelegatingMethodAccessorImpl@DelegatingMethodAccessorImpl.java:43|java.lang.reflect.Method@Method.java:606|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:289|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:229|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:415|org.codehaus.plexus.classworlds.launcher.Launcher@Launcher.java:356|"
-	}];
+];
 

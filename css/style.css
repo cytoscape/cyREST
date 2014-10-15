@@ -1,6 +1,6 @@
 body {
     font-family: Open Sans, sans-serif;
-    background: #f8f8f8;
+    background: #fcfcfc;
     font-size: 16px;
 }
 
@@ -48,8 +48,10 @@ body, html, #content {
 }
 
 .httpMethodSearchResult {
-    width: 43px;
+    min-width: 52px;
     display: inline-block;
+    text-align: right;
+    margin-right: 4px;
 }
 
 .httpMethodSearchResult span {
@@ -114,34 +116,38 @@ body, html, #content {
     margin-left: 10px;
 }
 
-.expandCollapse {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: -moz-none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.expandCollapse span.icon-stack {
-    width: 1em;
-    font-size: 18px;
-}
-
-#expandCollapse {
+#expandCollapseMain {
     position: fixed;
-    right: 400px;
+    margin-top: 4px;
+    right: 371px;
     z-index: 4;
-    cursor: pointer;
+    background: #fcfcfc;
+    padding: 0 4px;
 }
 
 #expandCollapseTree {
     position: fixed;
-    right: 20px;
+    margin-top: 4px;
+    right: 21px;
     z-index: 4;
+    background: #fff;
+}
+
+.expandCollapse {
+    color: #888;
+    font-weight: 100;
+    font-size: 12px;
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+.expandCollapse a {
+    color: #888;
+}
+
+.expandCollapse a:hover {
+    text-decoration: underline;
     cursor: pointer;
-    /*top: 45px;*/
-    /*float: right;*/
 }
 
 .text-gray {
@@ -173,17 +179,20 @@ i.licenceIcon {
 }
 
 h3 {
-    color: #0077ed;
-    font-family: "Droid Sans", serif;
-    font-size: 1.4em;
-    font-weight: 400;
+    color: #333;
+    font-family: 'Open sans', sans-serif;
+    font-size: 1.3em;
+    font-weight: 300;
+    text-transform: uppercase;
 }
 
 h4 {
-    color: #00b2ed;
-    font-family: "Droid Sans", serif;
+    color: #009ace;
+    font-family: "Open Sans", sans-serif;
     font-size: 18px;
-    font-weight: 400;
+    font-weight: 100;
+    margin-bottom: 15px;
+    margin-top: 25px;
 }
 
 .tag {
@@ -213,96 +222,165 @@ h4 {
 
 p.methodDescription {
     font-size: 80%;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     /*text-align: justify;*/
 }
 
 .methodCall {
     font-family: "Droid Sans Mono", monospace;
     font-size: 15px;
-    border: 1px solid #aaa;
+    border: 1px solid #ddd;
     padding: 15px 10px;
-    border-radius: 4px;
     overflow-x: auto;
     background: #f4f4f4;
     line-height: 2;
+    margin-left: -37px;
+    margin-right: -30px;
+    padding-left: 37px;
+    border-left: none;
+    border-right: none;
+    margin-bottom: 20px;
 }
 
 .methodBaseUrl {
     color: #888;
+    padding: 2px;
+}
+
+.methodBaseUrl:hover {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 1px;
 }
 
 .httpMethod {
     padding: 0 4px;
     line-height: 1.4em;
-    border-radius: 4px;
+    border-radius: 3px;
     color: #fff;
-    text-shadow: 0 1px 4px #592d00;
     margin-right: 4px;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.3) inset;
-    border-bottom: 2px solid;
     display: inline-block;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .httpMethod.small {
     border-radius: 2px;
     line-height: 1.4em;
     border: none;
-    opacity: 0.8;
     padding: 0 2px;
-    text-shadow: 0 1px 1px #592d00;
-    font-weight: 100;
+    font-weight: 200;
+    box-shadow: none;
+}
+
+.httpMethod.small {
+    color: #fff;
+    background: transparent;
+    border: 1px solid;
+    text-shadow: none;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.httpMethod:hover {
+    color: #fff;
+    text-decoration: none;
 }
 
 .httpMethod.GET {
     background: #61c000;
-    border-bottom-color: #77ed00;
+}
+
+.httpMethod.small.GET {
+    background-color: transparent;
+    border-color: #c0e69a;
+    color: #4f9c00;
+}
+
+.httpMethod.small.GET:hover {
+    background: #61c000;
+    color: white;
 }
 
 .httpMethod.GET.httpMethodSelection:hover {
     background: #61c000;
-    border-bottom-color: #77ed00;
 }
 
 .httpMethod.HEAD {
     background: #cccc00;
-    border-bottom-color: #cccc00;
+}
+
+.httpMethod.small.HEAD {
+    background-color: transparent;
+    border-color: #ebeb9a;
+    color: #a6a600;
+}
+
+.httpMethod.small.HEAD:hover {
+    background: #cccc00;
+    color: white;
 }
 
 .httpMethod.HEAD.httpMethodSelection:hover {
     background: #cccc00;
-    border-bottom-color: #cccc00;
 }
 
 .httpMethod.POST {
     background: #003bed;
-    border-bottom-color: #9ab1f8;
+}
+
+.httpMethod.small.POST {
+    background-color: transparent;
+    border-color: #9ab1f8;
+    color: #0030c0;
+}
+
+.httpMethod.small.POST:hover {
+    background: #003bed;
+    color: white;
 }
 
 .httpMethod.POST.httpMethodSelection:hover {
     background: #003bed;
-    border-bottom-color: #9ab1f8;
 }
 
 .httpMethod.PUT {
     background: #00b2ed;
-    border-bottom-color: #9ae0f8;
+}
+
+.httpMethod.small.PUT {
+    background-color: transparent;
+    border-color: #9ae0f8;
+    color: #0090c0;
+}
+
+.httpMethod.small.PUT:hover {
+    background: #00b2ed;
+    color: white;
 }
 
 .httpMethod.PUT.httpMethodSelection:hover {
     background: #00b2ed;
-    border-bottom-color: #9ae0f8;
 }
 
 .httpMethod.DELETE {
     background: #ed3b00;
-    border-bottom-color: #f8b29a;
+}
+
+
+.httpMethod.small.DELETE {
+    background-color: transparent;
+    border-color: #f8b19a;
+    color: #c03000;
+}
+
+.httpMethod.small.DELETE:hover {
+    background: #ed3b00;
+    color: white;
 }
 
 .httpMethod.DELETE.httpMethodSelection:hover {
     background: #ed3b00;
-    border-bottom-color: #f8b29a;
 }
 
 .httpMethod.httpMethodSelection {
@@ -317,32 +395,37 @@ p.methodDescription {
 
 .httpMethod.httpMethodSelection.disabled {
     background: #aaa;
-    border-bottom-color: #ccc;
 }
 
 .methodCall.GET {
     background: #e7fdf2;
+    border-color: #cde0d7;
 }
 
 .methodCall.HEAD {
     background: #FFFFC3;
+    border-color: #e2e2ad;
 }
 
 .methodCall.POST {
     background: #e7edfd;
+    border-color: #cdd2e0;
 }
 
 .methodCall.PUT {
     background: #e7f8fd;
+    border-color: #cddce0;
 }
 
 .methodCall.DELETE {
     background: #fdede7;
+    border-color: #e0d2cd;
 }
 
 .methodParams, .statusCodes {
     font-size: 90%;
-    margin-left: 10px;
+    margin-left: 0;
+    font-weight: 100;
 }
 
 .methodParams tr td {
@@ -351,7 +434,7 @@ p.methodDescription {
 }
 
 .returnsBodyContainer {
-    margin-left: 10px;
+    margin-left: 0;
 }
 
 .parameterContainer {
@@ -363,9 +446,9 @@ p.methodDescription {
 
 .parameterName {
     font-weight: 600;
-    font-size: 90%;
-    background: #eee;
+    font-size: inherit;
     padding: 2px 8px;
+    padding-left: 0;
     border-radius: 4px;
 }
 
@@ -374,21 +457,20 @@ p.methodDescription {
     position: relative;
     vertical-align: super;
     display: block;
-    margin-left: 8px;
     margin-top: -2px;
 }
 
 .parameterType {
     color: #777;
     font-weight: 100;
-    font-size: 80%;
+    font-size: inherit;
     font-style: italic;
     width: 5em;
     display: inline-block;
 }
 
 .propertyComment {
-    font-size: 80%;
+    font-size: inherit;
     vertical-align: text-bottom;
     display: inline;
     margin-left: 10px;
@@ -456,17 +538,22 @@ p.methodDescription {
     color: #ddd;
 }
 
+.headerContainer {
+    font-size: 12px;
+}
+
 .mediaType {
-    display: inline;
-    color: black;
-    padding: 2px 4px;
-    border-radius: 4px 4px;
-    border: 1px solid #aaa;
-    font-size: 70%;
+
 }
 
 .mediaTypeContainer {
     display: inline-block;
+    color: black;
+    border-radius: 3px 3px 0 0;
+    background: #e8e8e8;
+    font-weight: 400;
+    padding: 0 5px;
+    font-style: italic;
 }
 
 .gzip {
@@ -484,14 +571,24 @@ p.methodDescription {
 }
 
 .typeValueContainer {
-    margin: 10px 10px 20px 0;
+    margin: 0 10px 20px 0;
+    padding: 8px 6px;
     position: relative;
-    border: 1px solid #aaa;
+    border: 1px solid #e8e8e8;
     border-radius: 4px;
-    background: #f2f2f2;
-    padding: 0.3em 0.5em 0.3em;
-    font-family: "Droid Sans Mono", monospace;
+    background: #f8f8f8;
+    font-family: Consolas, 'Liberation Mono', Courier, monospace;
     overflow-x: auto;
+    line-height: 18px;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+}
+
+/* Override bootstrap css */
+.typeValueContainer .btn {
+    font-size: 14px;
 }
 
 .searchMathContainer {
@@ -523,16 +620,11 @@ p.methodDescription {
 hr {
     clear: both;
     float: none;
-    width: 100%;
     height: 1px;
-    margin-top: 10px;
-    margin-bottom: 10px;
     border: none;
-    background-image: -webkit-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
-    background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
-    background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
-    background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid #ccc;
+    margin-left: -35px;
+    margin-right: -25px;
 }
 
 hr.interfaceSeparator {
@@ -555,19 +647,21 @@ span.ui-match {
 
 ul.toContainer {
     list-style-type:none;
+    margin-left: 14px;
 }
 
 .toContainer .parameterName {
-    font-size: 90%;
     padding: 0 4px;
-    vertical-align: top;
+    vertical-align: baseline;
     background: none;
+    display: inline;
+    font-weight: 100;
 }
 
 .toContainer .parameterType {
+    font-size: inherit;
     font-weight: 100;
-    font-size: 90%;
-    vertical-align: bottom;
+    vertical-align: baseline;
     display: inline;
     margin-left: 4px;
     font-style: italic;
@@ -575,8 +669,7 @@ ul.toContainer {
 }
 
 .toContainer .propertyComment {
-    font-size: 80%;
-    vertical-align: text-bottom;
+    vertical-align: baseline;
     display: inline;
     margin-left: 10px;
 }
@@ -609,7 +702,7 @@ ul.toContainer {
     -ms-user-select: none;
     user-select: none;
     font-size: 12px;
-    color: #888;
+    color: #aaa;
     font-family: 'Open Sans', sans-serif;
     font-weight: 100;
 }
@@ -650,6 +743,7 @@ ul.toContainer {
     width: 100%;
     display: inline-block;
     line-height: 1.1em;
+    text-transform: none;
 }
 
 .warningsList > li {
@@ -696,15 +790,14 @@ ul.toContainer {
 }
 
 .parameterType .btn-group {
-    font-family: "Droid Sans Mono", monospace;
-    font-size: 90%;
+    font-family: inherit;
     line-height: normal;
-    vertical-align: text-bottom;
     max-width: 95%; /*wrapping*/
+    vertical-align: middle;
 }
 
 .parameterType .btn-group>.btn {
-    font-family: "Droid Sans Mono", monospace;
+    font-family: inherit;
     font-style: normal;
     line-height: normal;
     padding: 0 6px;
@@ -714,33 +807,37 @@ ul.toContainer {
     text-shadow: none;
     outline: 0;
     box-shadow: none;
-    background: #f2f2f2;
+    background: transparent;
+    border-color: #ddd;
     float: left; /*wrapping*/
+    color: #666;
 }
 
 .parameterType .btn-group>.btn:before {
-    content: open-quote;
+    content: '\0022';
+    font-size: 90%;
 }
 
 .parameterType .btn-group>.btn:after {
-    content: close-quote;
+    content: '\0022';
+    font-size: 90%;
 }
 
 .parameterType .btn-group>.btn:hover {
-    border-color: #444;
-    background-color: #ddd;
+    border-color: #ddd;
+    background-color: #eee;
+    color: #005580;
 }
 
-
 .parameterType .btn-group>.btn.active {
-    background: #777; /* #00b2ed; */
-    color: white;
-    border-color: #444;
+    border-color: #ddd;
+    background-color: #ddd;
+    color: #007da7;
 }
 
 .parameterType .btn-group>.btn:active {
-    border-color: #444;
-    background-color: #bbb;
+    border-color: #ddd;
+    background-color: #ddd;
 }
 
 .parameterType .btn-group>.btn:last-child {
@@ -762,8 +859,7 @@ ul.toContainer {
 }
 
 .subTypeSwitch .btn-group-vertical {
-    font-family: "Droid Sans Mono", monospace;
-    font-size: 90%;
+    font-family: inherit;
     line-height: normal;
     vertical-align: text-bottom;
     max-width: 95%;
@@ -783,7 +879,7 @@ ul.toContainer {
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn {
-    font-family: "Droid Sans Mono", monospace;
+    font-family: inherit;
     line-height: normal;
     padding: 0 6px;
     overflow: visible;
@@ -792,33 +888,38 @@ ul.toContainer {
     text-shadow: none;
     outline: 0;
     box-shadow: none;
-    background: #f2f2f2;
+    background: transparent;
+    border-color: #ddd;
     max-width: 100%;
+    text-align: left;
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn:before {
-    content: open-quote;
+    content: '\0022';
+    font-size: 90%;
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn:after {
-    content: close-quote;
+    content: '\0022';
+    font-size: 90%;
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn:hover {
-    border-color: #444;
-    background-color: #ddd;
+    border-color: #ddd;
+    background-color: #eee;
+    color: #005580;
 }
 
 
 .subTypeSwitch .btn-group-vertical>span>.btn.active {
-    background: #777;
-    color: white;
-    border-color: #444;
+    background: #ddd;
+    border-color: #ddd;
+    color: #007da7;
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn:active {
-    border-color: #444;
-    background-color: #bbb;
+    border-color: #ddd;
+    background-color: #ddd;
 }
 
 .subTypeSwitch .btn-group-vertical>span>.btn {
@@ -847,6 +948,7 @@ ul.toContainer {
 
 .parameterItem {
     white-space: nowrap;
+    line-height: 18px;
 }
 
 a.recursionLink {
@@ -856,4 +958,14 @@ a.recursionLink {
 a.recursionLink:hover {
     text-decoration: none;
     color: #0088cc;
+}
+
+input.baseUrlInput {
+    font-family: "Droid Sans Mono", monospace;
+    font-size: 15px;
+    outline: none;
+    vertical-align: baseline;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
 }

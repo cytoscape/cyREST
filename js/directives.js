@@ -20,7 +20,7 @@ angular.module('miredot.directives')
             var id = to.__md_id || to.__sub_id;
             var addHoverClass = 'onmouseover="$(\'#' + id + '\').addClass(\'highlightJsonRecursive\');"';
             var removeHoverClass = 'onmouseout="$(\'#' + id + '\').removeClass(\'highlightJsonRecursive\');"';
-            html += '<a href="#' + id + '_a" ' + addHoverClass + ' ' + removeHoverClass + ' class="recursionLink" target="_self">';
+            html += '<a href="#' + id + '_a" ' + addHoverClass + ' ' + removeHoverClass + ' class="recursionLink" target="_self" title="recursion">';
             html += '<i class="icon-retweet"></i>';
             html += '</a>';
             return html;
@@ -103,16 +103,7 @@ angular.module('miredot.directives')
                                 html += '<div id="' + to.__md_id + '">';
                                 html += '<span>{</span>';
                                 html += '<ul class="toContainer">';
-
-                                switch(to.type) {
-                                    case 'abstract':
-                                        html += buildAbstractToProperties(to, newHistory);
-                                    break;
-
-                                    case 'complex':
-                                        html += buildComplexToProperties(to, newHistory);
-                                    break;
-                                }
+                                html += buildToProperties(to, newHistory);
 
                                 //end TO div
                                 html += '</ul>';
@@ -149,115 +140,118 @@ angular.module('miredot.directives')
                 }
 
                 /**
-                 * Lists properties of complex to.
+                 * Renders a TO with all its properties and subtype selector (if needed). Properties are rendered in
+                 * the exact order they appear in the TO. No properties of the supertype (if applicable) are rendered.
+                 * They must be duplicated in its subtypes.
+                 *
                  * @param {Object | string} to The current object to render.
                  * @param {Array} history      All TOs that have already been rendered in the path leading here.
-                 * @param {Array} listedProperties  All properties that have been shown and should not be shown again
                  */
-                 function buildComplexToProperties(to, history, listedProperties) {
-                    listedProperties = listedProperties || [];
-
+                function buildToProperties(to, history) {
                     var html = '';
 
-                    _.each(to.content, function(field) {
-                        if (_.indexOf(listedProperties, field.name) < 0) {
-                            html += '<li class="parameterItem"><span class="parameterName">' + field.name + ':</span>';
-                            html += build(field.typeValue, field.comment, history);
-                            html += "</li>";
+                    // If the TO is 'abstract', we must take into account subtypes
+                    var subTypeModel = null;
+                    if (to.type === "abstract") {
+                        //get a unique name for the angular model for the subType switcher
+                        subTypeModel = 'subTypeModel' + getNewId();
 
-                            listedProperties.push(field.name);
-                        }
-                    });
-                    return html;
-                }
+                        // set a unique ids for the subTypes
+                        _.each(to.subTypes, function(subType) {
+                            subType.to.__sub_id = 'md_to_' + getNewId();
+                        });
 
-                /**
-                 * Lists properties of abstract to.
-                 * @param {Object | string} to The current object to render.
-                 * @param {Array} history      All TOs that have already been rendered in the path leading here.
-                 * @param {Array} listedProperties  All properties that have been shown and should not be shown again
-                 */
-                function buildAbstractToProperties(to, history, listedProperties) {
-                    listedProperties = listedProperties || [];
-                    if (to.property) { //property name used in JsonTypeInfo should not be repeated in the list of properties
-                        listedProperties.push(to.property);
+                        //set the default model value to the first subType id
+                        scope[subTypeModel] = to.subTypes[0].to.__sub_id;
                     }
 
-                    var html = '';
-
-                    //get a unique name for the angular model for the subType switcher
-                    var subTypeModel = 'subTypeModel' + getNewId();
-
-                    //list properties of this class
-                    html += buildComplexToProperties(to, history, listedProperties);
-
-                    var first = true;
-                    _.each(to.subTypes, function(subType) {
-                        //set a unique id for this subType
-                        subType.to.__sub_id = 'md_to_' + getNewId();
-                        if (first) {
-                            scope[subTypeModel] = subType.to.__sub_id; //set the default model value to the first subType id
-                            first = false;
-                        }
-                    });
-
+                    /**
+                     * Creates a single subtype button (used in createSubTypeChooser()).
+                     * @param subType    The subtype.
+                     * @returns {string} The button.
+                     */
                     function createSubTypeButton(subType) {
                         //show the button with the name of the subType (based on JsonTypeInfo)
                         //clicking this button changes the value of the current subTypeModel property to the id of the subType
-                        return '<div class="btn" ng-model="' + subTypeModel + '" ' +
+                        return '<div class="btn" ng-model="$parent.' + subTypeModel + '" ' +
                             'btn-radio="\'' + subType.to.__sub_id + '\'">' + subType.name + '</div>';
                     }
 
-                    //horizontal row of sub types
-                    html += '<span ng-show="jsonDocConfig.hidden">';
-                    var beforeFieldComment = '<span class="parameterType"><div class="btn-group">';
-                    _.each(to.subTypes, function(subType) {
-                        beforeFieldComment += createSubTypeButton(subType);
-                    });
-                    beforeFieldComment += '</div></span>';
-                    html += buildSubTypeSwitcher(to, beforeFieldComment, '');
-                    html += '</span>';
+                    /**
+                     * Appends the button collection to switch between the all known subtypes. Provides a horizontal and
+                     * vertical layout. Only one of these two is shown at te same time.
+                     */
+                    function appendSubTypeChooser() {
+                        // horizontal row of sub types (JSON comments are not shown)
+                        html += '<span ng-show="jsonDocConfig.hidden">';
 
-                    //vertically stacked with comments
-                    html += '<span ng-show="!jsonDocConfig.hidden">';
-                    var afterFieldComment = '<span class="subTypeSwitch">';
-                    afterFieldComment += '<span class="btn-group-vertical">';
-                    _.each(to.subTypes, function(subType) {
-                        afterFieldComment += '<span>';
-                        afterFieldComment +=      createSubTypeButton(subType);
-                        if (subType.comment) {
-                            afterFieldComment += '<span class="propertyComment">';
-                            afterFieldComment +=      subType.comment;
+                        var beforeFieldComment = '<span class="parameterType"><div class="btn-group">';
+                        // generate buttons
+                        _.each(to.subTypes, function (subType) {
+                            beforeFieldComment += createSubTypeButton(subType);
+                        });
+                        beforeFieldComment += '</div></span>';
+
+                        html += buildSubTypeSwitcher(to, beforeFieldComment, '');
+                        html += '</span>';
+
+                        // vertical list of sub types (JSON comments ARE shown)
+                        html += '<span ng-show="!jsonDocConfig.hidden">';
+
+                        var afterFieldComment = '<span class="subTypeSwitch">';
+                        afterFieldComment += '<span class="btn-group-vertical">';
+
+                        _.each(to.subTypes, function (subType) {
+                            afterFieldComment += '<span>';
+                            afterFieldComment += createSubTypeButton(subType);
+                            if (subType.comment) {
+                                afterFieldComment += '<span class="propertyComment">';
+                                afterFieldComment += subType.comment;
+                                afterFieldComment += '</span>';
+                            }
                             afterFieldComment += '</span>';
-                        }
+                        });
                         afterFieldComment += '</span>';
-                    });
-                    afterFieldComment += '</span>';
-                    afterFieldComment += '</span>';
-                    html += buildSubTypeSwitcher(to, '', afterFieldComment);
-                    html += '</span>';
+                        afterFieldComment += '</span>';
 
+                        html += buildSubTypeSwitcher(to, '', afterFieldComment);
+                        html += '</span>';
+                    }
 
-                    //show subTypes, like complex type, but inline fields & only shown when subTypeModel is set to it's id
-                    _.each(to.subTypes, function(subType) {
-                        var newHistory = history.slice(0); // clone the history
-                        var newListedProperties = listedProperties.slice(0);  // clone the already listed properties
+                    function appendProperty(field) {
+                        html += '<li class="parameterItem"><span class="parameterName">' + field.name + ':</span>';
+                        html += build(field.typeValue, field.comment, history);
+                        html += "</li>";
+                    }
 
-                        html += '<a id="' + subType.to.__sub_id + '_a" class="anchor"></a>';
-                        //only show this subType's fields when subTypeModel is set to it's id
-                        html += '<div ng-show="' + subTypeModel + ' == \'' + subType.to.__sub_id + '\'" id="' + subType.to.__sub_id + '">';
+                    if (!to.subTypes) {
+                        _.each(to.content, function(field) {
+                            appendProperty(field);
+                        });
+                    } else {
+                        //show subTypes, like complex type, but inline fields & only shown when subTypeModel is set to it's id
+                        _.each(to.subTypes, function(subType) {
+                            html += '<a id="' + subType.to.__sub_id + '_a" class="anchor"></a>';
+                            //only show this subType's fields when subTypeModel is set to it's id
+                            html += '<div ng-if="' + subTypeModel + ' == \'' + subType.to.__sub_id + '\'" id="' + subType.to.__sub_id + '">';
 
-                        switch (subType.to.type) {
-                            case 'complex':
-                                newHistory.push(subType.to.name);
-                                html += buildComplexToProperties(subType.to, newHistory, newListedProperties);
-                                break;
-                            case 'abstract':
-                                html += buildAbstractToProperties(subType.to, newHistory, newListedProperties);
-                                break;
-                        }
-                        html += '</div>';
-                    });
+                            if (!subType.to.ordered) {
+                                appendSubTypeChooser();
+                            }
+                            _.each(subType.to.content, function(field) {
+
+                                if (field.name === to.property) { // The subtype property => render the subtype-choose buttons
+                                    if (subType.to.ordered) {
+                                        appendSubTypeChooser();
+                                    }
+                                } else {                          // Another property => render a normal property
+                                    appendProperty(field);
+                                }
+                            });
+
+                            html += '</div>';
+                        });
+                    }
                     return html;
                 }
 

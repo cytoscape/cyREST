@@ -3,10 +3,14 @@ package org.cytoscape.rest.internal.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
+import org.cytoscape.view.model.View;
+import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualStyle;
@@ -92,6 +96,7 @@ public class VisualStyleSerializer {
 		generator.writeEndArray();
 	}
 	
+	
 	@SuppressWarnings("rawtypes")
 	private void addMappings(JsonGenerator generator, VisualStyle style) throws JsonProcessingException, IOException {
 		// Mappings
@@ -130,6 +135,83 @@ public class VisualStyleSerializer {
 			generator.writeNumber((Double) value);
 		} else {
 			generator.writeString(vp.toSerializableString(value));
+		}
+	}
+	
+	
+	public final String serializeViews(final Collection<? extends View<? extends CyIdentifiable>> views, 
+			final Collection<VisualProperty<?>> visualProperties) throws IOException {
+		final SortedMap<String, VisualProperty<?>> names = new TreeMap<String, VisualProperty<?>>();
+		// Sort by field name
+		for(final VisualProperty<?> vp:visualProperties) {
+			names.put(vp.getIdString(), vp);
+		}
+		
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+	
+		generator.writeStartArray();
+		for(final View<? extends CyIdentifiable> view:views) {
+			
+			generator.writeStartObject();
+			generator.writeNumberField(CyIdentifiable.SUID, view.getModel().getSUID());
+			generator.writeArrayFieldStart("view");
+			
+			addKeyValuePair(generator, names, view);
+			
+			generator.writeEndArray();
+			
+			generator.writeEndObject();
+			
+		}
+		generator.writeEndArray();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	
+	public final String serializeView(final View<? extends CyIdentifiable> view, final Collection<VisualProperty<?>> visualProperties) throws IOException {
+
+		final SortedMap<String, VisualProperty<?>> names = new TreeMap<String, VisualProperty<?>>();
+		// Sort by field name
+		for(final VisualProperty<?> vp:visualProperties) {
+			names.put(vp.getIdString(), vp);
+		}
+		
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartArray();
+		addKeyValuePair(generator, names, view);
+		generator.writeEndArray();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	private final void addKeyValuePair(final JsonGenerator generator, final SortedMap<String, VisualProperty<?>> names,
+			final View<? extends CyIdentifiable> view) throws IOException {
+		
+		for(final String name:names.keySet()) {
+			final VisualProperty<Object> vp = (VisualProperty<Object>) names.get(name);
+			generator.writeStartObject();
+			generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
+			generator.writeFieldName("value");
+			writeValue(vp, view.getVisualProperty(vp), generator);
+			generator.writeEndObject();
 		}
 	}
 }

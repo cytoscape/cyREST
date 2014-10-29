@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.MappingFactoryManager;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
@@ -202,5 +204,34 @@ public class VisualStyleMapper {
 			VisualMappingFunctionFactory factory) {
 
 		return (PassthroughMapping) factory.createVisualMappingFunction(columnName, type, vp);
+	}
+	
+	
+	/**
+	 * 
+	 * Directly update view object.
+	 * 
+	 * @param view
+	 * @param rootNode
+	 * @param lexicon
+	 */
+	public void updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon) {
+		for (final JsonNode vpNode : rootNode) {
+			String vpName = vpNode.get(MAPPING_VP).textValue();
+			final VisualProperty vp = getVisualProperty(vpName, lexicon);
+			final JsonNode value = vpNode.get(MAPPING_DISCRETE_VALUE);
+			if (vp == null || value == null ) {
+				continue;
+			}
+
+			Object parsedValue = null;
+			if(value.isTextual()) {
+				parsedValue = vp.parseSerializableString(value.asText());
+			} else {
+				parsedValue = vp.parseSerializableString(value.toString());
+			}
+			
+			view.setVisualProperty(vp, parsedValue);
+		}
 	}
 }

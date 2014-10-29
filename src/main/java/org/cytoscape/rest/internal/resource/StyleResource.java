@@ -169,14 +169,6 @@ public class StyleResource extends AbstractResource {
 	}
 
 
-	private final VisualLexicon getLexicon() {
-		final Set<VisualLexicon> lexicon = this.vmm.getAllVisualLexicon();
-		if (lexicon.isEmpty()) {
-			throw getError("Could not find visual lexicon.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
-		}
-		return lexicon.iterator().next();
-	}
-
 	
 	/**
 	 * 

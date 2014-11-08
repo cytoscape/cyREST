@@ -2,15 +2,19 @@ package org.cytoscape.rest.internal.datamapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.MappingFactoryManager;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
+import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.view.vizmap.mappings.BoundaryRangeValues;
@@ -41,6 +45,8 @@ public class VisualStyleMapper {
 	private static final String MAPPING_DISCRETE_KEY = "key";
 	private static final String MAPPING_DISCRETE_VALUE = "value";
 	
+	public static final String VP_DEPENDENCY = "visualPropertyDependency";
+	public static final String VP_DEPENDENCY_ENABLED = "enabled";
 	
 	public VisualStyleMapper() {
 		
@@ -202,5 +208,60 @@ public class VisualStyleMapper {
 			VisualMappingFunctionFactory factory) {
 
 		return (PassthroughMapping) factory.createVisualMappingFunction(columnName, type, vp);
+	}
+	
+	
+	/**
+	 * 
+	 * Directly update view object.
+	 * 
+	 * @param view
+	 * @param rootNode
+	 * @param lexicon
+	 */
+	public void updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon) {
+		for (final JsonNode vpNode : rootNode) {
+			String vpName = vpNode.get(MAPPING_VP).textValue();
+			final VisualProperty vp = getVisualProperty(vpName, lexicon);
+			final JsonNode value = vpNode.get(MAPPING_DISCRETE_VALUE);
+			if (vp == null || value == null ) {
+				continue;
+			}
+
+			Object parsedValue = null;
+			if(value.isTextual()) {
+				parsedValue = vp.parseSerializableString(value.asText());
+			} else {
+				parsedValue = vp.parseSerializableString(value.toString());
+			}
+			
+			view.setVisualProperty(vp, parsedValue);
+		}
+	}
+
+
+	public void updateDependencies(final VisualStyle style, final JsonNode rootNode) {
+		final Set<VisualPropertyDependency<?>> deps = style.getAllVisualPropertyDependencies();
+		
+		final Map<String, VisualPropertyDependency<?>> names = new HashMap<>();
+		for(final VisualPropertyDependency<?> dep:deps) {
+			names.put(dep.getIdString(), dep);
+		}
+		
+		for (final JsonNode depNode : rootNode) {
+			String depId = depNode.get(VisualStyleMapper.VP_DEPENDENCY).textValue();
+			final VisualPropertyDependency<?> dep = names.get(depId);
+			if(dep == null) {
+				continue;
+			}
+			
+			final JsonNode enabled = depNode.get("enabled");
+			if (enabled == null) {
+				continue;
+			}
+
+			boolean value = enabled.asBoolean();
+			dep.setDependency(value);
+		}
 	}
 }

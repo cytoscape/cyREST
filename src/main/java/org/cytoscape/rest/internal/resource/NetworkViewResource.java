@@ -3,6 +3,8 @@ package org.cytoscape.rest.internal.resource;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,11 +12,13 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -24,10 +28,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTable;
+import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
+import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.View;
+import org.cytoscape.view.model.VisualLexicon;
+import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineManager;
+import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * REST API for Network View objects.
@@ -47,11 +64,31 @@ public class NetworkViewResource extends AbstractResource {
 	@Context
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
+	
+	private final VisualStyleMapper styleMapper;
+	private final VisualStyleSerializer styleSerializer;
 
+	private VisualLexicon lexicon;
+	private Collection<VisualProperty<?>> nodeLexicon;
+	private Collection<VisualProperty<?>> edgeLexicon;
+	private Collection<VisualProperty<?>> networkLexicon;
+
+	
+	
 	public NetworkViewResource() {
 		super();
+		this.styleMapper = new VisualStyleMapper();
+		this.styleSerializer = new VisualStyleSerializer();
 	}
 
+	private final void initLexicon() {
+		// Prepare lexicon
+		this.lexicon = getLexicon();
+		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
+		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
+		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK);
+		
+	}
 	/**
 	 * @summary Create view for the network
 	 * 
@@ -269,7 +306,7 @@ public class NetworkViewResource extends AbstractResource {
 	 */
 	@GET
 	@Path("/{viewId}.png")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces("image/png")
 	public Response getImage(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
@@ -312,5 +349,268 @@ public class NetworkViewResource extends AbstractResource {
 			e.printStackTrace();
 			throw getError("Could not create image.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	/**
+	 * By passing list of key-value pair for each Visual Property, update node view.
+	 * 
+	 * The body should have the following JSON:
+	 * 
+	 * <pre>
+	 * [
+	 * 		{
+	 * 			"SUID": SUID of node,
+	 * 			"view": [
+	 * 				{
+	 * 					"visualProperty": "Visual Property Name, like NODE_FILL_COLOR",
+	 * 					"value": "Serialized form of value, like 'red.'"
+	 * 				},
+	 * 				...
+	 * 				{}
+	 * 			]
+	 * 		},
+	 * 		...
+	 * 		{}
+	 * ]
+	 * </pre>
+	 * 
+	 * Note that this API directly set the value to the view objects, and once Visual Style applied, 
+	 * those values are overridden by the Visual Style.
+	 * 
+	 * @summary Update node/edge view objects at once
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * @param objectType Type of objects ("nodes" or "edges")
+	 * 
+	 */
+	@PUT
+	@Path("/{viewId}/{objectType}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateViews(@PathParam("networkId") Long networkId,
+			@PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, final InputStream is) {
+
+		final CyNetworkView networkView = getView(networkId, viewId);
+
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		try {
+			// This should be an JSON array.
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+
+			for (JsonNode entry : rootNode) {
+				final Long objectId = entry.get(CyIdentifiable.SUID).asLong();
+				final JsonNode viewNode = entry.get("view");
+				if(objectId == null || viewNode == null) {
+					continue;
+				}
+
+				View<? extends CyIdentifiable> view = null;
+				if (objectType.equals("nodes")) {
+					view = networkView.getNodeView(networkView.getModel()
+							.getNode(objectId));
+				} else if (objectType.equals("edges")) {
+					view = networkView.getNodeView(networkView.getModel()
+							.getNode(objectId));
+				} else {
+					throw getError("Method not supported.",
+							new IllegalStateException(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+
+				if (view == null) {
+					throw getError("Could not find view.",
+							new IllegalArgumentException(),
+							Response.Status.NOT_FOUND);
+				}
+				styleMapper.updateView(view, viewNode, getLexicon());
+			}
+			
+			// Repaint
+			networkView.updateView();
+		} catch (Exception e) {
+			throw getError(
+					"Could not parse the input JSON for updating view because: "
+							+ e.getMessage(), e,
+					Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	/**
+	 * By passing a list of key-value pair for each Visual Property, update single node/edge view.
+	 * 
+	 * The body should have the following JSON:
+	 * 
+	 * <pre>
+	 * [
+	 * 		{
+	 * 			"visualProperty": "Visual Property Name, like NODE_FILL_COLOR",
+	 * 			"value": "Serialized form of value, like 'red.'"
+	 * 		},
+	 * 		...
+	 * 		{}
+	 * ]
+	 * </pre>
+	 * 
+	 * Note that this API directly set the value to the view objects, and once Visual Style applied, 
+	 * those values are overridden by the Visual Style.
+	 * 
+	 * @summary Update single node/edge view object
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * @param objectType Type of objects ("nodes" or "edges")
+	 * @param objectId node/edge SUID (NOT node/edge view SUID)
+	 * 
+	 */
+	@PUT
+	@Path("/{viewId}/{objectType}/{objectId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId,
+			final InputStream is) {
+		
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		View<? extends CyIdentifiable> view = null;
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+		} else if(objectType.equals("edges")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+		} else {
+			view = networkView;
+		}
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		try {
+			// This should be an JSON array.
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			styleMapper.updateView(view, rootNode, getLexicon());
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		// Repaint
+		networkView.updateView();
+	}
+
+
+	@GET
+	@Path("/{viewId}/{objectType}/{objectId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		View<? extends CyIdentifiable> view = null;
+		Collection<VisualProperty<?>> lexicon = null;
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			lexicon = nodeLexicon;
+		} else if(objectType.equals("edges")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			lexicon = edgeLexicon;
+		}
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+
+		try {
+			return styleSerializer.serializeView(view, lexicon);
+		} catch (IOException e) {
+			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@GET
+	@Path("/{viewId}/{objectType}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @QueryParam("visualProperty") String visualProperty) {
+		
+		if(visualProperty != null) {
+			return getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);
+		}
+		
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		Collection<VisualProperty<?>> vps = null;
+		if(objectType.equals("nodes")) {
+			vps = nodeLexicon;
+		} else if(objectType.equals("edges")) {
+			vps = edgeLexicon;
+		}
+		
+		return getViewForVPList(networkId, viewId, objectType, vps);
+	}
+
+	private final String getViewForVPList(final Long networkId, final Long viewId, final String objectType, Collection<VisualProperty<?>> vps) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		Collection<? extends View<? extends CyIdentifiable>> graphObjects = null;
+		
+		if(objectType.equals("nodes")) {
+			graphObjects = networkView.getNodeViews();
+		} else if(objectType.equals("edges")) {
+			graphObjects = networkView.getEdgeViews();
+		}
+		
+		if(graphObjects == null || graphObjects.isEmpty()) {
+			throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		try {
+			return styleSerializer.serializeViews(graphObjects, vps);
+		} catch (IOException e) {
+			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}	
+
+	
+	private final String getSingleVisualPropertyOfViews(Long networkId, Long viewId,
+			String objectType, String visualPropertyName) {
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+	
+		final Collection<VisualProperty<?>> vps = new HashSet<>();
+		VisualProperty<?> vp = null;
+		
+		if(objectType.equals("nodes")) {
+			vp = lexicon.lookup(CyNode.class, visualPropertyName);
+		} else if(objectType.equals("edges")) {
+			vp = lexicon.lookup(CyEdge.class, visualPropertyName);
+		}
+		
+		if(vp == null) {
+			throw getError("Visual Property does not exist: " + visualPropertyName, new NotFoundException(), Response.Status.NOT_FOUND);
+		}
+		
+		vps.add(vp);
+		return getViewForVPList(networkId, viewId, objectType, vps);
+
+	}
+	
+	private final CyNetworkView getView(Long networkId, Long viewId) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		for (final CyNetworkView view : views) {
+			final Long vid = view.getSUID();
+			if (vid.equals(viewId)) {
+				return view;
+			}
+		}
+		throw new NotFoundException("Could not find view: " + viewId);
 	}
 }

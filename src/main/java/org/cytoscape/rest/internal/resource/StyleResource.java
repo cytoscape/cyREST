@@ -34,6 +34,7 @@ import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
+import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
@@ -62,6 +63,7 @@ public class StyleResource extends AbstractResource {
 
 	private final ObjectMapper styleMapper;
 	private final VisualStyleMapper visualStyleMapper;
+	private final VisualStyleSerializer visualStyleSerializer;
 
 	public StyleResource() {
 		super();
@@ -69,6 +71,7 @@ public class StyleResource extends AbstractResource {
 		this.styleMapper.registerModule(new VisualStyleModule());
 
 		this.visualStyleMapper = new VisualStyleMapper();
+		this.visualStyleSerializer = new VisualStyleSerializer();
 	}
 
 	
@@ -168,14 +171,6 @@ public class StyleResource extends AbstractResource {
 		style.removeVisualMappingFunction(vp);
 	}
 
-
-	private final VisualLexicon getLexicon() {
-		final Set<VisualLexicon> lexicon = this.vmm.getAllVisualLexicon();
-		if (lexicon.isEmpty()) {
-			throw getError("Could not find visual lexicon.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
-		}
-		return lexicon.iterator().next();
-	}
 
 	
 	/**
@@ -495,5 +490,67 @@ public class StyleResource extends AbstractResource {
 		}
 
 		throw new NotFoundException("Could not find Visual Style: " + name);
+	}
+
+	
+	
+	/**
+	 * 
+	 * Check status of Visual Property Dependencies.  If a dependency is enables, it has true for "enabled."
+	 * 
+	 * @summary Get all Visual Property Dependency status
+	 * 
+	 * @param name Name of the Visual Style
+	 * 
+	 * @return List of the status of all Visual Property dependencies.
+	 * 
+	 */
+	@GET
+	@Path("/{name}/dependencies")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getAllDependencies(@PathParam("name") String name) {
+		final VisualStyle style = getStyleByName(name);
+		
+		final Set<VisualPropertyDependency<?>> dependencies = style.getAllVisualPropertyDependencies();
+		try {
+			return visualStyleSerializer.serializeDependecies(dependencies);
+		} catch (IOException e) {
+			throw getError("Could not get Visual Property denendencies.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	/**
+	 * 
+	 * The body should be the following format:
+	 * <pre>
+	 * [
+	 * 	{
+	 * 		"visualPropertyDependnecy" : "DEPENDENCY_ID",
+	 * 		"enabled" : true or false
+	 * 	}, ... {}
+	 * ]
+	 * </pre>
+	 * 
+	 * @summary Set Visual Property Dependency flags
+	 * 
+	 * @param name Name of Visual Style
+	 * 
+	 */
+	@PUT
+	@Path("/{name}/dependencies")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public void updateDependencies(@PathParam("name") String name, InputStream is) {
+		final VisualStyle style = getStyleByName(name);
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+		JsonNode rootNode;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+			this.visualStyleMapper.updateDependencies(style, rootNode);
+		} catch (Exception e) {
+			throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

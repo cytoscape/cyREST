@@ -40,6 +40,7 @@ import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -110,6 +111,7 @@ public abstract class AbstractResource {
 	protected InputStreamTaskFactory cytoscapeJsReaderFactory;
 
 	@Context
+	@NotNull
 	protected VisualMappingManager vmm;
 
 	@Context
@@ -259,5 +261,14 @@ public abstract class AbstractResource {
 		return jsonString;
 	}
 	
+	protected final VisualLexicon getLexicon() {
+		final Set<VisualLexicon> lexicon = vmm.getAllVisualLexicon();
+		if (lexicon.isEmpty()) {
+			throw getError("Could not find visual lexicon.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		// TODO: What happens if we have multiple renderer?
+		return lexicon.iterator().next();
+	}
 	
 }

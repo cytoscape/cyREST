@@ -54,8 +54,8 @@
 
 	<!-- SCM Information. Currently hosted at GitHub. -->
 	<scm>
-		<connection>scm:https://github.com/keiono/cy-rest.git</connection>
-		<developerConnection>scm:git@github.com:keiono/cy-rest.git</developerConnection>
+		<connection>scm:https://github.com/idekerlab/cyREST.git</connection>
+		<developerConnection>scm:git@github.com:idekerlab/cyREST.git</developerConnection>
 	</scm>
 
 	<build>

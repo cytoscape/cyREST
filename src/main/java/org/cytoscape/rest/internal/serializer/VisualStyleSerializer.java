@@ -13,6 +13,7 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
+import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
@@ -213,5 +214,43 @@ public class VisualStyleSerializer {
 			writeValue(vp, view.getVisualProperty(vp), generator);
 			generator.writeEndObject();
 		}
+	}
+
+
+	public final String serializeDependecies(final Set<VisualPropertyDependency<?>> dependencies) throws IOException {
+
+		// Sort by field name
+		final SortedMap<String, VisualPropertyDependency<?>> names = new TreeMap<String, VisualPropertyDependency<?>>();
+		for(final VisualPropertyDependency<?> dep:dependencies) {
+			names.put(dep.getIdString(), dep);
+		}
+		
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartArray();
+		for(String key: names.keySet()) {
+			addDependency(generator, names.get(key));
+		}
+		generator.writeEndArray();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	private final void addDependency(final JsonGenerator generator, final VisualPropertyDependency<?> dep) throws IOException {
+		generator.writeStartObject();
+		
+		generator.writeStringField(VisualStyleMapper.VP_DEPENDENCY, dep.getIdString());
+		generator.writeBooleanField("enabled", dep.isDependencyEnabled());
+		
+		generator.writeEndObject();
+		
 	}
 }

@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.datamapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
@@ -13,6 +14,7 @@ import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
+import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.view.vizmap.mappings.BoundaryRangeValues;
@@ -43,6 +45,8 @@ public class VisualStyleMapper {
 	private static final String MAPPING_DISCRETE_KEY = "key";
 	private static final String MAPPING_DISCRETE_VALUE = "value";
 	
+	public static final String VP_DEPENDENCY = "visualPropertyDependency";
+	public static final String VP_DEPENDENCY_ENABLED = "enabled";
 	
 	public VisualStyleMapper() {
 		
@@ -232,6 +236,32 @@ public class VisualStyleMapper {
 			}
 			
 			view.setVisualProperty(vp, parsedValue);
+		}
+	}
+
+
+	public void updateDependencies(final VisualStyle style, final JsonNode rootNode) {
+		final Set<VisualPropertyDependency<?>> deps = style.getAllVisualPropertyDependencies();
+		
+		final Map<String, VisualPropertyDependency<?>> names = new HashMap<>();
+		for(final VisualPropertyDependency<?> dep:deps) {
+			names.put(dep.getIdString(), dep);
+		}
+		
+		for (final JsonNode depNode : rootNode) {
+			String depId = depNode.get(VisualStyleMapper.VP_DEPENDENCY).textValue();
+			final VisualPropertyDependency<?> dep = names.get(depId);
+			if(dep == null) {
+				continue;
+			}
+			
+			final JsonNode enabled = depNode.get("enabled");
+			if (enabled == null) {
+				continue;
+			}
+
+			boolean value = enabled.asBoolean();
+			dep.setDependency(value);
 		}
 	}
 }

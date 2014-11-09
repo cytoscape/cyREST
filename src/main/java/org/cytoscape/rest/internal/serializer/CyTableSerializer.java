@@ -9,9 +9,16 @@ import org.cytoscape.model.CyTable;
 
 public class CyTableSerializer {
 
+	private String SEP = ",";
 
-	public String toCSV(final CyTable table) throws Exception {
+	public String toCSV(final CyTable table, final String sep) throws Exception {
 
+		String separator = sep;
+		System.out.println(separator);
+		if(separator == null) {
+			separator = SEP;
+		}
+		
 		final StringBuilder builder = new StringBuilder();
 
 		final Collection<CyColumn> columns = table.getColumns();
@@ -27,7 +34,7 @@ public class CyTableSerializer {
 			if (idx == colLength) {
 				builder.append("\n");
 			} else {
-				builder.append(",");
+				builder.append(separator);
 			}
 			idx++;
 		}
@@ -48,7 +55,7 @@ public class CyTableSerializer {
 				if (idx == colLength) {
 					builder.append("\n");
 				} else {
-					builder.append(",");
+					builder.append(separator);
 				}
 				idx++;
 			}

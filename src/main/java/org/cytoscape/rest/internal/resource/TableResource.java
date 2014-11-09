@@ -505,6 +505,14 @@ public class TableResource extends AbstractResource {
 	}
 	
 	
+	/**
+	 * Actual function to generate CSV/TSV
+	 * 
+	 * @param networkId
+	 * @param tableType
+	 * @param separator
+	 * @return
+	 */
 	private final String getTableString(final Long networkId, final String tableType, final String separator) {
 
 		final CyNetwork network = getCyNetwork(networkId);

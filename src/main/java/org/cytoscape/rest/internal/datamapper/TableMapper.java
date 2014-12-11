@@ -122,8 +122,6 @@ public class TableMapper {
 			keyColName = keyCol.asText();
 		}
 
-		System.out.println("Key Column = " + keyColName);
-		
 		// Check such column exists or not.
 		final CyColumn col = table.getColumn(keyColName);
 		if(col == null) {
@@ -138,9 +136,6 @@ public class TableMapper {
 			dataKeyColName = dataKeyCol.asText();
 		}
 
-		
-		System.out.println("Data Key = " + dataKeyColName);
-		
 		// This should be an array of objects
 		for(final JsonNode entry:data) {
 			final JsonNode keyValue = entry.get(dataKeyColName);
@@ -152,13 +147,11 @@ public class TableMapper {
 			final Object key = getValue(keyValue, col.getType());
 			if(key == null) {
 				// Key is invalid.
-				System.out.println("Invalid key!!!!!!!!!: ");
 				continue;
 			}
 			final Collection<CyRow> machingRows = table.getMatchingRows(keyColName, key);
 			
 			if(machingRows.isEmpty()) {
-				System.out.println("EMPTY!!!!!!!!!: ");
 				continue;
 			}
 			
@@ -167,7 +160,6 @@ public class TableMapper {
 				while (fields.hasNext()) {
 					final String field = fields.next();
 					final JsonNode value = entry.get(field);
-					System.out.println("Original: " + field + " = " + value);
 					if(value == null) {
 						continue;
 					}
@@ -186,7 +178,6 @@ public class TableMapper {
 					
 					try {
 						setValue(column.getType(), value, row, field);
-						System.out.println(field + " = " + value);
 					} catch (Exception e) {
 						// Simply ignore invalid value
 						e.printStackTrace();

@@ -15,7 +15,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -481,13 +480,45 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}.csv")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getTableAsCsv(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
-			@QueryParam(JsonTags.TABLE_FORMAT) String format) {
+	public String getTableAsCsv(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+		return getTableString(networkId, tableType, ",");
+	}
+	
+	
+	/**
+	 * 
+	 * @summary Get a table as TSV (tab delimited text)
+	 * 
+	 * @param networkId
+	 *            Network SUID
+	 * @param tableType
+	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * 
+	 * @return Table in TSV format
+	 * 
+	 */
+	@GET
+	@Path("/{tableType}.tsv")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getTableAsTsv(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+		return getTableString(networkId, tableType, "\t");
+	}
+	
+	
+	/**
+	 * Actual function to generate CSV/TSV
+	 * 
+	 * @param networkId
+	 * @param tableType
+	 * @param separator
+	 * @return
+	 */
+	private final String getTableString(final Long networkId, final String tableType, final String separator) {
 
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		try {
-			final String result = tableSerializer.toCSV(table);
+			final String result = tableSerializer.toCSV(table, separator);
 			return result;
 		} catch (Exception e) {
 			throw getError("Could not serialize table into CSV.", e, Response.Status.INTERNAL_SERVER_ERROR);

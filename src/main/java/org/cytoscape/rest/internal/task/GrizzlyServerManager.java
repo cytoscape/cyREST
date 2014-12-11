@@ -33,7 +33,7 @@ public final class GrizzlyServerManager {
 
 	private final static Logger logger = LoggerFactory.getLogger(GrizzlyServerManager.class);
 
-	private String baseURL = "http://localhost/";
+	private String baseURL = "http://0.0.0.0";
 	private String PORT_NUMBER_PROP = "rest.port";
 	private Integer DEF_PORT_NUMBER = 1234;
 	private Integer portNumber = DEF_PORT_NUMBER;

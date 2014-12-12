@@ -105,7 +105,7 @@ public class EdgeListReaderTest {
 	private EdgeListReader readFile(final String fileName) throws Exception {
 		File f = new File("./src/test/resources/" + fileName);
 		EdgeListReader snvp = new EdgeListReader(new FileInputStream(f), viewFactory, netFactory, this.networkManager,
-				this.rootNetworkManager);
+				this.rootNetworkManager, "collection1");
 		new TaskIterator(snvp);
 		snvp.run(taskMonitor);
 

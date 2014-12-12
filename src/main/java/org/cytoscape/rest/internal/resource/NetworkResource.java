@@ -711,6 +711,7 @@ public class NetworkResource extends AbstractResource {
 	 * @summary Create a new network from Cytoscape.js JSON or Edgelist
 	 * 
 	 * @param collection Name of new network collection
+	 * @param title Title of the new network
 	 * @param source Optional.  "url"
 	 * @param format "edgelist" or "json" 
 	 * 
@@ -721,7 +722,8 @@ public class NetworkResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
-			@QueryParam("source") String source, @QueryParam("format") String format, final InputStream is,
+			@QueryParam("source") String source, @QueryParam("format") String format, 
+			@QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
 
 		// 1. If source is URL, load from the array of URL
@@ -740,6 +742,13 @@ public class NetworkResource extends AbstractResource {
 		if (agent != null) {
 			userAgent = agent.get(0);
 		}
+		
+		final String collectionName;
+		if (collection == null) {
+			collectionName = DEF_COLLECTION_PREFIX + userAgent;
+		} else {
+			collectionName = collection;
+		}
 
 		final TaskIterator it;
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
@@ -750,21 +759,23 @@ public class NetworkResource extends AbstractResource {
 
 		final CyNetworkReader reader = (CyNetworkReader) it.next();
 
-		final String collectionName;
-		if (collection == null) {
-			collectionName = DEF_COLLECTION_PREFIX + userAgent;
-		} else {
-			collectionName = collection;
-		}
-
 		try {
 			reader.run(new HeadlessTaskMonitor());
 		} catch (Exception e) {
 			throw getError("Could not parse the given network JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
-
+		
 		final CyNetwork[] networks = reader.getNetworks();
 		final CyNetwork newNetwork = networks[0];
+		
+		if(title!= null && title.isEmpty() == false) {
+			try {
+			newNetwork.getTable(CyNetwork.class, CyNetwork.LOCAL_ATTRS).getRow(newNetwork.getSUID()).set(CyNetwork.NAME, title);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		addNetwork(networks, reader, collectionName);
 
 		try {

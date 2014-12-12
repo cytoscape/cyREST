@@ -6,8 +6,6 @@
 
 ![](http://cl.ly/Xemf/networkx_cytoscape.png)
 
-## Status
-* 9/30/2014 - 0.9.0 beta is available for testing.
 
 ## Introduction
 
@@ -27,9 +25,9 @@ __This app is still experimental and we need your feedback!__
 * [Cytoscape 3.1.1+](http://www.cytoscape.org/)
     * Some of the new features are available only in Cytoscape 3.2.0 or later.
 
-
 ## Documentation
-__All documents, including tutorials and full API list, are available from our [Wiki](https://github.com/keiono/cy-rest/wiki)__.
+__All documents, including tutorials and full API list, are available from our [Wiki](https://github.com/idekerlab/cyREST/wiki)__.
+
 
 
 ## Problems or Feature Requests?
@@ -37,7 +35,7 @@ The API is not finalized yet.  Please send your feature requests to our [mailing
 
 Please report the problems to our issue tracker:
 
-* [cyREST Issue Tracker](https://github.com/keiono/cy-rest/issues)
+* [cyREST Issue Tracker](https://github.com/idekerlab/cyREST/issues)
 
 
 ## License
@@ -47,3 +45,4 @@ Please report the problems to our issue tracker:
 
 ----
 &copy; 2014 [Cytoscape Consortium](http://www.cytoscape.org/).  Developed and maintained by [Keiichiro Ono](http://keiono.github.io/), [UCSD Trey Ideker Lab](http://idekerlab.ucsd.edu/Pages/default.aspx).
+

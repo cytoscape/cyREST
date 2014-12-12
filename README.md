@@ -26,7 +26,8 @@ __This app is still experimental and we need your feedback!__
     * Some of the new features are available only in Cytoscape 3.2.0 or later.
 
 ## Documentation
-__All documents, including tutorials and full API list, are available from our [Wiki](https://github.com/idekerlab/cy-rest/wiki)__.
+__All documents, including tutorials and full API list, are available from our [Wiki](https://github.com/idekerlab/cyREST/wiki)__.
+
 
 
 ## Problems or Feature Requests?
@@ -34,7 +35,7 @@ The API is not finalized yet.  Please send your feature requests to our [mailing
 
 Please report the problems to our issue tracker:
 
-* [cyREST Issue Tracker](https://github.com/idekerlab/cy-rest/issues)
+* [cyREST Issue Tracker](https://github.com/idekerlab/cyREST/issues)
 
 
 ## License

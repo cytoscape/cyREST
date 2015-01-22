@@ -134,6 +134,11 @@
 								<document>always</document>
 								<defaultMessage>The API call has not succeeded.</defaultMessage>
 							</httpStatusCode>
+							<httpStatusCode>
+								<httpCode>404</httpCode>
+								<document>always</document>
+								<defaultMessage>The URL (or object) does not exist.</defaultMessage>
+							</httpStatusCode>
 						</httpStatusCodes>
 					</restModel>
 

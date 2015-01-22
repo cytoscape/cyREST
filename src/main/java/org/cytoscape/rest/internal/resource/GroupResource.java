@@ -95,8 +95,8 @@ public class GroupResource extends AbstractResource {
 	 * 
 	 * @param networkId
 	 *            Networks SUID
-	 * @param nodeId
-	 *            Node SUID
+	 * @param groupNodeId
+	 *            Group Node SUID
 	 * 
 	 * @return A group where the node belongs to
 	 */

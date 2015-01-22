@@ -101,9 +101,9 @@ public class GroupResource extends AbstractResource {
 	 * @return A group where the node belongs to
 	 */
 	@GET
-	@Path("/{nodeId}")
+	@Path("/{groupNodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
@@ -152,7 +152,7 @@ public class GroupResource extends AbstractResource {
 	 *            Group node SUID
 	 */
 	@DELETE
-	@Path("/{groupId}")
+	@Path("/{groupNodeId}")
 	public void deleteGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
 		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {

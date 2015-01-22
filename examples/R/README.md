@@ -1,4 +1,0 @@
-# R Examples
-
-# Introduction
-

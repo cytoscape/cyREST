@@ -21,18 +21,18 @@ function DocRoot($scope, $location, $localStorage, $filter, $http, $anchorScroll
     $scope.licenceHash = com.qmino.miredot.restApiSource.licenceHash;
     $scope.allowUsageTracking = com.qmino.miredot.restApiSource.allowUsageTracking;
     $scope.dateOfGeneration = com.qmino.miredot.restApiSource.dateOfGeneration;
+    $scope.issuesTabHidden = com.qmino.miredot.restApiSource.issuesTabHidden;
 
     $scope.$storage = $localStorage.$default({
-        //baseUrl: com.qmino.miredot.restApiSource.baseUrl || "http://example.com",
         globalCollapsedState: false
     });
-    $scope.$storage.baseUrl = (function() {
+    $scope.baseUrl = { value : (function() {
         var baseUrl = "http://example.com";
         if ($scope.validLicence && $scope.licenceType == 'PRO') {
             baseUrl = $location.search().baseUrl || com.qmino.miredot.restApiSource.baseUrl || baseUrl;
         }
         return baseUrl;
-    })();
+    })()};
     $scope.editingBaseUrl = false;
     $scope.projectWarnings = com.qmino.miredot.projectWarnings;
     $scope.interfaces = com.qmino.miredot.restApiSource.interfaces;

@@ -219,7 +219,8 @@ angular.module('miredot.directives')
                     }
 
                     function appendProperty(field) {
-                        html += '<li class="parameterItem"><span class="parameterName">' + field.name + ':</span>';
+                        html += '<li class="parameterItem">'
+                              + '<span class="parameterName" set-class="deprecated: ' + field.deprecated + '">' + field.name + ':</span>';
                         html += build(field.typeValue, field.comment, history);
                         html += "</li>";
                     }

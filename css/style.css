@@ -73,9 +73,17 @@ body, html, #content {
     right: 350px;
 }
 
+#left.reserve-free-space {
+    top: 70px;
+}
+
 #leftwithnavbar {
     overflow-y: hidden;
     overflow-x: hidden;
+}
+
+.navbar .brand{
+    margin-left: 25px;
 }
 
 #contentContent {
@@ -774,6 +782,7 @@ ul.toContainer {
     color: white;
     font-size: 0.8em;
     text-align: center;
+    height: 20px;
 }
 
 .notice.freeversion {
@@ -968,4 +977,12 @@ input.baseUrlInput {
     background: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(0, 0, 0, 0.4);
     border-radius: 3px;
+}
+
+.nav>li>a.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none;
 }

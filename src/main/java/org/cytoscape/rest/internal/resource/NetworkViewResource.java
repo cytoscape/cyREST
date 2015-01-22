@@ -500,6 +500,15 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	/**
+	 * @summary Get view object for the specified type (node or edge)
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * @param objectType nodes or edges
+	 * @param objectId Object's SUID
+	 * 
+	 */
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -533,6 +542,15 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	/**
+	 * @summary Get current values for a specific Visual Property 
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId SUID of network view
+	 * @param objectType nodes or edges
+	 * 
+	 * @param visualProperty Unique name of a Visual Property
+	 */
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)

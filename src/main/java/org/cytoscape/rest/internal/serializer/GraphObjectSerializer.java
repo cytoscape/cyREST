@@ -151,7 +151,6 @@ public class GraphObjectSerializer {
 			} else {
 				writeValue(column.getType(), value, generator);
 			}
-			writeValue(column.getType(), value, generator);
 		}
 		generator.writeEndArray();
 		generator.writeEndObject();

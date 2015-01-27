@@ -33,8 +33,8 @@ public class EdgeListReaderFactory extends AbstractInputStreamTaskFactory {
 	}
 
 	@Override
-	public TaskIterator createTaskIterator(InputStream inputStream, String inputName) {
+	public TaskIterator createTaskIterator(InputStream inputStream, String collectionName) {
 		return new TaskIterator(new EdgeListReader(inputStream, cyNetworkViewFactory, cyNetworkFactory,
-				this.cyNetworkManager, this.cyRootNetworkManager));
+				this.cyNetworkManager, this.cyRootNetworkManager, collectionName));
 	}
 }

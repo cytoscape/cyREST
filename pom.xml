@@ -5,10 +5,10 @@
 	<properties>
 		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
-		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
-		<junit.version>4.11</junit.version>
-		<jersey.version>2.13</jersey.version>
+		<junit.version>4.12</junit.version>
+		<jersey.version>2.15</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,10 +18,9 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>0.9.6</version>
+	<version>0.9.10</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
-
 
 	<repositories>
 		<repository>
@@ -100,7 +99,7 @@
 			<plugin>
 				<groupId>com.qmino</groupId>
 				<artifactId>miredot-plugin</artifactId>
-				<version>1.5</version>
+				<version>1.5.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -133,6 +132,11 @@
 								<httpCode>500</httpCode>
 								<document>always</document>
 								<defaultMessage>The API call has not succeeded.</defaultMessage>
+							</httpStatusCode>
+							<httpStatusCode>
+								<httpCode>404</httpCode>
+								<document>always</document>
+								<defaultMessage>The URL (or object) does not exist.</defaultMessage>
 							</httpStatusCode>
 						</httpStatusCodes>
 					</restModel>
@@ -285,7 +289,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.4.2</version>
+			<version>2.5.0</version>
 		</dependency>
 
 		<!-- Jersey -->

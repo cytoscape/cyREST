@@ -328,7 +328,7 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all rows in the table
+	 * @summary Get all rows in a table
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
@@ -353,13 +353,13 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all columns in the table
+	 * @summary Get all columns in a table
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 *
-	 * @return All columns in the table
+	 * @return All columns in the specified table.
 	 * 
 	 */
 	@GET
@@ -378,14 +378,14 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all values in the column
+	 * @summary Get all values in a column
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 * @param columnName Column name
 	 *
-	 * @return All values in the column
+	 * @return All values under the specified column.
 	 * 
 	 */
 	@GET

@@ -32,7 +32,6 @@ import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.view.model.CyNetworkView;
@@ -501,6 +500,15 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	/**
+	 * @summary Get view object for the specified type (node or edge)
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * @param objectType nodes or edges
+	 * @param objectId Object's SUID
+	 * 
+	 */
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -534,6 +542,15 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	/**
+	 * @summary Get current values for a specific Visual Property 
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId SUID of network view
+	 * @param objectType nodes or edges
+	 * 
+	 * @param visualProperty Unique name of a Visual Property
+	 */
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)

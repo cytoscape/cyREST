@@ -22,7 +22,6 @@
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
-
 	<repositories>
 		<repository>
 			<id>cytoscape_releases</id>

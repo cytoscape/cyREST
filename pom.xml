@@ -18,7 +18,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>0.9.9</version>
+	<version>0.9.10</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 

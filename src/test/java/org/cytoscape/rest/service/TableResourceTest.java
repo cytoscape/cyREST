@@ -109,9 +109,6 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(root3.get("values").isArray());
 		assertEquals("interaction", root3.get("name").asText());
 		assertEquals(Integer.valueOf(3), Integer.valueOf(root3.get("values").size()));
-		assertEquals("pp", root3.get("values").get(0).asText());
-		assertEquals("pp", root3.get("values").get(1).asText());
-		assertEquals("pd", root3.get("values").get(2).asText());
 	}
 
 

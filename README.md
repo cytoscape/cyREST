@@ -2,7 +2,9 @@
 
 # cyREST: RESTful API for Cytoscape
 
-[![Build Status](https://travis-ci.org/keiono/cy-rest.svg?branch=develop)](https://travis-ci.org/keiono/cy-rest)
+[![Build Status](https://travis-ci.org/idekerlab/cyREST.svg?branch=develop)](https://travis-ci.org/idekerlab/cyREST)
+
+[![Coverage Status](https://coveralls.io/repos/idekerlab/cyREST/badge.svg)](https://coveralls.io/r/idekerlab/cyREST)
 
 ![](http://cl.ly/Xemf/networkx_cytoscape.png)
 

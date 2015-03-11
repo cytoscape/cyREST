@@ -113,7 +113,7 @@ public class SessionResource extends AbstractResource {
 		File sessionFile = null;
 		try {
 			sessionFile = new File(file);
-			TaskIterator itr = saveSessionAsTaskFactory.createTaskIterator(sessionFile);
+			TaskIterator itr = openSessionTaskFactory.createTaskIterator(sessionFile);
 			while(itr.hasNext()) {
 				final Task task = itr.next();
 				task.run(new HeadlessTaskMonitor());
@@ -142,14 +142,14 @@ public class SessionResource extends AbstractResource {
 		File sessionFile = null;
 		try {
 			sessionFile = new File(file);
-			TaskIterator itr = openSessionTaskFactory.createTaskIterator(sessionFile);
+			TaskIterator itr = saveSessionAsTaskFactory.createTaskIterator(sessionFile);
 			while(itr.hasNext()) {
 				final Task task = itr.next();
 				task.run(new HeadlessTaskMonitor());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not load session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	
 		return "{\"name\": \"" + sessionFile.getAbsolutePath() +"\"}";

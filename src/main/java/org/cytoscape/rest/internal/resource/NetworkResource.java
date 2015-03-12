@@ -804,7 +804,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNetworkFromSelected(@PathParam("networkId") Long networkId, final InputStream is,
+	public String createNetworkFromSelected(@PathParam("networkId") Long networkId, @QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
 
 		final CyNetwork network = getCyNetwork(networkId);
@@ -835,7 +835,11 @@ public class NetworkResource extends AbstractResource {
 		if (viewTask != null) {
 			final Collection<?> result = ((ObservableTask) viewTask).getResults(Collection.class);
 			if (result.size() == 1) {
-				final Long suid = ((CyNetworkView) result.iterator().next()).getModel().getSUID();
+				final CyNetwork newSubNetwork = ((CyNetworkView) result.iterator().next()).getModel();
+				final Long suid = newSubNetwork.getSUID();
+				if(title != null) {
+					newSubNetwork.getRow(newSubNetwork).set(CyNetwork.NAME, title);
+				}
 				return getNumberObjectString(JsonTags.NETWORK_SUID, suid);
 			}
 		}

@@ -15,6 +15,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -167,6 +168,7 @@ public class TableResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		final ObjectMapper objMapper = new ObjectMapper();
+		
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnName(rootNode, table);
@@ -180,27 +182,44 @@ public class TableResource extends AbstractResource {
 	 * 
 	 * @summary Update values in a column
 	 * 
+	 * By default, you need to provide key-value pair to set values.
+	 * However, if "default" is provided, it will be used for the entire column.
+	 * 
+	 * This is useful to set columns like "selected."
+	 * 
+	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
 	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
 	 * @param columnName
 	 *            Target column name
+	 * @param default
+	 *            Optional. If this value is provided, all cells will be set to this.
 	 * 
 	 */
 	@PUT
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumnValues(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
-			@PathParam("columnName") String columnName, final InputStream is) {
+	public void updateColumnValues(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType,
+			@PathParam("columnName") String columnName,
+			@QueryParam("default") String defaultValue, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
-		final ObjectMapper objMapper = new ObjectMapper();
-		try {
-			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			tableMapper.updateColumnValues(rootNode, table, columnName);
-		} catch (IOException e) {
-			throw getError("Could not parse the input JSON for updating column values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+
+		if (defaultValue != null) {
+			tableMapper.updateAllColumnValues(defaultValue, table, columnName);
+		} else {
+			final ObjectMapper objMapper = new ObjectMapper();
+			try {
+				final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+				tableMapper.updateColumnValues(rootNode, table, columnName);
+			} catch (IOException e) {
+				throw getError(
+						"Could not parse the input JSON for updating column values.",
+						e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
 		}
 	}
 
@@ -328,7 +347,7 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all rows in the table
+	 * @summary Get all rows in a table
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
@@ -353,13 +372,13 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all columns in the table
+	 * @summary Get all columns in a table
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 *
-	 * @return All columns in the table
+	 * @return All columns in the specified table.
 	 * 
 	 */
 	@GET
@@ -378,14 +397,14 @@ public class TableResource extends AbstractResource {
 	
 	/**
 	 * 
-	 * @summary Get all values in the column
+	 * @summary Get all values in a column
 	 * 
 	 * @param networkId Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
 	 * @param columnName Column name
 	 *
-	 * @return All values in the column
+	 * @return All values under the specified column.
 	 * 
 	 */
 	@GET

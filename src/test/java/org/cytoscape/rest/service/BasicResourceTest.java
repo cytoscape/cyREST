@@ -406,6 +406,10 @@ public class BasicResourceTest extends JerseyTest {
 		final CyEdge e1 = network.addEdge(n1, n2, true);
 		final CyEdge e2 = network.addEdge(n2, n3, true);
 		final CyEdge e3 = network.addEdge(n3, n1, true);
+		
+		network.getRow(e1).set(CyEdge.INTERACTION, "pp");
+		network.getRow(e2).set(CyEdge.INTERACTION, "pp");
+		network.getRow(e3).set(CyEdge.INTERACTION, "pd");
 
 		return network;
 	}

@@ -460,7 +460,7 @@ public class NetworkViewResource extends AbstractResource {
 	 * 
 	 * @param networkId Network SUID
 	 * @param viewId Network view SUID
-	 * @param objectType Type of objects ("nodes" or "edges")
+	 * @param objectType Type of objects (nodes, edges, or network)
 	 * @param objectId node/edge SUID (NOT node/edge view SUID)
 	 * 
 	 */
@@ -478,7 +478,7 @@ public class NetworkViewResource extends AbstractResource {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 		} else if(objectType.equals("edges")) {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-		} else {
+		} else if(objectType.equals("network")) {
 			view = networkView;
 		}
 		
@@ -498,6 +498,7 @@ public class NetworkViewResource extends AbstractResource {
 		// Repaint
 		networkView.updateView();
 	}
+
 
 
 	/**

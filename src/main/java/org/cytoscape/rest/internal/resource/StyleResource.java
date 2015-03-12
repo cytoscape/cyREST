@@ -22,6 +22,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
@@ -306,13 +307,23 @@ public class StyleResource extends AbstractResource {
 	 * 
 	 * @summary Update a default value for the Visual Property
 	 * 
+	 * The body of the request should be a list of key-value pair:
+	 * <pre>
+	 * 		[
+	 * 			{
+	 * 				"visualProperty": VISUAL_PROPERTY_ID,
+	 * 				"value": value
+	 * 			}, ...
+	 * 		]
+	 * </pre> 
+	 * 
 	 * @param name Name of the Visual Style
 	 * 
 	 */
 	@PUT
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void updateDefaults(@PathParam("name") String name, InputStream is) {
+	public Status updateDefaults(@PathParam("name") String name, InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
@@ -321,12 +332,14 @@ public class StyleResource extends AbstractResource {
 		} catch (Exception e) {
 			throw getError("Could not update default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		
+		return Response.Status.OK;
 	}
 
 	@SuppressWarnings("unchecked")
 	private final void updateVisualProperties(final JsonNode rootNode, VisualStyle style) {
 		for(JsonNode defaultNode: rootNode) {
-			final String vpName = defaultNode.get("visual_property").textValue();
+			final String vpName = defaultNode.get(VisualStyleMapper.MAPPING_VP).textValue();
 
 			@SuppressWarnings("rawtypes")
 			final VisualProperty vp = getVisualProperty(vpName);

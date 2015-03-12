@@ -90,6 +90,25 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(root.isObject());
 		assertTrue(root.get("values").isArray());
 		assertEquals("name", root.get("name").asText());
+		assertEquals(Integer.valueOf(4), Integer.valueOf(root.get("values").size()));
+		
+		String result_suid = target("/v1/networks/" + suid.toString() + "/tables/defaultnetwork/columns/SUID").request().get(
+				String.class);
+		assertNotNull(result_suid);
+		final JsonNode root2 = mapper.readTree(result_suid);
+		assertTrue(root2.isObject());
+		assertTrue(root2.get("values").isArray());
+		assertEquals("SUID", root2.get("name").asText());
+		assertEquals(Integer.valueOf(1), Integer.valueOf(root2.get("values").size()));
+		
+		String result_edge = target("/v1/networks/" + suid.toString() + "/tables/defaultedge/columns/interaction").request().get(
+				String.class);
+		assertNotNull(result_edge);
+		final JsonNode root3 = mapper.readTree(result_edge);
+		assertTrue(root3.isObject());
+		assertTrue(root3.get("values").isArray());
+		assertEquals("interaction", root3.get("name").asText());
+		assertEquals(Integer.valueOf(3), Integer.valueOf(root3.get("values").size()));
 	}
 
 

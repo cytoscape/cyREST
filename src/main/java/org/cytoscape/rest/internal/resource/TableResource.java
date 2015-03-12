@@ -182,6 +182,12 @@ public class TableResource extends AbstractResource {
 	 * 
 	 * @summary Update values in a column
 	 * 
+	 * By default, you need to provide key-value pair to set values.
+	 * However, if "default" is provided, it will be used for the entire column.
+	 * 
+	 * This is useful to set columns like "selected."
+	 * 
+	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param tableType
@@ -216,7 +222,7 @@ public class TableResource extends AbstractResource {
 			}
 		}
 	}
-	
+
 
 	/**
 	 * 

@@ -89,6 +89,15 @@ public class TableMapper {
 			setValue(table.getColumn(columnName).getType(), value, row, columnName);
 		}
 	}
+
+
+	public void updateAllColumnValues(final String defaultValue, final CyTable table, final String columnName) {
+		// This should be an array of objects
+		final Class<?> dataType = table.getColumn(columnName).getType();
+		for(final CyRow row : table.getAllRows()) {
+			assignValue(defaultValue, dataType, row, columnName);
+		}
+	}
 	
 
 	/**
@@ -224,6 +233,21 @@ public class TableMapper {
 		}
 	}
 
+	private final void assignValue(final String value, final Class<?> type, final CyRow row, final String columnName) {
+		if (type == String.class) {
+			row.set(columnName, value.toString());
+		} else if (type == Boolean.class) {
+			row.set(columnName, Boolean.parseBoolean(value));
+		} else if (type == Double.class) {
+			row.set(columnName, Double.parseDouble(value));
+		} else if (type == Integer.class) {
+			row.set(columnName, Integer.parseInt(value));
+		} else if (type == Long.class) {
+			row.set(columnName, Long.parseLong(value));
+		} else if (type == Float.class) {
+			row.set(columnName, Double.parseDouble(value));
+		}
+	}
 
 	/**
 	 * Check data type.  All numbers will be set to Double.

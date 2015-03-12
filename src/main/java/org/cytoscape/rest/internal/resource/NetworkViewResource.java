@@ -460,7 +460,7 @@ public class NetworkViewResource extends AbstractResource {
 	 * 
 	 * @param networkId Network SUID
 	 * @param viewId Network view SUID
-	 * @param objectType Type of objects ("nodes" or "edges")
+	 * @param objectType Type of objects (nodes, edges, or network)
 	 * @param objectId node/edge SUID (NOT node/edge view SUID)
 	 * 
 	 */
@@ -478,7 +478,43 @@ public class NetworkViewResource extends AbstractResource {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 		} else if(objectType.equals("edges")) {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-		} else {
+		} else if(objectType.equals("network")) {
+			view = networkView;
+		}
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		try {
+			// This should be an JSON array.
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			styleMapper.updateView(view, rootNode, getLexicon());
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		// Repaint
+		networkView.updateView();
+	}
+
+	
+	@PUT
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateAllViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId,
+			@PathParam("visualProperty") String visualProperty, final InputStream is) {
+		
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		View<? extends CyIdentifiable> view = null;
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+		} else if(objectType.equals("edges")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+		} else if(objectType.equals("network")) {
 			view = networkView;
 		}
 		

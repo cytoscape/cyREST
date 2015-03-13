@@ -71,6 +71,7 @@ public class NetworkNameResource extends AbstractResource {
 		return getNetworksAsSimpleList(networks);
 	}
 
+	@SuppressWarnings("unchecked")
 	private final List<Map<String, ?>> getNetworksAsSimpleList(final Set<CyNetwork> networks) {
 		if (networks.isEmpty()) {
 			return Collections.EMPTY_LIST;

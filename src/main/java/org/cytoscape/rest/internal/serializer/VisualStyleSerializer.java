@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
@@ -202,6 +203,7 @@ public class VisualStyleSerializer {
 		stream.close();
 		return result;
 	}
+	
 	
 	private final void addKeyValuePair(final JsonGenerator generator, final SortedMap<String, VisualProperty<?>> names,
 			final View<? extends CyIdentifiable> view) throws IOException {

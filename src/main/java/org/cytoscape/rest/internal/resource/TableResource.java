@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
@@ -201,7 +202,7 @@ public class TableResource extends AbstractResource {
 	@PUT
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumnValues(@PathParam("networkId") Long networkId,
+	public Response updateColumnValues(@PathParam("networkId") Long networkId,
 			@PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName,
 			@QueryParam("default") String defaultValue, final InputStream is) {
@@ -221,6 +222,7 @@ public class TableResource extends AbstractResource {
 						e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		}
+		return Response.ok().build();
 	}
 
 

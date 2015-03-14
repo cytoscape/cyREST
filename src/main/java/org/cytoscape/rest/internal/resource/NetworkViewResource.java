@@ -5,8 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -407,11 +409,11 @@ public class NetworkViewResource extends AbstractResource {
 
 				View<? extends CyIdentifiable> view = null;
 				if (objectType.equals("nodes")) {
-					view = networkView.getNodeView(networkView.getModel()
-							.getNode(objectId));
+					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 				} else if (objectType.equals("edges")) {
-					view = networkView.getNodeView(networkView.getModel()
-							.getNode(objectId));
+					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+				} else if(objectType.equals("network")) {
+					view = networkView;
 				} else {
 					throw getError("Method not supported.",
 							new IllegalStateException(),
@@ -571,6 +573,8 @@ public class NetworkViewResource extends AbstractResource {
 			vps = nodeLexicon;
 		} else if(objectType.equals("edges")) {
 			vps = edgeLexicon;
+		} else if(objectType.equals("network")) {
+			vps = networkLexicon;
 		}
 		
 		return getViewForVPList(networkId, viewId, objectType, vps);
@@ -584,7 +588,13 @@ public class NetworkViewResource extends AbstractResource {
 			graphObjects = networkView.getNodeViews();
 		} else if(objectType.equals("edges")) {
 			graphObjects = networkView.getEdgeViews();
-		}
+		} else if(objectType.equals("network")) {
+			try {
+				return styleSerializer.serializeView(networkView, vps);
+			} catch (IOException e) {
+				throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
+		} 
 		
 		if(graphObjects == null || graphObjects.isEmpty()) {
 			throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);

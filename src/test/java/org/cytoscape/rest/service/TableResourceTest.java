@@ -6,7 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -159,5 +162,25 @@ public class TableResourceTest extends BasicResourceTest {
 				String.class);
 		assertNotNull(result);
 		assertEquals("n1", result);
+	}
+	
+	
+	@Test
+	public void testUpdateColumnValues() throws Exception {
+		
+		final Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/selected")
+				.queryParam("default", "true").request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		for(CyNode node: network.getNodeList()) {
+			assertTrue(network.getRow(node).get(CyNetwork.SELECTED, Boolean.class));
+		}
+		
 	}
 }

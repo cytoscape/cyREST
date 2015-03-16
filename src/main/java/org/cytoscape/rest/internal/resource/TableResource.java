@@ -346,7 +346,7 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
-	
+
 	/**
 	 * 
 	 * @summary Get all rows in a table

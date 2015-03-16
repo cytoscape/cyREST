@@ -501,6 +501,49 @@ public class NetworkViewResource extends AbstractResource {
 		networkView.updateView();
 	}
 
+	/**
+	 * 
+	 * By passing a list of key-value pairs for each Visual Property, update network view.
+	 * 
+	 * The body should have the following JSON:
+	 * 
+	 * <pre>
+	 * [
+	 * 		{
+	 * 			"visualProperty": "Visual Property Name, like NETWORK_BACKGROUND_PAINT",
+	 * 			"value": "Serialized form of value, like 'red.'"
+	 * 		},
+	 * 		...
+	 * 		{}
+	 * ]
+	 * </pre>
+	 * 
+	 * Note that this API directly set the value to the view objects, and once Visual Style applied, 
+	 * those values are overridden by the Visual Style.
+	 * 
+	 * @summary Update single network view value, such as background color or zoom level.
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * 
+	 */
+	@PUT
+	@Path("/{viewId}/network")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId, final InputStream is) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		try {
+			// This should be an JSON array.
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			styleMapper.updateView(networkView, rootNode, getLexicon());
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		// Repaint
+		networkView.updateView();
+	}
 
 
 	/**
@@ -544,6 +587,36 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 
+	@GET
+	@Path("/{viewId}/network/{visualProperty}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("visualProperty") String visualProperty) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		Collection<VisualProperty<?>> lexicon = null;
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		lexicon = networkLexicon;
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: networkLexicon) {
+			if(vp.getIdString().equals(visualProperty)) {
+				targetVp = vp;
+				break;
+			}
+		}
+		if(targetVp == null) {
+			throw getError("Could not find such Visual Property: " + visualProperty , new NotFoundException(), Response.Status.NOT_FOUND);
+		}
+
+		try {
+			return styleSerializer.serializeSingleVisualProp(networkView, targetVp);
+		} catch (IOException e) {
+			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	/**
 	 * @summary Get current values for a specific Visual Property 

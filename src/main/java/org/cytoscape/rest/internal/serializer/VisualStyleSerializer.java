@@ -205,6 +205,31 @@ public class VisualStyleSerializer {
 	}
 	
 	
+	public final String serializeSingleVisualProp(final View<? extends CyIdentifiable> view, 
+			final VisualProperty<?> vp) throws IOException {
+		final SortedMap<String, VisualProperty<?>> names = new TreeMap<>();
+		names.put(vp.getIdString(), vp);
+		
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartObject();
+		generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
+		generator.writeFieldName("value");
+		writeValue((VisualProperty<Object>) vp, view.getVisualProperty(vp), generator);
+		generator.writeEndObject();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	
 	private final void addKeyValuePair(final JsonGenerator generator, final SortedMap<String, VisualProperty<?>> names,
 			final View<? extends CyIdentifiable> view) throws IOException {
 		

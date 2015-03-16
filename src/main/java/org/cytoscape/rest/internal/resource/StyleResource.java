@@ -447,7 +447,11 @@ public class StyleResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Create a new Visual Mapping from JSON and add it to the Style.
+	 * Create a new Visual Mapping function from JSON and add it to the Style.
+	 * 
+	 * <h3>Discrete Mapping</h3>
+	 * <h3>Continuous Mapping</h3>
+	 * <h3>Passthrough Mapping</h3>
 	 * 
 	 * @summary Add a new Visual Mapping
 	 * 
@@ -457,7 +461,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public void addMappings(@PathParam("name") String name,InputStream is) {
+	public void createMappings(@PathParam("name") String name,InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;

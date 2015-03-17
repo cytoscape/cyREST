@@ -95,7 +95,7 @@ public class TableResource extends AbstractResource {
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void createColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response createColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
@@ -109,6 +109,10 @@ public class TableResource extends AbstractResource {
 			} else {
 				tableMapper.createNewColumn(rootNode, table);
 			}
+			
+			// Use 201 for created resource
+			return Response.status(Response.Status.CREATED).build();
+			
 		} catch (Exception e) {
 			throw getError("Could not process column JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}

@@ -132,12 +132,13 @@ public class TableResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
-	public void deleteColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response deleteColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
 		if (table != null) {
 			table.deleteColumn(columnName);
+			return Response.ok().build();
 		} else {
 			logger.error("Failed to delete a column. (Missing table?)");
 			throw new NotFoundException("Could not find the table.  (This should not happen!)");
@@ -168,7 +169,7 @@ public class TableResource extends AbstractResource {
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateColumnName(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response updateColumnName(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
 			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType);
@@ -177,6 +178,7 @@ public class TableResource extends AbstractResource {
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnName(rootNode, table);
+			return Response.ok().build();
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

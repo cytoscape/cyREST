@@ -249,7 +249,6 @@ public class TableResourceTest extends BasicResourceTest {
 	}
 	
 	private final void testCreateColumForGivenType(final String type, CyTable table) {
-		
 		final String strColumn = "{"
 				+ "\"name\": \"strColumn\","
 				+ "\"type\": \"String\" }";
@@ -262,6 +261,10 @@ public class TableResourceTest extends BasicResourceTest {
 		final String doubleColumn = "{"
 				+ "\"name\": \"doubleColumn\","
 				+ "\"type\": \"Double\" }";
+
+		final String boolColumn = "{"
+				+ "\"name\": \"boolColumn\","
+				+ "\"type\": \"Boolean\" }";
 		
 		final String srtListColumn = "{"
 				+ "\"name\": \"strListColumn\","
@@ -296,5 +299,67 @@ public class TableResourceTest extends BasicResourceTest {
 		final CyColumn intCol = table.getColumn("intColumn");
 		assertNotNull(intCol);
 		assertEquals(Integer.class, intCol.getType());
+		
+		// Double
+		entity = Entity.entity(doubleColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn doubleCol = table.getColumn("doubleColumn");
+		assertNotNull(doubleCol);
+		assertEquals(Double.class, doubleCol.getType());
+		
+		// Boolean
+		entity = Entity.entity(boolColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn boolCol = table.getColumn("boolColumn");
+		assertNotNull(boolCol);
+		assertEquals(Boolean.class, boolCol.getType());
+		
+		// String List
+		entity = Entity.entity(srtListColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn strListCol = table.getColumn("strListColumn");
+		assertNotNull(strListCol);
+		assertEquals(List.class, strListCol.getType());
+		assertEquals(String.class, strListCol.getListElementType());
 	}
+
+
+	@Test
+	public void testDeleteColumn() throws Exception {
+		deleteColumn("defaultnode", network.getDefaultNodeTable());
+		deleteColumn("defaultedge", network.getDefaultEdgeTable());
+		deleteColumn("defaultnetwork", network.getDefaultNetworkTable());
+	}
+
+
+	private void deleteColumn(final String type, final CyTable table) {
+		// Create dummy column
+		table.createColumn("dummy", String.class, false);
+		
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns/dummy").request().delete();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+
+		final CyColumn dummyCol = table.getColumn("dummy");
+		assertNull(dummyCol);
+	}
+	
 }

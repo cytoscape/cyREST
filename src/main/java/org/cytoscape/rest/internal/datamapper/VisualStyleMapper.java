@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.core.Response;
+
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
@@ -219,7 +221,7 @@ public class VisualStyleMapper {
 	 * @param rootNode
 	 * @param lexicon
 	 */
-	public void updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon) {
+	public Response updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon) {
 		for (final JsonNode vpNode : rootNode) {
 			String vpName = vpNode.get(MAPPING_VP).textValue();
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
@@ -237,6 +239,7 @@ public class VisualStyleMapper {
 			
 			view.setVisualProperty(vp, parsedValue);
 		}
+		return Response.ok().build();
 	}
 
 

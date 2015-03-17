@@ -469,7 +469,7 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public Response updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId,
 			final InputStream is) {
 		
@@ -479,7 +479,7 @@ public class NetworkViewResource extends AbstractResource {
 		if(objectType.equals("nodes")) {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 		} else if(objectType.equals("edges")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
 		} else if(objectType.equals("network")) {
 			view = networkView;
 		}
@@ -499,6 +499,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		// Repaint
 		networkView.updateView();
+		return Response.ok().build();
 	}
 
 	/**
@@ -530,7 +531,7 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/network")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId, final InputStream is) {
+	public Response updateNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId, final InputStream is) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -543,6 +544,8 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		// Repaint
 		networkView.updateView();
+		
+		return Response.ok().build();
 	}
 
 
@@ -587,6 +590,36 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 
+
+	@GET
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getSingleVisualPropertyValue(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId, 
+			@PathParam("visualProperty") String visualProperty) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		Collection<VisualProperty<?>> vps = null;
+		View<? extends CyIdentifiable> view = null;
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			vps = nodeLexicon;
+		} else if(objectType.equals("edges")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			vps = edgeLexicon;
+		}
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+
+		return getSingleVp(visualProperty, view, vps);
+	}
+
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -594,14 +627,16 @@ public class NetworkViewResource extends AbstractResource {
 			@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
-		Collection<VisualProperty<?>> lexicon = null;
 		if(nodeLexicon == null) {
 			initLexicon();
 		}
-		
-		lexicon = networkLexicon;
+		return getSingleVp(visualProperty, networkView, networkLexicon);
+	}
+	
+	private String getSingleVp(final String visualProperty, final View<? extends CyIdentifiable> view, 
+			final Collection<VisualProperty<?>> vps) {
 		VisualProperty<?> targetVp = null;
-		for(final VisualProperty<?> vp: networkLexicon) {
+		for(final VisualProperty<?> vp: vps) {
 			if(vp.getIdString().equals(visualProperty)) {
 				targetVp = vp;
 				break;
@@ -612,7 +647,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		try {
-			return styleSerializer.serializeSingleVisualProp(networkView, targetVp);
+			return styleSerializer.serializeSingleVisualProp(view, targetVp);
 		} catch (IOException e) {
 			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

@@ -2,6 +2,8 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,14 +13,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.view.model.DiscreteRange;
+import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.presentation.property.values.VisualPropertyValue;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.ContinuousMappingPoint;
+import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 import org.w3c.dom.ls.LSException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -69,13 +76,66 @@ public class StyleResourceTest extends BasicResourceTest {
 	
 	
 	@Test
-	public void testGetStyleDefaults() throws Exception {
+	public void testGetDefaultValues() throws Exception {
 		final Response result = target("/v1/styles/vs1/defaults").request().get();
 		assertNotNull(result);
 		final String body = result.readEntity(String.class);
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.get("defaults").isArray());
+	}
+
+
+	@Test
+	public void testGetRangeValues() throws Exception {
+		testRange(BasicVisualLexicon.NODE_SHAPE);
+		testRange(BasicVisualLexicon.NODE_BORDER_LINE_TYPE);
+		testRange(BasicVisualLexicon.EDGE_LINE_TYPE);
+		testRange(BasicVisualLexicon.EDGE_SOURCE_ARROW_SHAPE);
+		testRange(BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE);
+	}
+	
+	
+	private final void testRange(VisualProperty<?> vp) throws JsonProcessingException, IOException {
+		Set<?> values = ((DiscreteRange<?>)vp.getRange()).values();
+		Set<String> valueStrings = new HashSet<>();
+		for(Object val:values) {
+			VisualPropertyValue vpv = (VisualPropertyValue) val;
+			valueStrings.add(vpv.getSerializableString());
+		}
+		
+		Response result = target("/v1/styles/visualproperties/" + vp.getIdString() + "/values").request().get();
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
+		final JsonNode generatedValues = root.get("values");
+		assertNotNull(generatedValues);
+		assertTrue(generatedValues.isArray());
+		assertEquals(values.size(), generatedValues.size());
+		
+		for(JsonNode node: generatedValues) {
+			assertTrue(valueStrings.contains(node.asText()));
+		}
+	}
+	
+	
+	@Test
+	public void testGetDefaultValue() throws Exception {
+		
+		final String vp = BasicVisualLexicon.NODE_FILL_COLOR.getIdString();
+		Response result = target("/v1/styles/vs1/defaults/NODE_FILL_COLOR").request().get();
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
+		assertEquals(vp, root.get("visualProperty").textValue());
+		String inHex = Integer.toHexString(((Color)style.getDefaultValue(BasicVisualLexicon.NODE_FILL_COLOR)).getRGB());
+		assertTrue(root.get("value").asText().endsWith(inHex.substring(2)));
 	}
 
 
@@ -224,4 +284,35 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(201, result.getStatus());
 		System.out.println("res: " + result.toString());
 	}
+	
+	@Test
+	public void testUpdateMapping() throws Exception {
+		final String nodeLabelMapping = "[{"
+				+ "\"mappingType\": \"passthrough\","
+				+ "\"mappingColumn\": \"name\","
+				+ "\"mappingColumnType\": \"String\","
+				+ "\"visualProperty\": \"NODE_LABEL\" }]";
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(nodeLabelMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings/NODE_LABEL").request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final String nodeTooltipMapping = "[{"
+				+ "\"mappingType\": \"passthrough\","
+				+ "\"mappingColumn\": \"name\","
+				+ "\"mappingColumnType\": \"String\","
+				+ "\"visualProperty\": \"NODE_TOOLTIP\" }]";
+		
+		// Test String column
+		entity = Entity.entity(nodeTooltipMapping, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/styles/vs1/mappings/NODE_TOOLTIP").request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(404, result.getStatus());
+		System.out.println("res: " + result.toString());
+	}	
 }

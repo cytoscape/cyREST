@@ -10,9 +10,11 @@ import java.util.TreeMap;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.DiscreteRange;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.presentation.property.values.VisualPropertyValue;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
@@ -33,14 +35,14 @@ public class VisualStyleSerializer {
 	private final ContinuousMappingSerializer continuousSerializer = new ContinuousMappingSerializer();
 
 	public final String serializeDefaults(final Collection<VisualProperty<?>> vps, final VisualStyle style) throws IOException {
-
+		final JsonFactory factory = new JsonFactory();
+		
 		// Sort by field name
 		final SortedMap<String, VisualProperty<?>> names = new TreeMap<String, VisualProperty<?>>();
 		for(final VisualProperty<?> vp:vps) {
 			names.put(vp.getIdString(), vp);
 		}
 		
-		final JsonFactory factory = new JsonFactory();
 
 		String result = null;
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -49,6 +51,54 @@ public class VisualStyleSerializer {
 		
 		generator.writeStartObject();
 		addDefaults(generator, names, style);
+		generator.writeEndObject();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+
+
+	public final String serializeDefault(final VisualProperty<Object> vp, final VisualStyle style) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartObject();
+		generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
+		generator.writeFieldName("value");
+		writeValue(vp, style.getDefaultValue(vp), generator);
+		generator.writeEndObject();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+
+
+	public final String serializeDiscreteRange(final VisualProperty<Object> vp, final DiscreteRange<Object> range) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartObject();
+		
+		generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
+		generator.writeArrayFieldStart("values");
+		for(Object obj: range.values()) {
+			VisualPropertyValue vpv = (VisualPropertyValue) obj;
+			generator.writeString(vpv.getSerializableString());
+		}
+		generator.writeEndArray();
+		
 		generator.writeEndObject();
 		
 		generator.close();

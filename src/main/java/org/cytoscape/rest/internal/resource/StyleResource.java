@@ -32,6 +32,8 @@ import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
+import org.cytoscape.view.model.DiscreteRange;
+import org.cytoscape.view.model.Range;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
@@ -187,7 +189,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getDefaults(@PathParam("name") String name) {
-		return getVp(name, null);
+		return serializeDefaultValues(name);
 	}
 
 	
@@ -204,9 +206,26 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/{name}/defaults/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getDefaultValue(@PathParam("name") String name,
-			@PathParam("vp") String vp) {
-		return getVp(name, vp);
+	public String getDefaultValue(@PathParam("name") String name, @PathParam("vp") String vp) {
+		return serializeDefaultValue(name, vp);
+	}
+
+
+	/**
+	 * This method is only for Visual Properties with DiscreteRange, such as 
+	 * NODE_SHAPE or EDGE_LINE_TYPE.
+	 * 
+	 * @summary Get all available range values for the Visual Property
+	 * 
+	 * @param vp Visual Property ID
+	 * 
+	 * @return List of all available values for the visual property.
+	 */
+	@GET
+	@Path("/visualproperties/{vp}/values")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getRangeValues(@PathParam("vp") String vp) {
+		return serializeRangeValue(vp);
 	}
 
 
@@ -256,6 +275,16 @@ public class StyleResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getMapping(@PathParam("name") String name, @PathParam("vp") String vp) {
 		final VisualStyle style = getStyleByName(name);
+		final VisualMappingFunction<?, ?> mapping = getMappingFunction(vp, style);
+		
+		try {
+			return styleMapper.writeValueAsString(mapping);
+		} catch (JsonProcessingException e) {
+			throw getError("Could not serialize Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	private final VisualMappingFunction<?, ?> getMappingFunction(final String vp, final VisualStyle style) {
 		final VisualLexicon lexicon = getLexicon();
 		final Set<VisualProperty<?>> allVp = lexicon.getAllVisualProperties();
 		VisualProperty<?> visualProp = null;
@@ -269,32 +298,53 @@ public class StyleResource extends AbstractResource {
 			throw new NotFoundException("Could not find VisualProperty: " + vp);
 		}
 		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
-		try {
-			return styleMapper.writeValueAsString(mapping);
-		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		
+		if(mapping == null) {
+			throw new NotFoundException("Could not find visual mapping function for " + vp);
 		}
+		
+		return mapping;
 	}
 
-	private final String getVp(String name, String vpName) {
+	private final String serializeDefaultValues(String name) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualLexicon lexicon = getLexicon();
-		final Collection<VisualProperty<?>> vps;
-		if (vpName == null) {
-			vps = lexicon.getAllVisualProperties();
-		} else {
-			VisualProperty<?> vp = getVisualProperty(vpName);
-			vps = new HashSet<VisualProperty<?>>();
-			if(vp != null) {
-				vps.add(vp);
-			}
-		}
+		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		try {
 			return styleSerializer.serializeDefaults(vps, style);
 		} catch (IOException e) {
 			throw getError("Could not serialize default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+
+	private final String serializeDefaultValue(final String styleName, final String vpName) {
+		final VisualStyle style = getStyleByName(styleName);
+		VisualProperty<Object> vp = (VisualProperty<Object>) getVisualProperty(vpName);
+		try {
+			return styleSerializer.serializeDefault(vp, style);
+		} catch (IOException e) {
+			throw getError("Could not serialize default value for " + vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	private final String serializeRangeValue(final String vpName) {
+		VisualProperty<Object> vp = (VisualProperty<Object>) getVisualProperty(vpName);
+		Range<Object> range = vp.getRange();
+		if (range.isDiscrete()) {
+			final DiscreteRange<Object> discRange = (DiscreteRange<Object>)range;
+			try {
+				return styleSerializer.serializeDiscreteRange(vp, discRange);
+			} catch (IOException e) {
+				throw getError("Could not serialize default value for "
+						+ vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			throw new NotFoundException("Range object is not available for " + vpName);
+		}
+	}
+	
 
 	private final VisualProperty<?> getVisualProperty(String vpName) {
 		final VisualLexicon lexicon = getLexicon();
@@ -506,6 +556,37 @@ public class StyleResource extends AbstractResource {
 		} catch (Exception e) {
 			throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+
+	/**
+	 * Currently, this is same as POST; it simply replaces existing mapping.  
+	 * You need to send complete information for the new mappings.
+	 * 
+	 * @summary Update an existing Visual Mapping
+	 * 
+	 * @param name Name of visual Style
+	 * @param vp Target Visual Property
+	 * 
+	 */
+	@PUT
+	@Path("/{name}/mappings/{vp}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateMapping(@PathParam("name") String name,  @PathParam("vp") String vp, InputStream is) {
+		final VisualStyle style = getStyleByName(name);
+		final VisualMappingFunction<?, ?> currentMapping = getMappingFunction(vp, style);
+	
+		final ObjectMapper objMapper = new ObjectMapper();
+		JsonNode rootNode;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw getError("Could not update Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.ok().build();
 	}
 
 

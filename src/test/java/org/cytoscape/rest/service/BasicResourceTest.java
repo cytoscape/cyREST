@@ -124,6 +124,8 @@ public class BasicResourceTest extends JerseyTest {
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
+	
+	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
 	public BasicResourceTest() {
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
@@ -178,7 +180,6 @@ public class BasicResourceTest extends JerseyTest {
 
 		CyTableManager tableManager = mock(CyTableManager.class);
 		VisualStyleFactory vsFactory = mock(VisualStyleFactory.class);
-		MappingFactoryManager mappingFactoryManager = mock(MappingFactoryManager.class);
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
 		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
@@ -223,6 +224,10 @@ public class BasicResourceTest extends JerseyTest {
 		discreteFactory = new DiscreteMappingFactory(eventHelper);
 		continuousFactory = new ContinuousMappingFactory(eventHelper);
 
+		mappingFactoryManager.addFactory(passthroughFactory, null);
+		mappingFactoryManager.addFactory(continuousFactory, null);
+		mappingFactoryManager.addFactory(discreteFactory, null);
+		
 		this.style = generateVisualStyle(lexicon);
 		setDefaults();
 		setMappings();

@@ -477,6 +477,7 @@ public class StyleResource extends AbstractResource {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw getError("Could not create new Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		

@@ -225,10 +225,18 @@ public class StyleResource extends AbstractResource {
 	public String getMappings(@PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
 		final Collection<VisualMappingFunction<?, ?>> mappings = style.getAllVisualMappingFunctions();
+		if(mappings.isEmpty()) {
+			return "[]";
+		}
+		
 		try {
 			return styleMapper.writeValueAsString(mappings);
 		} catch (JsonProcessingException e) {
+			e.printStackTrace();
 			throw getError("Could not serialize Mappings.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			throw getError("Could not serialize Mappings.", ex, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -461,7 +469,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public void createMappings(@PathParam("name") String name,InputStream is) {
+	public Response createMappings(@PathParam("name") String name,InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
@@ -471,6 +479,8 @@ public class StyleResource extends AbstractResource {
 		} catch (Exception e) {
 			throw getError("Could not create new Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		
+		return Response.status(Response.Status.CREATED).build();
 	}
 
 

@@ -8,7 +8,7 @@
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.12</junit.version>
-		<jersey.version>2.16</jersey.version>
+		<jersey.version>2.17</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>0.9.11</version>
+	<version>0.9.12</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 

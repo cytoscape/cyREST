@@ -48,7 +48,8 @@ public class ContinuousMappingSerializer extends JsonSerializer<ContinuousMappin
 		final List<ContinuousMappingPoint> points = mapping.getAllPoints();
 		for(final ContinuousMappingPoint<?, ?> point : points) {
 			jgen.writeStartObject();
-			jgen.writeNumberField("value", (Double) point.getValue());
+			final Number val = (Number) point.getValue();
+			jgen.writeNumberField("value", val.doubleValue());
 			final BoundaryRangeValues<?> range = point.getRange();
 			jgen.writeStringField("lesser", vp.toSerializableString(range.lesserValue));
 			jgen.writeStringField("equal", vp.toSerializableString(range.equalValue));

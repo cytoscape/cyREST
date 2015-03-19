@@ -6,10 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.cytoscape.model.CyColumn;
+import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -160,4 +166,200 @@ public class TableResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		assertEquals("n1", result);
 	}
+	
+	
+	@Test
+	public void testUpdateColumnValues() throws Exception {
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": \"true\" },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": \"false\" },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": \"true\" }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/selected")
+				.request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertTrue(network.getRow(node1).get(CyNetwork.SELECTED, Boolean.class));
+		assertFalse(network.getRow(node2).get(CyNetwork.SELECTED, Boolean.class));
+		assertTrue(network.getRow(node3).get(CyNetwork.SELECTED, Boolean.class));
+		
+		CyEdge edge1 = network.getEdgeList().get(0);
+		CyEdge edge2= network.getEdgeList().get(1);
+		CyEdge edge3 = network.getEdgeList().get(2);
+		
+		final String edgeNewValues = "["
+				+ "{\"SUID\":" + edge1.getSUID() + ", \"value\": \"false\" },"
+				+ "{\"SUID\":" + edge2.getSUID() + ", \"value\": \"false\" },"
+				+ "{\"SUID\":" + edge3.getSUID() + ", \"value\": \"true\" }"
+				+ "]";
+		
+		entity = Entity.entity(edgeNewValues, MediaType.APPLICATION_JSON_TYPE);
+		
+		Response edgeResult = target("/v1/networks/" + suid.toString() + "/tables/defaultedge/columns/selected")
+				.request().put(entity);
+		assertNotNull(edgeResult);
+		assertFalse(edgeResult.getStatus() == 500);
+		assertEquals(200, edgeResult.getStatus());
+		System.out.println("res: " + edgeResult.toString());
+		
+		assertFalse(network.getRow(edge1).get(CyNetwork.SELECTED, Boolean.class));
+		assertFalse(network.getRow(edge2).get(CyNetwork.SELECTED, Boolean.class));
+		assertTrue(network.getRow(edge3).get(CyNetwork.SELECTED, Boolean.class));
+	}
+
+
+	@Test
+	public void testUpdateColumnDefaultValues() throws Exception {
+		
+		final Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/selected")
+				.queryParam("default", "true").request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		for(CyNode node: network.getNodeList()) {
+			assertTrue(network.getRow(node).get(CyNetwork.SELECTED, Boolean.class));
+		}
+		
+	}
+
+
+	@Test
+	public void testCreateColumn() throws Exception {
+		testCreateColumForGivenType("defaultnode", network.getDefaultNodeTable());
+		testCreateColumForGivenType("defaultedge", network.getDefaultEdgeTable());
+		testCreateColumForGivenType("defaultnetwork", network.getDefaultNetworkTable());
+	}
+	
+	private final void testCreateColumForGivenType(final String type, CyTable table) {
+		final String strColumn = "{"
+				+ "\"name\": \"strColumn\","
+				+ "\"type\": \"String\" }";
+		
+		final String intColumn = "{"
+				+ "\"name\": \"intColumn\","
+				+ "\"immutable\": \"true\","
+				+ "\"type\": \"Integer\" }";
+		
+		final String doubleColumn = "{"
+				+ "\"name\": \"doubleColumn\","
+				+ "\"type\": \"Double\" }";
+
+		final String boolColumn = "{"
+				+ "\"name\": \"boolColumn\","
+				+ "\"type\": \"Boolean\" }";
+		
+		final String srtListColumn = "{"
+				+ "\"name\": \"strListColumn\","
+				+ "\"immutable\": \"true\","
+				+ "\"list\": \"true\","
+				+ "\"type\": \"String\" }";
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(strColumn, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/" + type +"/columns")
+				.request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn strCol = table.getColumn("strColumn");
+		assertNotNull(strCol);
+		assertEquals(String.class, strCol.getType());
+		
+		// Test integer column
+		entity = Entity.entity(intColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns")
+				.request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn intCol = table.getColumn("intColumn");
+		assertNotNull(intCol);
+		assertEquals(Integer.class, intCol.getType());
+		
+		// Double
+		entity = Entity.entity(doubleColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn doubleCol = table.getColumn("doubleColumn");
+		assertNotNull(doubleCol);
+		assertEquals(Double.class, doubleCol.getType());
+		
+		// Boolean
+		entity = Entity.entity(boolColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn boolCol = table.getColumn("boolColumn");
+		assertNotNull(boolCol);
+		assertEquals(Boolean.class, boolCol.getType());
+		
+		// String List
+		entity = Entity.entity(srtListColumn, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		final CyColumn strListCol = table.getColumn("strListColumn");
+		assertNotNull(strListCol);
+		assertEquals(List.class, strListCol.getType());
+		assertEquals(String.class, strListCol.getListElementType());
+	}
+
+
+	@Test
+	public void testDeleteColumn() throws Exception {
+		deleteColumn("defaultnode", network.getDefaultNodeTable());
+		deleteColumn("defaultedge", network.getDefaultEdgeTable());
+		deleteColumn("defaultnetwork", network.getDefaultNetworkTable());
+	}
+
+
+	private void deleteColumn(final String type, final CyTable table) {
+		// Create dummy column
+		table.createColumn("dummy", String.class, false);
+		
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/" + type + "/columns/dummy").request().delete();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+
+		final CyColumn dummyCol = table.getColumn("dummy");
+		assertNull(dummyCol);
+	}
+	
 }

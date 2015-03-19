@@ -2,10 +2,12 @@ package org.cytoscape.rest.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +47,7 @@ import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkFullResource;
+import org.cytoscape.rest.internal.resource.NetworkNameResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
@@ -87,6 +90,8 @@ import org.cytoscape.view.vizmap.internal.mappings.PassthroughMappingFactory;
 import org.cytoscape.view.vizmap.mappings.BoundaryRangeValues;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
+import org.cytoscape.work.Task;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
@@ -115,6 +120,12 @@ public class BasicResourceTest extends JerseyTest {
 	private PassthroughMappingFactory passthroughFactory;
 	private ContinuousMappingFactory continuousFactory;
 	private DiscreteMappingFactory discreteFactory;
+	
+	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
+	protected OpenSessionTaskFactory openSessionTaskFactory;
+	protected NewSessionTaskFactory newSessionTaskFactory;
+	
+	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
 	public BasicResourceTest() {
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
@@ -169,7 +180,6 @@ public class BasicResourceTest extends JerseyTest {
 
 		CyTableManager tableManager = mock(CyTableManager.class);
 		VisualStyleFactory vsFactory = mock(VisualStyleFactory.class);
-		MappingFactoryManager mappingFactoryManager = mock(MappingFactoryManager.class);
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
 		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
@@ -184,9 +194,13 @@ public class BasicResourceTest extends JerseyTest {
 		CySessionManager sessionManager = mock(CySessionManager.class);
 		when(sessionManager.getCurrentSessionFileName()).thenReturn("testSession");
 		
-		final SaveSessionAsTaskFactory saveSessionAsTaskFactory = mock(SaveSessionAsTaskFactory.class);
-		final OpenSessionTaskFactory openSessionTaskFactory = mock(OpenSessionTaskFactory.class);
-		final NewSessionTaskFactory newSessionTaskFactory = mock(NewSessionTaskFactory.class);
+		saveSessionAsTaskFactory = mock(SaveSessionAsTaskFactory.class);
+		Task mockTask = mock(Task.class);
+		when(saveSessionAsTaskFactory.createTaskIterator((File) anyObject())).thenReturn(new TaskIterator(mockTask));
+		openSessionTaskFactory = mock(OpenSessionTaskFactory.class);
+		when(openSessionTaskFactory.createTaskIterator((File) anyObject())).thenReturn(new TaskIterator(mockTask));
+		newSessionTaskFactory = mock(NewSessionTaskFactory.class);
+		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -210,6 +224,10 @@ public class BasicResourceTest extends JerseyTest {
 		discreteFactory = new DiscreteMappingFactory(eventHelper);
 		continuousFactory = new ContinuousMappingFactory(eventHelper);
 
+		mappingFactoryManager.addFactory(passthroughFactory, null);
+		mappingFactoryManager.addFactory(continuousFactory, null);
+		mappingFactoryManager.addFactory(discreteFactory, null);
+		
 		this.style = generateVisualStyle(lexicon);
 		setDefaults();
 		setMappings();
@@ -445,7 +463,8 @@ public class BasicResourceTest extends JerseyTest {
 									AlgorithmicResource.class,
 									StyleResource.class, GroupResource.class,
 									GlobalTableResource.class,
-									SessionResource.class);
+									SessionResource.class,
+									NetworkNameResource.class);
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")

@@ -5,8 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -407,11 +409,11 @@ public class NetworkViewResource extends AbstractResource {
 
 				View<? extends CyIdentifiable> view = null;
 				if (objectType.equals("nodes")) {
-					view = networkView.getNodeView(networkView.getModel()
-							.getNode(objectId));
+					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 				} else if (objectType.equals("edges")) {
-					view = networkView.getNodeView(networkView.getModel()
-							.getNode(objectId));
+					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+				} else if(objectType.equals("network")) {
+					view = networkView;
 				} else {
 					throw getError("Method not supported.",
 							new IllegalStateException(),
@@ -467,7 +469,7 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public Response updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId,
 			final InputStream is) {
 		
@@ -477,7 +479,7 @@ public class NetworkViewResource extends AbstractResource {
 		if(objectType.equals("nodes")) {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 		} else if(objectType.equals("edges")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
 		} else if(objectType.equals("network")) {
 			view = networkView;
 		}
@@ -497,8 +499,54 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		// Repaint
 		networkView.updateView();
+		return Response.ok().build();
 	}
 
+	/**
+	 * 
+	 * By passing a list of key-value pairs for each Visual Property, update network view.
+	 * 
+	 * The body should have the following JSON:
+	 * 
+	 * <pre>
+	 * [
+	 * 		{
+	 * 			"visualProperty": "Visual Property Name, like NETWORK_BACKGROUND_PAINT",
+	 * 			"value": "Serialized form of value, like 'red.'"
+	 * 		},
+	 * 		...
+	 * 		{}
+	 * ]
+	 * </pre>
+	 * 
+	 * Note that this API directly set the value to the view objects, and once Visual Style applied, 
+	 * those values are overridden by the Visual Style.
+	 * 
+	 * @summary Update single network view value, such as background color or zoom level.
+	 * 
+	 * @param networkId Network SUID
+	 * @param viewId Network view SUID
+	 * 
+	 */
+	@PUT
+	@Path("/{viewId}/network")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId, final InputStream is) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		try {
+			// This should be an JSON array.
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			styleMapper.updateView(networkView, rootNode, getLexicon());
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		// Repaint
+		networkView.updateView();
+		
+		return Response.ok().build();
+	}
 
 
 	/**
@@ -543,6 +591,68 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	@GET
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getSingleVisualPropertyValue(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId, 
+			@PathParam("visualProperty") String visualProperty) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		Collection<VisualProperty<?>> vps = null;
+		View<? extends CyIdentifiable> view = null;
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			vps = nodeLexicon;
+		} else if(objectType.equals("edges")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			vps = edgeLexicon;
+		}
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+
+		return getSingleVp(visualProperty, view, vps);
+	}
+
+	@GET
+	@Path("/{viewId}/network/{visualProperty}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@PathParam("visualProperty") String visualProperty) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		return getSingleVp(visualProperty, networkView, networkLexicon);
+	}
+	
+	private String getSingleVp(final String visualProperty, final View<? extends CyIdentifiable> view, 
+			final Collection<VisualProperty<?>> vps) {
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) {
+				targetVp = vp;
+				break;
+			}
+		}
+		if(targetVp == null) {
+			throw getError("Could not find such Visual Property: " + visualProperty , new NotFoundException(), Response.Status.NOT_FOUND);
+		}
+
+		try {
+			return styleSerializer.serializeSingleVisualProp(view, targetVp);
+		} catch (IOException e) {
+			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	/**
 	 * @summary Get current values for a specific Visual Property 
 	 * 
@@ -571,6 +681,8 @@ public class NetworkViewResource extends AbstractResource {
 			vps = nodeLexicon;
 		} else if(objectType.equals("edges")) {
 			vps = edgeLexicon;
+		} else if(objectType.equals("network")) {
+			vps = networkLexicon;
 		}
 		
 		return getViewForVPList(networkId, viewId, objectType, vps);
@@ -584,7 +696,13 @@ public class NetworkViewResource extends AbstractResource {
 			graphObjects = networkView.getNodeViews();
 		} else if(objectType.equals("edges")) {
 			graphObjects = networkView.getEdgeViews();
-		}
+		} else if(objectType.equals("network")) {
+			try {
+				return styleSerializer.serializeView(networkView, vps);
+			} catch (IOException e) {
+				throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
+		} 
 		
 		if(graphObjects == null || graphObjects.isEmpty()) {
 			throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);

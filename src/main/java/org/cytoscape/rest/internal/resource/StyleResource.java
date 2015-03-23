@@ -230,6 +230,46 @@ public class StyleResource extends AbstractResource {
 
 
 	/**
+	 * @summary Get all available Visual Properties
+	 * 
+	 * @return Array of Visual Properties
+	 * 
+	 */
+	@GET
+	@Path("/visualproperties")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getVisualProperties() {
+		final Set<VisualProperty<?>> vps = getAllVisualProperties();
+		try {
+			return styleSerializer.serializeVisualProperties(vps);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw getError("Could not serialize Visual Properties.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	/**
+	 * @summary Get a Visual Property
+	 * 
+	 * @param visualProperty Target Visual Property ID
+	 * 
+	 * @return Visual Property as object
+	 */
+	@GET
+	@Path("/visualproperties/{visualProperty}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getSingleVisualProperty(@PathParam("visualProperty") String visualProperty) {
+		final VisualProperty<?> vp = getVisualProperty(visualProperty);
+		try {
+			return styleSerializer.serializeVisualProperty(vp);
+		} catch (IOException e) {
+			throw getError("Could not serialize Visual Properties.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	/**
 	 * 
 	 * @summary Get all Visual Mappings for the Visual Style
 	 * 
@@ -344,7 +384,11 @@ public class StyleResource extends AbstractResource {
 			throw new NotFoundException("Range object is not available for " + vpName);
 		}
 	}
-	
+
+	private final Set<VisualProperty<?>> getAllVisualProperties() {
+		final VisualLexicon lexicon = getLexicon();
+		return lexicon.getAllVisualProperties();
+	}
 
 	private final VisualProperty<?> getVisualProperty(String vpName) {
 		final VisualLexicon lexicon = getLexicon();

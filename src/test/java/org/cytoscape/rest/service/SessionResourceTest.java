@@ -43,8 +43,8 @@ public class SessionResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
 		assertTrue(root.isObject());
-		assertNotNull(root.get("name"));
-		assertEquals(dummySession.getAbsolutePath(), root.get("name").asText());
+		assertNotNull(root.get("file"));
+		assertEquals(dummySession.getAbsolutePath(), root.get("file").asText());
 	}
 	
 	@Test
@@ -82,7 +82,7 @@ public class SessionResourceTest extends BasicResourceTest {
 		System.out.println("value: " + val);
 		final JsonNode root = mapper.readTree(val);
 		assertTrue(root.isObject());
-		assertNotNull(root.get("name"));
-		assertEquals(dummySession.getAbsolutePath(), root.get("name").asText());
+		assertNotNull(root.get("file"));
+		assertEquals(dummySession.getAbsolutePath(), root.get("file").asText());
 	}
 }

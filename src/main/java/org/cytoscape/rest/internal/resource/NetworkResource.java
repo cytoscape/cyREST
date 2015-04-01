@@ -507,7 +507,7 @@ public class NetworkResource extends AbstractResource {
 	 * 		"source": SOURCE_NODE_SUID,
 	 * 		"target": TARGET_NODE_SUID,
 	 * 		"directed": (Optional boolean value.  Default is True),
-	 * 		"interaction": (Optional.  Will be used for Interaction column.)
+	 * 		"interaction": (Optional.  Will be used for Interaction column.  Default value is '-')
 	 * 	} ...
 	 * ]
 	 * </pre>

@@ -564,9 +564,19 @@ public class NetworkResource extends AbstractResource {
 					} else {
 						edge = network.addEdge(sourceNode, targetNode, true);
 					}
+					
+					final String sourceName = network.getRow(sourceNode).get(CyNetwork.NAME, String.class);
+					final String targetName = network.getRow(targetNode).get(CyNetwork.NAME, String.class);
+					
+					final String interactionString;
 					if (interaction != null) {
-						network.getRow(edge).set(CyEdge.INTERACTION, interaction.textValue());
+						interactionString = interaction.textValue();
+					} else {
+						interactionString = "-";
 					}
+					
+					network.getRow(edge).set(CyEdge.INTERACTION, interactionString);
+					network.getRow(edge).set(CyNetwork.NAME, sourceName + " (" + interaction.textValue() + ") " + targetName);
 
 					generator.writeStartObject();
 					generator.writeNumberField(CyIdentifiable.SUID, edge.getSUID());

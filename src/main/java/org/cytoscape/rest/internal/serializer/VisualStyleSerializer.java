@@ -60,6 +60,60 @@ public class VisualStyleSerializer {
 	}
 
 
+	public final String serializeVisualProperties(final Set<VisualProperty<?>> vps) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+		
+		// Sort by field name
+		final SortedMap<String, VisualProperty<Object>> names = new TreeMap<>();
+		for(final VisualProperty vp:vps) {
+			names.put(vp.getIdString(), vp);
+		}
+		
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+		
+		generator.writeStartArray();
+		for(final String vpName:names.keySet()) {
+			final VisualProperty<Object> vp = names.get(vpName);
+			serializeVisualProperty(generator, vp);
+		}
+		generator.writeEndArray();
+		
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+
+
+	public final String serializeVisualProperty(final VisualProperty vp) throws IOException {
+		final JsonFactory factory = new JsonFactory();
+
+		String result = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = factory.createGenerator(stream);
+		generator.useDefaultPrettyPrinter();
+	
+		serializeVisualProperty(generator, vp);
+		generator.close();
+		result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	private final void serializeVisualProperty(final JsonGenerator generator, final VisualProperty<Object> vp) throws IOException {
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", vp.getIdString());
+		generator.writeStringField("name", vp.getDisplayName());
+		generator.writeStringField("targetDataType", vp.getTargetDataType().getSimpleName());
+		generator.writeStringField("default", vp.toSerializableString(vp.getDefault()));
+		generator.writeEndObject();
+	}
+
+
 	public final String serializeDefault(final VisualProperty<Object> vp, final VisualStyle style) throws IOException {
 		final JsonFactory factory = new JsonFactory();
 

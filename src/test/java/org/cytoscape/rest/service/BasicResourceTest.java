@@ -139,6 +139,7 @@ public class BasicResourceTest extends JerseyTest {
 		CyLayoutAlgorithmManager layouts = mock(CyLayoutAlgorithmManager.class);
 		when(layouts.getDefaultLayout()).thenReturn(def);
 		when(layouts.getAllLayouts()).thenReturn(algorithms);
+		when(layouts.getLayout("grid")).thenReturn(def);
 
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
 		CyNetworkManager networkManager = nts.getNetworkManager();

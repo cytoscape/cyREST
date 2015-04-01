@@ -96,12 +96,11 @@ public class SessionResource extends AbstractResource {
 	
 	
 	/**
-	 * This get method save the current session into a local file system.
-	 * Make sure you have a write permission to the directory.
+	 * This get method load a new session from a file
 	 * 
-	 * @summary Save session to a local file
+	 * @summary Load new session from a local file
 	 * 
-	 * @param file File name as (should be absolute path)
+	 * @param file File name (should be absolute path)
 	 * 
 	 * @return Session file name as string
 	 * 
@@ -109,7 +108,7 @@ public class SessionResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getSessionAsFile(@QueryParam("file") String file) {
+	public String getSessionFromFile(@QueryParam("file") String file) {
 		File sessionFile = null;
 		try {
 			sessionFile = new File(file);
@@ -123,22 +122,22 @@ public class SessionResource extends AbstractResource {
 			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	
-		return "{\"name\": \"" + sessionFile.getAbsolutePath() +"\"}";
+		return "{\"file\": \"" + sessionFile.getAbsolutePath() +"\"}";
 	}
 	
 	
 	/**
 	 * 
-	 * @summary Create a session from a CYS file
+	 * @summary Create a session file
 	 * 
 	 * @param file Session file location (should be absolute path)
 	 * 
-	 * @return Session file name loaded to the current instance of Cytoscape
+	 * @return Session file name
 	 */
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createSessionFromFile(@QueryParam("file") String file) {
+	public String createSessionFile(@QueryParam("file") String file) {
 		File sessionFile = null;
 		try {
 			sessionFile = new File(file);
@@ -152,6 +151,6 @@ public class SessionResource extends AbstractResource {
 			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	
-		return "{\"name\": \"" + sessionFile.getAbsolutePath() +"\"}";
+		return "{\"file\": \"" + sessionFile.getAbsolutePath() +"\"}";
 	}
 }

@@ -507,7 +507,7 @@ public class NetworkResource extends AbstractResource {
 	 * 		"source": SOURCE_NODE_SUID,
 	 * 		"target": TARGET_NODE_SUID,
 	 * 		"directed": (Optional boolean value.  Default is True),
-	 * 		"interaction": (Optional.  Will be used for Interaction column.)
+	 * 		"interaction": (Optional.  Will be used for Interaction column.  Default value is '-')
 	 * 	} ...
 	 * ]
 	 * </pre>
@@ -564,9 +564,19 @@ public class NetworkResource extends AbstractResource {
 					} else {
 						edge = network.addEdge(sourceNode, targetNode, true);
 					}
+					
+					final String sourceName = network.getRow(sourceNode).get(CyNetwork.NAME, String.class);
+					final String targetName = network.getRow(targetNode).get(CyNetwork.NAME, String.class);
+					
+					final String interactionString;
 					if (interaction != null) {
-						network.getRow(edge).set(CyEdge.INTERACTION, interaction.textValue());
+						interactionString = interaction.textValue();
+					} else {
+						interactionString = "-";
 					}
+					
+					network.getRow(edge).set(CyEdge.INTERACTION, interactionString);
+					network.getRow(edge).set(CyNetwork.NAME, sourceName + " (" + interaction.textValue() + ") " + targetName);
 
 					generator.writeStartObject();
 					generator.writeNumberField(CyIdentifiable.SUID, edge.getSUID());
@@ -612,9 +622,10 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{networkId}")
-	public void deleteNetwork(@PathParam("networkId") Long networkId) {
+	public Response deleteNetwork(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		this.networkManager.destroyNetwork(network);
+		return Response.ok().build();
 	}
 
 	/**
@@ -625,10 +636,11 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{networkId}/nodes")
-	public void deleteAllNodes(@PathParam("networkId") Long networkId) {
+	public Response deleteAllNodes(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		network.removeNodes(network.getNodeList());
 		updateViews(network);
+		return Response.ok().build();
 	}
 
 	/**

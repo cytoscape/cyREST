@@ -69,8 +69,7 @@ public class AlgorithmicResource extends AbstractResource {
 			@PathParam("algorithmName") String algorithmName,
 			@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final Collection<CyNetworkView> views = this.networkViewManager
-				.getNetworkViews(network);
+		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
 			throw new NotFoundException(
 					"Could not find view for the network with SUID: "
@@ -78,11 +77,9 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 
 		final CyNetworkView view = views.iterator().next();
-		final CyLayoutAlgorithm layout = this.layoutManager
-				.getLayout(algorithmName);
+		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: "
-					+ algorithmName);
+			throw new NotFoundException("No such layout algorithm: " + algorithmName);
 		}
 
 		final TaskIterator itr = layout.createTaskIterator(view,

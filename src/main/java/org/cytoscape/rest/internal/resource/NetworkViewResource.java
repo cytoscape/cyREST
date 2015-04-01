@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.write.CyWriter;
@@ -388,7 +389,7 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateViews(@PathParam("networkId") Long networkId,
+	public Response updateViews(@PathParam("networkId") Long networkId,
 			@PathParam("viewId") Long viewId,
 			@PathParam("objectType") String objectType, final InputStream is) {
 
@@ -436,6 +437,7 @@ public class NetworkViewResource extends AbstractResource {
 							+ e.getMessage(), e,
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		return Response.ok().build();
 	}
 
 

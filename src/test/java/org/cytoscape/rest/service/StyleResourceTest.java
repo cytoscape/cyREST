@@ -119,6 +119,40 @@ public class StyleResourceTest extends BasicResourceTest {
 			assertTrue(valueStrings.contains(node.asText()));
 		}
 	}
+
+
+	@Test
+	public void testGetVisualProperties() throws Exception {
+		Response result = target("/v1/styles/visualproperties").request().get();
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isArray());
+		assertEquals(103, root.size());
+	}
+
+
+	@Test
+	public void testGetVisualProperty() throws Exception {
+		final Set<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		for (VisualProperty vp : vps) {
+			Response result = target("/v1/styles/visualproperties/" + vp.getIdString()).request().get();
+			assertNotNull(result);
+			final String body = result.readEntity(String.class);
+			System.out.println(body);
+			final JsonNode root = mapper.readTree(body);
+			assertTrue(root.isObject());
+			assertEquals(vp.getIdString(), root.get("visualProperty").asText());
+			assertEquals(vp.getDisplayName(), root.get("name").asText());
+			assertEquals(vp.getTargetDataType().getSimpleName(), root.get("targetDataType").asText());
+			String def = vp.toSerializableString(vp.getDefault());
+			if(def != null)
+				assertEquals(def, 
+					root.get("default").asText());
+		}
+	
+	}
 	
 	
 	@Test

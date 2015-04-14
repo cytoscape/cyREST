@@ -234,11 +234,36 @@ public class TableResource extends AbstractResource {
 
 	/**
 	 * 
-	 * This API is for updating default node/edge/network data table at once.
+	 * This API is for updating default node/edge/network data table.  New columns will be created if they
+	 * does not exist in the target table.  
 	 * 
-	 * If not specified, SUID will be used for mapping.
+	 * The BODY of the data should be in the following format:<br/>
 	 * 
-	 * @summary Update table data
+	 * <pre>
+	 * 	{
+	 * 		"key":"SUID",  		// This is the unique key column in the existing table
+	 * 		"dataKey": "id",		// Mapping key for the new values
+	 * 		"data": [
+	 * 			{
+	 * 				"id": 12345,		// Required. Field name should be same as "dataKey."
+	 * 								// In this case, it is "id," but can be anything.
+	 * 				"gene_name": "brca1",
+	 * 				"exp1": 0.11,
+	 * 				"exp2": 0.2
+	 *  			}, ...
+	 * 			
+	 * 		]
+	 * 	}
+	 * </pre>
+	 * 
+	 * Current limitations:
+	 * <ul>
+	 * 	<li>	If key is not specified, SUID will be used for mapping</li>
+	 * 	<li>Numbers are handled as Double</li>
+	 * 	<li>List column is not supported in this version</li>
+	 * </ul>
+	 *
+	 * @summary Update default table with new values.
 	 * 
 	 * @param networkId
 	 *            Network SUID

@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -65,6 +66,25 @@ public class MiscResource extends AbstractResource {
 	@Path("/version")
 	@Produces(MediaType.APPLICATION_JSON)
 	public CytoscapeVersion getCytoscapeVersion() {
+
+		if (props == null) {
+			throw new InternalServerErrorException("Could not find CyProperty object.");
+		}
+
+		final Properties property = (Properties) this.props.getProperties();
+		final Object versionNumber = property.get("cytoscape.version.number");
+		if (versionNumber != null) {
+			return new CytoscapeVersion(API_VERSION, versionNumber.toString());
+		} else {
+			throw new NotFoundException("Could not find Cytoscape version number property.");
+		}
+	}
+	
+	
+	@PUT
+	@Path("/ui/show-details")
+	@Produces(MediaType.APPLICATION_JSON)
+	public CytoscapeVersion updateShowGraphicsDetailsOption() {
 
 		if (props == null) {
 			throw new InternalServerErrorException("Could not find CyProperty object.");

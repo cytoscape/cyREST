@@ -25,8 +25,6 @@ import org.cytoscape.rest.internal.model.ServerStatus;
 @Path("/v1")
 public class MiscResource extends AbstractResource {
 
-	
-
 	/**
 	 * @summary Cytoscape RESTful API server status
 	 * 

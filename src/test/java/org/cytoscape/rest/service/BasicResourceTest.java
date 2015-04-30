@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.Justification;
 import org.cytoscape.ding.NetworkViewTestSupport;
@@ -202,6 +203,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(openSessionTaskFactory.createTaskIterator((File) anyObject())).thenReturn(new TaskIterator(mockTask));
 		newSessionTaskFactory = mock(NewSessionTaskFactory.class);
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
+		CySwingApplication desktop = mock(CySwingApplication.class);
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -212,7 +214,7 @@ public class BasicResourceTest extends JerseyTest {
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
-				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory);
+				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop);
 	}
 	
 	

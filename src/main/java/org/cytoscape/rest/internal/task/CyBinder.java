@@ -3,6 +3,7 @@ package org.cytoscape.rest.internal.task;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -73,6 +74,7 @@ public class CyBinder extends AbstractBinder {
 	private final SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	private final OpenSessionTaskFactory openSessionTaskFactory;
 	private final NewSessionTaskFactory newSessionTaskFactory;
+	private final CySwingApplication desktop;
 
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
@@ -90,7 +92,7 @@ public class CyBinder extends AbstractBinder {
 			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
-			final NewSessionTaskFactory newSessionTaskFactory) {
+			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -121,6 +123,7 @@ public class CyBinder extends AbstractBinder {
 		this.saveSessionAsTaskFactory = saveSessionAsTaskFactory;
 		this.openSessionTaskFactory = openSessionTaskFactory;
 		this.newSessionTaskFactory = newSessionTaskFactory;
+		this.desktop = desktop;
 	}
 
 
@@ -156,5 +159,6 @@ public class CyBinder extends AbstractBinder {
 		bind(saveSessionAsTaskFactory).to(SaveSessionAsTaskFactory.class);
 		bind(openSessionTaskFactory).to(OpenSessionTaskFactory.class);
 		bind(newSessionTaskFactory).to(NewSessionTaskFactory.class);
+		bind(desktop).to(CySwingApplication.class);
 	}
 }

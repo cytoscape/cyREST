@@ -124,7 +124,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(vp, vpName);
 		
 		final String val = root.get("value").asText();
-		assertEquals("#ffffff", val);
+		assertEquals("#ffffff".toUpperCase(), val.toUpperCase());
 	}
 
 

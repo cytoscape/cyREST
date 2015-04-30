@@ -168,8 +168,14 @@ public class StyleResourceTest extends BasicResourceTest {
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isObject());
 		assertEquals(vp, root.get("visualProperty").textValue());
-		String inHex = Integer.toHexString(((Color)style.getDefaultValue(BasicVisualLexicon.NODE_FILL_COLOR)).getRGB());
-		assertTrue(root.get("value").asText().endsWith(inHex.substring(2)));
+		Integer colorValue = ((Color)style.getDefaultValue(BasicVisualLexicon.NODE_FILL_COLOR)).getRGB();
+		String inHex = Integer.toHexString(colorValue);
+		final Integer inHexWithoutAlpha = Integer.parseInt(inHex.substring(2), 16);
+		final String fillColorValue = root.get("value").asText();
+		final String colorInHex = fillColorValue.substring(1);
+		System.out.println("Fill: " + colorInHex);
+		final Integer newColorValue = Integer.parseInt(colorInHex, 16);
+		assertEquals(inHexWithoutAlpha, newColorValue);
 	}
 
 

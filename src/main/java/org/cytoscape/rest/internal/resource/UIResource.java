@@ -59,7 +59,6 @@ public class UIResource extends AbstractResource {
 			.map(panelName->desktop.getCytoPanel(panelName))
 			.map(panel->getMap(panel)).collect(Collectors.toList());
 	}
-	
 	private final Map<String, String> getMap(final CytoPanel panel) {
 		final Map<String, String> values = new HashMap<>();
 		values.put("name", panel.getCytoPanelName().name());
@@ -76,7 +75,6 @@ public class UIResource extends AbstractResource {
 		if(panel == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-		
 		final CytoPanel panelObject = desktop.getCytoPanel(panel);
 		return Response.ok(getMap(panelObject)).build();
 	}

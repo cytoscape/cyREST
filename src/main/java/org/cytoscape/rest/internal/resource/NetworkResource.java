@@ -576,7 +576,7 @@ public class NetworkResource extends AbstractResource {
 					}
 					
 					network.getRow(edge).set(CyEdge.INTERACTION, interactionString);
-					network.getRow(edge).set(CyNetwork.NAME, sourceName + " (" + interaction.textValue() + ") " + targetName);
+					network.getRow(edge).set(CyNetwork.NAME, sourceName + " (" + interactionString + ") " + targetName);
 
 					generator.writeStartObject();
 					generator.writeNumberField(CyIdentifiable.SUID, edge.getSUID());

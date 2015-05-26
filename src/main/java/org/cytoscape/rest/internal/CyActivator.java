@@ -114,10 +114,14 @@ public class CyActivator extends AbstractCyActivator {
 				"(id=cytoscapejsNetworkWriterFactory)");
 		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
 				"(id=cytoscapejsNetworkReaderFactory)");
+		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
-
+		
+		// TODO: need ID for these services.
 		final NetworkTaskFactory fitContent = getService(bc, NetworkTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
+		final NetworkTaskFactory showDetailsTaskFactory = getService(bc, NetworkTaskFactory.class, 
+				"(title=Show/Hide Graphics Details)");
 
 		final RenderingEngineManager renderingEngineManager = getService(bc,RenderingEngineManager.class);
 
@@ -149,7 +153,8 @@ public class CyActivator extends AbstractCyActivator {
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
-				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop);
+				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
+				new LevelOfDetails(showDetailsTaskFactory));
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();
@@ -178,6 +183,20 @@ public class CyActivator extends AbstractCyActivator {
 		@Override
 		public NetworkTaskFactory getBundlerTF() {
 			return bundler;
+		}
+
+	}
+	
+	public class LevelOfDetails {
+
+		private final NetworkTaskFactory lod;
+
+		public LevelOfDetails(final NetworkTaskFactory tf) {
+			this.lod = tf;
+		}
+
+		public NetworkTaskFactory getLodTF() {
+			return lod;
 		}
 
 	}

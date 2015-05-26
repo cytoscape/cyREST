@@ -15,6 +15,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -69,6 +70,7 @@ public class CyBinder extends AbstractBinder {
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
 	private final NetworkTaskFactory fitContent;
+	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
 	private final RenderingEngineManager renderingEngineManager;
 	private final SaveSessionAsTaskFactory saveSessionAsTaskFactory;
@@ -92,7 +94,8 @@ public class CyBinder extends AbstractBinder {
 			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
-			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop) {
+			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
+			final LevelOfDetails toggleLod) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -124,6 +127,7 @@ public class CyBinder extends AbstractBinder {
 		this.openSessionTaskFactory = openSessionTaskFactory;
 		this.newSessionTaskFactory = newSessionTaskFactory;
 		this.desktop = desktop;
+		this.toggleLod = toggleLod;
 	}
 
 
@@ -160,5 +164,6 @@ public class CyBinder extends AbstractBinder {
 		bind(openSessionTaskFactory).to(OpenSessionTaskFactory.class);
 		bind(newSessionTaskFactory).to(NewSessionTaskFactory.class);
 		bind(desktop).to(CySwingApplication.class);
+		bind(toggleLod).to(LevelOfDetails.class);
 	}
 }

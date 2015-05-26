@@ -39,6 +39,7 @@ import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -204,6 +205,7 @@ public class BasicResourceTest extends JerseyTest {
 		newSessionTaskFactory = mock(NewSessionTaskFactory.class);
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
 		CySwingApplication desktop = mock(CySwingApplication.class);
+		LevelOfDetails lodTF = mock(LevelOfDetails.class);
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -214,7 +216,8 @@ public class BasicResourceTest extends JerseyTest {
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
-				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop);
+				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
+				desktop, lodTF);
 	}
 	
 	

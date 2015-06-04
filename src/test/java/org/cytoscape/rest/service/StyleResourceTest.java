@@ -83,6 +83,8 @@ public class StyleResourceTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.get("defaults").isArray());
+		final JsonNode defaults = root.get("defaults");
+		assertEquals(103, defaults.size());
 	}
 
 
@@ -181,6 +183,16 @@ public class StyleResourceTest extends BasicResourceTest {
 
 	@Test
 	public void testGetMappings() throws Exception {
+		final Response emptyResult = target("/v1/styles/mock1/mappings").request().get();
+		assertNotNull(emptyResult);
+		assertFalse(emptyResult.getStatus() == 500);
+		assertEquals(200, emptyResult.getStatus());
+		String body0 = emptyResult.readEntity(String.class);
+		System.out.println(body0);
+		final JsonNode root0 = mapper.readTree(body0);
+		assertTrue(root0.isArray());
+		assertEquals(0, root0.size());
+		
 		final Response result = target("/v1/styles/vs1/mappings").request().get();
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
@@ -246,6 +258,22 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertNotNull(vp);
 	}
 
+	
+	@Test
+	public void testCreateStyle() throws Exception {
+		final String style1 = "{ \"title\": \"style1\""
+				+ "}";
+		System.out.println("Data: " + style1);
+		final Entity<String> entity = Entity.entity(style1, MediaType.APPLICATION_JSON_TYPE);
+		final Response result = target("/v1/styles").request().post(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		String body = result.readEntity(String.class);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		assertTrue(body.contains("title"));
+	}
+	
 	@Test
 	public void testCreateMapping() throws Exception {
 		testCreateDiscrete();

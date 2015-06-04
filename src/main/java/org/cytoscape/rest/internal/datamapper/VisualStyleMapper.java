@@ -59,9 +59,14 @@ public class VisualStyleMapper {
 
 		final JsonNode defaults = rootNode.get(DEFAULTS);
 		final JsonNode mappings = rootNode.get(MAPPINGS);
-
-		parseDefaults(defaults, style, lexicon);
-		parseMappings(mappings, style, lexicon, factoryManager);
+		
+		if(defaults != null) {
+			parseDefaults(defaults, style, lexicon);
+		}
+		
+		if(mappings != null) {
+			parseMappings(mappings, style, lexicon, factoryManager);
+		}
 		return style;
 	}
 

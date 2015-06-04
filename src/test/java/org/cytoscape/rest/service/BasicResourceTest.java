@@ -182,7 +182,11 @@ public class BasicResourceTest extends JerseyTest {
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
 		CyTableManager tableManager = mock(CyTableManager.class);
+		
 		VisualStyleFactory vsFactory = mock(VisualStyleFactory.class);
+		VisualStyle emptyStyle = mock(VisualStyle.class);
+		when(vsFactory.createVisualStyle(anyString())).thenReturn(emptyStyle);
+		
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
 		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);

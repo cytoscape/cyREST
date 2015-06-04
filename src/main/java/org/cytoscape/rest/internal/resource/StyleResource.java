@@ -529,7 +529,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createStyle(InputStream is) {
+	public Response createStyle(InputStream is) {
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {
@@ -539,7 +539,9 @@ public class StyleResource extends AbstractResource {
 			vmm.addVisualStyle(style);
 			
 			// This may be different from the original one if same name exists.
-			return "{\"title\": \""+ style.getTitle() + "\"}";
+			final String result = "{\"title\": \""+ style.getTitle() + "\"}";
+			
+			return Response.status(Response.Status.CREATED).entity(result).build();
 		} catch (Exception e) {
 			throw getError("Could not create new Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

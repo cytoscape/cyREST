@@ -3,6 +3,7 @@ package org.cytoscape.rest.internal.task;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -14,6 +15,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -68,11 +70,13 @@ public class CyBinder extends AbstractBinder {
 	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
 	private final NetworkTaskFactory fitContent;
+	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
 	private final RenderingEngineManager renderingEngineManager;
 	private final SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	private final OpenSessionTaskFactory openSessionTaskFactory;
 	private final NewSessionTaskFactory newSessionTaskFactory;
+	private final CySwingApplication desktop;
 
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
@@ -90,7 +94,8 @@ public class CyBinder extends AbstractBinder {
 			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
-			final NewSessionTaskFactory newSessionTaskFactory) {
+			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
+			final LevelOfDetails toggleLod) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -121,6 +126,8 @@ public class CyBinder extends AbstractBinder {
 		this.saveSessionAsTaskFactory = saveSessionAsTaskFactory;
 		this.openSessionTaskFactory = openSessionTaskFactory;
 		this.newSessionTaskFactory = newSessionTaskFactory;
+		this.desktop = desktop;
+		this.toggleLod = toggleLod;
 	}
 
 
@@ -156,5 +163,7 @@ public class CyBinder extends AbstractBinder {
 		bind(saveSessionAsTaskFactory).to(SaveSessionAsTaskFactory.class);
 		bind(openSessionTaskFactory).to(OpenSessionTaskFactory.class);
 		bind(newSessionTaskFactory).to(NewSessionTaskFactory.class);
+		bind(desktop).to(CySwingApplication.class);
+		bind(toggleLod).to(LevelOfDetails.class);
 	}
 }

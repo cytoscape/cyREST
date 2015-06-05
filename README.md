@@ -20,12 +20,13 @@ This is an Cytoscape app to provide low-level access to Cytoscape data objects, 
 __This app is still experimental and we need your feedback!__
 
 
-## System Requirments
-* [Java 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-    * __Not tested on Java 8 yet!__
+## System Requirements
+To use cyREST 0.9.15 and newer, you need the following:
+
+* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
     * Oracle JDK is recommended, but should be compatible with OpenJDK.
-* [Cytoscape 3.1.1+](http://www.cytoscape.org/)
-    * Some of the new features are available only in Cytoscape 3.2.0 or later.
+    * __Does not work with Java 7 and older!!__
+* [Cytoscape 3.2.1+](http://www.cytoscape.org/)
 
 ## Documentation
 __All documents, including tutorials and full API list, are available from our [Wiki](https://github.com/idekerlab/cyREST/wiki)__.

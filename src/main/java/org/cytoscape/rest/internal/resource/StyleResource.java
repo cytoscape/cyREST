@@ -23,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
@@ -469,14 +470,17 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStyle(@PathParam("name") String name) {
+		if(networkViewManager.getNetworkViewSet().isEmpty()) {
+			throw getError("You need at least one view object to use this feature."
+					, new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
 		final VisualStyle style = getStyleByName(name);
-
 		final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
 		final ByteArrayOutputStream os = new ByteArrayOutputStream();
 		final Set<VisualStyle> styleCollection = new HashSet<VisualStyle>();
 		styleCollection.add(style);
-		final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
 		try {
+			final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
 			styleWriter.run(new HeadlessTaskMonitor());
 			String jsonString = os.toString("UTF-8");
 			os.close();

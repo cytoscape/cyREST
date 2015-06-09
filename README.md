@@ -47,5 +47,5 @@ Please report the problems to our issue tracker:
 
 
 ----
-&copy; 2014 [Cytoscape Consortium](http://www.cytoscape.org/).  Developed and maintained by [Keiichiro Ono](http://keiono.github.io/), [UCSD Trey Ideker Lab](http://idekerlab.ucsd.edu/Pages/default.aspx).
+&copy; 2014-2015 [Cytoscape Consortium](http://www.cytoscape.org/).  Developed and maintained by [Keiichiro Ono](http://keiono.github.io/), [UCSD Trey Ideker Lab](http://idekerlab.ucsd.edu/Pages/default.aspx).
 

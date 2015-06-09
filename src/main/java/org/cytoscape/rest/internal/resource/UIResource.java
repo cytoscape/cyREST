@@ -58,7 +58,9 @@ public class UIResource extends AbstractResource {
 	 * 
 	 * @summary Get status of Desktop
 	 * 
-	 * @return True if Cytoscape Desktop is ready.
+	 * @return An object with isDesktopAvailable field.  
+	 * 		This value is true if Cytoscape Desktop is available.
+	 * 		And it is false if Cytoscape is running in headless mode (not available yet). 
 	 * 
 	 */
 	@GET
@@ -70,7 +72,6 @@ public class UIResource extends AbstractResource {
 		if(desktop != null) {
 			desktopAvailable = true;
 		}
-		
 		status.put("isDesktopAvailable", desktopAvailable);
 		return status;
 	}
@@ -78,7 +79,7 @@ public class UIResource extends AbstractResource {
 
 	/**
 	 * 
-	 * Switch between full details and fast rendering mode.
+	 * Switch between full graphics details <---> fast rendering mode.
 	 * 
 	 * @summary Toggle level of graphics details (LoD).
 	 * 
@@ -103,10 +104,32 @@ public class UIResource extends AbstractResource {
 	}
 
 	/**
+	 * The return value will includes status of all CytoPanels.
+	 * Each entry includes:
+	 * 
+	 * <ul>
+	 * 		<li>
+	 * 			name: Official name of the CytoPanel:
+	 * 			<ul>
+	 * 				<li>SOUTH</li>
+	 * 				<li>EAST</li>
+	 * 				<li>WEST</li>
+	 * 				<li>SOUTH_WEST</li>
+	 * 			</ul>
+	 * 		</li>
+	 * 		<li>
+	 * 			state: State of the CytoPanel:
+	 * 			<ul>
+	 * 				<li>FLOAT</li>
+	 * 				<li>DOCK</li>
+	 * 				<li>HIDE</li>
+	 * 			</ul>
+	 * 		</li>
+	 * </ul>
 	 * 
 	 * @summary Get status of all CytoPanels 
 	 * 
-	 * @return Panel status as list
+	 * @return Panel status as an array
 	 */
 	@GET
 	@Path("/panels")
@@ -114,7 +137,8 @@ public class UIResource extends AbstractResource {
 	public List<Map<String, String>> getAllPanelStatus() {
 		return Arrays.asList(CytoPanelName.values()).stream()
 			.map(panelName->desktop.getCytoPanel(panelName))
-			.map(panel->getMap(panel)).collect(Collectors.toList());
+			.map(panel->getMap(panel))
+			.collect(Collectors.toList());
 	}
 
 
@@ -130,9 +154,9 @@ public class UIResource extends AbstractResource {
 	 * 
 	 * @summary Get status of a CytoPanel
 	 * 
-	 * @param panelName official name of CytroPanel
+	 * @param panelName official name of the CytroPanel
 	 * 
-	 * @return Status of the CytoPanel
+	 * @return Status of the CytoPanel (name-state pair)
 	 */
 	@GET
 	@Path("/panels/{panelName}")
@@ -147,14 +171,14 @@ public class UIResource extends AbstractResource {
 	}
 
 
-	
 	/**
 	 * 
 	 * You can update multiple panel states at once.
+	 * Body of your request should have same format as the return value of GET method.
 	 * 
 	 * @summary Update CytoPanel states
 	 * 
-	 * @return 200 if success.
+	 * @return Response 200 if success
 	 */
 	@PUT
 	@Path("/panels")

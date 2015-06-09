@@ -8,7 +8,7 @@
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.12</junit.version>
-		<jersey.version>2.17</jersey.version>
+		<jersey.version>2.18</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -123,6 +123,11 @@
 								<defaultMessage>The service call has completed successfully.</defaultMessage>
 							</httpStatusCode>
 							<httpStatusCode>
+								<httpCode>201</httpCode>
+								<document>post</document>
+								<defaultMessage>The service call has created a new object.</defaultMessage>
+							</httpStatusCode>
+							<httpStatusCode>
 								<httpCode>412</httpCode>
 								<document>put,post</document>
 								<defaultMessage>Invalid JSON input.</defaultMessage>
@@ -161,7 +166,6 @@
 		</plugins>
 	</build>
 
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -173,6 +177,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
 	<dependencies>
 		<!-- Cytoscape 3 Dependencies -->
 		<dependency>

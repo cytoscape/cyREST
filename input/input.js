@@ -1,5 +1,5 @@
 var com = { qmino : { miredot : {}}};
-com.qmino.miredot.restApiSource = {"validLicence":true,"buildSystem":"maven 3","allowUsageTracking":true,"licenceErrorMessage":null,"miredotRevision":"25e24200396c","jsonDocHidden":true,"licenceHash":"96920848577151415","miredotVersion":"1.5.1","jsonDocEnabled":false,"dateOfGeneration":"2015-04-14 10:19:59","licenceType":"FREE","projectName":"cyREST","projectVersion":"0.9.15","projectTitle":"RESTful API for Cytoscape v1"};
+com.qmino.miredot.restApiSource = {"validLicence":true,"buildSystem":"maven 3","allowUsageTracking":true,"singlePage":false,"licenceErrorMessage":null,"miredotRevision":"8e41c1c81bb8","jsonDocHidden":true,"licenceHash":"96920848577151415","miredotVersion":"1.6.1","jsonDocEnabled":false,"dateOfGeneration":"2015-06-09 16:20:48","licenceType":"FREE","hideLogoOnTop":false,"projectName":"cyREST","projectVersion":"0.9.16","projectTitle":"RESTful API for Cytoscape v1"};
 com.qmino.miredot.restApiSource.tos = {
 	org_cytoscape_rest_internal_model_Elements_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_in", "content": [] },
 	org_cytoscape_rest_internal_model_Elements_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_out", "content": [] },
@@ -24,20 +24,23 @@ com.qmino.miredot.restApiSource.tos = {
 };
 
 com.qmino.miredot.restApiSource.enums = {
-	javax_ws_rs_core_Response$Status: { "type": "enum", "name": "javax_ws_rs_core_Response$Status", "values": ["OK", "Created", "Accepted", "No Content", "Reset Content", "Partial Content", "Moved Permanently", "Found", "See Other", "Not Modified", "Use Proxy", "Temporary Redirect", "Bad Request", "Unauthorized", "Payment Required", "Forbidden", "Not Found", "Method Not Allowed", "Not Acceptable", "Proxy Authentication Required", "Request Timeout", "Conflict", "Gone", "Length Required", "Precondition Failed", "Request Entity Too Large", "Request-URI Too Long", "Unsupported Media Type", "Requested Range Not Satisfiable", "Expectation Failed", "Internal Server Error", "Not Implemented", "Bad Gateway", "Service Unavailable", "Gateway Timeout", "HTTP Version Not Supported"]}
+	javax_ws_rs_core_Response$Status: { "type": "enum", "name": "javax_ws_rs_core_Response$Status", "values": [{"name": "OK", "comment": null}, {"name": "CREATED", "comment": null}, {"name": "ACCEPTED", "comment": null}, {"name": "NO_CONTENT", "comment": null}, {"name": "RESET_CONTENT", "comment": null}, {"name": "PARTIAL_CONTENT", "comment": null}, {"name": "MOVED_PERMANENTLY", "comment": null}, {"name": "FOUND", "comment": null}, {"name": "SEE_OTHER", "comment": null}, {"name": "NOT_MODIFIED", "comment": null}, {"name": "USE_PROXY", "comment": null}, {"name": "TEMPORARY_REDIRECT", "comment": null}, {"name": "BAD_REQUEST", "comment": null}, {"name": "UNAUTHORIZED", "comment": null}, {"name": "PAYMENT_REQUIRED", "comment": null}, {"name": "FORBIDDEN", "comment": null}, {"name": "NOT_FOUND", "comment": null}, {"name": "METHOD_NOT_ALLOWED", "comment": null}, {"name": "NOT_ACCEPTABLE", "comment": null}, {"name": "PROXY_AUTHENTICATION_REQUIRED", "comment": null}, {"name": "REQUEST_TIMEOUT", "comment": null}, {"name": "CONFLICT", "comment": null}, {"name": "GONE", "comment": null}, {"name": "LENGTH_REQUIRED", "comment": null}, {"name": "PRECONDITION_FAILED", "comment": null}, {"name": "REQUEST_ENTITY_TOO_LARGE", "comment": null}, {"name": "REQUEST_URI_TOO_LONG", "comment": null}, {"name": "UNSUPPORTED_MEDIA_TYPE", "comment": null}, {"name": "REQUESTED_RANGE_NOT_SATISFIABLE", "comment": null}, {"name": "EXPECTATION_FAILED", "comment": null}, {"name": "INTERNAL_SERVER_ERROR", "comment": null}, {"name": "NOT_IMPLEMENTED", "comment": null}, {"name": "BAD_GATEWAY", "comment": null}, {"name": "SERVICE_UNAVAILABLE", "comment": null}, {"name": "GATEWAY_TIMEOUT", "comment": null}, {"name": "HTTP_VERSION_NOT_SUPPORTED", "comment": null}]}
 };
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].content = [ 
 	{
 		"name": "nodes",
 		"comment": null,
 		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"] },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "edges",
 		"comment": null,
 		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"] },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].comment = null;
@@ -46,13 +49,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_
 		"name": "nodes",
 		"comment": null,
 		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"] },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "edges",
 		"comment": null,
 		"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"] },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"].comment = null;
@@ -61,7 +67,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"]
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_in"].comment = null;
@@ -70,7 +78,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"].comment = null;
@@ -79,40 +89,48 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerSta
 		"name": "apiVersion",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "numberOfCores",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "memoryStatus",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].content = [ 
 	{
-		"name": "memoryStatus",
+		"name": "apiVersion",
 		"comment": null,
-		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"],
-		"deprecated": false
+		"typeValue": { "type": "simple", "typeValue": "string" },
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "numberOfCores",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
-		"name": "apiVersion",
+		"name": "memoryStatus",
 		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"],
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].comment = null;
@@ -121,7 +139,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwo
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_in"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_in"].comment = null;
@@ -130,13 +150,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwo
 		"name": "elements",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_out"],
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NetworkData_out"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"].comment = null;
@@ -145,7 +168,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_
 		"name": "id",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_in"].comment = null;
@@ -154,7 +179,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_
 		"name": "id",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_NodeData_out"].comment = null;
@@ -173,7 +200,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"]
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_in"].comment = null;
@@ -182,7 +211,9 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"
 		"name": "data",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"],
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"].comment = null;
@@ -191,13 +222,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_
 		"name": "target",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "source",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_in"].comment = null;
@@ -206,13 +240,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_
 		"name": "target",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "source",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_EdgeData_out"].comment = null;
@@ -223,28 +260,33 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemorySta
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].content = [ 
 	{
-		"name": "totalMemory",
-		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false
-	},
-	{
 		"name": "freeMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "usedMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
+	},
+	{
+		"name": "totalMemory",
+		"comment": null,
+		"typeValue": { "type": "simple", "typeValue": "number" },
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "maxMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].comment = null;
@@ -258,13 +300,16 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Cytoscape
 		"name": "apiVersion",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false
+		"deprecated": false,
+		"required": false
 	},
 	{
 		"name": "cytoscapeVersion",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false}
+		"deprecated": false,
+		"required": false
+	}
 ];
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"].ordered = false;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"].comment = null;
@@ -281,6 +326,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -288,6 +335,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1499255901",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -313,6 +368,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": ""},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -320,6 +377,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1601429362",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -342,6 +407,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -349,6 +416,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-976711221",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -374,6 +449,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Array of Visual Properties"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -381,6 +458,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1430872912",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -403,14 +488,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID of the new network."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1010725178",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [{"name": "title", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "QUERY"}],
@@ -433,6 +529,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -440,6 +538,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-48657391",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -455,7 +561,46 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "The body should be the following format: <pre>\n [\n 	{\n 		\"visualPropertyDependnecy\" : \"DEPENDENCY_ID\",\n 		\"enabled\" : true or false\n 	}, ... {}\n ]\n </pre>",
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/edges/selected",
+		"http": "GET",
+		"title": "Utility to get all selected edges",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Selected edges as a list of SUID"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-419248373",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "The body should be the following format: <pre>\n [\n        {\n                \"visualPropertyDependnecy\" : \"DEPENDENCY_ID\",\n                \"enabled\" : true or false\n        }, ... {}\n ]\n </pre>",
 		"url": "/v1/styles/{name}/dependencies",
 		"http": "PUT",
 		"title": "Set Visual Property Dependency flags",
@@ -466,6 +611,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -474,6 +621,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1009277218",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -496,6 +651,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "List of matched edge SUIDs. If no parameter is given, returns all edge SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -503,6 +660,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "662589552",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [
@@ -517,7 +682,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "List of all available layout algorithm names. This <strong>does not include yFiles</strong> algorithms due to license issues.",
+		"beschrijving": "List of all available layout algorithm names. <h3>Important Note</h3> This <strong>does not include yFiles layout algorithms</strong> due to license issues.",
 		"url": "/v1/apply/layouts",
 		"http": "GET",
 		"title": "Get list of available layout algorithm names",
@@ -528,6 +693,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "string" } }, "comment": "List of layout algorithm names."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -535,6 +702,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "160838297",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -557,6 +732,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of networks in current Cytoscape session"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -564,6 +741,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1936626815",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -586,6 +771,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "All values under the specified column."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -593,6 +780,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1653037714",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -619,6 +814,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -626,6 +823,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1245674789",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -648,6 +853,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "View in Cytoscape.js JSON. Currently, view information is (x, y) location only."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -655,6 +862,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "465131160",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -680,6 +895,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "object" }, "comment": "Value in the cell. String, Boolean, Number, or List."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -687,6 +904,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1976423404",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -714,6 +939,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json; charset=UTF-8"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "Matched networks as list of SUIDs. If no query is given, returns all network SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -721,6 +948,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1099067042",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [
@@ -746,6 +981,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -753,6 +990,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1471173272",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -775,6 +1020,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -782,6 +1029,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-118074146",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -807,6 +1062,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "All tables in JSON"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -814,6 +1071,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "578785109",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -836,13 +1101,63 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
-		"output": {"typeValue": { "type": "map", "typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "string" } } }, "comment": "List of available REST API versions. Currently, v1 is the only available version."},
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "map", "typeKey": { "type": "simple", "typeValue": "string" }, "typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "string" } } }, "comment": "List of available REST API versions. Currently, v1 is the only available version."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1567347803",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "Switch between full graphics details <---> fast rendering mode.",
+		"url": "/v1/ui/lod",
+		"http": "PUT",
+		"title": "Toggle level of graphics details (LoD).",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json;charset=utf-8"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1041140031",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -865,6 +1180,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID of the source/target node"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -872,6 +1189,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "519563717",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -887,7 +1212,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "Get list of all Visual Style names. This may not be unique.",
+		"beschrijving": "Get list of all Visual Style names. Style names may not be unique.",
 		"url": "/v1/apply/styles",
 		"http": "GET",
 		"title": "Get list of all Visual Style names",
@@ -898,6 +1223,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "string" } }, "comment": "List of Visual Style names."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -905,6 +1232,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1450138716",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -927,6 +1262,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of global tables."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -934,6 +1271,53 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-26110140",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "The return value will includes status of all CytoPanels. Each entry includes: <ul> <li> name: Official name of the CytoPanel: <ul> <li>SOUTH</li> <li>EAST</li> <li>WEST</li> <li>SOUTH_WEST</li> </ul> </li> <li> state: State of the CytoPanel: <ul> <li>FLOAT</li> <li>DOCK</li> <li>HIDE</li> </ul> </li> </ul>",
+		"url": "/v1/ui/panels",
+		"http": "GET",
+		"title": "Get status of all CytoPanels",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json;charset=utf-8"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "map", "typeKey": { "type": "simple", "typeValue": "string" }, "typeValue": { "type": "simple", "typeValue": "string" } } }, "comment": "Panel status as an array"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1130958429",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -956,6 +1340,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of Visual Styles available in current session."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -963,6 +1349,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1653011134",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -974,7 +1368,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "By passing a list of key-value pairs for each Visual Property, update network view. The body should have the following JSON: <pre>\n [\n 		{\n 			\"visualProperty\": \"Visual Property Name, like NETWORK_BACKGROUND_PAINT\",\n 			\"value\": \"Serialized form of value, like 'red.'\"\n 		},\n 		...\n 		{}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
+		"beschrijving": "By passing a list of key-value pairs for each Visual Property, update network view. The body should have the following JSON: <pre>\n [\n                {\n                        \"visualProperty\": \"Visual Property Name, like NETWORK_BACKGROUND_PAINT\",\n                        \"value\": \"Serialized form of value, like 'red.'\"\n                },\n                ...\n                {}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
 		"url": "/v1/networks/{networkId}/views/{viewId}/network",
 		"http": "PUT",
 		"title": "Update single network view value, such as background color or zoom level.",
@@ -985,6 +1379,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -993,6 +1389,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "239252351",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1007,7 +1411,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "To update the column name, you need to provide the parameters in the body: <pre>\n {\n 		\"oldName\": OLD_COLUMN_NAME,\n 		\"newName\": NEW_COLUMN_NAME\n }\n </pre> Both parameters are required.",
+		"beschrijving": "To update the column name, you need to provide the parameters in the body: <pre>\n {\n                \"oldName\": OLD_COLUMN_NAME,\n                \"newName\": NEW_COLUMN_NAME\n }\n </pre> Both parameters are required.",
 		"url": "/v1/networks/{networkId}/tables/{tableType}/columns",
 		"http": "PUT",
 		"title": "Update a column name",
@@ -1018,6 +1422,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1026,6 +1432,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "189048185",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1051,6 +1465,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.enums["javax_ws_rs_core_Response$Status"], "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1059,6 +1475,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "774617109",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1081,6 +1505,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "A group where the node belongs to"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1088,6 +1514,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-875567376",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Networks SUID", "jaxrs": "PATH"},
@@ -1113,6 +1547,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Node_out"], "comment": "Node with associated row data."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1120,6 +1556,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1092581726",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1145,6 +1589,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1152,6 +1598,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "878202141",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1163,7 +1617,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "Create new, empty column in an assigned table. This accepts the following object OR allay of this objects: <pre>\n 		{\n 			\"name\":\"COLUMN NAME\",\n 			\"type\":\"data type, Double, String, Boolean, Long, Integer\",\n 			\"immutable\": \"Optional: boolean value to specify immutable or not\",\n 			\"list\": \"Optional.  If true, return create List column for the given type.\"\n 		}\n </pre>",
+		"beschrijving": "Create new, empty column in an assigned table. This accepts the following object OR allay of this objects: <pre>\n                {\n                        \"name\":\"COLUMN NAME\",\n                        \"type\":\"data type, Double, String, Boolean, Long, Integer\",\n                        \"immutable\": \"Optional: boolean value to specify immutable or not\",\n                        \"list\": \"Optional.  If true, return create List column for the given type.\"\n                }\n </pre>",
 		"url": "/v1/networks/{networkId}/tables/{tableType}/columns",
 		"http": "POST",
 		"title": "Create new column(s) in the table",
@@ -1174,14 +1628,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-67693391",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1207,6 +1672,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Default value for the Visual Property"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1214,6 +1681,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "978939159",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of Visual Style", "jaxrs": "PATH"},
@@ -1239,6 +1714,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1246,6 +1723,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1624881815",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "styleName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Style name (title)", "jaxrs": "PATH"},
@@ -1271,6 +1756,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1278,6 +1765,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1608791223",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1300,6 +1795,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1307,6 +1804,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1722861795",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1333,18 +1838,107 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "22875663",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/ui/",
+		"http": "GET",
+		"title": "Get status of Desktop",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json;charset=utf-8"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "map", "typeKey": { "type": "simple", "typeValue": "string" }, "typeValue": { "type": "simple", "typeValue": "boolean" } }, "comment": "An object with isDesktopAvailable field. This value is true if Cytoscape Desktop is available. And it is false if Cytoscape is running in headless mode (not available yet)."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-440717074",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/apply/layouts/{algorithmName}/parameters",
+		"http": "GET",
+		"title": "Returns layout parameter list",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "All editable parameters for this algorithm."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "851801502",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of layout algorithm", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -1363,6 +1957,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "List of connected edges (as SUID)"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1370,6 +1966,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1532171535",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1395,6 +1999,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1402,6 +2008,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1469098445",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1416,7 +2030,46 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "By passing a list of key-value pair for each Visual Property, update single node/edge view. The body should have the following JSON: <pre>\n [\n 		{\n 			\"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n 			\"value\": \"Serialized form of value, like 'red.'\"\n 		},\n 		...\n 		{}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/nodes/selected",
+		"http": "GET",
+		"title": "Utility to get selected nodes as SUID list",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Selected nodes as a list of SUID"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1572383706",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "By passing a list of key-value pair for each Visual Property, update single node/edge view. The body should have the following JSON: <pre>\n [\n                {\n                        \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n                        \"value\": \"Serialized form of value, like 'red.'\"\n                },\n                ...\n                {}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
 		"url": "/v1/networks/{networkId}/views/{viewId}/{objectType}/{objectId}",
 		"http": "PUT",
 		"title": "Update single node/edge view object",
@@ -1427,6 +2080,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1435,6 +2090,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-426583312",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1462,6 +2125,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Nested network SUID"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1469,6 +2134,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-936620209",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID.", "jaxrs": "PATH"},
@@ -1494,6 +2167,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["image/png"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1501,6 +2176,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "144494073",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Optional height of the image. Width will be set automatically.", "jaxrs": "QUERY"}],
@@ -1523,6 +2206,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["text/plain"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Table in CSV format"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1530,6 +2215,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-641856805",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1555,6 +2248,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1562,6 +2257,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1226484092",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of layout algorithm (\"circular\", \"force-directed\", etc.)", "jaxrs": "PATH"},
@@ -1587,6 +2290,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1595,6 +2300,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1238918577",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Original name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1617,6 +2330,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all default values"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1624,6 +2339,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-541289516",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1646,6 +2369,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all groups in the network"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1653,6 +2378,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-484652426",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1675,6 +2408,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1682,6 +2417,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-751191979",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1709,6 +2452,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all Visual Mappings."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1716,6 +2461,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1435114727",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1727,7 +2480,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "This returns JSON version of Visual Style object with full details. Format is simple: <pre>\n {\n 	\"title\": (name of this Visual Style),\n 	\"defaults\": [ default values ],\n 	\"mappings\": [ Mappings ]\n }\n </pre> Essentially, this is a JSON version of the Visual Style XML file.",
+		"beschrijving": "This returns JSON version of Visual Style object with full details. Format is simple: <pre>\n {\n        \"title\": (name of this Visual Style),\n        \"defaults\": [ default values ],\n        \"mappings\": [ Mappings ]\n }\n </pre> Essentially, this is a JSON version of the Visual Style XML file.",
 		"url": "/v1/styles/{name}",
 		"http": "GET",
 		"title": "Get a Visual Style with full details",
@@ -1738,6 +2491,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Style in Cytoscape JSON format"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1745,6 +2500,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-727286072",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1767,14 +2530,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID of the new network"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-745567264",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [
@@ -1802,6 +2576,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Current session name"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1809,6 +2585,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1394644823",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -1831,6 +2615,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of Visual Style titles."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1838,6 +2624,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "646055412",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -1849,7 +2643,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "By passing list of key-value pair for each Visual Property, update node view. The body should have the following JSON: <pre>\n [\n 		{\n 			\"SUID\": SUID of node,\n 			\"view\": [\n 				{\n 					\"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n 					\"value\": \"Serialized form of value, like 'red.'\"\n 				},\n 				...\n 				{}\n 			]\n 		},\n 		...\n 		{}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
+		"beschrijving": "By passing list of key-value pair for each Visual Property, update node view. The body should have the following JSON: <pre>\n [\n                {\n                        \"SUID\": SUID of node,\n                        \"view\": [\n                                {\n                                        \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n                                        \"value\": \"Serialized form of value, like 'red.'\"\n                                },\n                                ...\n                                {}\n                        ]\n                },\n                ...\n                {}\n ]\n </pre> Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.",
 		"url": "/v1/networks/{networkId}/views/{viewId}/{objectType}",
 		"http": "PUT",
 		"title": "Update node/edge view objects at once",
@@ -1860,6 +2654,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1868,6 +2664,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1315339807",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -1894,6 +2698,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1901,6 +2707,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1398070574",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1912,7 +2726,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "Add new edge(s) to the network. Body should include an array of new node names. <pre>\n [\n 	{\n 		\"source\": SOURCE_NODE_SUID,\n 		\"target\": TARGET_NODE_SUID,\n 		\"directed\": (Optional boolean value.  Default is True),\n 		\"interaction\": (Optional.  Will be used for Interaction column.  Default value is '-')\n 	} ...\n ]\n </pre>",
+		"beschrijving": "Add new edge(s) to the network. Body should include an array of new node names. <pre>\n [\n        {\n                \"source\": SOURCE_NODE_SUID,\n                \"target\": TARGET_NODE_SUID,\n                \"directed\": (Optional boolean value.  Default is True),\n                \"interaction\": (Optional.  Will be used for Interaction column.  Default value is '-')\n        } ...\n ]\n </pre>",
 		"url": "/v1/networks/{networkId}/edges",
 		"http": "POST",
 		"title": "Add edge(s) to existing network",
@@ -1923,14 +2737,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUIDs of the new edges with source and target SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-868911793",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1953,6 +2778,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Property as object"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1960,6 +2787,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-186276961",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "visualProperty", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Target Visual Property ID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -1982,6 +2817,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json;charset=utf-8"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"], "comment": "Network with all associated tables in Cytoscape.js format."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -1989,6 +2826,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "839244670",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2011,6 +2856,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2018,6 +2865,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1305510572",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"},
@@ -2043,6 +2898,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json;charset=utf-8"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"], "comment": "Summary of server status"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2051,10 +2908,58 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1637304040",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
                 "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "The body of your request should contain an array of new parameters. The data should look like the following: <br/> [ { \"name\": nodeHorizontalSpacing, \"value\": 40.0 }, ... ] where: <ul> <li>name: Unique name (ID) of the parameter</li> <li>value: New value for the parameter field</li> </ul>",
+		"url": "/v1/apply/layouts/{algorithmName}/parameters",
+		"http": "PUT",
+		"title": "Update layout parameters for the algorithm",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": [],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Response code 200 if success"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "324693723",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the layout algorithm", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2073,6 +2978,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "List of matched node SUIDs. If no parameter is given, returns all node SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2080,12 +2987,59 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-351293045",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [
                     {"name": "column", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Node table column name to be used for search.", "jaxrs": "QUERY"},
                     {"name": "query", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Search query.", "jaxrs": "QUERY"}
                 ],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "The return value is an map of all layout details, and each of parameter entry includes: <ul> <li>name: Unique name (ID) of the parameter</li> <li>description: Description for the parameter</li> <li>type: Java data type of the parameter</li> <li>value: current value for the parameter field</li> </ul>",
+		"url": "/v1/apply/layouts/{algorithmName}",
+		"http": "GET",
+		"title": "Get layout parameters for the algorithm",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Editable layout parameters"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1323174484",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the layout algorithm", "jaxrs": "PATH"}],
+                "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -2105,6 +3059,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all available values for the visual property."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2112,6 +3068,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1771341593",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "vp", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Property ID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2134,6 +3098,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2141,6 +3107,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-623876800",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2163,6 +3137,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json; charset=UTF-8"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"] }, "comment": "Matched networks in Cytoscape.js JSON. If no query is given, all networks."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2170,12 +3146,59 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-2049587644",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [
                     {"name": "column", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Network table column name to be used for search.", "jaxrs": "QUERY"},
                     {"name": "query", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Search query.", "jaxrs": "QUERY"}
                 ],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/ui/panels/{panelName}",
+		"http": "GET",
+		"title": "Get status of a CytoPanel",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json;charset=utf-8"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Status of the CytoPanel (name-state pair)"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1009090227",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "panelName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "official name of the CytroPanel", "jaxrs": "PATH"}],
+                "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -2195,6 +3218,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2202,6 +3227,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-966304515",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
@@ -2228,6 +3261,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2235,6 +3270,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "824273598",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -2260,6 +3303,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Style in Cytoscape.js CSS format. This is always in an array."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2267,6 +3312,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1467604967",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2289,6 +3342,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of groups in the network"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2296,6 +3351,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1385114415",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2318,6 +3381,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2326,6 +3391,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-239384552",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of visual Style", "jaxrs": "PATH"},
@@ -2333,6 +3406,84 @@ com.qmino.miredot.restApiSource.interfaces = [
                 ],
                 "QUERY": [],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "The return value does not includes originally selected nodes.",
+		"url": "/v1/networks/{networkId}/nodes/selected/neighbors",
+		"http": "GET",
+		"title": "Utility to get all neighbors of selected nodes",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Neighbors as list. Note that this does not includes original nodes."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-898340911",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/apply/layouts/{algorithmName}/columntypes",
+		"http": "GET",
+		"title": "Column data types compatible with this algorithm",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "List of all compatible column data types"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1424216645",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of layout algorithm", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2351,6 +3502,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2358,6 +3511,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1956573753",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2380,6 +3541,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "number of edges in the network"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2387,10 +3550,58 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1189989470",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "You can update multiple panel states at once. Body of your request should have same format as the return value of GET method.",
+		"url": "/v1/ui/panels",
+		"http": "PUT",
+		"title": "Update CytoPanel states",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": [],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Response 200 if success"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-954490967",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2409,14 +3620,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Title of the new Visual Style."},
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Title of the new Visual Style."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-844810990",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -2439,6 +3661,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2446,6 +3670,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-751167354",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2468,6 +3700,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Visual Mapping assigned to the Visual Property"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2475,6 +3709,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1738123557",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"},
@@ -2500,6 +3742,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2507,6 +3751,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1244466579",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2529,6 +3781,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"], "comment": "Cytoscape version and REST API version"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2536,6 +3790,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1344679833",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -2558,6 +3820,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"], "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2566,6 +3830,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1753657146",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -2588,6 +3860,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "Array of all network view SUIDs"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2595,6 +3869,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1320550666",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2617,6 +3899,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2624,6 +3908,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1940190049",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -2646,6 +3938,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Row in the table"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2653,6 +3947,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1678146497",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -2679,6 +3981,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2686,6 +3990,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1818955693",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
@@ -2714,6 +4026,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2722,6 +4036,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-146811400",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -2748,6 +4070,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json; charset=UTF-8"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CyJsNetwork_out"] }, "comment": "Matched networks in Cytoscape.js JSON. If no query is given, all networks."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2755,6 +4079,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-116750400",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [
@@ -2780,14 +4112,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID for the new Network View."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-674835444",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2810,14 +4153,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file name"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1722986339",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [{"name": "file", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file location (should be absolute path)", "jaxrs": "QUERY"}],
@@ -2840,6 +4194,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Session file name as string"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2847,6 +4203,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "874002889",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [{"name": "file", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "File name (should be absolute path)", "jaxrs": "QUERY"}],
@@ -2869,6 +4233,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "boolean" }, "comment": "true if the edge is directed."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2876,6 +4242,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "748072261",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -2901,6 +4275,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "All rows in the table"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2908,6 +4284,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-805850066",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -2933,6 +4317,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of the status of all Visual Property dependencies."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2940,6 +4326,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "180906514",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2951,7 +4345,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "Create a new group from a list of nodes. The Body should be in the following format: <pre>\n 	{\n 		\"name\": (New group node name),\n 		\"nodes\": [\n 			nodeSUID1, nodeSUID2, ...\n 		]\n 	}\n </pre>",
+		"beschrijving": "Create a new group from a list of nodes. The Body should be in the following format: <pre>\n        {\n                \"name\": (New group node name),\n                \"nodes\": [\n                        nodeSUID1, nodeSUID2, ...\n                ]\n        }\n </pre>",
 		"url": "/v1/networks/{networkId}/groups/",
 		"http": "POST",
 		"title": "Create a new group",
@@ -2962,14 +4356,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "New group node's SUID"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1579310846",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -2992,6 +4397,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -2999,6 +4406,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1904302687",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID.", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -3021,14 +4436,25 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID of the new node(s) with the name."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 201, "comment": "The service call has created a new object."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 412, "comment": "Invalid JSON input."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1195970986",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -3051,6 +4477,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of views for the network model"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3058,6 +4486,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-262013305",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -3080,6 +4516,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["image/png"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3087,6 +4525,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1288037935",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3112,6 +4558,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Edge_out"], "comment": "Edge with associated row data"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3119,6 +4567,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "288600029",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3144,6 +4600,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Success message"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3151,6 +4609,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1845618931",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [],
                 "QUERY": [],
@@ -3173,6 +4639,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "Neighbors of the node as a list of SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3180,6 +4648,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1214382742",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target network SUID.", "jaxrs": "PATH"},
@@ -3194,7 +4670,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "This API is for updating default node/edge/network data table. New columns will be created if they does not exist in the target table. The BODY of the data should be in the following format:<br/> <pre>\n 	{\n 		\"key\":\"SUID\",  		// This is the unique key column in the existing table\n 		\"dataKey\": \"id\",		// Mapping key for the new values\n 		\"data\": [\n 			{\n 				\"id\": 12345,		// Required. Field name should be same as \"dataKey.\"\n 								// In this case, it is \"id,\" but can be anything.\n 				\"gene_name\": \"brca1\",\n 				\"exp1\": 0.11,\n 				\"exp2\": 0.2\n  			}, ...\n 			\n 		]\n 	}\n </pre> Current limitations: <ul> 	<li>	If key is not specified, SUID will be used for mapping</li> 	<li>Numbers are handled as Double</li> 	<li>List column is not supported in this version</li> </ul>",
+		"beschrijving": "This API is for updating default node/edge/network data table. New columns will be created if they does not exist in the target table. The BODY of the data should be in the following format:<br/> <pre>\n        {\n                \"key\":\"SUID\",           // This is the unique key column in the existing table\n                \"dataKey\": \"id\",                // Mapping key for the new values\n                \"data\": [\n                        {\n                                \"id\": 12345,            // Required. Field name should be same as \"dataKey.\"\n                                                                // In this case, it is \"id,\" but can be anything.\n                                \"gene_name\": \"brca1\",\n                                \"exp1\": 0.11,\n                                \"exp2\": 0.2\n                        }, ...\n                        \n                ]\n        }\n </pre> Current limitations: <ul> <li> If key is not specified, SUID will be used for mapping</li> <li>Numbers are handled as Double</li> <li>List column is not supported in this version</li> </ul>",
 		"url": "/v1/networks/{networkId}/tables/{tableType}",
 		"http": "PUT",
 		"title": "Update default table with new values.",
@@ -3205,6 +4681,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": ["application/json"],
 		"produces": [],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3213,6 +4691,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "438214378",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3238,6 +4724,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of nodes in the network with given SUID"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3245,6 +4733,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-154879171",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -3267,6 +4763,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "The Table in JSON"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3274,6 +4772,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1923426397",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3299,6 +4805,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3306,6 +4814,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "1980812267",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
@@ -3328,6 +4844,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["text/plain"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Table in TSV format"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3335,6 +4853,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "890341100",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3360,6 +4886,8 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"consumes": [],
 		"produces": ["application/json"],
 		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
 		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "All columns in the specified table."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
@@ -3367,6 +4895,14 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-2070327705",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
 		"inputs": {
                 "PATH": [
                     {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
@@ -3501,6 +5037,27 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
 		"description": "Missing parameter documentation",
 		"failedBuild": false,
@@ -3655,6 +5212,13 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -3678,6 +5242,13 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -4005,6 +5576,62 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
 		"description": "Missing parameter documentation",
 		"failedBuild": false,
@@ -4341,6 +5968,27 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -4364,6 +6012,27 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -4509,6 +6178,41 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -4539,6 +6243,27 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "PARTIAL_RESOURCE_OVERLAP",
 		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null

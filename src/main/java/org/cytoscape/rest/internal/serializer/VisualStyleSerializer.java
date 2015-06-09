@@ -9,10 +9,8 @@ import java.util.TreeMap;
 
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
-import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.DiscreteRange;
 import org.cytoscape.view.model.View;
-import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.property.values.VisualPropertyValue;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
@@ -125,7 +123,13 @@ public class VisualStyleSerializer {
 		generator.writeStartObject();
 		generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
 		generator.writeFieldName("value");
-		writeValue(vp, style.getDefaultValue(vp), generator);
+		
+		Object value = style.getDefaultValue(vp);
+		if(value == null) {
+			// Use VP default is Style default is not available
+			value = vp.getDefault();
+		}
+		writeValue(vp, value, generator);
 		generator.writeEndObject();
 		
 		generator.close();
@@ -190,13 +194,14 @@ public class VisualStyleSerializer {
 		generator.writeArrayFieldStart("defaults");
 		for(final String name:names.keySet()) {
 			final VisualProperty<Object> vp = (VisualProperty<Object>) names.get(name);
-			if(style.getDefaultValue(vp) == null) {
-				continue;
+			Object newValue = style.getDefaultValue(vp);
+			if(newValue == null) {
+				newValue = vp.getDefault();
 			}
 			generator.writeStartObject();
 			generator.writeStringField(VisualStyleMapper.MAPPING_VP, vp.getIdString());
 			generator.writeFieldName("value");
-			writeValue(vp, style.getDefaultValue(vp), generator);
+			writeValue(vp, newValue, generator);
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();

@@ -1,5 +1,7 @@
 package org.cytoscape.rest.internal.datamapper;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class MapperUtil {
 
 	public static final Class<?> getColumnClass(final String type) {
@@ -37,5 +39,23 @@ public class MapperUtil {
 			raw = Float.parseFloat(queryString);
 		}
 		return raw;
+	}
+	
+	public static final Object getValue(final JsonNode value, final Class<?> type) {
+		if (type == String.class) {
+			return value.asText();
+		} else if (type == Boolean.class || type.getSimpleName() == "boolean") {
+			return value.asBoolean();
+		} else if (type == Double.class || type.getSimpleName() == "double") {
+			return value.asDouble();
+		} else if (type == Integer.class || type.getSimpleName() == "int") {
+			return value.asInt();
+		} else if (type == Long.class || type.getSimpleName() == "long") {
+			return value.asLong();
+		} else if (type == Float.class || type.getSimpleName() == "float") {
+			return value.asDouble();
+		} else {
+			return null;
+		}
 	}
 }

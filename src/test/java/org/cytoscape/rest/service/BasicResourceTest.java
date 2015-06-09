@@ -15,7 +15,10 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ws.rs.core.Context;
+
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.Justification;
 import org.cytoscape.ding.NetworkViewTestSupport;
@@ -38,6 +41,7 @@ import org.cytoscape.model.NetworkTestSupport;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -63,6 +67,7 @@ import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.task.read.OpenSessionTaskFactory;
+import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -124,6 +129,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
+	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
@@ -180,7 +186,11 @@ public class BasicResourceTest extends JerseyTest {
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
 		CyTableManager tableManager = mock(CyTableManager.class);
+		
 		VisualStyleFactory vsFactory = mock(VisualStyleFactory.class);
+		VisualStyle emptyStyle = mock(VisualStyle.class);
+		when(vsFactory.createVisualStyle(anyString())).thenReturn(emptyStyle);
+		
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
 		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
@@ -202,6 +212,10 @@ public class BasicResourceTest extends JerseyTest {
 		when(openSessionTaskFactory.createTaskIterator((File) anyObject())).thenReturn(new TaskIterator(mockTask));
 		newSessionTaskFactory = mock(NewSessionTaskFactory.class);
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
+		CySwingApplication desktop = mock(CySwingApplication.class);
+		LevelOfDetails lodTF = mock(LevelOfDetails.class);
+		
+		this.selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -212,7 +226,8 @@ public class BasicResourceTest extends JerseyTest {
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
-				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory);
+				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
+				desktop, lodTF, selectFirstNeighborsTaskFactory);
 	}
 	
 	

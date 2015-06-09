@@ -50,9 +50,6 @@ public class VisualStyleMapper {
 	public static final String VP_DEPENDENCY = "visualPropertyDependency";
 	public static final String VP_DEPENDENCY_ENABLED = "enabled";
 	
-	public VisualStyleMapper() {
-		
-	}
 
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
@@ -62,9 +59,14 @@ public class VisualStyleMapper {
 
 		final JsonNode defaults = rootNode.get(DEFAULTS);
 		final JsonNode mappings = rootNode.get(MAPPINGS);
-
-		parseDefaults(defaults, style, lexicon);
-		parseMappings(mappings, style, lexicon, factoryManager);
+		
+		if(defaults != null) {
+			parseDefaults(defaults, style, lexicon);
+		}
+		
+		if(mappings != null) {
+			parseMappings(mappings, style, lexicon, factoryManager);
+		}
 		return style;
 	}
 
@@ -101,7 +103,7 @@ public class VisualStyleMapper {
 	}
 
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final void parseMappings(JsonNode mappings, VisualStyle style, VisualLexicon lexicon,
 			MappingFactoryManager factoryManager) {
 		
@@ -227,7 +229,7 @@ public class VisualStyleMapper {
 	public Response updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon) {
 		for (final JsonNode vpNode : rootNode) {
 			String vpName = vpNode.get(MAPPING_VP).textValue();
-			final VisualProperty vp = getVisualProperty(vpName, lexicon);
+			final VisualProperty<?> vp = getVisualProperty(vpName, lexicon);
 			final JsonNode value = vpNode.get(MAPPING_DISCRETE_VALUE);
 			if (vp == null || value == null ) {
 				continue;

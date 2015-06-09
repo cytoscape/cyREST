@@ -23,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
@@ -469,14 +470,17 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStyle(@PathParam("name") String name) {
+		if(networkViewManager.getNetworkViewSet().isEmpty()) {
+			throw getError("You need at least one view object to use this feature."
+					, new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
 		final VisualStyle style = getStyleByName(name);
-
 		final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
 		final ByteArrayOutputStream os = new ByteArrayOutputStream();
 		final Set<VisualStyle> styleCollection = new HashSet<VisualStyle>();
 		styleCollection.add(style);
-		final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
 		try {
+			final CyWriter styleWriter = jsonVsFact.createWriter(os, styleCollection);
 			styleWriter.run(new HeadlessTaskMonitor());
 			String jsonString = os.toString("UTF-8");
 			os.close();
@@ -529,7 +533,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createStyle(InputStream is) {
+	public Response createStyle(InputStream is) {
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {
@@ -539,7 +543,9 @@ public class StyleResource extends AbstractResource {
 			vmm.addVisualStyle(style);
 			
 			// This may be different from the original one if same name exists.
-			return "{\"title\": \""+ style.getTitle() + "\"}";
+			final String result = "{\"title\": \""+ style.getTitle() + "\"}";
+			
+			return Response.status(Response.Status.CREATED).entity(result).build();
 		} catch (Exception e) {
 			throw getError("Could not create new Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

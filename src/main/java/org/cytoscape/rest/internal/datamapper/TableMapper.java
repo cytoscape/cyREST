@@ -153,7 +153,7 @@ public class TableMapper {
 				continue;
 			}
 
-			final Object key = getValue(keyValue, col.getType());
+			final Object key = MapperUtil.getValue(keyValue, col.getType());
 			if(key == null) {
 				// Key is invalid.
 				continue;
@@ -198,23 +198,6 @@ public class TableMapper {
 	}
 
 
-	private final Object getValue(final JsonNode value, final Class<?> type) {
-		if (type == String.class) {
-			return value.asText();
-		} else if (type == Boolean.class) {
-			return value.asBoolean();
-		} else if (type == Double.class) {
-			return value.asDouble();
-		} else if (type == Integer.class) {
-			return value.asInt();
-		} else if (type == Long.class) {
-			return value.asLong();
-		} else if (type == Float.class) {
-			return value.asDouble();
-		} else {
-			return null;
-		}
-	}
 
 
 	private final void setValue(final Class<?> type, final JsonNode value, final CyRow row, final String columnName) {

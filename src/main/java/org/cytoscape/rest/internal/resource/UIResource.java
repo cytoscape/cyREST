@@ -1,16 +1,19 @@
 package org.cytoscape.rest.internal.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javassist.NotFoundException;
-
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,17 +21,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
-import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
-import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler.Builder;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.sym.Name;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @Singleton
@@ -48,19 +54,33 @@ public class UIResource extends AbstractResource {
 	private TaskMonitor headlessTaskMonitor;
 
 
+	/**
+	 * 
+	 * @summary Get status of Desktop
+	 * 
+	 * @return True if Cytoscape Desktop is ready.
+	 * 
+	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Map<String, String> getDesktop() {
-		final Map<String, String> status = new HashMap<>();
-		status.put("message", "GUI is available");
+	public Map<String, Boolean> getDesktop() {
+		final Map<String, Boolean> status = new HashMap<>();
+		boolean desktopAvailable = false;
+		if(desktop != null) {
+			desktopAvailable = true;
+		}
+		
+		status.put("isDesktopAvailable", desktopAvailable);
 		return status;
 	}
-	
+
 
 	/**
 	 * 
-	 * @summary Update graphics level of details.
+	 * Switch between full details and fast rendering mode.
+	 * 
+	 * @summary Toggle level of graphics details (LoD).
 	 * 
 	 * @return Success message.
 	 */
@@ -84,9 +104,9 @@ public class UIResource extends AbstractResource {
 
 	/**
 	 * 
-	 * @summary Get panel status 
+	 * @summary Get status of all CytoPanels 
 	 * 
-	 * @return Panel status
+	 * @return Panel status as list
 	 */
 	@GET
 	@Path("/panels")
@@ -106,6 +126,14 @@ public class UIResource extends AbstractResource {
 	}
 	
 	
+	/**
+	 * 
+	 * @summary Get status of a CytoPanel
+	 * 
+	 * @param panelName official name of CytroPanel
+	 * 
+	 * @return Status of the CytoPanel
+	 */
 	@GET
 	@Path("/panels/{panelName}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -116,5 +144,54 @@ public class UIResource extends AbstractResource {
 		}
 		final CytoPanel panelObject = desktop.getCytoPanel(panel);
 		return Response.ok(getMap(panelObject)).build();
+	}
+
+
+	
+	/**
+	 * 
+	 * You can update multiple panel states at once.
+	 * 
+	 * @summary Update CytoPanel states
+	 * 
+	 * @return 200 if success.
+	 */
+	@PUT
+	@Path("/panels")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updatePanelStatus(final InputStream is) {
+		
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		JsonNode rootNode = null;
+		try {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+		} catch (IOException e) {
+			throw new InternalServerErrorException("Could not parse input JSON.", e);
+		}
+		
+		for (final JsonNode entry : rootNode) {
+			final JsonNode panelName = entry.get("name");
+			final JsonNode panelStatus = entry.get("state");
+			
+			if(panelName == null || panelStatus == null) {
+				throw new IllegalArgumentException("Imput parameters are missing."); 
+			}
+			
+			final CytoPanelName panel = CytoPanelName.valueOf(panelName.asText());
+			if(panel == null) {
+				throw new IllegalArgumentException("Could not find panel: " + panelName.asText()); 
+			}
+			
+			final CytoPanelState state = CytoPanelState.valueOf(panelStatus.asText());
+			if(state == null) {
+				throw new IllegalArgumentException("Invalid Panel State: " + panelStatus.asText()); 
+			}
+			
+			final CytoPanel panelObject = desktop.getCytoPanel(panel);
+			panelObject.setState(state);
+		}
+		
+		return Response.ok().build();
 	}
 }

@@ -26,6 +26,7 @@ import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.task.read.OpenSessionTaskFactory;
+import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
@@ -77,6 +78,7 @@ public class CyBinder extends AbstractBinder {
 	private final OpenSessionTaskFactory openSessionTaskFactory;
 	private final NewSessionTaskFactory newSessionTaskFactory;
 	private final CySwingApplication desktop;
+	private final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
@@ -95,7 +97,7 @@ public class CyBinder extends AbstractBinder {
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
-			final LevelOfDetails toggleLod) {
+			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -128,6 +130,7 @@ public class CyBinder extends AbstractBinder {
 		this.newSessionTaskFactory = newSessionTaskFactory;
 		this.desktop = desktop;
 		this.toggleLod = toggleLod;
+		this.selectFirstNeighborsTaskFactory = selectFirstNeighborsTaskFactory;
 	}
 
 
@@ -165,5 +168,6 @@ public class CyBinder extends AbstractBinder {
 		bind(newSessionTaskFactory).to(NewSessionTaskFactory.class);
 		bind(desktop).to(CySwingApplication.class);
 		bind(toggleLod).to(LevelOfDetails.class);
+		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
 	}
 }

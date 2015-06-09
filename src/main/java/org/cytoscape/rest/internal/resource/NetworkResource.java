@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -37,11 +38,13 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
+import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualStyle;
@@ -58,6 +61,9 @@ import com.qmino.miredot.annotations.ReturnType;
 @Singleton
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
+	
+	@Context
+	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
@@ -110,6 +116,7 @@ public class NetworkResource extends AbstractResource {
 	public String getEdgeCount(@PathParam("networkId") Long networkId) {
 		return getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getEdgeCount());
 	}
+	
 
 	private final Collection<Long> getByQuery(final Long id, final String objType, final String column,
 			final String query) {
@@ -223,6 +230,74 @@ public class NetworkResource extends AbstractResource {
 		return getByQuery(networkId, "nodes", column, query);
 	}
 
+
+	/**
+	 * @summary Utility to get selected nodes as SUID list
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return Selected nodes as a list of SUID
+	 */
+	@GET
+	@Path("/{networkId}/nodes/selected")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSelectedNodes(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final List<CyNode> selectedNodes = CyTableUtil.getNodesInState(network, CyNetwork.SELECTED, true);
+		final List<Long> selectedNodeIds = selectedNodes.stream()
+			.map(node -> node.getSUID())
+			.collect(Collectors.toList());
+		
+		return Response.ok(selectedNodeIds).build();
+	}
+	
+	
+	/**
+	 * 
+	 * The return value does not includes originally selected nodes.
+	 * 
+	 * @summary Utility to get all neighbors of selected nodes
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return Neighbors as list.  Note that this does not includes original nodes.
+	 */
+	@GET
+	@Path("/{networkId}/nodes/selected/neighbors")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNeighbors(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final List<CyNode> selectedNodes = CyTableUtil.getNodesInState(network, CyNetwork.SELECTED, true);
+	
+		final Set<Long> res = selectedNodes.stream()
+			.map(node -> network.getNeighborList(node, Type.ANY))
+			.flatMap(List::stream)
+			.map(neighbor -> neighbor.getSUID())
+			.collect(Collectors.toSet());
+		
+		return Response.ok(res).build();
+	}
+
+
+	/**
+	 * @summary Utility to get all selected edges
+	 * 
+	 * @param networkId Network SUID
+	 * 
+	 * @return Selected edges as a list of SUID
+	 */
+	@GET
+	@Path("/{networkId}/edges/selected")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSelectedEdges(@PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final List<CyEdge> selectedEdges = CyTableUtil.getEdgesInState(network, CyNetwork.SELECTED, true);
+		final List<Long> selectedEdgeIds = selectedEdges.stream()
+			.map(edge -> edge.getSUID())
+			.collect(Collectors.toList());
+		
+		return Response.ok(selectedEdgeIds).build();
+	}
 
 	/**
 	 * @summary Get matching edges

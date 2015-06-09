@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ws.rs.core.Context;
+
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.ding.DVisualLexicon;
@@ -65,6 +67,7 @@ import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.task.read.OpenSessionTaskFactory;
+import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -126,6 +129,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
+	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
@@ -211,6 +215,8 @@ public class BasicResourceTest extends JerseyTest {
 		CySwingApplication desktop = mock(CySwingApplication.class);
 		LevelOfDetails lodTF = mock(LevelOfDetails.class);
 		
+		this.selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -221,7 +227,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
-				desktop, lodTF);
+				desktop, lodTF, selectFirstNeighborsTaskFactory);
 	}
 	
 	

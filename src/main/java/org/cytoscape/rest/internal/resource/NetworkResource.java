@@ -891,7 +891,10 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNetworkFromSelected(@PathParam("networkId") Long networkId, @QueryParam("title") String title, final InputStream is,
+	public String createNetworkFromSelected(
+			@PathParam("networkId") Long networkId,
+			@QueryParam("title") String title,
+			final InputStream is,
 			@Context HttpHeaders headers) {
 
 		final CyNetwork network = getCyNetwork(networkId);

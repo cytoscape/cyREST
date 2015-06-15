@@ -18,10 +18,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyColumn;
+import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
@@ -80,6 +81,7 @@ public class TableResource extends AbstractResource {
 	 * 			"type":"data type, Double, String, Boolean, Long, Integer",
 	 * 			"immutable": "Optional: boolean value to specify immutable or not",
 	 * 			"list": "Optional.  If true, return create List column for the given type."
+	 * 			"local": "Optional.  If true, it will be a local column"
 	 * 		}
 	 * </pre>
 	 * 
@@ -95,26 +97,31 @@ public class TableResource extends AbstractResource {
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response createColumn(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType,
 			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
+		final CyTable localTable = getTableByType(
+				network, tableType, JsonTags.COLUMN_IS_LOCAL);
+		
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			if(rootNode.isArray()) {
 				for(JsonNode node: rootNode) {
-					tableMapper.createNewColumn(node, table);
+					tableMapper.createNewColumn(node, table, localTable);
 				}
 			} else {
-				tableMapper.createNewColumn(rootNode, table);
+				tableMapper.createNewColumn(rootNode, table, localTable);
 			}
 			
 			// Use 201 for created resource
 			return Response.status(Response.Status.CREATED).build();
 			
 		} catch (Exception e) {
-			throw getError("Could not process column JSON.", e, Response.Status.PRECONDITION_FAILED);
+			throw getError("Could not process column JSON.", 
+					e, Response.Status.PRECONDITION_FAILED);
 		}
 	}
 
@@ -132,10 +139,11 @@ public class TableResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
-	public Response deleteColumn(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response deleteColumn(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		if (table != null) {
 			table.deleteColumn(columnName);
 			return Response.ok().build();
@@ -169,10 +177,11 @@ public class TableResource extends AbstractResource {
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateColumnName(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response updateColumnName(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType,
 			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		final ObjectMapper objMapper = new ObjectMapper();
 		
 		try {
@@ -180,7 +189,8 @@ public class TableResource extends AbstractResource {
 			tableMapper.updateColumnName(rootNode, table);
 			return Response.ok().build();
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw getError("Could not parse the input JSON for updating "
+					+ "column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -213,7 +223,7 @@ public class TableResource extends AbstractResource {
 			@PathParam("columnName") String columnName,
 			@QueryParam("default") String defaultValue, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 
 		if (defaultValue != null) {
 			tableMapper.updateAllColumnValues(defaultValue, table, columnName);
@@ -269,14 +279,19 @@ public class TableResource extends AbstractResource {
 	 *            Network SUID
 	 * @param tableType
 	 *            Table type (defaultnode, defaultedge or defaultnetwork)
+	 * @param class Optional.  If this query parameter is set to local, 
+	 * 				local table column will be updated.
 	 */
 	@PUT
 	@Path("/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateTable(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public Response updateTable(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType,
+			@QueryParam("class") String tableClass,
 			final InputStream is) {
+		
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, tableClass);
 		final ObjectMapper objMapper = new ObjectMapper();
 
 		try {
@@ -286,7 +301,10 @@ public class TableResource extends AbstractResource {
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		
+		return Response.ok().build();
 	}
+
 
 	/**
 	 * @summary Get a row in a table
@@ -303,12 +321,14 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRow(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public String getRow(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType,
 			@PathParam("primaryKey") Long primaryKey) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
-			throw new NotFoundException("Could not find the row with primary key: " + primaryKey);
+			throw new NotFoundException("Could not find the row "
+					+ "with primary key: " + primaryKey);
 		}
 
 		final CyRow row = table.getRow(primaryKey);
@@ -340,11 +360,13 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object getCell(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
-			@PathParam("primaryKey") Long primaryKey, @PathParam("columnName") String columnName) {
+	public Object getCell(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType,
+			@PathParam("primaryKey") Long primaryKey,
+			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
 
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
 			throw new NotFoundException("Could not find the row with promary key: " + primaryKey);
 		}
@@ -392,9 +414,10 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getRows(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+	public String getRows(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			return this.serializer.serializeAllRows(table.getAllRows());
 		} catch (IOException e) {
@@ -417,9 +440,10 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/columns")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnNames(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+	public String getColumnNames(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			return this.serializer.serializeColumns(table.getColumns());
 		} catch (IOException e) {
@@ -443,10 +467,11 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/columns/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getColumnValues(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType,
+	public String getColumnValues(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType,
 			@PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		final CyColumn column = table.getColumn(columnName);
 		final List<Object> values = column.getValues(column.getType());
 
@@ -478,14 +503,38 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
-	private final CyTable getTableByType(final CyNetwork network, final String tableType) {
+	private final CyTable getTableByType(final CyNetwork network, 
+			final String tableType, final String tableClass) {
+		
+		// Check local or not
+		final Boolean isLocal;
+		if(tableClass == null || tableClass.isEmpty()) {
+			isLocal = false;
+		} else if(tableClass.equals("local")) {
+			isLocal = true;
+		} else {
+			isLocal = false;
+		}
+		
 		CyTable table;
 		if (tableType.equals(TableType.DEFAULT_NODE.getType())) {
-			table = network.getDefaultNodeTable();
+			if(isLocal) {
+				table = network.getTable(CyNode.class, CyNetwork.LOCAL_ATTRS);
+			} else {
+				table = network.getDefaultNodeTable();
+			}
 		} else if (tableType.equals(TableType.DEFAULT_EDGE.getType())) {
-			table = network.getDefaultEdgeTable();
+			if(isLocal) {
+				table = network.getTable(CyEdge.class, CyNetwork.LOCAL_ATTRS);
+			} else {
+				table = network.getDefaultEdgeTable();
+			}
 		} else if (tableType.equals(TableType.DEFAULT_NETWORK.getType())) {
-			table = network.getDefaultNetworkTable();
+			if(isLocal) {
+				table = network.getTable(CyNetwork.class, CyNetwork.LOCAL_ATTRS);
+			} else {
+				table = network.getDefaultNetworkTable();
+			}
 		} else {
 			// No such table.
 			throw new NotFoundException("No such table type: " + tableType);
@@ -506,10 +555,11 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTable(@PathParam("networkId") Long networkId, @PathParam("tableType") String tableType) {
+	public String getTable(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType) {
 
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 
 		try {
 			return this.tableObjectMapper.writeValueAsString(table);
@@ -565,10 +615,11 @@ public class TableResource extends AbstractResource {
 	 * @param separator
 	 * @return
 	 */
-	private final String getTableString(final Long networkId, final String tableType, final String separator) {
+	private final String getTableString(final Long networkId, 
+			final String tableType, final String separator) {
 
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyTable table = getTableByType(network, tableType);
+		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			final String result = tableSerializer.toCSV(table, separator);
 			return result;

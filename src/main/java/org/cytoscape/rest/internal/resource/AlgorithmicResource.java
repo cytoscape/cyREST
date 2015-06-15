@@ -22,6 +22,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -83,7 +84,8 @@ public class AlgorithmicResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response applyLayout(
 			@PathParam("algorithmName") String algorithmName,
-			@PathParam("networkId") Long networkId) {
+			@PathParam("networkId") Long networkId,
+			@QueryParam("column") String column) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
@@ -97,9 +99,14 @@ public class AlgorithmicResource extends AbstractResource {
 			throw new NotFoundException("No such layout algorithm: " + algorithmName);
 		}
 
+		String columnForLayout = column;
+		if(columnForLayout == null) {
+			columnForLayout = "";
+		}
+		
 		final TaskIterator itr = layout.createTaskIterator(view,
 				layout.getDefaultLayoutContext(),
-				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
+				CyLayoutAlgorithm.ALL_NODE_VIEWS, columnForLayout);
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {

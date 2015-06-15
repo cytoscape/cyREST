@@ -2,9 +2,11 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.*;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -65,13 +67,15 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(columnNames.contains("name"));
 		assertTrue(columnNames.contains("shared name"));
 		assertTrue(columnNames.contains("selected"));
+		assertTrue(columnNames.contains("local1"));
 	}
 
 	@Test
 	public void testGetColumnNames() throws Exception {
 		final Long suid = network.getSUID();
-		String result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns").request().get(
-				String.class);
+		String result = target("/v1/networks/" + suid.toString() + 
+				"/tables/defaultnode/columns")
+				.request().get(String.class);
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
 		final Set<String> columnNames = new HashSet<>();
@@ -79,10 +83,13 @@ public class TableResourceTest extends BasicResourceTest {
 		for (JsonNode column : root) {
 			columnNames.add(column.get("name").asText());
 		}
+		assertEquals(5, columnNames.size());
 		assertTrue(columnNames.contains("SUID"));
 		assertTrue(columnNames.contains("name"));
 		assertTrue(columnNames.contains("shared name"));
 		assertTrue(columnNames.contains("selected"));
+		assertTrue(columnNames.contains("local1"));
+		
 	}
 	
 	
@@ -137,12 +144,19 @@ public class TableResourceTest extends BasicResourceTest {
 	public void testGetRow() throws Exception {
 		final Long suid = network.getSUID();
 		final CyNode node = network.getNodeList().get(0);
-		String result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/rows/" + node.getSUID()).request().get(
-				String.class);
+		String result = target("/v1/networks/" + suid.toString() + 
+				"/tables/defaultnode/rows/" + node.getSUID())
+				.request().get(String.class);
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
-		
 		assertTrue(root.isObject());
+		JsonNode localVal = root.get("local1");
+		assertNotNull(localVal);
+		assertNotNull(localVal.asDouble());
+		assertEquals(network.getRow(node).get("local1", Double.class), 
+				(Double)localVal.asDouble());
+		System.out.println(localVal.asDouble());
+		
 	}
 
 
@@ -222,8 +236,48 @@ public class TableResourceTest extends BasicResourceTest {
 
 
 	@Test
-	public void testUpdateColumnDefaultValues() throws Exception {
+	public void testUpdateTable() throws Exception {
 		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		
+		String newData = "{" +
+			 "\"key\":\"SUID\"," +
+			 "\"dataKey\": \"id\"," +
+			 "\"data\": [{" +
+			 "\"id\": " + node1.getSUID() + "," +
+			 "\"gene_name\": \"brca1\"," +
+			 "\"local1\": 4.5" +
+			 "}]}";
+		
+		Entity<String> entity = Entity.entity(newData, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target(
+				"/v1/networks/" + suid.toString() + "/tables/defaultnode")
+				.queryParam("class", "local")
+				.request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		assertEquals("brca1", 
+				network.getRow(node1).get("gene_name", String.class));
+		
+		assertEquals((Double)4.5, 
+				network.getRow(node1).get("local1", Double.class));
+		
+		final CyTable localTable = network
+				.getTable(CyNode.class, CyNetwork.LOCAL_ATTRS);
+		Collection<CyColumn> cols = localTable.getColumns();
+		System.out.println("Columns: " + cols);
+		assertEquals(7, cols.size());
+		
+	}
+
+
+	@Test
+	public void testUpdateColumnDefaultValues() throws Exception {
 		final Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
 		final Long suid = network.getSUID();
 		
@@ -260,7 +314,8 @@ public class TableResourceTest extends BasicResourceTest {
 		
 		final String doubleColumn = "{"
 				+ "\"name\": \"doubleColumn\","
-				+ "\"type\": \"Double\" }";
+				+ "\"isLocal\": true,"
+				+ "\"type\": \"Double\"}";
 
 		final String boolColumn = "{"
 				+ "\"name\": \"boolColumn\","

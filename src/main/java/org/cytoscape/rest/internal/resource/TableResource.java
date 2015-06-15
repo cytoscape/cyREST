@@ -316,7 +316,7 @@ public class TableResource extends AbstractResource {
 	 * @param primaryKey
 	 *            Name of primary key column
 	 * 
-	 * @return Row in the table
+	 * @return A row in the table
 	 */
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")

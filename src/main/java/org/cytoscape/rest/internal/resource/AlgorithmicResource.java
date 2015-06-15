@@ -2,7 +2,6 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
@@ -22,6 +20,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -75,6 +74,8 @@ public class AlgorithmicResource extends AbstractResource {
 	 *            Name of layout algorithm ("circular", "force-directed", etc.)
 	 * @param networkId
 	 *            Target network SUID
+	 * @param column (URL Query Parameter) 
+	 * 				Column name to be used by the layout algorithm
 	 * 
 	 * @return Success message
 	 */
@@ -83,12 +84,15 @@ public class AlgorithmicResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response applyLayout(
 			@PathParam("algorithmName") String algorithmName,
-			@PathParam("networkId") Long networkId) {
+			@PathParam("networkId") Long networkId,
+			@QueryParam("column") String column) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(network);
+		final Collection<CyNetworkView> views = 
+				this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
 			throw new NotFoundException(
-					"Could not find view for the network with SUID: " + networkId);
+					"Could not find view for the network with SUID: " 
+					+ networkId);
 		}
 
 		final CyNetworkView view = views.iterator().next();
@@ -97,9 +101,14 @@ public class AlgorithmicResource extends AbstractResource {
 			throw new NotFoundException("No such layout algorithm: " + algorithmName);
 		}
 
+		String columnForLayout = column;
+		if(columnForLayout == null) {
+			columnForLayout = "";
+		}
+		
 		final TaskIterator itr = layout.createTaskIterator(view,
 				layout.getDefaultLayoutContext(),
-				CyLayoutAlgorithm.ALL_NODE_VIEWS, "");
+				CyLayoutAlgorithm.ALL_NODE_VIEWS, columnForLayout);
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {

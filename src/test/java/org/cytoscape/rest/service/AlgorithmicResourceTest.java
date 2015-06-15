@@ -65,8 +65,10 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 	@Test
 	public void testApplyLayout() {
 		Long suid = view.getModel().getSUID();
-		Response result = target("/v1/apply/layouts/grid/" + suid).request().get();
+		Response result = target("/v1/apply/layouts/grid/" + suid)
+				.queryParam("column", "test").request().get();
 		System.out.println("res: " + result.toString());
+		
 		// TODO: Add more realistic test
 		assertTrue(result.getStatus() == 500);
 	}

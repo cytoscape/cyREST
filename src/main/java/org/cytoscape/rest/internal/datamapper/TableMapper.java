@@ -48,7 +48,8 @@ public class TableMapper {
 		column.setName(newName);
 	}
 
-	public void createNewColumn(final JsonNode rootNode, final CyTable table) {
+	public void createNewColumn(final JsonNode rootNode, 
+			final CyTable table, final CyTable localTable) {
 		// Extract required fields
 		final String columnName = rootNode.get(JsonTags.COLUMN_NAME).textValue();
 		final Class<?> type = MapperUtil.getColumnClass(rootNode.get(JsonTags.COLUMN_TYPE).textValue());
@@ -60,19 +61,32 @@ public class TableMapper {
 		// Optional: fields
 		boolean isImmutable = false;
 		boolean isList = false;
+		boolean isLocal = false;
 		final JsonNode immutable = rootNode.get(JsonTags.COLUMN_IMMUTABLE);
 		final JsonNode list = rootNode.get(JsonTags.COLUMN_IS_LIST);
+		final JsonNode local = rootNode.get(JsonTags.COLUMN_IS_LOCAL);
 		if(list != null) {
 			isList = list.asBoolean();
 		}
 		if(immutable != null) {
 			isImmutable = immutable.asBoolean();
 		}
+		if(local != null) {
+			isLocal = local.asBoolean();
+		}
 	
-		if(isList) {			
-			table.createListColumn(columnName, type, isImmutable);
+		if(isList) {	
+			if(isLocal) {
+				localTable.createListColumn(columnName, type, isImmutable);
+			} else {
+				table.createListColumn(columnName, type, isImmutable);
+			}
 		} else {
-			table.createColumn(columnName, type, isImmutable);
+			if(isLocal) {
+				localTable.createColumn(columnName, type, isImmutable);
+			} else {
+				table.createColumn(columnName, type, isImmutable);
+			}
 		}
 	}
 

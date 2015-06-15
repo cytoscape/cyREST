@@ -20,6 +20,7 @@ public class JsonTags {
 	public static final String COLUMN_VALUES = "values";
 	public static final String COLUMN_IMMUTABLE = "immutable";
 	public static final String COLUMN_IS_LIST = "list";
+	public static final String COLUMN_IS_LOCAL = "local";
 	
 	public static final String TABLE_FORMAT = "format";
 	

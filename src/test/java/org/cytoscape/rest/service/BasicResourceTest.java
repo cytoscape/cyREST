@@ -35,6 +35,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.NetworkTestSupport;
@@ -436,6 +437,16 @@ public class BasicResourceTest extends JerseyTest {
 		network.getRow(n2).set(CyNetwork.NAME, "n2");
 		network.getRow(n3).set(CyNetwork.NAME, "n3");
 		network.getRow(n4).set(CyNetwork.NAME, "n4");
+		
+		// For local table tests
+		final CyTable localNodeTable = network.getTable(
+				CyNode.class, CyNetwork.LOCAL_ATTRS);
+		
+		localNodeTable.createColumn("local1", Double.class, false);
+		localNodeTable.getRow(n1.getSUID()).set("local1", 1.0);
+		localNodeTable.getRow(n2.getSUID()).set("local1", 2.0);
+		localNodeTable.getRow(n3.getSUID()).set("local1", 3.0);
+		localNodeTable.getRow(n4.getSUID()).set("local1", 4.0);
 		
 		final CyEdge e1 = network.addEdge(n1, n2, true);
 		final CyEdge e2 = network.addEdge(n2, n3, true);

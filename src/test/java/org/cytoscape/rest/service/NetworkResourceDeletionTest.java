@@ -49,7 +49,7 @@ public class NetworkResourceDeletionTest extends BasicResourceTest {
 
 
 	@Test
-	public void testGetEdges() throws Exception {
+	public void testDeleteEdges() throws Exception {
 		final Long suid = network.getSUID();
 		final List<CyEdge> edges = network.getEdgeList();
 		final CyEdge edge1 = edges.get(0);

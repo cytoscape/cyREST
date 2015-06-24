@@ -41,6 +41,32 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		return new ResourceConfig(NetworkViewResource.class);
 	}
 	
+	
+	@Test
+	public void testConstructor() throws Exception {
+		NetworkViewResource nvr = new NetworkViewResource();
+		assertNotNull(nvr);
+	}
+
+	@Test
+	public void testCreateNetworkView() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + suid.toString() + "/views").request().post(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
+		assertNotNull(root.get("networkViewSUID").asLong());
+		
+	}
+	
 	@Test
 	public void testGetViews() throws Exception {
 		
@@ -56,6 +82,16 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertTrue(root.isArray());
 		assertEquals(1, root.size());
 		assertEquals(viewSuid, Long.valueOf(root.get(0).asLong()));
+	}
+
+
+	@Test
+	public void testGetFirstViews() throws Exception {
+		
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first").request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
 	}
 	
 	@Test
@@ -190,6 +226,24 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
 		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+	}
+	
+	
+	@Test
+	public void testDeleteAllNetworkViews() throws Exception {
+		
+		final Response result = target("/v1/networks/" + network.getSUID().toString() + "/views").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
+	public void testDeleteFirstView() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/views/first").request().delete();
+		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 	}
 	

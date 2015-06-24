@@ -858,6 +858,7 @@ public class NetworkResource extends AbstractResource {
 		try {
 			reader.run(new HeadlessTaskMonitor());
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw getError("Could not parse the given network JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
 		

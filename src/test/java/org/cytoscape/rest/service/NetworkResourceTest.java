@@ -380,6 +380,52 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(4, sources.size());
 	}
 
+	
+	
+	private final String createNetworkJson() throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartObject();
+		
+		// Network Data
+		generator.writeObjectFieldStart("data");
+		generator.writeStringField("name", "new_network1");
+		generator.writeEndObject();
+		
+		generator.writeObjectFieldStart("elements");
+		
+		generator.writeArrayFieldStart("nodes");
+		generator.writeEndArray();
+		generator.writeArrayFieldStart("edges");
+		generator.writeEndArray();
+		
+		generator.writeEndObject();
+		
+		
+		generator.writeEndObject();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+
+	@Test
+	public void testCreateNetwork() throws Exception {
+		
+		final String newVal = createNetworkJson();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks").request().post(entity);
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		System.out.println("res: " + result.toString());
+//		assertFalse(result.getStatus() == 500);
+//		assertEquals(201, result.getStatus());
+	}
+
 
 	@Test
 	public void testGetNeighbours() throws Exception {

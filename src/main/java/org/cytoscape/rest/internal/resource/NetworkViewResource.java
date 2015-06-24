@@ -103,11 +103,12 @@ public class NetworkViewResource extends AbstractResource {
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNetworkView(@PathParam("networkId") Long networkId) {
+	public Response createNetworkView(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNetworkView view = networkViewFactory.createNetworkView(network);
 		networkViewManager.addNetworkView(view);
-		return getNumberObjectString("networkViewSUID", view.getSUID());
+		return Response.status(Response.Status.CREATED)
+				.entity(getNumberObjectString("networkViewSUID", view.getSUID())).build();
 	}
 
 	/**
@@ -143,13 +144,15 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteAllNetworkViews(@PathParam("networkId") Long networkId) {
+	public Response deleteAllNetworkViews(@PathParam("networkId") Long networkId) {
 		try {
 			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(networkId));
 			final Set<CyNetworkView> toBeDestroyed = new HashSet<CyNetworkView>(views);
 			for (final CyNetworkView view : toBeDestroyed) {
 				networkViewManager.destroyNetworkView(view);
 			}
+			
+			return Response.ok().build();
 		} catch (Exception e) {
 			throw getError("Could not delete network views for network with SUID: " + networkId, e,
 					Response.Status.INTERNAL_SERVER_ERROR);
@@ -171,12 +174,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getFirstNetworkView(@PathParam("networkId") Long networkId) {
+	public Response getFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
 			throw new NotFoundException("Could not find view for the network: " + networkId);
 		}
-		return getNetworkViewString(views.iterator().next());
+		return Response.ok(getNetworkViewString(views.iterator().next())).build();
 	}
 
 	/**
@@ -189,12 +192,13 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
+	public Response deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
-		if (views.isEmpty()) {
-			return;
+		if (views.isEmpty() == false) {
+			networkViewManager.destroyNetworkView(views.iterator().next());
 		}
-		networkViewManager.destroyNetworkView(views.iterator().next());
+		
+		return Response.ok().build();
 	}
 
 	/**

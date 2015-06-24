@@ -265,7 +265,7 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/selected/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNeighbors(@PathParam("networkId") Long networkId) {
+	public Response getNeighborsSelected(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final List<CyNode> selectedNodes = CyTableUtil.getNodesInState(network, CyNetwork.SELECTED, true);
 	
@@ -461,14 +461,15 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/pointer")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	public Response getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final CyNetwork pointer = node.getNetworkPointer();
 		if (pointer == null) {
 			throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
 		}
-		return getNumberObjectString(JsonTags.NETWORK_SUID, pointer.getSUID());
+		
+		return Response.ok(getNumberObjectString(JsonTags.NETWORK_SUID, pointer.getSUID())).build();
 	}
 
 	/**
@@ -486,11 +487,12 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Long> getNeighbours(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	public Response getNeighbours(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final List<CyNode> nodes = network.getNeighborList(node, Type.ANY);
-		return getGraphObjectArray(nodes);
+		
+		return Response.status(Response.Status.OK).entity(getGraphObjectArray(nodes)).build();
 	}
 
 	/**
@@ -501,11 +503,9 @@ public class NetworkResource extends AbstractResource {
 	 * @return
 	 */
 	private final Collection<Long> getGraphObjectArray(final Collection<? extends CyIdentifiable> objects) {
-		final Collection<Long> suids = new ArrayList<Long>();
-		for (final CyIdentifiable obj : objects) {
-			suids.add(obj.getSUID());
-		}
-		return suids;
+		return objects.stream()
+			.map(CyIdentifiable::getSUID)
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -685,11 +685,11 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/")
-	public void deleteAllNetworks() {
-		final Set<CyNetwork> allNetworks = this.networkManager.getNetworkSet();
-		for (final CyNetwork network : allNetworks) {
-			this.networkManager.destroyNetwork(network);
-		}
+	public Response deleteAllNetworks() {
+		this.networkManager.getNetworkSet().stream()
+			.forEach(network->this.networkManager.destroyNetwork(network));
+		
+		return Response.ok().build();
 	}
 
 	/**
@@ -717,6 +717,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		network.removeNodes(network.getNodeList());
 		updateViews(network);
+		
 		return Response.ok().build();
 	}
 
@@ -728,10 +729,12 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{networkId}/edges")
-	public void deleteAllEdges(@PathParam("networkId") Long networkId) {
+	public Response deleteAllEdges(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		network.removeEdges(network.getEdgeList());
 		updateViews(network);
+		
+		return Response.ok().build();
 	}
 
 
@@ -745,7 +748,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{networkId}/nodes/{nodeId}")
-	public void deleteNode(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	public Response deleteNode(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
@@ -755,6 +758,8 @@ public class NetworkResource extends AbstractResource {
 		nodes.add(node);
 		network.removeNodes(nodes);
 		updateViews(network);
+		
+		return Response.ok().build();
 	}
 
 
@@ -769,7 +774,7 @@ public class NetworkResource extends AbstractResource {
 	 */
 	@DELETE
 	@Path("/{networkId}/edges/{edgeId}")
-	public void deleteEdge(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
+	public Response deleteEdge(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
@@ -779,6 +784,8 @@ public class NetworkResource extends AbstractResource {
 		edges.add(edge);
 		network.removeEdges(edges);
 		updateViews(network);
+		
+		return Response.ok().build();
 	}
 
 	/**

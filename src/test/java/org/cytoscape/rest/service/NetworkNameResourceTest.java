@@ -29,10 +29,13 @@ public class NetworkNameResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
 		assertTrue(root.isArray());
+		assertEquals(2, root.size());
+		
+		
 		final JsonNode firstEntry = root.get(0);
 		assertTrue(firstEntry.isObject());
-		assertEquals(network.getRow(network).get(CyNetwork.NAME, String.class), firstEntry.get("name").asText());
-		assertEquals(network.getSUID(), (Long)firstEntry.get("SUID").asLong());
+		
+		assertNotNull(firstEntry.get("name").asText());
+		assertNotNull(firstEntry.get("SUID").asLong());
 	}
-
 }

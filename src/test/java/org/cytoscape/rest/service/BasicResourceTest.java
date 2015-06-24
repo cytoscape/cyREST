@@ -128,6 +128,8 @@ public class BasicResourceTest extends JerseyTest {
 	private ContinuousMappingFactory continuousFactory;
 	private DiscreteMappingFactory discreteFactory;
 	
+	protected CyNetworkManager networkManager = nts.getNetworkManager();
+	
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
@@ -150,10 +152,12 @@ public class BasicResourceTest extends JerseyTest {
 		when(layouts.getLayout("grid")).thenReturn(def);
 
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
-		CyNetworkManager networkManager = nts.getNetworkManager();
-		this.network = createNetwork();
+		this.network = createNetwork("network1");
 		this.view = nvts.getNetworkViewFactory().createNetworkView(network);
 		networkManager.addNetwork(network);
+		
+		CyNetwork network2 = createNetwork("network2");
+		networkManager.addNetwork(network2);
 
 		CyRootNetworkManager rootNetworkManager = nts.getRootNetworkFactory();
 		CyNetworkViewManager viewManager = mock(CyNetworkViewManager.class);
@@ -426,9 +430,9 @@ public class BasicResourceTest extends JerseyTest {
 	 * 
 	 * @return sample network
 	 */
-	private final CyNetwork createNetwork() {
+	private final CyNetwork createNetwork(String networkName) {
 		final CyNetwork network = nvts.getNetwork();
-		network.getRow(network).set(CyNetwork.NAME, "network1");
+		network.getRow(network).set(CyNetwork.NAME, networkName);
 		CyNode n1 = network.addNode();
 		CyNode n2 = network.addNode();
 		CyNode n3 = network.addNode();

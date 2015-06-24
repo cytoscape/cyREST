@@ -1,9 +1,6 @@
 package org.cytoscape.rest.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
@@ -48,7 +45,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
 		Long count = root.get("count").asLong();
-		assertTrue(count == 1);
+		assertTrue(count == 2);
 	}
 	
 	@Test
@@ -57,8 +54,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 				String.class);
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
-		assertEquals(1, root.size());
-		assertTrue(network.getSUID() == root.get(0).asLong());
+		assertEquals(2, root.size());
 	}
 
 	@Test
@@ -220,6 +216,31 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(node1.getSUID(), (Long)data.get("SUID").asLong());
 		assertEquals(false, (Boolean)data.get("selected").asBoolean());
 	}
+
+
+	@Test
+	public void testGetNetworkPointer() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyNode> nodes = network.getNodeList();
+		final CyNode node1 =  nodes.get(0);
+		Response result = target("/v1/networks/" + suid.toString() + "/nodes/" + node1.getSUID() + "/pointer").request().get();
+		assertNotNull(result);
+		assertEquals(404, result.getStatus());
+		
+		// Now set pointer to a network
+		node1.setNetworkPointer(network);
+		result = target("/v1/networks/" + suid.toString() + "/nodes/" + node1.getSUID() + "/pointer").request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		
+		final JsonNode root = mapper.readTree(body);
+		JsonNode data = root.get("networkSUID");
+		assertNotNull(data);
+		assertEquals(network.getSUID(), (Long)data.asLong());
+	}
 	
 	@Test
 	public void testGetEdge() throws Exception {
@@ -358,5 +379,97 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(4, network.getEdgeCount() - originalEdgeCount);
 		assertEquals(4, sources.size());
 	}
+
+
+	@Test
+	public void testGetNeighbours() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final CyNode node = network.getNodeList().get(1);
+		
+		String result = target("/v1/networks/" + suid.toString() + "/nodes/" + node.getSUID() + "/neighbors").request().get(String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+		System.out.println(result);
+		assertTrue(root.isArray());
+		assertEquals(2, root.size());
+	}
+
+
+	@Test
+	public void testDeleteNode() throws Exception {
+		final Long suid = network.getSUID();
+		final CyNode node = network.getNodeList().get(1);
+		final Long nodeSuid = node.getSUID();
+		final int nodeCount = network.getNodeCount();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/nodes/" + nodeSuid).request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		
+		assertNull(network.getNode(nodeSuid));
+		assertEquals(nodeCount-1, network.getNodeCount());
+	}
 	
+	@Test
+	public void testDeleteAllNodes() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/nodes").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		
+		assertEquals(0, network.getNodeCount());
+	}
+	
+	
+	@Test
+	public void testDeleteEdge() throws Exception {
+		final Long suid = network.getSUID();
+		final CyEdge edge = network.getEdgeList().get(1);
+		final Long edgeSuid = edge.getSUID();
+		final int edgeCount = network.getEdgeCount();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/edges/" + edgeSuid).request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		
+		assertNull(network.getNode(edgeSuid));
+		assertEquals(edgeCount-1, network.getEdgeCount());
+	}
+	
+	@Test
+	public void testDeleteAllEdges() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/edges").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		
+		assertEquals(0, network.getEdgeCount());
+	}
+
+
+	@Test
+	public void testDeleteAllNetwork() throws Exception {
+		assertEquals(2, this.networkManager.getNetworkSet().size());
+
+		final Response result = target("/v1/networks").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		assertEquals(0, this.networkManager.getNetworkSet().size());
+	}
+	
+	
+	@Test
+	public void testDeleteNetwork() throws Exception {
+		assertEquals(2, this.networkManager.getNetworkSet().size());
+		final Long suid = network.getSUID();
+
+		final Response result = target("/v1/networks/" + suid).request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		assertEquals(1, this.networkManager.getNetworkSet().size());
+	}
 }

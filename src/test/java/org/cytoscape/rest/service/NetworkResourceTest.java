@@ -5,22 +5,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
+import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.crypto.NodeSetData;
 
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -235,5 +243,120 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(false, (Boolean)data.get("selected").asBoolean());
 	}
 	
+	
+	@Test
+	public void testCreateNode() throws Exception {
+		final Long suid = network.getSUID();
+		final int originalNodeCount = network.getNodeCount();
+		
+		final String newVal = "[\"new_node_1\", \"new_node_2\"]";
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + suid.toString() + "/nodes").request().post(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isArray());
+		final Set<String> names = StreamSupport.stream(root.spliterator(), false)
+			.map(entry->entry.get("name").asText())
+			.collect(Collectors.toSet());
+		assertTrue(names.contains("new_node_1"));
+		assertTrue(names.contains("new_node_2"));
+		
+		assertEquals(2, network.getNodeCount() - originalNodeCount);
+		final List<CyNode> nodes = network.getNodeList();
+		final Set<String> nodeNames = nodes.stream()
+			.map(node->network.getRow(node).get(CyNetwork.NAME, String.class))
+			.collect(Collectors.toSet());
+		System.out.println(nodeNames);
+		assertTrue(nodeNames.contains("new_node_1"));
+		assertTrue(nodeNames.contains("new_node_2"));
+	}
+	
+	
+	private final String createEdgeJson() throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+		
+		final List<CyNode> nodes = network.getNodeList();
+		
+		Map<String, Long> idmap = nodes.stream()
+			.collect(Collectors.toMap(
+						node->network.getRow(node).get(CyNetwork.NAME, String.class), 
+						n->n.getSUID()
+					)
+				);
+		
+		System.out.println("Nodes: " + idmap);
+		
+		// Edge 1:
+		generator.writeStartObject();
+		generator.writeNumberField("source", idmap.get("n1"));
+		generator.writeNumberField("target", idmap.get("n4"));
+		generator.writeStringField("interaction", "itr1");
+		generator.writeBooleanField("directed", true);
+		generator.writeEndObject();
+		
+		// Edge 2:
+		generator.writeStartObject();
+		generator.writeNumberField("source", idmap.get("n2"));
+		generator.writeNumberField("target", idmap.get("n4"));
+		generator.writeStringField("interaction", "itr1");
+		generator.writeEndObject();
+		
+		// Edge 3:
+		generator.writeStartObject();
+		generator.writeNumberField("source", idmap.get("n3"));
+		generator.writeNumberField("target", idmap.get("n1"));
+		generator.writeEndObject();
+		
+		// Edge 4:
+		generator.writeStartObject();
+		generator.writeNumberField("source", idmap.get("n3"));
+		generator.writeNumberField("target", idmap.get("n3"));
+		generator.writeStringField("interaction", "itr2");
+		generator.writeBooleanField("directed", false);
+		generator.writeEndObject();
+		
+		generator.writeEndArray();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
+	@Test
+	public void testCreateEdge() throws Exception {
+		final Long suid = network.getSUID();
+		final int originalEdgeCount = network.getEdgeCount();
+		
+		final String newVal = createEdgeJson();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + suid.toString() + "/edges").request().post(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isArray());
+		List<Long> sources = StreamSupport.stream(root.spliterator(), false)
+			.map(entry->entry.get("source").asLong())
+			.collect(Collectors.toList());
+		
+		System.out.println("Source: " + sources);
+		assertEquals(4, network.getEdgeCount() - originalEdgeCount);
+		assertEquals(4, sources.size());
+	}
 	
 }

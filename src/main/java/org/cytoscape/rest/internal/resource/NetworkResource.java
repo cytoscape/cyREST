@@ -529,7 +529,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}/nodes")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNode(@PathParam("networkId") Long networkId, final InputStream is) {
+	public Response createNode(@PathParam("networkId") Long networkId, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode = null;
@@ -566,7 +566,8 @@ public class NetworkResource extends AbstractResource {
 			} catch (Exception e) {
 				throw getError("Could not create node list.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
-			return result;
+			
+			return Response.status(Response.Status.CREATED).entity(result).build();
 		} else {
 			throw getError("Need to post as array.", new IllegalArgumentException(),
 					Response.Status.PRECONDITION_FAILED);
@@ -598,7 +599,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}/edges")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createEdge(@PathParam("networkId") Long networkId, final InputStream is) {
+	public Response createEdge(@PathParam("networkId") Long networkId, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -665,9 +666,10 @@ public class NetworkResource extends AbstractResource {
 				stream.close();
 				updateViews(network);
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw getError("Could not create edge.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
-			return result;
+			return Response.status(Response.Status.CREATED).entity(result).build();
 		} else {
 			throw getError("Need to POST as array.", new IllegalArgumentException(),
 					Response.Status.INTERNAL_SERVER_ERROR);

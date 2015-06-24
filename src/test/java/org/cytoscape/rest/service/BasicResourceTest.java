@@ -59,6 +59,7 @@ import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
+import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -491,7 +492,8 @@ public class BasicResourceTest extends JerseyTest {
 									StyleResource.class, GroupResource.class,
 									GlobalTableResource.class,
 									SessionResource.class,
-									NetworkNameResource.class);
+									NetworkNameResource.class,
+									UIResource.class);
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")

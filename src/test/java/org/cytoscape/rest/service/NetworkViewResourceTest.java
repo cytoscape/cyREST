@@ -73,15 +73,73 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
 		
-		String result = target("/v1/networks/" + suid.toString() + "/views/").request().get(
-				String.class);
+		Response result = target("/v1/networks/" + suid.toString() + "/views").request().get();
 		assertNotNull(result);
-		final JsonNode root = mapper.readTree(result);
+		String body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		final JsonNode root = mapper.readTree(body);
 		assertNotNull(root);
 		System.out.println(root);
 		assertTrue(root.isArray());
 		assertEquals(1, root.size());
 		assertEquals(viewSuid, Long.valueOf(root.get(0).asLong()));
+	}
+
+
+	@Test
+	public void testGetNetworkView() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString()).request().get(
+				String.class);
+		assertNotNull(result);
+		System.out.println("Result = " + result);
+		// TODO: Mock JSON writer?
+	}
+	
+
+	@Test
+	public void testGetFirstNetworkImage() throws Exception {
+		
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/first.svg").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/first.pdf").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		// TODO: Mock IMAGE writer?
+	}
+	
+	@Test
+	public void testGetNetworkImage() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".png").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".svg").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".pdf").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		// TODO: Mock IMAGE writer?
 	}
 
 

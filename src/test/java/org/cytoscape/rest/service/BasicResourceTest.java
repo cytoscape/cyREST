@@ -45,6 +45,7 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
+import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
@@ -223,6 +224,8 @@ public class BasicResourceTest extends JerseyTest {
 		
 		this.selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
 		
+		GraphicsWriterManager graphicsWriterManager = mock(GraphicsWriterManager.class);
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -233,7 +236,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
-				desktop, lodTF, selectFirstNeighborsTaskFactory);
+				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager);
 	}
 	
 	

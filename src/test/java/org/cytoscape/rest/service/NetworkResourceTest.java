@@ -40,10 +40,13 @@ public class NetworkResourceTest extends BasicResourceTest {
 	
 	@Test
 	public void testGetNetworkCount() throws Exception {
-		String result = target("/v1/networks/count").request().get(
-				String.class);
+		Response result = target("/v1/networks/count").request().get();
 		assertNotNull(result);
-		final JsonNode root = mapper.readTree(result);
+		assertEquals(200, result.getStatus());
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		
+		final JsonNode root = mapper.readTree(body);
 		Long count = root.get("count").asLong();
 		assertTrue(count == 2);
 	}
@@ -60,10 +63,13 @@ public class NetworkResourceTest extends BasicResourceTest {
 	@Test
 	public void testGetNodeCount() throws Exception {
 		final Long suid = network.getSUID();
-		String result = target("/v1/networks/" + suid.toString() + "/nodes/count").request().get(
-				String.class);
+		Response result = target("/v1/networks/" + suid.toString() + "/nodes/count").request().get();
 		assertNotNull(result);
-		final JsonNode root = mapper.readTree(result);
+		assertEquals(200, result.getStatus());
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		
+		final JsonNode root = mapper.readTree(body);
 		Long count = root.get("count").asLong();
 		assertTrue(count == 4);
 	}
@@ -71,10 +77,12 @@ public class NetworkResourceTest extends BasicResourceTest {
 	@Test
 	public void testGetEdgeCount() throws Exception {
 		final Long suid = network.getSUID();
-		String result = target("/v1/networks/" + suid.toString() + "/edges/count").request().get(
-				String.class);
+		Response result = target("/v1/networks/" + suid.toString() + "/edges/count").request().get();
 		assertNotNull(result);
-		final JsonNode root = mapper.readTree(result);
+		assertEquals(200, result.getStatus());
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		final JsonNode root = mapper.readTree(body);
 		Long count = root.get("count").asLong();
 		assertTrue(count == 3);
 	}

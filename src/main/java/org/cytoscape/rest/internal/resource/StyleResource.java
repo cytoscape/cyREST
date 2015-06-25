@@ -23,7 +23,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
@@ -124,9 +123,9 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteStyle(@PathParam("name") String name) {
-		final VisualStyle style = getStyleByName(name);
-		vmm.removeVisualStyle(style);
+	public Response deleteStyle(@PathParam("name") String name) {
+		vmm.removeVisualStyle(getStyleByName(name));
+		return Response.ok().build();
 	}
 	
 	
@@ -137,7 +136,7 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteAllStyles() {
+	public Response deleteAllStyles() {
 		Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		Set<VisualStyle> toBeDeleted = new HashSet<VisualStyle>();
 		for(final VisualStyle style: styles) {
@@ -145,9 +144,9 @@ public class StyleResource extends AbstractResource {
 				toBeDeleted.add(style);
 			}
 		}
-		for(final VisualStyle style: toBeDeleted) {
-			vmm.removeVisualStyle(style);
-		}
+		toBeDeleted.stream()
+			.forEach(style->vmm.removeVisualStyle(style));
+		return Response.ok().build();
 	}
 
 
@@ -162,7 +161,7 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/{name}/mappings/{vpName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteMapping(@PathParam("name") String name, @PathParam("vpName") String vpName) {
+	public Response deleteMapping(@PathParam("name") String name, @PathParam("vpName") String vpName) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualProperty<?> vp = getVisualProperty(vpName);
 		if(vp == null) {
@@ -173,6 +172,8 @@ public class StyleResource extends AbstractResource {
 			throw new NotFoundException("Could not find mapping for: " + vpName);
 		}
 		style.removeVisualMappingFunction(vp);
+		
+		return Response.ok().build();
 	}
 
 
@@ -426,7 +427,7 @@ public class StyleResource extends AbstractResource {
 	@PUT
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Status updateDefaults(@PathParam("name") String name, InputStream is) {
+	public Response updateDefaults(@PathParam("name") String name, InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		try {
@@ -436,7 +437,7 @@ public class StyleResource extends AbstractResource {
 			throw getError("Could not update default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		
-		return Response.Status.OK;
+		return Response.ok().build();
 	}
 
 	@SuppressWarnings("unchecked")

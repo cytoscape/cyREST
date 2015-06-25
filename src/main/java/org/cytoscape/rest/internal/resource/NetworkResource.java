@@ -66,7 +66,7 @@ public class NetworkResource extends AbstractResource {
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
 	// Preset types
-	private static final String DEF_COLLECTION_PREFIX = "Posted: ";
+	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
 
 	public NetworkResource() {
 		super();
@@ -82,8 +82,9 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkCount() {
-		return getNumberObjectString(JsonTags.COUNT, networkManager.getNetworkSet().size());
+	public Response getNetworkCount() {
+		final String result = getNumberObjectString(JsonTags.COUNT, networkManager.getNetworkSet().size());
+		return Response.ok(result).build();
 	}
 
 	/**
@@ -97,8 +98,9 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNodeCount(@PathParam("networkId") Long networkId) {
-		return getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getNodeCount());
+	public Response getNodeCount(@PathParam("networkId") Long networkId) {
+		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getNodeCount());
+		return Response.ok(result).build();
 	}
 
 	/**
@@ -113,8 +115,9 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/edges/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdgeCount(@PathParam("networkId") Long networkId) {
-		return getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getEdgeCount());
+	public Response getEdgeCount(@PathParam("networkId") Long networkId) {
+		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getEdgeCount());
+		return Response.ok(result).build();
 	}
 	
 

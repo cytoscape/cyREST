@@ -41,7 +41,7 @@ public class NetworkResourceDeletionTest extends BasicResourceTest {
 		
 		final Response result = target("/v1/networks/" + suid.toString() + "/nodes/" + node1.getSUID())
 				.request().delete();
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		assertEquals(3, network.getNodeList().size());
 
@@ -49,7 +49,7 @@ public class NetworkResourceDeletionTest extends BasicResourceTest {
 
 
 	@Test
-	public void testGetEdges() throws Exception {
+	public void testDeleteEdges() throws Exception {
 		final Long suid = network.getSUID();
 		final List<CyEdge> edges = network.getEdgeList();
 		final CyEdge edge1 = edges.get(0);
@@ -57,7 +57,7 @@ public class NetworkResourceDeletionTest extends BasicResourceTest {
 		
 		final Response result = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID())
 				.request().delete();
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		assertEquals(2, network.getEdgeList().size());
 

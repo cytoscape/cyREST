@@ -45,6 +45,7 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
+import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
@@ -59,6 +60,7 @@ import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
+import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -127,6 +129,8 @@ public class BasicResourceTest extends JerseyTest {
 	private ContinuousMappingFactory continuousFactory;
 	private DiscreteMappingFactory discreteFactory;
 	
+	protected CyNetworkManager networkManager = nts.getNetworkManager();
+	
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
@@ -149,10 +153,12 @@ public class BasicResourceTest extends JerseyTest {
 		when(layouts.getLayout("grid")).thenReturn(def);
 
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
-		CyNetworkManager networkManager = nts.getNetworkManager();
-		this.network = createNetwork();
+		this.network = createNetwork("network1");
 		this.view = nvts.getNetworkViewFactory().createNetworkView(network);
 		networkManager.addNetwork(network);
+		
+		CyNetwork network2 = createNetwork("network2");
+		networkManager.addNetwork(network2);
 
 		CyRootNetworkManager rootNetworkManager = nts.getRootNetworkFactory();
 		CyNetworkViewManager viewManager = mock(CyNetworkViewManager.class);
@@ -218,6 +224,8 @@ public class BasicResourceTest extends JerseyTest {
 		
 		this.selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
 		
+		GraphicsWriterManager graphicsWriterManager = mock(GraphicsWriterManager.class);
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -228,7 +236,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
-				desktop, lodTF, selectFirstNeighborsTaskFactory);
+				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager);
 	}
 	
 	
@@ -425,9 +433,9 @@ public class BasicResourceTest extends JerseyTest {
 	 * 
 	 * @return sample network
 	 */
-	private final CyNetwork createNetwork() {
+	private final CyNetwork createNetwork(String networkName) {
 		final CyNetwork network = nvts.getNetwork();
-		network.getRow(network).set(CyNetwork.NAME, "network1");
+		network.getRow(network).set(CyNetwork.NAME, networkName);
 		CyNode n1 = network.addNode();
 		CyNode n2 = network.addNode();
 		CyNode n3 = network.addNode();
@@ -491,7 +499,8 @@ public class BasicResourceTest extends JerseyTest {
 									StyleResource.class, GroupResource.class,
 									GlobalTableResource.class,
 									SessionResource.class,
-									NetworkNameResource.class);
+									NetworkNameResource.class,
+									UIResource.class);
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")

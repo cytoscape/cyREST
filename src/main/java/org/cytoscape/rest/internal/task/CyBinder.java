@@ -18,6 +18,7 @@ import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.EdgeBundler;
+import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.session.CySessionManager;
@@ -79,7 +80,8 @@ public class CyBinder extends AbstractBinder {
 	private final NewSessionTaskFactory newSessionTaskFactory;
 	private final CySwingApplication desktop;
 	private final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
-
+	
+	private final GraphicsWriterManager graphicsWriterManager;
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -97,7 +99,8 @@ public class CyBinder extends AbstractBinder {
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
-			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory) {
+			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory,
+			final GraphicsWriterManager graphicsWriterManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -131,6 +134,7 @@ public class CyBinder extends AbstractBinder {
 		this.desktop = desktop;
 		this.toggleLod = toggleLod;
 		this.selectFirstNeighborsTaskFactory = selectFirstNeighborsTaskFactory;
+		this.graphicsWriterManager = graphicsWriterManager;
 	}
 
 
@@ -169,5 +173,6 @@ public class CyBinder extends AbstractBinder {
 		bind(desktop).to(CySwingApplication.class);
 		bind(toggleLod).to(LevelOfDetails.class);
 		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
+		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
 	}
 }

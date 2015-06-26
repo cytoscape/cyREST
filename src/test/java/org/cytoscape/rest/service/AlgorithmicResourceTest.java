@@ -2,7 +2,6 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.*;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +37,55 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertTrue(root.isArray());
 		assertEquals(root.size(), 1);
 		assertEquals("grid", root.get(0).asText());
+	}
+
+
+	@Test
+	public void testGetLayout() throws Exception {
+		final Response result = target("/v1/apply/layouts/grid").request().get();
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		System.out.println("res: " + result.toString());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertEquals("grid", root.get("name").asText());
+		assertTrue(root.get("parameters").isArray());
+	}
+
+
+	@Test
+	public void testGetLayoutParameters() throws Exception {
+		final Response result = target("/v1/apply/layouts/grid/parameters").request().get();
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		System.out.println("res: " + result.toString());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isArray());
+	}
+	
+
+	@Test
+	public void testGetLayoutColumnType() throws Exception {
+		final Response result = target("/v1/apply/layouts/grid/columntypes").request().get();
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		System.out.println("res: " + result.toString());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
 	}
 
 

@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanel;
@@ -135,10 +136,14 @@ public class UIResource extends AbstractResource {
 	@Path("/panels")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public List<Map<String, String>> getAllPanelStatus() {
+		try {
 		return Arrays.asList(CytoPanelName.values()).stream()
 			.map(panelName->desktop.getCytoPanel(panelName))
 			.map(panel->getMap(panel))
 			.collect(Collectors.toList());
+		} catch(Exception ex) {
+			throw getError("Could not getpanel status", ex, Status.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 

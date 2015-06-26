@@ -1,33 +1,34 @@
 package org.cytoscape.rest.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javassist.bytecode.analysis.ControlFlow.Node;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,21 +42,174 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		return new ResourceConfig(NetworkViewResource.class);
 	}
 	
+	
 	@Test
-	public void testGetViews() throws Exception {
+	public void testConstructor() throws Exception {
+		NetworkViewResource nvr = new NetworkViewResource();
+		assertNotNull(nvr);
+	}
+
+	@Test
+	public void testCreateNetworkView() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + suid.toString() + "/views").request().post(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
+		assertNotNull(root.get("networkViewSUID").asLong());
+		
+	}
+	
+	@Test
+	public void testGetNetworkViews() throws Exception {
 		
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
 		
-		String result = target("/v1/networks/" + suid.toString() + "/views/").request().get(
-				String.class);
+		Response result = target("/v1/networks/" + suid.toString() + "/views").request().get();
 		assertNotNull(result);
-		final JsonNode root = mapper.readTree(result);
+		String body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		final JsonNode root = mapper.readTree(body);
 		assertNotNull(root);
 		System.out.println(root);
 		assertTrue(root.isArray());
 		assertEquals(1, root.size());
 		assertEquals(viewSuid, Long.valueOf(root.get(0).asLong()));
+	}
+
+	@Test
+	public void testGetNetworkVisualProp() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network/NETWORK_SIZE").request().get();
+		assertNotNull(result);
+		String body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		System.out.println(root);
+		assertTrue(root.isObject());
+		assertEquals((Double)550.0, (Double)root.get("value").asDouble());
+	}
+
+	@Test
+	public void testGetViewsOf() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes").request().get();
+		assertNotNull(result);
+		String body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		System.out.println(root);
+		assertTrue(root.isArray());
+		assertEquals(view.getNodeViews().size(), root.size());
+		
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/edges").request().get();
+		assertNotNull(result);
+		body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		root = mapper.readTree(body);
+		assertNotNull(root);
+		System.out.println(root);
+		assertTrue(root.isArray());
+		assertEquals(view.getEdgeViews().size(), root.size());
+		
+		
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network").request().get();
+		assertNotNull(result);
+		body = result.readEntity(String.class);
+		System.out.println("Network Result = " + result);
+
+		root = mapper.readTree(body);
+		assertNotNull(root);
+		System.out.println(root);
+		assertTrue(root.isArray());
+		assertEquals(12, root.size());
+	}
+
+
+	@Test
+	public void testGetNetworkView() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString()).request().get(
+				String.class);
+		assertNotNull(result);
+		System.out.println("Result = " + result);
+		// TODO: Mock JSON writer?
+	}
+	
+
+	@Test
+	public void testGetFirstNetworkImage() throws Exception {
+		
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/first.svg").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/first.pdf").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		// TODO: Mock IMAGE writer?
+	}
+	
+	@Test
+	public void testGetNetworkImage() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".png").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".svg").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".pdf").request().get();
+		assertNotNull(result);
+		assertEquals(500, result.getStatus());
+		System.out.println("Result = " + result);
+		// TODO: Mock IMAGE writer?
+	}
+
+
+	@Test
+	public void testGetFirstViews() throws Exception {
+		
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first").request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
 	}
 	
 	@Test
@@ -190,6 +344,87 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
 		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+	}
+	
+	
+	
+	private final String createViewJson(Map<String, Long> idmap) throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+		
+		// Node 1 Updates:
+		generator.writeStartObject();
+		generator.writeNumberField("SUID", idmap.get("n1"));
+
+		generator.writeArrayFieldStart("view");
+		
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", "NODE_FILL_COLOR");
+		generator.writeStringField("value", "yellow");
+		generator.writeEndObject();
+		
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", "NODE_SIZE");
+		generator.writeNumberField("value", 130);
+		generator.writeEndObject();
+		
+		generator.writeEndArray();
+		
+		generator.writeEndObject();
+		
+		generator.writeEndArray();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	@Test
+	public void testUpdateViews() throws Exception {
+		final List<CyNode> nodes = network.getNodeList();
+		
+		Map<String, Long> idmap = nodes.stream()
+			.collect(Collectors.toMap(
+						node->network.getRow(node).get(CyNetwork.NAME, String.class), 
+						n->n.getSUID()
+					)
+				);
+		
+		System.out.println("Nodes: " + idmap);
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final String newVal = createViewJson(idmap);
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		final View<CyNode> nv1 = view.getNodeView(network.getNode(idmap.get("n1")));
+		
+		assertEquals((Double)130.0, nv1.getVisualProperty(BasicVisualLexicon.NODE_SIZE));
+		assertEquals(Color.YELLOW, nv1.getVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR));
+	}
+	
+	
+	@Test
+	public void testDeleteAllNetworkViews() throws Exception {
+		
+		final Response result = target("/v1/networks/" + network.getSUID().toString() + "/views").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
+	public void testDeleteFirstView() throws Exception {
+		final Long suid = network.getSUID();
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/views/first").request().delete();
+		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 	}
 	

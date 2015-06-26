@@ -12,6 +12,7 @@ import org.cytoscape.io.DataCategory;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
+import org.cytoscape.io.write.PresentationWriterFactory;
 import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
@@ -83,6 +84,10 @@ public class CyActivator extends AbstractCyActivator {
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
 				VisualMappingFunctionFactory.class);
+		
+		final GraphicsWriterManager graphicsWriterManager = new GraphicsWriterManager();
+		registerServiceListener(bc, graphicsWriterManager, "addFactory", "removeFactory",
+				PresentationWriterFactory.class);
 
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
@@ -156,7 +161,7 @@ public class CyActivator extends AbstractCyActivator {
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
-				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory);
+				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager);
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();

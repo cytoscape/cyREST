@@ -3,28 +3,35 @@ package org.cytoscape.rest.service;
 import static org.junit.Assert.*;
 
 import java.awt.Color;
+import java.awt.Paint;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.ToDoubleBiFunction;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.view.model.DiscreteRange;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.values.VisualPropertyValue;
-import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.ContinuousMappingPoint;
-import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
-import org.w3c.dom.ls.LSException;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -382,5 +389,80 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(404, result.getStatus());
 		System.out.println("res: " + result.toString());
-	}	
+	}
+	
+	@Test
+	public void testDeleteStyle() throws Exception {
+		
+		final Response result = target("/v1/styles/vs1").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+	}
+	
+	
+	@Test
+	public void testDeleteAllStyles() throws Exception {
+		
+		final Response result = target("/v1/styles").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
+	public void testDeleteMapping() throws Exception {
+		
+		final Response result = target("/v1/styles/vs1/mappings/NODE_LABEL").request().delete();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+	}
+	
+	private final String createDefaultsJson() throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+			
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", BasicVisualLexicon.NODE_FILL_COLOR.getIdString());
+		generator.writeStringField("value", "blue");
+		generator.writeEndObject();
+
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", BasicVisualLexicon.NODE_SIZE.getIdString());
+		generator.writeNumberField("value", 120);
+		generator.writeEndObject();
+		
+		generator.writeStartObject();
+		generator.writeStringField("visualProperty", BasicVisualLexicon.EDGE_LABEL_FONT_SIZE.getIdString());
+		generator.writeNumberField("value", 20);
+		generator.writeEndObject();
+		
+		generator.writeEndArray();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+
+	@Test
+	public void testUpdateDefault() throws Exception {
+		String newVal = createDefaultsJson();
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/defaults").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		assertEquals("", body);
+		
+		// TODO: Add more updated value check
+		Paint fillColor = style.getDefaultValue(BasicVisualLexicon.NODE_FILL_COLOR);
+		System.out.println("Fill Color: " + ((Color)fillColor));
+		assertEquals(Color.blue, fillColor);
+	}
+	
 }

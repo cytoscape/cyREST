@@ -1,17 +1,17 @@
 package org.cytoscape.rest.internal.resource;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import javax.imageio.ImageIO;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -27,16 +27,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.io.write.PresentationWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
+import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
@@ -44,6 +46,7 @@ import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.work.util.BoundedDouble;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +70,10 @@ public class NetworkViewResource extends AbstractResource {
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
 	
+	@Context
+	@NotNull
+	private GraphicsWriterManager graphicsWriterManager;
+	
 	private final VisualStyleMapper styleMapper;
 	private final VisualStyleSerializer styleSerializer;
 
@@ -88,7 +95,8 @@ public class NetworkViewResource extends AbstractResource {
 		this.lexicon = getLexicon();
 		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
 		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
-		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK);
+		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK).stream()
+				.filter(vp->vp.getIdString().startsWith("NETWORK")).collect(Collectors.toSet());;
 		
 	}
 	/**
@@ -103,11 +111,12 @@ public class NetworkViewResource extends AbstractResource {
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNetworkView(@PathParam("networkId") Long networkId) {
+	public Response createNetworkView(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNetworkView view = networkViewFactory.createNetworkView(network);
 		networkViewManager.addNetworkView(view);
-		return getNumberObjectString("networkViewSUID", view.getSUID());
+		return Response.status(Response.Status.CREATED)
+				.entity(getNumberObjectString("networkViewSUID", view.getSUID())).build();
 	}
 
 	/**
@@ -143,13 +152,15 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteAllNetworkViews(@PathParam("networkId") Long networkId) {
+	public Response deleteAllNetworkViews(@PathParam("networkId") Long networkId) {
 		try {
 			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(networkId));
 			final Set<CyNetworkView> toBeDestroyed = new HashSet<CyNetworkView>(views);
 			for (final CyNetworkView view : toBeDestroyed) {
 				networkViewManager.destroyNetworkView(view);
 			}
+			
+			return Response.ok().build();
 		} catch (Exception e) {
 			throw getError("Could not delete network views for network with SUID: " + networkId, e,
 					Response.Status.INTERNAL_SERVER_ERROR);
@@ -171,12 +182,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getFirstNetworkView(@PathParam("networkId") Long networkId) {
+	public Response getFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
 			throw new NotFoundException("Could not find view for the network: " + networkId);
 		}
-		return getNetworkViewString(views.iterator().next());
+		return Response.ok(getNetworkViewString(views.iterator().next())).build();
 	}
 
 	/**
@@ -189,12 +200,13 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
+	public Response deleteFirstNetworkView(@PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
-		if (views.isEmpty()) {
-			return;
+		if (views.isEmpty() == false) {
+			networkViewManager.destroyNetworkView(views.iterator().next());
 		}
-		networkViewManager.destroyNetworkView(views.iterator().next());
+		
+		return Response.ok().build();
 	}
 
 	/**
@@ -281,15 +293,41 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first.png")
 	@Produces("image/png")
-	public Response getFirstImage(@PathParam("networkId") Long networkId,
+	public Response getFirstImageAsPng(@PathParam("networkId") Long networkId,
 			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		
+		return getImage("png", networkId, height);
+	}
+
+	@GET
+	@Path("/first.svg")
+	@Produces("image/svg+xml")
+	public Response getFirstImageAsSvg(@PathParam("networkId") Long networkId,
+			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		
+		return getImage("svg", networkId, height);
+	}
+
+	@GET
+	@Path("/first.pdf")
+	@Produces("image/pdf")
+	public Response getFirstImageAsPdf(@PathParam("networkId") Long networkId,
+			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		
+		return getImage("pdf", networkId, height);
+	}
+
+	private final Response getImage(String fileType, Long networkId, int height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Could not find view for the network: " + networkId);
+			throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
+					Response.Status.NOT_FOUND);
 		}
-
+		
+		final PresentationWriterFactory factory = graphicsWriterManager.getFactory(fileType);
 		final CyNetworkView view = views.iterator().next();
-		return imageGenerator(view, height, height);
+		
+		return imageGenerator(fileType, factory, view, height, height);
 	}
 
 	/**
@@ -309,20 +347,43 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.png")
 	@Produces("image/png")
-	public Response getImage(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public Response getImageAsPng(@PathParam("networkId") Long networkId,
+			@PathParam("viewId") Long viewId,
 			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		return getImageForView("png", networkId, viewId, height);
+	}
+	
+	@GET
+	@Path("/{viewId}.svg")
+	@Produces("image/svg+xml")
+	public Response getImageAsSvg(@PathParam("networkId") Long networkId,
+			@PathParam("viewId") Long viewId,
+			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		return getImageForView("svg", networkId, viewId, height);
+	}
+	
+	@GET
+	@Path("/{viewId}.pdf")
+	@Produces("image/pdf")
+	public Response getImageAsPdf(@PathParam("networkId") Long networkId,
+			@PathParam("viewId") Long viewId) {
+		return getImageForView("pdf", networkId, viewId, 500);
+	}
+
+	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		for (final CyNetworkView view : views) {
 			final Long vid = view.getSUID();
 			if (vid.equals(viewId)) {
-				return imageGenerator(view, height, height);
+				return getImage(fileType, networkId, height);
 			}
 		}
 
 		throw new NotFoundException("Could not find view for the network: " + networkId);
 	}
 
-	private final Response imageGenerator(final CyNetworkView view, int width, int height) {
+	private final Response imageGenerator(final String fileType, PresentationWriterFactory factory, 
+			final CyNetworkView view, int width, int height) {
 		final Collection<RenderingEngine<?>> re = renderingEngineManager.getRenderingEngines(view);
 		if (re.isEmpty()) {
 			throw new IllegalArgumentException("No rendering engine.");
@@ -339,13 +400,26 @@ public class NetworkViewResource extends AbstractResource {
 			if (engine == null) {
 				throw new IllegalArgumentException("Could not find Ding rendering eigine.");
 			}
-
-			// This is safe for Ding network view.
-			final BufferedImage image = (BufferedImage) engine.createImage(width, height);
+			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			final byte[] imageData = baos.toByteArray();
 
+			final CyWriter writer = factory.createWriter(baos, engine);
+			
+			if (fileType.equals("png")) {
+				// Do some hack to set properties...
+				// TODO: Are there cleaner way to access these props?
+				final Object zl = writer.getClass().getMethod("getZoom").invoke(writer);
+				final BoundedDouble bound = (BoundedDouble)zl; 
+				//System.out.println("UB = " + bound.getUpperBound());
+				//System.out.println("LB = " + bound.getLowerBound());
+				
+				// Set large upper bound for generating large PNG.  
+				bound.setBounds(bound.getLowerBound(), 5000.0);
+				writer.getClass().getMethod("setHeightInPixels", int.class).invoke(writer, height);
+			}
+			writer.run(new HeadlessTaskMonitor());
+
+			final byte[] imageData = baos.toByteArray();
 			return Response.ok(new ByteArrayInputStream(imageData)).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -551,6 +625,14 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	@GET
+	@Path("/{viewId}/network")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNetworkVisualProps(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId) {
+		return this.getViews(networkId, viewId, "network", null);
+	}
+
+
 	/**
 	 * @summary Get view object for the specified type (node or edge)
 	 * 
@@ -625,7 +707,7 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public String getNetworkVisualProp(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
@@ -667,11 +749,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public Response getViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("objectType") String objectType, @QueryParam("visualProperty") String visualProperty) {
 		
 		if(visualProperty != null) {
-			return getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);
+			final String result = getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);
+			return Response.ok(result).build();
 		}
 		
 		if(nodeLexicon == null) {
@@ -684,10 +767,11 @@ public class NetworkViewResource extends AbstractResource {
 		} else if(objectType.equals("edges")) {
 			vps = edgeLexicon;
 		} else if(objectType.equals("network")) {
+			System.out.println("=============This is NETWORK = ");
 			vps = networkLexicon;
 		}
 		
-		return getViewForVPList(networkId, viewId, objectType, vps);
+		return Response.ok(getViewForVPList(networkId, viewId, objectType, vps)).build();
 	}
 
 	private final String getViewForVPList(final Long networkId, final Long viewId, final String objectType, Collection<VisualProperty<?>> vps) {

@@ -1,5 +1,5 @@
 var com = { qmino : { miredot : {}}};
-com.qmino.miredot.restApiSource = {"validLicence":true,"buildSystem":"maven 3","allowUsageTracking":true,"singlePage":false,"licenceErrorMessage":null,"miredotRevision":"8e41c1c81bb8","jsonDocHidden":true,"licenceHash":"96920848577151415","miredotVersion":"1.6.1","jsonDocEnabled":false,"dateOfGeneration":"2015-06-09 16:20:48","licenceType":"FREE","hideLogoOnTop":false,"projectName":"cyREST","projectVersion":"0.9.16","projectTitle":"RESTful API for Cytoscape v1"};
+com.qmino.miredot.restApiSource = {"validLicence":true,"buildSystem":"maven 3","allowUsageTracking":true,"singlePage":false,"licenceErrorMessage":null,"miredotRevision":"8e41c1c81bb8","jsonDocHidden":true,"licenceHash":"96920848577151415","miredotVersion":"1.6.1","jsonDocEnabled":false,"dateOfGeneration":"2015-06-26 13:47:25","licenceType":"FREE","hideLogoOnTop":false,"projectName":"cyREST","projectVersion":"1.1.0","projectTitle":"RESTful API for Cytoscape v1"};
 com.qmino.miredot.restApiSource.tos = {
 	org_cytoscape_rest_internal_model_Elements_in: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_in", "content": [] },
 	org_cytoscape_rest_internal_model_Elements_out: { "type": "complex", "name": "org_cytoscape_rest_internal_model_Elements_out", "content": [] },
@@ -24,7 +24,7 @@ com.qmino.miredot.restApiSource.tos = {
 };
 
 com.qmino.miredot.restApiSource.enums = {
-	javax_ws_rs_core_Response$Status: { "type": "enum", "name": "javax_ws_rs_core_Response$Status", "values": [{"name": "OK", "comment": null}, {"name": "CREATED", "comment": null}, {"name": "ACCEPTED", "comment": null}, {"name": "NO_CONTENT", "comment": null}, {"name": "RESET_CONTENT", "comment": null}, {"name": "PARTIAL_CONTENT", "comment": null}, {"name": "MOVED_PERMANENTLY", "comment": null}, {"name": "FOUND", "comment": null}, {"name": "SEE_OTHER", "comment": null}, {"name": "NOT_MODIFIED", "comment": null}, {"name": "USE_PROXY", "comment": null}, {"name": "TEMPORARY_REDIRECT", "comment": null}, {"name": "BAD_REQUEST", "comment": null}, {"name": "UNAUTHORIZED", "comment": null}, {"name": "PAYMENT_REQUIRED", "comment": null}, {"name": "FORBIDDEN", "comment": null}, {"name": "NOT_FOUND", "comment": null}, {"name": "METHOD_NOT_ALLOWED", "comment": null}, {"name": "NOT_ACCEPTABLE", "comment": null}, {"name": "PROXY_AUTHENTICATION_REQUIRED", "comment": null}, {"name": "REQUEST_TIMEOUT", "comment": null}, {"name": "CONFLICT", "comment": null}, {"name": "GONE", "comment": null}, {"name": "LENGTH_REQUIRED", "comment": null}, {"name": "PRECONDITION_FAILED", "comment": null}, {"name": "REQUEST_ENTITY_TOO_LARGE", "comment": null}, {"name": "REQUEST_URI_TOO_LONG", "comment": null}, {"name": "UNSUPPORTED_MEDIA_TYPE", "comment": null}, {"name": "REQUESTED_RANGE_NOT_SATISFIABLE", "comment": null}, {"name": "EXPECTATION_FAILED", "comment": null}, {"name": "INTERNAL_SERVER_ERROR", "comment": null}, {"name": "NOT_IMPLEMENTED", "comment": null}, {"name": "BAD_GATEWAY", "comment": null}, {"name": "SERVICE_UNAVAILABLE", "comment": null}, {"name": "GATEWAY_TIMEOUT", "comment": null}, {"name": "HTTP_VERSION_NOT_SUPPORTED", "comment": null}]}
+
 };
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_Elements_in"].content = [ 
 	{
@@ -111,13 +111,6 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerSta
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerStatus_out"].content = [ 
 	{
-		"name": "apiVersion",
-		"comment": null,
-		"typeValue": { "type": "simple", "typeValue": "string" },
-		"deprecated": false,
-		"required": false
-	},
-	{
 		"name": "numberOfCores",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
@@ -128,6 +121,13 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_ServerSta
 		"name": "memoryStatus",
 		"comment": null,
 		"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"],
+		"deprecated": false,
+		"required": false
+	},
+	{
+		"name": "apiVersion",
+		"comment": null,
+		"typeValue": { "type": "simple", "typeValue": "string" },
 		"deprecated": false,
 		"required": false
 	}
@@ -260,14 +260,14 @@ com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemorySta
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_in"].comment = null;
 com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_MemoryStatus_out"].content = [ 
 	{
-		"name": "freeMemory",
+		"name": "usedMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
 		"deprecated": false,
 		"required": false
 	},
 	{
-		"name": "usedMemory",
+		"name": "freeMemory",
 		"comment": null,
 		"typeValue": { "type": "simple", "typeValue": "number" },
 		"deprecated": false,
@@ -328,7 +328,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -370,7 +370,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": ""},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": ""},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -734,7 +734,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of networks in current Cytoscape session"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Number of networks in current Cytoscape session"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -753,6 +753,49 @@ com.qmino.miredot.restApiSource.interfaces = [
                 "PATH": [],
                 "QUERY": [],
                 "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "This API is for updating default node/edge/network data table. New columns will be created if they does not exist in the target table. The BODY of the data should be in the following format:<br/> <pre>\n        {\n                \"key\":\"SUID\",           // This is the unique key column in the existing table\n                \"dataKey\": \"id\",                // Mapping key for the new values\n                \"data\": [\n                        {\n                                \"id\": 12345,            // Required. Field name should be same as \"dataKey.\"\n                                                                // In this case, it is \"id,\" but can be anything.\n                                \"gene_name\": \"brca1\",\n                                \"exp1\": 0.11,\n                                \"exp2\": 0.2\n                        }, ...\n                        \n                ]\n        }\n </pre> Current limitations: <ul> <li> If key is not specified, SUID will be used for mapping</li> <li>Numbers are handled as Double</li> <li>List column is not supported in this version</li> </ul>",
+		"url": "/v1/networks/{networkId}/tables/{tableType}",
+		"http": "PUT",
+		"title": "Update default table with new values.",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": ["application/json"],
+		"produces": [],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 412, "comment": "Invalid JSON input."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-445545371",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
+                    {"name": "tableType", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Table type (defaultnode, defaultedge or defaultnetwork)", "jaxrs": "PATH"}
+                ],
+                "QUERY": [{"name": "class", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "QUERY"}],
+                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -803,6 +846,45 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
+		"beschrijving": "Generate a PNG image as stream. Default size is 600 px.",
+		"url": "/v1/networks/{networkId}/views/first.png",
+		"http": "GET",
+		"title": "Get PNG image of a network view",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/png"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1492760302",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Optional height of the image. Width will be set automatically.", "jaxrs": "QUERY"}],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
 		"beschrijving": "",
 		"url": "/v1/networks/",
 		"http": "DELETE",
@@ -816,7 +898,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -876,6 +958,45 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network View SUID", "jaxrs": "PATH"}
                 ],
                 "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/first.svg",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/svg+xml"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "2100447251",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}],
+                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -1022,7 +1143,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -1467,7 +1588,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": com.qmino.miredot.restApiSource.enums["javax_ws_rs_core_Response$Status"], "comment": null},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -1617,7 +1738,7 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "Create new, empty column in an assigned table. This accepts the following object OR allay of this objects: <pre>\n                {\n                        \"name\":\"COLUMN NAME\",\n                        \"type\":\"data type, Double, String, Boolean, Long, Integer\",\n                        \"immutable\": \"Optional: boolean value to specify immutable or not\",\n                        \"list\": \"Optional.  If true, return create List column for the given type.\"\n                }\n </pre>",
+		"beschrijving": "Create new, empty column in an assigned table. This accepts the following object OR allay of this objects: <pre>\n                {\n                        \"name\":\"COLUMN NAME\",\n                        \"type\":\"data type, Double, String, Boolean, Long, Integer\",\n                        \"immutable\": \"Optional: boolean value to specify immutable or not\",\n                        \"list\": \"Optional.  If true, return create List column for the given type.\"\n                        \"local\": \"Optional.  If true, it will be a local column\"\n                }\n </pre>",
 		"url": "/v1/networks/{networkId}/tables/{tableType}/columns",
 		"http": "POST",
 		"title": "Create new column(s) in the table",
@@ -1797,7 +1918,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -1861,6 +1982,49 @@ com.qmino.miredot.restApiSource.interfaces = [
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/{viewId}/network/{visualProperty}",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1250460123",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
+                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
+                    {"name": "visualProperty", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "PATH"}
+                ],
+                "QUERY": [],
+                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2127,7 +2291,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Nested network SUID"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Nested network SUID"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -2148,45 +2312,6 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "nodeId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "target node SUID.", "jaxrs": "PATH"}
                 ],
                 "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
-		"beschrijving": "Generate a PNG image as stream. Default size is 600 px.",
-		"url": "/v1/networks/{networkId}/views/first.png",
-		"http": "GET",
-		"title": "Get PNG image of a network view",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["image/png"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "144494073",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
-                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Optional height of the image. Width will be set automatically.", "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -2238,9 +2363,9 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
-		"url": "/v1/apply/layouts/{algorithmName}/{networkId}",
+		"url": "/v1/styles/{name}/defaults",
 		"http": "GET",
-		"title": "Apply layout to a network",
+		"title": "Get all default values for the Visual Style",
 		"tags": [],
 		"authors": [],
 		"compressed": false,
@@ -2250,13 +2375,13 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all default values"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
-		"hash": "1226484092",
+		"hash": "-541289516",
 		"responseHttpHeaders": 
 			[
 			]
@@ -2266,10 +2391,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 			]
 ,
 		"inputs": {
-                "PATH": [
-                    {"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of layout algorithm (\"circular\", \"force-directed\", etc.)", "jaxrs": "PATH"},
-                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target network SUID", "jaxrs": "PATH"}
-                ],
+                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
@@ -2312,45 +2434,6 @@ com.qmino.miredot.restApiSource.interfaces = [
                 "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Original name of the Visual Style", "jaxrs": "PATH"}],
                 "QUERY": [],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
-		"beschrijving": "",
-		"url": "/v1/styles/{name}/defaults",
-		"http": "GET",
-		"title": "Get all default values for the Visual Style",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["application/json"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "List of all default values"},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "-541289516",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [{"name": "name", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of the Visual Style", "jaxrs": "PATH"}],
-                "QUERY": [],
-                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2552,12 +2635,54 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"inputs": {
                 "PATH": [],
                 "QUERY": [
-                    {"name": "collection", "defaultValue": "Posted: ", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of new network collection", "jaxrs": "QUERY"},
+                    {"name": "collection", "defaultValue": "Created by cyREST: ", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of new network collection", "jaxrs": "QUERY"},
                     {"name": "source", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. \"url\"", "jaxrs": "QUERY"},
                     {"name": "format", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "\"edgelist\" or \"json\"", "jaxrs": "QUERY"},
                     {"name": "title", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Title of the new network", "jaxrs": "QUERY"}
                 ],
                 "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/{viewId}.pdf",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/pdf"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1337180352",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
+                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}
+                ],
+                "QUERY": [],
+                "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
                 "FORM": [],
@@ -2700,7 +2825,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -2739,7 +2864,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUIDs of the new edges with source and target SUIDs."},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "SUIDs of the new edges with source and target SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 201, "comment": "The service call has created a new object."},
@@ -2858,7 +2983,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -3001,6 +3126,45 @@ com.qmino.miredot.restApiSource.interfaces = [
                     {"name": "column", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Node table column name to be used for search.", "jaxrs": "QUERY"},
                     {"name": "query", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Optional. Search query.", "jaxrs": "QUERY"}
                 ],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/first.pdf",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/pdf"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1950350523",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}],
+                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -3208,49 +3372,6 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
-		"url": "/v1/networks/{networkId}/views/{viewId}/network/{visualProperty}",
-		"http": "GET",
-		"title": null,
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["application/json"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": null},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "-966304515",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [
-                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
-                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
-                    {"name": "visualProperty", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": null, "jaxrs": "PATH"}
-                ],
-                "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
-		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/groups/{groupNodeId}/expand",
 		"http": "GET",
 		"title": "Expand group nodes",
@@ -3413,45 +3534,6 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "The return value does not includes originally selected nodes.",
-		"url": "/v1/networks/{networkId}/nodes/selected/neighbors",
-		"http": "GET",
-		"title": "Utility to get all neighbors of selected nodes",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["application/json"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Neighbors as list. Note that this does not includes original nodes."},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "-898340911",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
-                "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
 		"beschrijving": "",
 		"url": "/v1/apply/layouts/{algorithmName}/columntypes",
 		"http": "GET",
@@ -3491,6 +3573,45 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
+		"beschrijving": "The return value does not includes originally selected nodes.",
+		"url": "/v1/networks/{networkId}/nodes/selected/neighbors",
+		"http": "GET",
+		"title": "Utility to get all neighbors of selected nodes",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Neighbors as list. Note that this does not includes original nodes."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "300632652",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
 		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/views/first",
 		"http": "DELETE",
@@ -3504,7 +3625,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -3543,7 +3664,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "number of edges in the network"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "number of edges in the network"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -3561,6 +3682,48 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "Generate a PNG network image as stream. Default size is 600 px.",
+		"url": "/v1/networks/{networkId}/views/{viewId}.png",
+		"http": "GET",
+		"title": "Get PNG image of a network view",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/png"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "2041231128",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
+                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network View SUID", "jaxrs": "PATH"}
+                ],
+                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Optional height of the image. Width will be set automatically.", "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -3651,6 +3814,48 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/{viewId}.svg",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["image/svg+xml"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "533193597",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
+                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}
+                ],
+                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "QUERY"}],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/edges",
 		"http": "DELETE",
 		"title": "Delete all edges in the network",
@@ -3663,7 +3868,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -3680,6 +3885,48 @@ com.qmino.miredot.restApiSource.interfaces = [
 ,
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/networks/{networkId}/views/{viewId}/network",
+		"http": "GET",
+		"title": null,
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "-1514055555",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"},
+                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": null, "jaxrs": "PATH"}
+                ],
                 "QUERY": [],
                 "BODY": [],
                 "HEADER": [],
@@ -3771,45 +4018,6 @@ com.qmino.miredot.restApiSource.interfaces = [
 	},
 	{
 		"beschrijving": "",
-		"url": "/v1/version",
-		"http": "GET",
-		"title": "Get Cytoscape and REST API version",
-		"tags": ["Server status"],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["application/json"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"], "comment": "Cytoscape version and REST API version"},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "1344679833",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [],
-                "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
-		"beschrijving": "",
 		"url": "/v1/ui/show-details",
 		"http": "PUT",
 		"title": null,
@@ -3830,6 +4038,45 @@ com.qmino.miredot.restApiSource.interfaces = [
                 { "httpCode": 500, "comment": "The API call has not succeeded."}
             ],
 		"hash": "-1753657146",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [],
+                "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/version",
+		"http": "GET",
+		"title": "Get Cytoscape and REST API version",
+		"tags": ["Server status"],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": com.qmino.miredot.restApiSource.tos["org_cytoscape_rest_internal_model_CytoscapeVersion_out"], "comment": "Cytoscape version and REST API version"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1344679833",
 		"responseHttpHeaders": 
 			[
 			]
@@ -3901,7 +4148,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -3940,7 +4187,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Row in the table"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "A row in the table"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -4114,7 +4361,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID for the new Network View."},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "SUID for the new Network View."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 201, "comment": "The service call has created a new object."},
@@ -4134,6 +4381,48 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
+                "BODY": [],
+                "HEADER": [],
+                "COOKIE": [],
+                "FORM": [],
+                "MATRIX": []
+            }
+	},
+	{
+		"beschrijving": "",
+		"url": "/v1/apply/layouts/{algorithmName}/{networkId}",
+		"http": "GET",
+		"title": "Apply layout to a network",
+		"tags": [],
+		"authors": [],
+		"compressed": false,
+		"deprecated": false,
+		"consumes": [],
+		"produces": ["application/json"],
+		"roles": [],
+		"rolesAllowed": null,
+		"permitAll": false,
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Success message"},
+		"statusCodes": [
+                { "httpCode": 200, "comment": "The service call has completed successfully."},
+                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
+                { "httpCode": 500, "comment": "The API call has not succeeded."}
+            ],
+		"hash": "1378772961",
+		"responseHttpHeaders": 
+			[
+			]
+,
+		"responseCustomHeaders": 
+			[
+			]
+,
+		"inputs": {
+                "PATH": [
+                    {"name": "algorithmName", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Name of layout algorithm (\"circular\", \"force-directed\", etc.)", "jaxrs": "PATH"},
+                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Target network SUID", "jaxrs": "PATH"}
+                ],
+                "QUERY": [{"name": "column", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "(URL Query Parameter) Column name to be used by the layout algorithm", "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -4438,7 +4727,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "SUID of the new node(s) with the name."},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "SUID of the new node(s) with the name."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 201, "comment": "The service call has created a new object."},
@@ -4497,48 +4786,6 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"inputs": {
                 "PATH": [{"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"}],
                 "QUERY": [],
-                "BODY": [],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
-		"beschrijving": "Generate a PNG network image as stream. Default size is 600 px.",
-		"url": "/v1/networks/{networkId}/views/{viewId}.png",
-		"http": "GET",
-		"title": "Get PNG image of a network view",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": [],
-		"produces": ["image/png"],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "PNG image stream."},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "1288037935",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [
-                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
-                    {"name": "viewId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network View SUID", "jaxrs": "PATH"}
-                ],
-                "QUERY": [{"name": "h", "defaultValue": "600", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Optional height of the image. Width will be set automatically.", "jaxrs": "QUERY"}],
                 "BODY": [],
                 "HEADER": [],
                 "COOKIE": [],
@@ -4641,7 +4888,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "collection", "typeValue":{ "type": "simple", "typeValue": "number" } }, "comment": "Neighbors of the node as a list of SUIDs."},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Neighbors of the node as a list of SUIDs."},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -4670,49 +4917,6 @@ com.qmino.miredot.restApiSource.interfaces = [
             }
 	},
 	{
-		"beschrijving": "This API is for updating default node/edge/network data table. New columns will be created if they does not exist in the target table. The BODY of the data should be in the following format:<br/> <pre>\n        {\n                \"key\":\"SUID\",           // This is the unique key column in the existing table\n                \"dataKey\": \"id\",                // Mapping key for the new values\n                \"data\": [\n                        {\n                                \"id\": 12345,            // Required. Field name should be same as \"dataKey.\"\n                                                                // In this case, it is \"id,\" but can be anything.\n                                \"gene_name\": \"brca1\",\n                                \"exp1\": 0.11,\n                                \"exp2\": 0.2\n                        }, ...\n                        \n                ]\n        }\n </pre> Current limitations: <ul> <li> If key is not specified, SUID will be used for mapping</li> <li>Numbers are handled as Double</li> <li>List column is not supported in this version</li> </ul>",
-		"url": "/v1/networks/{networkId}/tables/{tableType}",
-		"http": "PUT",
-		"title": "Update default table with new values.",
-		"tags": [],
-		"authors": [],
-		"compressed": false,
-		"deprecated": false,
-		"consumes": ["application/json"],
-		"produces": [],
-		"roles": [],
-		"rolesAllowed": null,
-		"permitAll": false,
-		"output": {},
-		"statusCodes": [
-                { "httpCode": 200, "comment": "The service call has completed successfully."},
-                { "httpCode": 404, "comment": "The URL (or object) does not exist."},
-                { "httpCode": 412, "comment": "Invalid JSON input."},
-                { "httpCode": 500, "comment": "The API call has not succeeded."}
-            ],
-		"hash": "438214378",
-		"responseHttpHeaders": 
-			[
-			]
-,
-		"responseCustomHeaders": 
-			[
-			]
-,
-		"inputs": {
-                "PATH": [
-                    {"name": "networkId", "typeValue": { "type": "simple", "typeValue": "number" }, "comment": "Network SUID", "jaxrs": "PATH"},
-                    {"name": "tableType", "typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Table type (defaultnode, defaultedge or defaultnetwork)", "jaxrs": "PATH"}
-                ],
-                "QUERY": [],
-                "BODY": [{"typeValue": { "type": "simple", "typeValue": "java.io.InputStream" }, "comment": null, "jaxrs": "BODY"}],
-                "HEADER": [],
-                "COOKIE": [],
-                "FORM": [],
-                "MATRIX": []
-            }
-	},
-	{
 		"beschrijving": "",
 		"url": "/v1/networks/{networkId}/nodes/count",
 		"http": "GET",
@@ -4726,7 +4930,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {"typeValue": { "type": "simple", "typeValue": "string" }, "comment": "Number of nodes in the network with given SUID"},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": "Number of nodes in the network with given SUID"},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -4807,7 +5011,7 @@ com.qmino.miredot.restApiSource.interfaces = [
 		"roles": [],
 		"rolesAllowed": null,
 		"permitAll": false,
-		"output": {},
+		"output": {"typeValue": { "type": "simple", "typeValue": "javax.ws.rs.core.Response" }, "comment": null},
 		"statusCodes": [
                 { "httpCode": 200, "comment": "The service call has completed successfully."},
                 { "httpCode": 404, "comment": "The URL (or object) does not exist."},
@@ -4925,8 +5129,22 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -5107,6 +5325,41 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -5121,6 +5374,90 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_SUMMARY",
+		"description": "Missing summary tag",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -5142,27 +5479,6 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -5177,8 +5493,22 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -5548,503 +5878,6 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "PARTIAL_RESOURCE_OVERLAP",
-		"description": "This rest interface (partially) hides another rest interface",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "PARTIAL_RESOURCE_OVERLAP",
-		"description": "This rest interface (partially) hides another rest interface",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing return type documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAXRS_MISSING_PRODUCES",
-		"description": "Interface returns a result, but does not specify a Produces value.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing return type documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing return type documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAXRS_MISSING_PRODUCES",
-		"description": "Interface returns a result, but does not specify a Produces value.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAXRS_MISSING_PRODUCES",
-		"description": "Interface returns a result, but does not specify a Produces value.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
-		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_SUMMARY",
 		"description": "Missing summary tag",
 		"failedBuild": false,
@@ -6129,6 +5962,41 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -6178,20 +6046,6 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "PARTIAL_RESOURCE_OVERLAP",
-		"description": "This rest interface (partially) hides another rest interface",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -6201,13 +6055,6 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "PARTIAL_RESOURCE_OVERLAP",
-		"description": "This rest interface (partially) hides another rest interface",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -6241,8 +6088,582 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_SUMMARY",
+		"description": "Missing summary tag",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_SUMMARY",
+		"description": "Missing summary tag",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "PARTIAL_RESOURCE_OVERLAP",
 		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -6290,8 +6711,43 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_SUMMARY",
+		"description": "Missing summary tag",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -6311,8 +6767,71 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAXRS_MISSING_PRODUCES",
+		"description": "Interface returns a result, but does not specify a Produces value.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_SUMMARY",
+		"description": "Missing summary tag",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing parameter documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "PARTIAL_RESOURCE_OVERLAP",
+		"description": "This rest interface (partially) hides another rest interface",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -6409,6 +6928,27 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -6556,6 +7096,20 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
+		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
+		"description": "Missing interface documentation",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_AUTHORS",
+		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
 		"failedBuild": false,
@@ -6675,13 +7229,6 @@ com.qmino.miredot.projectWarnings = [
 		"entity": null
 	},
 	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
 		"failedBuild": false,
@@ -6712,20 +7259,6 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_INTERFACEDOCUMENTATION",
 		"description": "Missing interface documentation",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_AUTHORS",
-		"description": "No author(s) specified for interface.",
-		"failedBuild": false,
-		"interface": null,
-		"entity": null
-	},
-	{
-		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
-		"description": "Missing parameter documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null
@@ -6775,6 +7308,13 @@ com.qmino.miredot.projectWarnings = [
 	{
 		"category": "JAVADOC_MISSING_AUTHORS",
 		"description": "No author(s) specified for interface.",
+		"failedBuild": false,
+		"interface": null,
+		"entity": null
+	},
+	{
+		"category": "JAVADOC_MISSING_PARAMETER_DOCUMENTATION",
+		"description": "Missing return type documentation",
 		"failedBuild": false,
 		"interface": null,
 		"entity": null

@@ -1,15 +1,16 @@
 package org.cytoscape.rest.internal.resource;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.stream.StreamSupport;
 
-import javax.imageio.ImageIO;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -44,6 +45,7 @@ import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.work.util.BoundedDouble;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -323,11 +325,7 @@ public class NetworkViewResource extends AbstractResource {
 		final PresentationWriterFactory factory = graphicsWriterManager.getFactory(fileType);
 		final CyNetworkView view = views.iterator().next();
 		
-		if(fileType.equals("png")) {
-			return imageGenerator(null, view, height, height);
-		} else {
-			return imageGenerator(factory, view, height, height);
-		}
+		return imageGenerator(fileType, factory, view, height, height);
 	}
 
 	/**
@@ -357,8 +355,9 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}.svg")
 	@Produces("image/svg+xml")
 	public Response getImageAsSvg(@PathParam("networkId") Long networkId,
-			@PathParam("viewId") Long viewId) {
-		return getImageForView("svg", networkId, viewId, 500);
+			@PathParam("viewId") Long viewId,
+			@DefaultValue(DEF_HEIGHT) @QueryParam("h") int height) {
+		return getImageForView("svg", networkId, viewId, height);
 	}
 	
 	@GET
@@ -381,7 +380,8 @@ public class NetworkViewResource extends AbstractResource {
 		throw new NotFoundException("Could not find view for the network: " + networkId);
 	}
 
-	private final Response imageGenerator(PresentationWriterFactory factory, final CyNetworkView view, int width, int height) {
+	private final Response imageGenerator(final String fileType, PresentationWriterFactory factory, 
+			final CyNetworkView view, int width, int height) {
 		final Collection<RenderingEngine<?>> re = renderingEngineManager.getRenderingEngines(view);
 		if (re.isEmpty()) {
 			throw new IllegalArgumentException("No rendering engine.");
@@ -400,17 +400,23 @@ public class NetworkViewResource extends AbstractResource {
 			}
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+			final CyWriter writer = factory.createWriter(baos, engine);
 			
-			// This is safe for Ding network view.
-			if(factory == null) {
-				// Special case: Use raw graphics API to generate bitmap image.
-				final BufferedImage image = (BufferedImage) engine.createImage(width, height);
-				ImageIO.write(image, "png", baos);
-			} else {
-				final CyWriter writer = factory.createWriter(baos, engine);
-				writer.run(new HeadlessTaskMonitor());
+			if (fileType.equals("png")) {
+				// Do some hack to set properties...
+				// TODO: Are there cleaner way to access these props?
+				final Object zl = writer.getClass().getMethod("getZoom").invoke(writer);
+				final BoundedDouble bound = (BoundedDouble)zl; 
+				//System.out.println("UB = " + bound.getUpperBound());
+				//System.out.println("LB = " + bound.getLowerBound());
+				
+				// Set large upper bound for generating large PNG.  
+				bound.setBounds(bound.getLowerBound(), 5000.0);
+				writer.getClass().getMethod("setHeightInPixels", int.class).invoke(writer, height);
 			}
-			
+			writer.run(new HeadlessTaskMonitor());
+
 			final byte[] imageData = baos.toByteArray();
 			return Response.ok(new ByteArrayInputStream(imageData)).build();
 		} catch (Exception e) {

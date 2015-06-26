@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Spliterator;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.inject.Singleton;
@@ -94,7 +95,8 @@ public class NetworkViewResource extends AbstractResource {
 		this.lexicon = getLexicon();
 		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
 		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
-		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK);
+		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK).stream()
+				.filter(vp->vp.getIdString().startsWith("NETWORK")).collect(Collectors.toSet());;
 		
 	}
 	/**
@@ -623,6 +625,14 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 
+	@GET
+	@Path("/{viewId}/network")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNetworkVisualProps(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId) {
+		return this.getViews(networkId, viewId, "network", null);
+	}
+
+
 	/**
 	 * @summary Get view object for the specified type (node or edge)
 	 * 
@@ -697,7 +707,7 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public String getNetworkVisualProp(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
@@ -739,11 +749,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+	public Response getViews(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
 			@PathParam("objectType") String objectType, @QueryParam("visualProperty") String visualProperty) {
 		
 		if(visualProperty != null) {
-			return getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);
+			final String result = getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);
+			return Response.ok(result).build();
 		}
 		
 		if(nodeLexicon == null) {
@@ -756,10 +767,11 @@ public class NetworkViewResource extends AbstractResource {
 		} else if(objectType.equals("edges")) {
 			vps = edgeLexicon;
 		} else if(objectType.equals("network")) {
+			System.out.println("=============This is NETWORK = ");
 			vps = networkLexicon;
 		}
 		
-		return getViewForVPList(networkId, viewId, objectType, vps);
+		return Response.ok(getViewForVPList(networkId, viewId, objectType, vps)).build();
 	}
 
 	private final String getViewForVPList(final Long networkId, final Long viewId, final String objectType, Collection<VisualProperty<?>> vps) {

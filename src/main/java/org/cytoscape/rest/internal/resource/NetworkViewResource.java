@@ -2,15 +2,15 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.Spliterator;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
@@ -39,6 +39,7 @@ import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
+import org.cytoscape.task.write.ExportNetworkViewTaskFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
@@ -46,6 +47,8 @@ import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.work.Task;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.util.BoundedDouble;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -73,6 +76,11 @@ public class NetworkViewResource extends AbstractResource {
 	@Context
 	@NotNull
 	private GraphicsWriterManager graphicsWriterManager;
+	
+	@Context
+	@NotNull
+	private ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
+	
 	
 	private final VisualStyleMapper styleMapper;
 	private final VisualStyleSerializer styleSerializer;
@@ -169,25 +177,28 @@ public class NetworkViewResource extends AbstractResource {
 
 	/**
 	 * 
-	 * This returns a view for the network.
+	 * This returns the first view of the network.  As of Cytoscape 3.2.x, this is the 
+	 * only view accessible Cytoscape GUI.
 	 * 
-	 * 
-	 * @summary Convenience method to get the first view object.
+	 * @summary Convenience method to get the first view model.
 	 * 
 	 * @param networkId
 	 *            Network SUID
+	 * @param file (Optional) If you want to get the view as a file, you can specify output file name with extension.
+	 * 				For example, file=test.sif creates new SIF file in the current directory. 
 	 * 
-	 * @return
+	 * @return Network view in JSON or location of the file
 	 */
 	@GET
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFirstNetworkView(@PathParam("networkId") Long networkId) {
+	public Response getFirstNetworkView(@PathParam("networkId") Long networkId, @QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
 			throw new NotFoundException("Could not find view for the network: " + networkId);
 		}
-		return Response.ok(getNetworkViewString(views.iterator().next())).build();
+		final CyNetworkView view = views.iterator().next();
+		return getNetworkView(networkId, view.getSUID(), file);
 	}
 
 	/**
@@ -213,29 +224,63 @@ public class NetworkViewResource extends AbstractResource {
 	 * To use this API, you need to know SUID of the CyNetworkView, in addition
 	 * to CyNetwork SUID.
 	 * 
-	 * @summary Get a network view
+	 * @summary Get a network view (as JSON or a file)
 	 * 
 	 * @param networkId
 	 *            Network SUID
 	 * @param viewId
 	 *            Network View SUID
+	 *
+	 * @param file (Optional) If you want to get the view as a file, you can specify output file name with extension.
+	 * 				For example, file=test.sif creates new SIF file in the current directory. 
 	 * 
 	 * @return View in Cytoscape.js JSON. Currently, view information is (x, y)
-	 *         location only.
+	 *         location only.  If you specify <strong>file</strong> option, this returns absolute path to the file. 
 	 */
 	@GET
 	@Path("/{viewId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId) {
+	public Response getNetworkView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		
+		CyNetworkView targetView = null;
 		for (final CyNetworkView view : views) {
 			final Long vid = view.getSUID();
 			if (vid.equals(viewId)) {
-				return getNetworkViewString(view);
+				targetView = view;
+				break;
 			}
 		}
-
-		return "{}";
+		
+		if(targetView == null) {
+			return Response.ok("{}").build();
+		} else {
+			if(file != null) {
+				return Response.ok(writeNetworkFile(file, targetView)).build();
+			} else {
+				return Response.ok(getNetworkViewString(targetView)).build();
+			}
+		}
+	}
+	
+	private final Map<String, String> writeNetworkFile(String file, CyNetworkView view) {
+		File networkFile = null;
+		try {
+			networkFile = new File(file);
+			TaskIterator itr = exportNetworkViewTaskFactory.createTaskIterator(view, networkFile);
+			while(itr.hasNext()) {
+				final Task task = itr.next();
+				task.run(new HeadlessTaskMonitor());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw getError("Could not save network file.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		final Map<String, String> message = new HashMap<>();
+		message.put("file", networkFile.getAbsolutePath());
+		return message;
 	}
 
 	/**

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.naming.spi.DirStateFactory.Result;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -97,6 +98,104 @@ public class NetworkResourceTest extends BasicResourceTest {
 		final JsonNode root = mapper.readTree(result);
 		assertTrue(root.isArray());
 		assertEquals(4, root.size());
+	}
+	
+	@Test
+	/**
+	 * Test to delete node and then get all nodes.  This is currently broken.
+	 * 
+	 * @throws Exception
+	 */
+	public void testDeleteAndGetNodes() throws Exception {
+		final Long suid = network.getSUID();
+		final int nodeCount = network.getNodeCount();
+		
+		// First, delete first node
+		final CyNode node1 = network.getNodeList().get(0);
+		final Long nodeSuid = node1.getSUID();
+		final Response delResult = target("/v1/networks/" + suid.toString() + "/nodes/" + nodeSuid).request().delete();
+		assertNotNull(delResult);
+		assertEquals(200, delResult.getStatus());
+		
+		assertEquals(nodeCount-1, network.getNodeCount());
+		
+		String result = target("/v1/networks/" + suid.toString() + "/nodes").request().get(String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+		assertTrue(root.isArray());
+		assertEquals(nodeCount-1, root.size());
+	}
+	
+	@Test
+	public void testDeleteAndGetNodesByQuery() throws Exception {
+		final Long suid = network.getSUID();
+		final int nodeCount = network.getNodeCount();
+		
+		// First, delete two nodes
+		final CyNode node1 = network.getNodeList().get(0);
+		final CyNode node2 = network.getNodeList().get(1);
+		final CyNode node3 = network.getNodeList().get(2);
+		final Long nodeSuid1 = node1.getSUID();
+		final Long nodeSuid2 = node2.getSUID();
+		
+		String nodeName1 = network.getRow(node1).get(CyNetwork.NAME, String.class);
+		String nodeName2 = network.getRow(node2).get(CyNetwork.NAME, String.class);
+		String nodeName3 = network.getRow(node3).get(CyNetwork.NAME, String.class);
+		
+		Response delResult = target("/v1/networks/" + suid.toString() + "/nodes/" + nodeSuid1).request().delete();
+		assertNotNull(delResult);
+		assertEquals(200, delResult.getStatus());
+		
+		delResult = target("/v1/networks/" + suid.toString() + "/nodes/" + nodeSuid2).request().delete();
+		assertNotNull(delResult);
+		assertEquals(200, delResult.getStatus());
+		
+		assertEquals(nodeCount-2, network.getNodeCount());
+	
+		// Check node count
+		final String countResult = target("/v1/networks/" + suid.toString() + "/nodes/count").request().get(String.class);
+		assertNotNull(countResult);
+		System.out.println(countResult);
+		final JsonNode countRoot = mapper.readTree(countResult);
+		System.out.println(countRoot.get("count"));
+		assertEquals(nodeCount-2, countRoot.get("count").asInt());
+		
+		// Get by query
+		
+		// Test existing node
+		System.out.println(nodeName1);
+		System.out.println(nodeName2);
+		System.out.println(nodeName3);
+		String result = target("/v1/networks/" + suid.toString() + "/nodes").request().get(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		
+		JsonNode root = mapper.readTree(result);
+		assertTrue(root.isArray());
+		assertEquals(nodeCount-2, root.size());
+		
+		String queryUrl = "/v1/networks/" + suid.toString() + "/nodes";
+		result = target(queryUrl).queryParam("query", nodeName3).queryParam("column", "name").request().get(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		root = mapper.readTree(result);
+		assertTrue(root.isArray());
+		assertEquals(1, root.size());
+		assertEquals(node3.getSUID(), (Long)root.get(0).asLong());
+		
+		// Check with deleted node
+		result = target(queryUrl).queryParam("query", nodeName1).queryParam("column", "name").request().get(String.class);
+		assertNotNull(result);
+		root = mapper.readTree(result);
+		assertTrue(root.isArray());
+		assertEquals(0, root.size());
+		
+		result = target(queryUrl).queryParam("query", nodeName2).queryParam("column", "name").request().get(String.class);
+		assertNotNull(result);
+		root = mapper.readTree(result);
+		assertTrue(root.isArray());
+		assertEquals(0, root.size());
 	}
 	
 	

@@ -49,6 +49,21 @@ public class UiResourceTest extends BasicResourceTest {
 		assertTrue(result.getStatus() == 500);
 		// TODO: prepare mock
 	}
+	
+	
+	@Test
+	public void testPanelStatus() throws Exception {
+		Response result = target("/v1/ui/panels/WEST").request().get();
+		assertNotNull(result);
+		System.out.println(result);
+		assertTrue(result.getStatus() == 500);
+		
+		result = target("/v1/ui/panels/FOO").request().get();
+		assertNotNull(result);
+		System.out.println(result);
+		assertTrue(result.getStatus() == 500);
+		// TODO: prepare mock
+	}
 
 
 	@Test

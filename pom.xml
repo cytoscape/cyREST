@@ -8,7 +8,7 @@
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.12</junit.version>
-		<jersey.version>2.18</jersey.version>
+		<jersey.version>2.19</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -153,7 +153,14 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
 		
-		String result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString()).request().get(
+		// Test invalid View ID
+		String result = target("/v1/networks/" + suid.toString() + "/views/1234567").request().get(
+				String.class);
+		assertNotNull(result);
+		assertEquals("{}", result);
+		
+		// Test valid
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString()).request().get(
 				String.class);
 		assertNotNull(result);
 		System.out.println("Result = " + result);
@@ -204,7 +211,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 
 
 	@Test
-	public void testGetFirstViews() throws Exception {
+	public void testGetFirstView() throws Exception {
 		
 		final Long suid = network.getSUID();
 		Response result = target("/v1/networks/" + suid.toString() + "/views/first").request().get();

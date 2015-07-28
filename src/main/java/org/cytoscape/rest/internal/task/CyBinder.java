@@ -28,6 +28,7 @@ import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
 import org.cytoscape.task.read.OpenSessionTaskFactory;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
+import org.cytoscape.task.write.ExportNetworkViewTaskFactory;
 import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
@@ -80,6 +81,7 @@ public class CyBinder extends AbstractBinder {
 	private final NewSessionTaskFactory newSessionTaskFactory;
 	private final CySwingApplication desktop;
 	private final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
+	private final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
 	
 	private final GraphicsWriterManager graphicsWriterManager;
 
@@ -100,7 +102,7 @@ public class CyBinder extends AbstractBinder {
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
 			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory,
-			final GraphicsWriterManager graphicsWriterManager) {
+			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -135,6 +137,7 @@ public class CyBinder extends AbstractBinder {
 		this.toggleLod = toggleLod;
 		this.selectFirstNeighborsTaskFactory = selectFirstNeighborsTaskFactory;
 		this.graphicsWriterManager = graphicsWriterManager;
+		this.exportNetworkViewTaskFactory = exportNetworkViewTaskFactory;
 	}
 
 
@@ -174,5 +177,6 @@ public class CyBinder extends AbstractBinder {
 		bind(toggleLod).to(LevelOfDetails.class);
 		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
 		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
+		bind(exportNetworkViewTaskFactory).to(ExportNetworkViewTaskFactory.class);
 	}
 }

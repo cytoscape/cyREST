@@ -40,6 +40,7 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 @Path("/v1/commands")
 public class CommandResource implements PaxAppender, TaskObserver {
 
+
 	@Context
 	@NotNull
 	private AvailableCommands available;
@@ -53,9 +54,10 @@ public class CommandResource implements PaxAppender, TaskObserver {
 	private SynchronousTaskManager<?> taskManager;
 
 
+	private CustomFailureException taskException;
 	private MessageHandler messageHandler;
-	private WebApplicationException taskException;
 	private boolean processingCommand = false;
+
 
 
 	/**
@@ -65,6 +67,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 	 * @return String that will be returned as a text/plain response.
 	 */
 	@GET
+	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String enumerateNamespaces() {
 		final MessageHandler handler = new TextPlainHandler();
@@ -85,6 +88,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 	 * @return String that will be returned as a text/html response.
 	 */
 	@GET
+	@Path("/")
 	@Produces(MediaType.TEXT_HTML)
 	public String enumerateNamespacesHtml() {
 		final MessageHandler handler = new TextHTMLHandler();
@@ -97,6 +101,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 
 		return handler.getMessages();
 	}
+
 
 	/**
 	 * Method to enumerate all commands for a given namespace
@@ -120,6 +125,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 		}
 		return handler.getMessages();
 	}
+
 
 	/**
 	 * Method to enumerate all commands for a given namespace
@@ -231,8 +237,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 			}
 		}
 		if (nocom) {
-			throw new CustomNotFoundException("Error: no such command: '"
-					+ command + "'");
+			throw new CustomNotFoundException("Error: no such command: '" + command + "'");
 		}
 
 		List<String> argList = available.getArguments(namespace, command);

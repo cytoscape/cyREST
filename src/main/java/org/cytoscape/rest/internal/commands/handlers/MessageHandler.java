@@ -34,15 +34,15 @@ package org.cytoscape.rest.internal.commands.handlers;
 
 public interface MessageHandler {
 
-	public void appendCommand(String s);
+	public void appendCommand(final String s);
 
-	public void appendError(String s);
+	public void appendError(final String s);
 
-	public void appendWarning(String s);
+	public void appendWarning(final String s);
 
-	public void appendResult(Object s);
+	public void appendResult(final Object s);
 
-	public void appendMessage(String s);
+	public void appendMessage(final String s);
 
 	public String getMessages();
 }

@@ -4,6 +4,8 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -36,6 +38,7 @@ import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
+import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskMonitor;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
@@ -84,6 +87,12 @@ public class CyBinder extends AbstractBinder {
 	private final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
 	
 	private final GraphicsWriterManager graphicsWriterManager;
+	
+	// For Command API
+	private final AvailableCommands available;
+	private final CommandExecutorTaskFactory ceTaskFactory;
+	private final SynchronousTaskManager<?> synchronousTaskManager;
+	
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -102,7 +111,9 @@ public class CyBinder extends AbstractBinder {
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
 			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory,
-			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory) {
+			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
+			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
+			final SynchronousTaskManager<?> synchronousTaskManager) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -138,6 +149,9 @@ public class CyBinder extends AbstractBinder {
 		this.selectFirstNeighborsTaskFactory = selectFirstNeighborsTaskFactory;
 		this.graphicsWriterManager = graphicsWriterManager;
 		this.exportNetworkViewTaskFactory = exportNetworkViewTaskFactory;
+		this.available = available;
+		this.ceTaskFactory = ceTaskFactory;
+		this.synchronousTaskManager = synchronousTaskManager;
 	}
 
 
@@ -178,5 +192,10 @@ public class CyBinder extends AbstractBinder {
 		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
 		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
 		bind(exportNetworkViewTaskFactory).to(ExportNetworkViewTaskFactory.class);
+		
+		// For Command API
+		bind(available).to(AvailableCommands.class);
+		bind(ceTaskFactory).to(CommandExecutorTaskFactory.class);
+		bind(synchronousTaskManager).to(SynchronousTaskManager.class);
 	}
 }

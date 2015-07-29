@@ -6,6 +6,7 @@ import java.util.Properties;
 import javax.ws.rs.core.UriBuilder;
 
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
@@ -75,7 +76,9 @@ public final class GrizzlyServerManager {
 					GlobalTableResource.class,
 					SessionResource.class,
 					NetworkNameResource.class,
-					UIResource.class);
+					UIResource.class,
+					// For Commands
+					CommandResource.class);
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

@@ -122,6 +122,20 @@ public class CyActivator extends AbstractCyActivator {
 		final AvailableCommands available = getService(bc, AvailableCommands.class);
 		final CommandExecutorTaskFactory ceTaskFactory = getService(bc, CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = getService(bc, SynchronousTaskManager.class);
+		
+		// Get any command line arguments. The "-R" is ours
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
+
+		final Properties clProps = commandLineProps.getProperties();
+		
+		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(GrizzlyServerManager.PORT_NUMBER_PROP);
+		
+		if (clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP) != null)
+			restPortNumber = clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP);
+		
+		// Set Port number
+		cyPropertyServiceRef.getProperties().setProperty(GrizzlyServerManager.PORT_NUMBER_PROP, restPortNumber);
 
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,

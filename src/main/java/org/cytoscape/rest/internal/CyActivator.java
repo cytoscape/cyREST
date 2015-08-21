@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.BasicCyFileFilter;
@@ -43,6 +45,7 @@ import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
+import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskMonitor;
 import org.osgi.framework.BundleContext;
@@ -115,6 +118,11 @@ public class CyActivator extends AbstractCyActivator {
 		final CySwingApplication desktop = getService(bc, CySwingApplication.class);
 		final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory = getService(bc, ExportNetworkViewTaskFactory.class);
 
+		// For commands
+		final AvailableCommands available = getService(bc, AvailableCommands.class);
+		final CommandExecutorTaskFactory ceTaskFactory = getService(bc, CommandExecutorTaskFactory.class);
+		final SynchronousTaskManager<?> synchronousTaskManager = getService(bc, SynchronousTaskManager.class);
+
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
@@ -164,7 +172,7 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager);
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		try {
 			this.grizzlyServerManager.startServer();

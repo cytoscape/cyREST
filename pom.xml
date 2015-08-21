@@ -17,7 +17,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>1.1.1</version>
+	<version>2.0.0</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
@@ -247,6 +247,12 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>command-executor-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- OSGi core dependency -->
 		<dependency>
@@ -266,7 +272,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.5.4</version>
+			<version>2.6.0</version>
 		</dependency>
 
 		<!-- Jersey -->
@@ -282,6 +288,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
+			<version>1.5.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.logging</groupId>
+			<artifactId>pax-logging-service</artifactId>
 			<version>1.5.3</version>
 			<scope>provided</scope>
 		</dependency>

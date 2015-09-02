@@ -12,7 +12,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;

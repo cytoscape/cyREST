@@ -1,4 +1,4 @@
-package org.cytoscape.rest;
+package org.cytoscape.rest.internal;
 
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;

@@ -37,9 +37,9 @@ public final class GrizzlyServerManager {
 	private final static Logger logger = LoggerFactory.getLogger(GrizzlyServerManager.class);
 
 	public static final String PORT_NUMBER_PROP = "rest.port";
+	public static final Integer DEF_PORT_NUMBER = 1234;
 	
 	private String baseURL = "http://0.0.0.0";
-	private Integer DEF_PORT_NUMBER = 1234;
 	private Integer portNumber = DEF_PORT_NUMBER;
 
 	private final Binder binder;

@@ -531,7 +531,7 @@ public class NetworkViewResource extends AbstractResource {
 				if (objectType.equals("nodes")) {
 					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 				} else if (objectType.equals("edges")) {
-					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+					view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
 				} else if(objectType.equals("network")) {
 					view = networkView;
 				} else {
@@ -812,7 +812,6 @@ public class NetworkViewResource extends AbstractResource {
 		} else if(objectType.equals("edges")) {
 			vps = edgeLexicon;
 		} else if(objectType.equals("network")) {
-			System.out.println("=============This is NETWORK = ");
 			vps = networkLexicon;
 		}
 		

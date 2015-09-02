@@ -3,7 +3,6 @@ package org.cytoscape.rest.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.work.ServiceProperties;

@@ -22,7 +22,6 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.rest.TaskFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.GrizzlyServerManager;
@@ -133,6 +132,10 @@ public class CyActivator extends AbstractCyActivator {
 		
 		if (clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP) != null)
 			restPortNumber = clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP);
+		
+		if(restPortNumber == null) {
+			restPortNumber = GrizzlyServerManager.DEF_PORT_NUMBER.toString();
+		}
 		
 		// Set Port number
 		cyPropertyServiceRef.getProperties().setProperty(GrizzlyServerManager.PORT_NUMBER_PROP, restPortNumber);

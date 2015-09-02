@@ -29,7 +29,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.rest.TaskFactoryManager;
+import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;

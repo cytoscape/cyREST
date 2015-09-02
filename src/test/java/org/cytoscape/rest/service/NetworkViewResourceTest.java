@@ -6,8 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
+import java.awt.Event;
 import java.awt.Paint;
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -390,6 +392,43 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		stream.close();
 		return result;
 	}
+	
+	private final String createEdgeViewJson(final Collection<CyEdge> edges) throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+		
+		for(CyEdge edge: edges) {
+			generator.writeStartObject();
+			
+			generator.writeNumberField("SUID", edge.getSUID());
+			
+			generator.writeArrayFieldStart("view");
+			generator.writeStartObject();
+			generator.writeStringField("visualProperty", "EDGE_WIDTH");
+			generator.writeNumberField("value", 22);
+			generator.writeEndObject();
+
+			generator.writeStartObject();
+			generator.writeStringField("visualProperty", "EDGE_STROKE_UNSELECTED_PAINT");
+			generator.writeStringField("value", "#00FF00");
+			generator.writeEndObject();
+			generator.writeEndArray();
+
+			generator.writeEndObject();
+		}
+
+		generator.writeEndArray();
+		generator.close();
+		
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
 	@Test
 	public void testUpdateViews() throws Exception {
 		final List<CyNode> nodes = network.getNodeList();
@@ -415,8 +454,24 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		
 		assertEquals((Double)130.0, nv1.getVisualProperty(BasicVisualLexicon.NODE_SIZE));
 		assertEquals(Color.YELLOW, nv1.getVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR));
+		
+		// Test bulk-update edges
+		final String newEdgeVal = createEdgeViewJson(network.getEdgeList());
+		entity = Entity.entity(newEdgeVal, MediaType.APPLICATION_JSON_TYPE);
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/edges").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		view.getEdgeViews().stream()
+			.forEach(ev->testUpdateEdgeViewsResult(ev));
 	}
 	
+	private final void testUpdateEdgeViewsResult(final View<CyEdge> ev) {
+		assertEquals((Double)22.0, ev.getVisualProperty(BasicVisualLexicon.EDGE_WIDTH));
+		assertEquals(Color.green, ev.getVisualProperty(BasicVisualLexicon.EDGE_STROKE_UNSELECTED_PAINT));
+	}
 	
 	@Test
 	public void testDeleteAllNetworkViews() throws Exception {

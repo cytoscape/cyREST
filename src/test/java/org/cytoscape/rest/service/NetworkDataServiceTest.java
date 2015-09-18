@@ -25,13 +25,11 @@ import org.junit.Test;
 public class NetworkDataServiceTest {
 
 	private final NetworkViewTestSupport testSupport = new NetworkViewTestSupport();
-	private CyNetwork network;
 
 	private NetworkResource nds = new NetworkResource();
 
 	@Before
 	public void setUp() throws Exception {
-		network = buildNetwork();
 		nds = new NetworkResource();
 		assertNotNull(nds);
 		
@@ -42,8 +40,6 @@ public class NetworkDataServiceTest {
 	}
 	
 	private final void createServer() {
-		
-		
 		CyNetworkFactory networkFactory = testSupport.getNetworkFactory();
 		CyNetworkManager networkManager = testSupport.getNetworkManager();
 		CyNetworkViewFactory networkViewFactory = testSupport.getNetworkViewFactory();

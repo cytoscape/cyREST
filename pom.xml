@@ -13,7 +13,7 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>3.2.1</cytoscape.api.version>
+		<cytoscape.api.version>3.3.0-SNAPSHOT</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -42,6 +42,19 @@
 			<url>http://nexus.qmino.com/content/repositories/miredot</url>
 		</repository>
 	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Internal Releases</name>
+			<url>http://code.cytoscape.org/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://code.cytoscape.org/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<pluginRepositories>
 		<pluginRepository>

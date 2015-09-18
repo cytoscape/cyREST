@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -18,6 +19,7 @@ import java.util.Set;
 import javax.ws.rs.core.Context;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
@@ -82,6 +84,7 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.presentation.RenderingEngineFactory;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
@@ -93,7 +96,6 @@ import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
-import org.cytoscape.view.vizmap.internal.VisualLexiconManager;
 import org.cytoscape.view.vizmap.internal.VisualStyleFactoryImpl;
 import org.cytoscape.view.vizmap.internal.mappings.ContinuousMappingFactory;
 import org.cytoscape.view.vizmap.internal.mappings.DiscreteMappingFactory;
@@ -115,6 +117,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.mockito.Mockito;
 
 public class BasicResourceTest extends JerseyTest {
 
@@ -274,24 +277,32 @@ public class BasicResourceTest extends JerseyTest {
 
 
 	private final VisualStyle generateVisualStyle(final VisualLexicon lexicon) {
-
-		final VisualLexiconManager lexManager = mock(VisualLexiconManager.class);
-		final Set<VisualLexicon> lexSet = new HashSet<VisualLexicon>();
-		lexSet.add(lexicon);
-		final Collection<VisualProperty<?>> nodeVP = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
-		final Collection<VisualProperty<?>> edgeVP = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
-		when(lexManager.getNodeVisualProperties()).thenReturn(nodeVP);
-		when(lexManager.getEdgeVisualProperties()).thenReturn(edgeVP);
-
-		when(lexManager.getAllVisualLexicon()).thenReturn(lexSet);
-
-		final CyServiceRegistrar serviceRegistrar = mock(CyServiceRegistrar.class);
+		final Set lexiconSet = Collections.singleton(lexicon);
+		
+		final VisualMappingManager vmMgr = mock(VisualMappingManager.class);
+		when(vmMgr.getAllVisualLexicon()).thenReturn(lexiconSet);
+		
 		final VisualMappingFunctionFactory ptFactory = mock(VisualMappingFunctionFactory.class);
-		final CyEventHelper eventHelper = mock(CyEventHelper.class);
-		final VisualStyleFactoryImpl visualStyleFactory = new VisualStyleFactoryImpl(lexManager, serviceRegistrar,
-				ptFactory, eventHelper);
+		
+		CyServiceRegistrar serviceRegistrar = mock(CyServiceRegistrar.class);
+		CyEventHelper eventHelper = mock(CyEventHelper.class);
+		
+		RenderingEngineFactory engineFactory = mock(RenderingEngineFactory.class);
+		when(engineFactory.getVisualLexicon()).thenReturn(lexicon);
+		
+		NetworkViewRenderer netViewRenderer = mock(NetworkViewRenderer.class);
+		when(netViewRenderer.getRenderingEngineFactory(Mockito.anyString())).thenReturn(engineFactory);
+		
+		CyApplicationManager applicationMgr = mock(CyApplicationManager.class);
+		when(applicationMgr.getCurrentNetworkViewRenderer()).thenReturn(netViewRenderer);
+		
+		when(serviceRegistrar.getService(CyEventHelper.class)).thenReturn(eventHelper);
+		when(serviceRegistrar.getService(VisualMappingManager.class)).thenReturn(vmMgr);
+		when(serviceRegistrar.getService(CyApplicationManager.class)).thenReturn(applicationMgr);
+		
+		VisualStyleFactory vsFactory = new VisualStyleFactoryImpl(serviceRegistrar, ptFactory);
 
-		return visualStyleFactory.createVisualStyle("vs1");
+		return vsFactory.createVisualStyle("vs1");
 	}
 
 	private final void setDefaults() {

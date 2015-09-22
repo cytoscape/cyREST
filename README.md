@@ -9,6 +9,7 @@
 ![](http://cl.ly/Xemf/networkx_cytoscape.png)
 
 ## Introduction
+### Important: From Cytoscape 3.3.0, cyREST is a Core App.
 
 ### In One Sentence
 __An application to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://www.rstudio.com/), [IPython Notebook](http://ipython.org/notebook.html), [Node.js](http://nodejs.org/) or other programming languages.__

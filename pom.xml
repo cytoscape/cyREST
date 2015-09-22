@@ -34,6 +34,17 @@
 			<name>Cytoscape Releases</name>
 			<url>http://code.cytoscape.org/nexus/content/repositories/releases/</url>
 		</repository>
+		<repository>
+			<id>cytoscape_snapshots</id>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<name>Cytoscape Snapshots</name>
+			<url>http://code.cytoscape.org/nexus/content/repositories/snapshots/</url>
+		</repository>
 
 		<!-- For API document generation -->
 		<repository>
@@ -66,8 +77,8 @@
 
 	<!-- SCM Information. Currently hosted at GitHub. -->
 	<scm>
-		<connection>scm:https://github.com/idekerlab/cyREST.git</connection>
-		<developerConnection>scm:git@github.com:idekerlab/cyREST.git</developerConnection>
+		<connection>scm:https://github.com/cytoscape/cyREST.git</connection>
+		<developerConnection>scm:git@github.com:cytoscape/cyREST.git</developerConnection>
 	</scm>
 
 	<build>

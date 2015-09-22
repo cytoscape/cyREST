@@ -2,14 +2,32 @@
 
 # cyREST: a language-agnostic RESTful API for Cytoscape
 
-[![Build Status](https://travis-ci.org/idekerlab/cyREST.svg?branch=develop)](https://travis-ci.org/idekerlab/cyREST)
+[![Build Status](https://travis-ci.org/cytoscape/cyREST.svg?branch=master)](https://travis-ci.org/cytoscape/cyREST)
 
-[![Coverage Status](https://coveralls.io/repos/idekerlab/cyREST/badge.svg)](https://coveralls.io/r/idekerlab/cyREST)
+[![Coverage Status](https://coveralls.io/repos/cytoscape/cyREST/badge.svg)](https://coveralls.io/r/cytoscape/cyREST)
 
 ![](http://cl.ly/Xemf/networkx_cytoscape.png)
 
+----
+
+# Citation
+__We need your support to make this project sustainable__.  Please cite the following paper when you use cyREST in your projects:
+
+> Ono, Keiichiro, et al. [CyREST: Turbocharging Cytoscape Access for External Tools via a RESTful API](http://f1000research.com/articles/4-478/v1). F1000Research 4 (2015).
+
+
+----
+
 ## Introduction
-### Important: From Cytoscape 3.3.0, cyREST is a Core App.
+
+### Important: Now cyREST is a Core App
+From Cytoscape 3.3.0, cyREST is a part of core distribution, as a ___Core App___.  The main differences are the following:
+
+* You don't have to install cyREST manually.  It is installed by default
+* API 
+* Although it is part of core distribution, you will get updates after 3.3.0 release
+* Code repository had been moved to the Cytoscape Consortium GitHub account
+
 
 ### In One Sentence
 __An application to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://www.rstudio.com/), [IPython Notebook](http://ipython.org/notebook.html), [Node.js](http://nodejs.org/) or other programming languages.__
@@ -42,9 +60,6 @@ And of course, pull requests are always welcome!
 ## License
 * Source Code: [The MIT license](http://opensource.org/licenses/MIT)
 * Documentation: [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
-
-## Cite cyREST
-(TBD)
 
 ----
 &copy; 2014-2015 [Cytoscape Consortium](http://www.cytoscape.org/).  Developed and maintained by [Keiichiro Ono](http://keiono.github.io/), [UCSD Trey Ideker Lab](http://idekerlab.ucsd.edu/Pages/default.aspx).

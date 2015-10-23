@@ -168,7 +168,6 @@ public class UIResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response getPanelStatus(@PathParam("panelName") String panelName) {
 		final CytoPanelName panel = CytoPanelName.valueOf(panelName);
-		System.out.println(panel);
 		if(panel == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}

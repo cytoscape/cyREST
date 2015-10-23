@@ -275,8 +275,7 @@ public class CommandResource implements PaxAppender, TaskObserver {
 	}
 
 	public void doAppend(PaxLoggingEvent event) {
-		System.out
-				.println(event.getLevel().toInt() + ": " + event.getMessage());
+		// System.out.println(event.getLevel().toInt() + ": " + event.getMessage());
 		// Get prefix
 		// Handle levels
 		if (!processingCommand) {

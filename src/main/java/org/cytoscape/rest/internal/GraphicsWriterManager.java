@@ -25,7 +25,6 @@ public class GraphicsWriterManager {
 		final Set<String> ext = ff.getExtensions();
 		
 		final String firstExt = ext.iterator().next();
-		System.out.println("Got writer: " + firstExt);
 		
 		factories.put(firstExt, factory);
 	}

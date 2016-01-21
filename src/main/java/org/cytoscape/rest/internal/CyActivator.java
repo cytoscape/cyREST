@@ -2,6 +2,8 @@ package org.cytoscape.rest.internal;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
@@ -82,7 +84,11 @@ public class CyActivator extends AbstractCyActivator {
 		super();
 	}
 
+	
 	public void start(BundleContext bc) {
+
+		logger.info("Initializing cyREST API server...");
+		long start = System.currentTimeMillis();
 
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
@@ -191,12 +197,21 @@ public class CyActivator extends AbstractCyActivator {
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager);
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
-		try {
-			this.grizzlyServerManager.startServer();
-		} catch (Exception e) {
-			logger.error("Could not start server!", e);
-			e.printStackTrace();
-		}
+		
+		logger.info("cyREST dependency import took: " + (System.currentTimeMillis() - start) + " msec.");
+	
+		// Start Grizzly server in separate thread
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		service.submit(()-> {
+			try {
+				this.grizzlyServerManager.startServer();
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.warn("Failed to initialize cyREST server.", e);
+			}
+		});
+		
+		logger.info("cyREST initialized in " + (System.currentTimeMillis() - start) + " msec.");
 	}
 
 	@Override

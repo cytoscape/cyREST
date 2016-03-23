@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
 public class CyActivator extends AbstractCyActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
+	private static final Integer MAX_RETRY = 5;
+	private static final Integer INTERVAL = 5000; // Seconds
 
 	public class WriterListener {
 
@@ -87,8 +89,27 @@ public class CyActivator extends AbstractCyActivator {
 	
 	public void start(BundleContext bc) {
 
+		System.out.println("======= cyREST Initialization start ======");
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
+	
+		// Start Grizzly server in separate thread
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		service.submit(()-> {
+			try {
+				this.initDependencies(bc);
+				
+				this.grizzlyServerManager.startServer();
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.warn("Failed to initialize cyREST server.", e);
+			}
+		});
+		logger.info("cyREST dependency import took: " + (System.currentTimeMillis() - start) + " msec.");
+	}
+	
+	
+	private final void initDependencies(final BundleContext bc) throws Exception {
 
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
@@ -149,10 +170,30 @@ public class CyActivator extends AbstractCyActivator {
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
-		final CyNetworkViewWriterFactory cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
-				"(id=cytoscapejsNetworkWriterFactory)");
-		final InputStreamTaskFactory cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
-				"(id=cytoscapejsNetworkReaderFactory)");
+		
+			
+		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = null;
+		InputStreamTaskFactory cytoscapeJsReaderFactory = null;
+		
+		Boolean jsonDependencyFound = false;
+		Integer retryCount = 0;
+		while(jsonDependencyFound == false && retryCount <= MAX_RETRY) {
+			try {
+				cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
+						"(id=cytoscapejsNetworkWriterFactory)");
+				cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
+						"(id=cytoscapejsNetworkReaderFactory)");
+				jsonDependencyFound = true;
+			} catch(Exception ex) {
+				System.out.println("Retry: " + retryCount);
+				Thread.sleep(INTERVAL);
+			}
+			retryCount++;
+		}
+		
+		if(jsonDependencyFound == false) {
+			throw new IllegalStateException("Could not find dependency: JSON support services are missing.");
+		}
 		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
@@ -198,21 +239,9 @@ public class CyActivator extends AbstractCyActivator {
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager);
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 		
-		logger.info("cyREST dependency import took: " + (System.currentTimeMillis() - start) + " msec.");
-	
-		// Start Grizzly server in separate thread
-		final ExecutorService service = Executors.newSingleThreadExecutor();
-		service.submit(()-> {
-			try {
-				this.grizzlyServerManager.startServer();
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.warn("Failed to initialize cyREST server.", e);
-			}
-		});
 		
-		logger.info("cyREST initialized in " + (System.currentTimeMillis() - start) + " msec.");
 	}
+	
 
 	@Override
 	public void shutDown() {

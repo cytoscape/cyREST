@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.read.AbstractCyNetworkReader;
 import org.cytoscape.io.read.CyNetworkReader;
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyIdentifiable;
@@ -62,9 +63,12 @@ import com.qmino.miredot.annotations.ReturnType;
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
 	
+	private static final String CX_READER_ID = "cytoscapeCxNetworkReaderFactory";
+	private static final String CX_FORMAT = "cx";
+	
 	@Context
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
-
+	
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
 
@@ -837,7 +841,7 @@ public class NetworkResource extends AbstractResource {
 		// 1. If source is URL, load from the array of URL
 		if (source != null && source.equals(JsonTags.URL)) {
 			try {
-				return loadNetwork(collection, is);
+				return loadNetwork(format, collection, is);
 			} catch (IOException e) {
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
@@ -960,17 +964,32 @@ public class NetworkResource extends AbstractResource {
 	}
 
 
-	private final String loadNetwork(final String collectionName, final InputStream is) throws IOException {
+	private final String loadNetwork(final String format, final String collectionName, final InputStream is) throws IOException {
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-
+		
+		CyNetwork[] networks = null;
+		CyNetworkReader cxReader = null;
+		
 		final Map<String, Long[]> results = new HashMap<String, Long[]>();
 		// Input should be array of URLs.
 		for (final JsonNode node : rootNode) {
 			final String sourceUrl = node.asText();
-			TaskIterator itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
+			
+			TaskIterator itr = null;
+			if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+				// Special case: load as CX
+				System.out.println("###### THIS IS CX: " + sourceUrl);
+				
+				InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
+				final URL source = new URL(sourceUrl);
+				itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
+			} else {
+				itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
+			}
+			
 			CyNetworkReader currentReader = null;
-
+			
 			while (itr.hasNext()) {
 				final Task task = itr.next();
 				try {
@@ -979,8 +998,11 @@ public class NetworkResource extends AbstractResource {
 						if(currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
 							((AbstractCyNetworkReader)currentReader).getRootNetworkList().setSelectedValue(collectionName);
 						}
+						System.out.println("###### THIS is a NETWORK reader: " + sourceUrl);
+						cxReader = currentReader;
 						currentReader.run(new HeadlessTaskMonitor());
 					} else {
+						System.out.println("$$$$$$$$$$ THIS is NOT a NETWORK reader: " + sourceUrl);
 						task.run(new HeadlessTaskMonitor());
 					}
 				} catch (Exception e) {
@@ -988,11 +1010,15 @@ public class NetworkResource extends AbstractResource {
 				}
 			}
 
-			final CyNetwork[] networks = currentReader.getNetworks();
+			networks = currentReader.getNetworks();
+			System.out.println("###### GET NETWORKs: " + networks.length);
+			
 			final Long[] suids = new Long[networks.length];
 			int counter = 0;
 			for (CyNetwork network : networks) {
+				
 				if(collectionName != null) {
+					System.out.println("@@@@@@@@NETWORKs " + network.getNodeCount());
 					final CyRootNetwork rootNetwork = ((CySubNetwork)network).getRootNetwork();
 					rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
 				}
@@ -1002,6 +1028,10 @@ public class NetworkResource extends AbstractResource {
 			results.put(sourceUrl, suids);
 		}
 
+		if(format.equalsIgnoreCase(CX_FORMAT)) {
+			addNetwork(networks, cxReader, collectionName);
+		}
+		
 		is.close();
 		return generateNetworkLoadResults(results);
 	}

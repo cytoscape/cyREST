@@ -89,7 +89,6 @@ public class CyActivator extends AbstractCyActivator {
 	
 	public void start(BundleContext bc) {
 
-		System.out.println("======= cyREST Initialization start ======");
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
 	
@@ -185,7 +184,6 @@ public class CyActivator extends AbstractCyActivator {
 						"(id=cytoscapejsNetworkReaderFactory)");
 				jsonDependencyFound = true;
 			} catch(Exception ex) {
-				System.out.println("Retry: " + retryCount);
 				Thread.sleep(INTERVAL);
 			}
 			retryCount++;
@@ -213,6 +211,8 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Get all compatible tasks
 		registerServiceListener(bc, taskFactoryManagerManager, "addTaskFactory", "removeTaskFactory", TaskFactory.class);
+		registerServiceListener(bc, taskFactoryManagerManager, 
+				"addInputStreamTaskFactory", "removeInputStreamTaskFactory", InputStreamTaskFactory.class);
 		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkTaskFactory", "removeNetworkTaskFactory",
 				NetworkTaskFactory.class);
 		registerServiceListener(bc, taskFactoryManagerManager, "addNetworkCollectionTaskFactory",

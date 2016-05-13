@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal;
 
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.work.TaskFactory;
@@ -18,5 +19,6 @@ public interface TaskFactoryManager {
 	
 	NetworkCollectionTaskFactory getNetworkCollectionTaskFactory(final String id);
 
+	InputStreamTaskFactory getInputStreamTaskFactory(final String id);
 
 }

@@ -8,6 +8,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
@@ -79,7 +80,9 @@ public final class GrizzlyServerManager {
 					NetworkNameResource.class,
 					UIResource.class,
 					// For Commands
-					CommandResource.class);
+					CommandResource.class,
+					CORSFilter.class);
+			
 			rc.registerInstances(binder).packages("org.glassfish.jersey.examples.jackson")
 					.register(JacksonFeature.class);
 

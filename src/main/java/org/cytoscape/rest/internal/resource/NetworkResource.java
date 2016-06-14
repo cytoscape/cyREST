@@ -979,8 +979,6 @@ public class NetworkResource extends AbstractResource {
 			TaskIterator itr = null;
 			if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 				// Special case: load as CX
-				System.out.println("###### THIS IS CX: " + sourceUrl);
-				
 				InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
 				final URL source = new URL(sourceUrl);
 				itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
@@ -998,11 +996,9 @@ public class NetworkResource extends AbstractResource {
 						if(currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
 							((AbstractCyNetworkReader)currentReader).getRootNetworkList().setSelectedValue(collectionName);
 						}
-						System.out.println("###### THIS is a NETWORK reader: " + sourceUrl);
 						cxReader = currentReader;
 						currentReader.run(new HeadlessTaskMonitor());
 					} else {
-						System.out.println("$$$$$$$$$$ THIS is NOT a NETWORK reader: " + sourceUrl);
 						task.run(new HeadlessTaskMonitor());
 					}
 				} catch (Exception e) {
@@ -1011,14 +1007,12 @@ public class NetworkResource extends AbstractResource {
 			}
 
 			networks = currentReader.getNetworks();
-			System.out.println("###### GET NETWORKs: " + networks.length);
 			
 			final Long[] suids = new Long[networks.length];
 			int counter = 0;
 			for (CyNetwork network : networks) {
 				
 				if(collectionName != null) {
-					System.out.println("@@@@@@@@NETWORKs " + network.getNodeCount());
 					final CyRootNetwork rootNetwork = ((CySubNetwork)network).getRootNetwork();
 					rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
 				}

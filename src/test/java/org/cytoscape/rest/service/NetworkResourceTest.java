@@ -517,7 +517,43 @@ public class NetworkResourceTest extends BasicResourceTest {
 		stream.close();
 		return result;
 	}
+	
+	private final String createNetworkListJson() throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+		
+		// Entry 1
+		generator.writeStartObject();
+		generator.writeStringField("source_location", "https://raw.githubusercontent.com/cytoscape/cytoscape-impl/develop/io-impl/impl/src/test/resources/testData/sif/sample.sif");
+		generator.writeStringField("source_method", "GET");
+		generator.writeStringField("ndex_uuid", "12345");
+		generator.writeEndObject();
+		
+		
+		generator.writeEndArray();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
 
+	@Test
+	public void testCreateNetworkFromUrl() throws Exception {
+		
+		final String newVal = createNetworkListJson();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks").request().post(entity);
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		System.out.println("res: " + result.toString());
+	}
+	
 	@Test
 	public void testCreateNetwork() throws Exception {
 		

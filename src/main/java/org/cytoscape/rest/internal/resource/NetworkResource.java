@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.resource;
 
+import java.awt.RenderingHints.Key;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.io.read.AbstractCyNetworkReader;
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.read.InputStreamTaskFactory;
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyIdentifiable;
@@ -964,18 +967,57 @@ public class NetworkResource extends AbstractResource {
 	}
 
 
+	private final Map<String, Map<String, Object>> getNetworkProps(JsonNode root) {
+		
+		final Map<String, Map<String, Object>> result=new HashMap<>();
+		
+		for (final JsonNode node : root) {
+			String sourceUrl = null; 
+			if(node.isObject()) {
+				System.out.println("### OBJ: " + node);
+				Iterator<String> names = node.fieldNames();
+				final Map<String, Object> networkPropMap = new HashMap<>();
+				while(names.hasNext()) {
+					final String name = names.next();
+					if(name.equals("source_location")) {
+						sourceUrl = node.get(name).asText();
+					}
+					networkPropMap.put(name, node.get(name).asText());
+				}
+				if(sourceUrl == null) {
+					throw new IllegalArgumentException("Missing source");
+				} else {
+					result.put(sourceUrl, networkPropMap);
+				}
+				System.out.println("OBJ Map: " + networkPropMap);
+				
+				System.out.println("URL: " + sourceUrl);
+			} else {
+				System.out.println("!!!!!!!!NOT OBJ: " + node);
+				sourceUrl = node.asText();
+				result.put(sourceUrl, null);
+			}
+		}
+		
+		System.out.println(result);
+		return result;
+		
+	}
+	
 	private final String loadNetwork(final String format, final String collectionName, final InputStream is) throws IOException {
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+		final Map<String, Map<String, Object>> netProps = getNetworkProps(rootNode);
 		
 		CyNetwork[] networks = null;
 		CyNetworkReader cxReader = null;
 		
 		final Map<String, Long[]> results = new HashMap<String, Long[]>();
 		// Input should be array of URLs.
-		for (final JsonNode node : rootNode) {
-			final String sourceUrl = node.asText();
+		for (String sourceUrl: netProps.keySet()) {
 			
+			System.out.println("\n\nLoading: " + sourceUrl);
+
 			TaskIterator itr = null;
 			if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 				// Special case: load as CX
@@ -1017,6 +1059,16 @@ public class NetworkResource extends AbstractResource {
 					rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
 				}
 				suids[counter] = network.getSUID();
+				
+				// Add props
+				final Map<String, Object> propMap = netProps.get(sourceUrl);
+				
+				if(propMap != null) {
+					propMap.keySet().stream()
+						.forEach(key -> setNetworkProps(key, propMap.get(key), network));
+				} else {
+					setNetworkProps("source_location", sourceUrl, network);
+				}
 				counter++;
 			}
 			results.put(sourceUrl, suids);
@@ -1028,6 +1080,18 @@ public class NetworkResource extends AbstractResource {
 		
 		is.close();
 		return generateNetworkLoadResults(results);
+	}
+	
+	private void setNetworkProps(String key, Object value, CyNetwork network) {
+		final CyColumn col = network.getDefaultNetworkTable().getColumn(key);
+		if(col == null) {
+			network.getDefaultNetworkTable().createColumn(key, String.class, true);
+		}
+		
+		System.out.println("@@@@@@Creating col: " + key);
+		System.out.println("VAL: " + value);
+		
+		network.getRow(network).set(key, value.toString());
 	}
 
 	private final String generateNetworkLoadResults(final Map<String, Long[]> results) {

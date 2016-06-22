@@ -1,11 +1,11 @@
 package org.cytoscape.rest.internal.resource;
 
-import java.awt.RenderingHints.Key;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +61,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qmino.miredot.annotations.ReturnType;
+
 
 @Singleton
 @Path("/v1/networks")
@@ -1004,20 +1005,19 @@ public class NetworkResource extends AbstractResource {
 		
 	}
 	
-	private final String loadNetwork(final String format, final String collectionName, final InputStream is) throws IOException {
+	private final String loadNetwork(final String format, final String collection, final InputStream is) throws IOException {
+		String collectionName = collection;
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 		final Map<String, Map<String, Object>> netProps = getNetworkProps(rootNode);
 		
 		CyNetwork[] networks = null;
+		final List<CyNetwork> cxNetworks = new ArrayList<>();
 		CyNetworkReader cxReader = null;
 		
 		final Map<String, Long[]> results = new HashMap<String, Long[]>();
 		// Input should be array of URLs.
 		for (String sourceUrl: netProps.keySet()) {
-			
-			System.out.println("\n\nLoading: " + sourceUrl);
-
 			TaskIterator itr = null;
 			if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 				// Special case: load as CX
@@ -1049,6 +1049,7 @@ public class NetworkResource extends AbstractResource {
 			}
 
 			networks = currentReader.getNetworks();
+			cxNetworks.addAll(Arrays.asList(networks));
 			
 			final Long[] suids = new Long[networks.length];
 			int counter = 0;
@@ -1074,10 +1075,13 @@ public class NetworkResource extends AbstractResource {
 			results.put(sourceUrl, suids);
 		}
 
+		System.out.println("@@@@@@NETWORKS list len: " + cxNetworks.size());
 		if(format.equalsIgnoreCase(CX_FORMAT)) {
-			addNetwork(networks, cxReader, collectionName);
+			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
+			addNetwork(cxArray, cxReader, collectionName);
 		}
 		
+		System.out.println("@@@@@@NETWORKS: " + networks.length);
 		is.close();
 		return generateNetworkLoadResults(results);
 	}

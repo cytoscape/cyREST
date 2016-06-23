@@ -841,12 +841,18 @@ public class NetworkResource extends AbstractResource {
 			@QueryParam("source") String source, @QueryParam("format") String format, 
 			@QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
+		
+		
+		applicationManager.setCurrentNetworkView(null);
+		applicationManager.setCurrentNetwork(null);
 
 		// 1. If source is URL, load from the array of URL
 		if (source != null && source.equals(JsonTags.URL)) {
 			try {
 				return loadNetwork(format, collection, is);
-			} catch (IOException e) {
+			} catch (Exception e) {
+				System.out.println("=================== Error@@@@@@@@@@@@@@");
+				e.printStackTrace();
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
@@ -1005,7 +1011,10 @@ public class NetworkResource extends AbstractResource {
 		
 	}
 	
-	private final String loadNetwork(final String format, final String collection, final InputStream is) throws IOException {
+	private final String loadNetwork(final String format, final String collection, final InputStream is) throws Exception {
+		applicationManager.setCurrentNetworkView(null);
+		applicationManager.setCurrentNetwork(null);
+		
 		String collectionName = collection;
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
@@ -1036,6 +1045,15 @@ public class NetworkResource extends AbstractResource {
 					if (task instanceof CyNetworkReader) {
 						currentReader = (CyNetworkReader) task;
 						if(currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
+							
+							Set<CyNetwork> netSet = networkManager.getNetworkSet();
+							for(CyNetwork net: netSet) {
+								CyRootNetwork rootNet = cyRootNetworkManager.getRootNetwork(net);
+								
+								System.out.println("\n* Root for " + net.getSUID() + " is " + rootNet.getSUID());
+							}
+							List<String> vals = ((AbstractCyNetworkReader)currentReader).getRootNetworkList().getPossibleValues();
+							System.out.println("\n\n" + vals);
 							((AbstractCyNetworkReader)currentReader).getRootNetworkList().setSelectedValue(collectionName);
 						}
 						cxReader = currentReader;
@@ -1076,7 +1094,7 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		System.out.println("@@@@@@NETWORKS list len: " + cxNetworks.size());
-		if(format.equalsIgnoreCase(CX_FORMAT)) {
+		if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
 			addNetwork(cxArray, cxReader, collectionName);
 		}

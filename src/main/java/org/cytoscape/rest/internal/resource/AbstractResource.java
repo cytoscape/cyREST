@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -116,6 +117,10 @@ public abstract class AbstractResource {
 
 	@Context
 	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
+	
+	@Named("cxWriterFactory")
+	@Context
+	protected CyNetworkViewWriterFactory cxWriterFactory;
 
 	@Context
 	protected WriterListener vizmapWriterFactoryListener;

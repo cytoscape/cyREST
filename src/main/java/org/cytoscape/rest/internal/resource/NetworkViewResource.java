@@ -264,6 +264,30 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 	
+	@GET
+	@Path("/{viewId}.cx")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNetworkViewAsCx(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
+			@QueryParam("file") String file) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		
+		CyNetworkView targetView = null;
+		for (final CyNetworkView view : views) {
+			final Long vid = view.getSUID();
+			if (vid.equals(viewId)) {
+				targetView = view;
+				break;
+			}
+		}
+		
+		if(targetView == null) {
+			return Response.ok("{}").build();
+		} else {
+			System.out.println("--------------- This is CX -----------------");
+			return Response.ok(getNetworkViewStringAsCX(targetView)).build();
+		}
+	}
+	
 	private final Map<String, String> writeNetworkFile(String file, CyNetworkView view) {
 		File networkFile = null;
 		try {
@@ -310,6 +334,20 @@ public class NetworkViewResource extends AbstractResource {
 	private final String getNetworkViewString(final CyNetworkView networkView) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, networkView);
+		String jsonString = null;
+		try {
+			writer.run(null);
+			jsonString = stream.toString("UTF-8");
+			stream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonString;
+	}
+	
+	private final String getNetworkViewStringAsCX(final CyNetworkView networkView) {
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		CyWriter writer = cxWriterFactory.createWriter(stream, networkView);
 		String jsonString = null;
 		try {
 			writer.run(null);

@@ -93,6 +93,8 @@ public class CyBinder extends AbstractBinder {
 	private final CommandExecutorTaskFactory ceTaskFactory;
 	private final SynchronousTaskManager<?> synchronousTaskManager;
 	
+	private final CyNetworkViewWriterFactory cxWriterFactory;
+	
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -113,7 +115,7 @@ public class CyBinder extends AbstractBinder {
 			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory,
 			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
-			final SynchronousTaskManager<?> synchronousTaskManager) {
+			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactory cxWriterFactory) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -152,6 +154,7 @@ public class CyBinder extends AbstractBinder {
 		this.available = available;
 		this.ceTaskFactory = ceTaskFactory;
 		this.synchronousTaskManager = synchronousTaskManager;
+		this.cxWriterFactory = cxWriterFactory;
 	}
 
 
@@ -192,6 +195,7 @@ public class CyBinder extends AbstractBinder {
 		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
 		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
 		bind(exportNetworkViewTaskFactory).to(ExportNetworkViewTaskFactory.class);
+		bind(cxWriterFactory).named("cxWriterFactory").to(CyNetworkViewWriterFactory.class);
 		
 		// For Command API
 		bind(available).to(AvailableCommands.class);

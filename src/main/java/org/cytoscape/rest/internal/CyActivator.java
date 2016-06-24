@@ -173,6 +173,8 @@ public class CyActivator extends AbstractCyActivator {
 			
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = null;
 		InputStreamTaskFactory cytoscapeJsReaderFactory = null;
+		CyNetworkViewWriterFactory cxWriterFactory = null;
+		
 		
 		Boolean jsonDependencyFound = false;
 		Integer retryCount = 0;
@@ -182,6 +184,8 @@ public class CyActivator extends AbstractCyActivator {
 						"(id=cytoscapejsNetworkWriterFactory)");
 				cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
 						"(id=cytoscapejsNetworkReaderFactory)");
+				cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
+						"(id=cxNetworkWriterFactory)");
 				jsonDependencyFound = true;
 			} catch(Exception ex) {
 				Thread.sleep(INTERVAL);
@@ -236,10 +240,8 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, cxWriterFactory);
 				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
-		
-		
 	}
 	
 

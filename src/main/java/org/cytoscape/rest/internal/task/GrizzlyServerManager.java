@@ -9,6 +9,7 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.CORSFilter;
+import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
@@ -79,6 +80,7 @@ public final class GrizzlyServerManager {
 					SessionResource.class,
 					NetworkNameResource.class,
 					UIResource.class,
+					CollectionResource.class,
 					// For Commands
 					CommandResource.class,
 					CORSFilter.class);

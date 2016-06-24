@@ -196,6 +196,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(vmm.getDefaultVisualStyle()).thenReturn(this.style);
 
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = mock(CyNetworkViewWriterFactory.class);
+		CyNetworkViewWriterFactory cxWriterFactory = mock(CyNetworkViewWriterFactory.class);
 		WriterListener writerListsner = mock(WriterListener.class);
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
@@ -251,7 +252,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager);
+				available, ceTaskFactory, synchronousTaskManager, cxWriterFactory);
 	}
 	
 	

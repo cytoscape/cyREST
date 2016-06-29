@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,10 +11,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -24,9 +28,8 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
 import org.cytoscape.rest.internal.serializer.TableModule;
-import org.cytoscape.view.model.CyNetworkView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
@@ -34,10 +37,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CollectionResource extends AbstractResource {
 
 	private final ObjectMapper mapper;
+	private final TableMapper tableMapper;
 
 	public CollectionResource() {
 		super();
 		mapper = new ObjectMapper();
+		this.tableMapper = new TableMapper();
 		this.mapper.registerModule(new TableModule());
 	}
 
@@ -123,6 +128,38 @@ public class CollectionResource extends AbstractResource {
 		tables.add(table);
 		
 		return getResponse(tables);
+	}
+	
+	private final CyTable getTable(Long networkId, final String tableType) {
+		final CyRootNetwork root = getRootNetwork(networkId);
+		if(tableType.equals("default")) {
+			return root.getDefaultNetworkTable();
+		} else if(tableType.equals("shared")) {
+			return root.getSharedNetworkTable();
+		} else {
+			return null;
+		}
+	}
+	
+	@PUT
+	@Path("/{networkId}/tables/{tableType}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateTable(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType, final InputStream is) {
+		final CyTable table = getTable(networkId, tableType);
+		if(table == null) {
+			throw getError("No such table type", new NullPointerException(), Response.Status.NOT_FOUND);
+		}
+		
+		try {
+			final JsonNode rootNode = mapper.readValue(is, JsonNode.class);
+			tableMapper.updateTableValues(rootNode, table);
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), 
+					e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.ok().build();
 	}
 
 	private final Response getCX(final Long networkId) {

@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,22 +12,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
+import javax.naming.spi.DirStateFactory.Result;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
+import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -130,6 +134,45 @@ public class CollectionResource extends AbstractResource {
 		return getResponse(tables);
 	}
 	
+	@GET
+	@Path("/{networkId}/tables/{tableType}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRootTable(@PathParam("networkId") Long networkId,
+			@PathParam("tableType") String tableType) {
+		return getResponse(getTable(networkId, tableType));
+	}
+	
+	@DELETE
+	@Path("/{networkId}/tables/{tableType}/columns/{columnName}")
+	public Response deleteColumn(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType,
+			@PathParam("columnName") String columnName) {
+		
+		final CyTable table = getTable(networkId, tableType);
+		if (table != null) {
+			table.deleteColumn(columnName);
+			return Response.ok().build();
+		} else {
+			throw getError("No such table type: " + tableType, 
+					new NullPointerException(), Response.Status.NOT_FOUND);
+		}
+	}
+	
+	@GET
+	@Path("/{networkId}/tables/{tableType}/columns")
+	public Response getColumns(@PathParam("networkId") Long networkId, 
+			@PathParam("tableType") String tableType) {
+		final CyTable table = getTable(networkId, tableType);
+		
+		try {
+			final String result = this.serializer.serializeColumns(table.getColumns());
+			return Response.ok(result).build();
+		} catch (Exception e) {
+			throw getError("Could not serialize column names.", 
+					e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	private final CyTable getTable(Long networkId, final String tableType) {
 		final CyRootNetwork root = getRootNetwork(networkId);
 		if(tableType.equals("default")) {
@@ -158,7 +201,6 @@ public class CollectionResource extends AbstractResource {
 			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), 
 					e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		
 		return Response.ok().build();
 	}
 

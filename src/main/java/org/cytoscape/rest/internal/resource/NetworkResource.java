@@ -842,7 +842,6 @@ public class NetworkResource extends AbstractResource {
 			@QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
 		
-		
 		applicationManager.setCurrentNetworkView(null);
 		applicationManager.setCurrentNetwork(null);
 

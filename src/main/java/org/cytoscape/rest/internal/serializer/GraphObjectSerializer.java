@@ -237,8 +237,9 @@ public class GraphObjectSerializer {
 	}
 
 	private final String replaceColumnName(final String columnName) {
-		final Matcher matcher = REPLACE_INVALID_JS_CHAR_PATTERN.matcher(columnName);
-		return matcher.replaceAll("_");
+		return columnName;
+//		final Matcher matcher = REPLACE_INVALID_JS_CHAR_PATTERN.matcher(columnName);
+//		return matcher.replaceAll("_");
 	}
 
 	private final void writeValue(final Class<?> type, final Object value, final JsonGenerator generator)

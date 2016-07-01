@@ -299,6 +299,9 @@ public class TableResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateTableValues(rootNode, table);
 		} catch (Exception e) {
+			
+			e.printStackTrace();
+			
 			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		

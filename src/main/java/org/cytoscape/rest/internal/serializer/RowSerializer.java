@@ -62,8 +62,9 @@ public class RowSerializer extends JsonSerializer<CyRow> {
 	}
 	
 	private final String replaceColumnName(final String columnName) {
-		final Matcher matcher = REPLACE_INVALID_JS_CHAR_PATTERN.matcher(columnName);
-		return matcher.replaceAll("_");
+		return columnName;
+//		final Matcher matcher = REPLACE_INVALID_JS_CHAR_PATTERN.matcher(columnName);
+//		return matcher.replaceAll("_");
 	}
 
 	private final void writeValue(final Class<?> type, Object value, JsonGenerator jgen)

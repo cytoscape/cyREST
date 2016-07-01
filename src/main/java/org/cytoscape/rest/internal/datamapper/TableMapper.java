@@ -186,17 +186,20 @@ public class TableMapper {
 					if(value == null) {
 						continue;
 					}
-					
-					CyColumn column = table.getColumn(field);
-					if (column == null) {
-						// Need to create new column.
-						final Class<?> type = getValueType(value);
-						if(type == List.class) {
-							// List is not supported.
-							continue;
-						}
-						table.createColumn(field, type, false);
+				
+					CyColumn column = null;
+					synchronized (this) {
 						column = table.getColumn(field);
+						if (column == null) {
+							// Need to create new column.
+							final Class<?> type = getValueType(value);
+							if (type == List.class) {
+								// List is not supported.
+								continue;
+							}
+							table.createColumn(field, type, false);
+							column = table.getColumn(field);
+						}
 					}
 					
 					try {

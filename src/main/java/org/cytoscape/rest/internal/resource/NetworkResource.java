@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
+import javax.swing.plaf.basic.DefaultMenuLayout;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -49,6 +51,8 @@ import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
+import org.cytoscape.view.layout.CyLayoutAlgorithm;
+import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualStyle;
@@ -75,6 +79,10 @@ public class NetworkResource extends AbstractResource {
 	
 	// Preset types
 	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
+	
+	@Context
+	@NotNull
+	private CyLayoutAlgorithmManager layoutManager;
 
 	public NetworkResource() {
 		super();
@@ -1075,7 +1083,7 @@ public class NetworkResource extends AbstractResource {
 
 		if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
-			addNetwork(cxArray, cxReader, collectionName);
+			addNetwork(cxArray, cxReader, collectionName, false);
 		}
 		
 		is.close();
@@ -1127,6 +1135,9 @@ public class NetworkResource extends AbstractResource {
 	}
 
 
+	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName) {
+		addNetwork(networks, reader, collectionName, true);
+	}
 	/**
 	 * Add network to the manager
 	 * 
@@ -1134,7 +1145,8 @@ public class NetworkResource extends AbstractResource {
 	 * @param reader
 	 * @param collectionName
 	 */
-	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName) {
+	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName,
+			final Boolean applyStyle) {
 
 		final VisualStyle style = vmm.getCurrentVisualStyle();
 		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
@@ -1159,13 +1171,17 @@ public class NetworkResource extends AbstractResource {
 			networkManager.addNetwork(network);
 
 			final int numGraphObjects = network.getNodeCount() + network.getEdgeCount();
-			int viewThreshold = 10000;
+			int viewThreshold = 100000;
 			if (numGraphObjects < viewThreshold) {
 				final CyNetworkView view = reader.buildCyNetworkView(network);
 				networkViewManager.addNetworkView(view);
-				vmm.setVisualStyle(style, view);
-				style.apply(view);
-
+				
+				if(applyStyle || vmm.getVisualStyle(view) == vmm.getDefaultVisualStyle()) {
+					final VisualStyle s2 = vmm.getDefaultVisualStyle();
+					vmm.setVisualStyle(s2, view);
+					s2.apply(view);
+				}
+				
 				if (!view.isSet(BasicVisualLexicon.NETWORK_CENTER_X_LOCATION)
 						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Y_LOCATION)
 						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Z_LOCATION))

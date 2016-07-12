@@ -30,7 +30,8 @@ __An app to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * [Cytoscape 3.3.0+](http://www.cytoscape.org/)
 
-# [Full documentation is available as Wiki](https://github.com/idekerlab/cyREST/wiki)
+## Documentation
+* [cyREST Wiki](https://github.com/cytoscape/cyREST/wiki)
 
 ## Problems or Feature Requests?
 Please send your feature requests to our [mailing list](https://groups.google.com/forum/#!forum/cytoscape-discuss).

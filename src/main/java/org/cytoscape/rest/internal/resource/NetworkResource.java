@@ -856,7 +856,7 @@ public class NetworkResource extends AbstractResource {
 		// 1. If source is URL, load from the array of URL
 		if (source != null && source.equals(JsonTags.URL)) {
 			try {
-				return loadNetwork(format, collection, is);
+				return loadNetworks(format, collection, is);
 			} catch (Exception e) {
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
@@ -1008,86 +1008,101 @@ public class NetworkResource extends AbstractResource {
 		return result;
 	}
 	
-	private final String loadNetwork(final String format, final String collection, final InputStream is) throws Exception {
+	private final String loadNetworks(final String format, final String collection, final InputStream is)
+			throws Exception {
 		applicationManager.setCurrentNetworkView(null);
 		applicationManager.setCurrentNetwork(null);
-		
+
 		String collectionName = collection;
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 		final Map<String, Map<String, Object>> netProps = getNetworkProps(rootNode);
-		
-		CyNetwork[] networks = null;
+
 		final List<CyNetwork> cxNetworks = new ArrayList<>();
-		CyNetworkReader cxReader = null;
-		
 		final Map<String, Long[]> results = new HashMap<String, Long[]>();
 		// Input should be array of URLs.
-		for (String sourceUrl: netProps.keySet()) {
-			TaskIterator itr = null;
-			if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
-				// Special case: load as CX
-				InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
-				final URL source = new URL(sourceUrl);
-				itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
-			} else {
-				itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
-			}
-			
-			CyNetworkReader currentReader = null;
-			
-			while (itr.hasNext()) {
-				final Task task = itr.next();
-				try {
-					if (task instanceof CyNetworkReader) {
-						currentReader = (CyNetworkReader) task;
-						if(currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
-							((AbstractCyNetworkReader)currentReader).getRootNetworkList().setSelectedValue(collectionName);
-						}
-						cxReader = currentReader;
-						currentReader.run(new HeadlessTaskMonitor());
-					} else {
-						task.run(new HeadlessTaskMonitor());
-					}
-				} catch (Exception e) {
-					throw new IOException("Could not execute network reader.", e);
-				}
-			}
-
-			networks = currentReader.getNetworks();
-			cxNetworks.addAll(Arrays.asList(networks));
-			
-			final Long[] suids = new Long[networks.length];
-			int counter = 0;
-			for (CyNetwork network : networks) {
-				
-				if(collectionName != null) {
-					final CyRootNetwork rootNetwork = ((CySubNetwork)network).getRootNetwork();
-					rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
-				}
-				suids[counter] = network.getSUID();
-				
-				// Add props
-				final Map<String, Object> propMap = netProps.get(sourceUrl);
-				
-				if(propMap != null) {
-					propMap.keySet().stream()
-						.forEach(key -> setNetworkProps(key, propMap.get(key), network));
-				} else {
-					setNetworkProps("source_location", sourceUrl, network);
-				}
-				counter++;
-			}
-			results.put(sourceUrl, suids);
+		CyNetworkReader cxReader = null;
+		for (final String url : netProps.keySet()) {
+			cxReader = loadNetworkFromUrl(format, url, collectionName, cxNetworks, results, netProps);
 		}
 
-		if(format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+			// Special case: CX
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
 			addNetwork(cxArray, cxReader, collectionName, false);
 		}
 		
 		is.close();
 		return generateNetworkLoadResults(results);
+	}
+	
+	private CyNetworkReader loadNetworkFromUrl(final String format, 
+			final String sourceUrl, final String collectionName,
+			final List<CyNetwork> cxNetworks,
+			final Map<String, Long[]> results, 
+			final Map<String, Map<String, Object>> netProps) throws IOException {
+		
+		System.out.println("******* Loading: " + sourceUrl);
+		
+		TaskIterator itr = null;
+		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+			// Special case: load as CX
+			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
+			final URL source = new URL(sourceUrl);
+			itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
+		} else {
+			itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
+		}
+
+		CyNetworkReader currentReader = null;
+		CyNetworkReader cxReader = null;
+
+		while (itr.hasNext()) {
+			final Task task = itr.next();
+			try {
+				if (task instanceof CyNetworkReader) {
+					currentReader = (CyNetworkReader) task;
+					if (currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
+						((AbstractCyNetworkReader) currentReader).getRootNetworkList().setSelectedValue(collectionName);
+					}
+					cxReader = currentReader;
+					currentReader.run(new HeadlessTaskMonitor());
+				} else {
+					task.run(new HeadlessTaskMonitor());
+				}
+			} catch (Exception e) {
+				throw new IOException("Could not execute network reader.", e);
+			}
+		}
+
+		final CyNetwork[] networks = currentReader.getNetworks();
+		cxNetworks.addAll(Arrays.asList(networks));
+
+		final Long[] suids = new Long[networks.length];
+		int counter = 0;
+		for (CyNetwork network : networks) {
+			System.out.println("******!! Network: " + network.getRow(network).get(CyNetwork.NAME, String.class));
+
+			// Override collection name
+			if (collectionName != null) {
+				final CyRootNetwork rootNetwork = ((CySubNetwork) network).getRootNetwork();
+				rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
+			}
+			suids[counter] = network.getSUID();
+
+			// Add props
+			final Map<String, Object> propMap = netProps.get(sourceUrl);
+
+			if (propMap != null) {
+				propMap.keySet().stream().forEach(key -> setNetworkProps(key, propMap.get(key), network));
+			} else {
+				setNetworkProps("source_location", sourceUrl, network);
+			}
+			counter++;
+		}
+		results.put(sourceUrl, suids);
+		
+		return cxReader;
 	}
 	
 	private void setNetworkProps(String key, Object value, CyNetwork network) {

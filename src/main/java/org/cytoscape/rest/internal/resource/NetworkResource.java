@@ -78,7 +78,7 @@ public class NetworkResource extends AbstractResource {
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 	
 	// Preset types
-	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
+//	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
 	
 	@Context
 	@NotNull
@@ -845,7 +845,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createNetwork(@DefaultValue(DEF_COLLECTION_PREFIX) @QueryParam("collection") String collection,
+	public String createNetwork(@QueryParam("collection") String collection,
 			@QueryParam("source") String source, @QueryParam("format") String format, 
 			@QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
@@ -870,10 +870,8 @@ public class NetworkResource extends AbstractResource {
 			userAgent = agent.get(0);
 		}
 		
-		final String collectionName;
-		if (collection == null) {
-			collectionName = DEF_COLLECTION_PREFIX + userAgent;
-		} else {
+		String collectionName = null;
+		if (collection != null) {
 			collectionName = collection;
 		}
 
@@ -1014,35 +1012,31 @@ public class NetworkResource extends AbstractResource {
 		applicationManager.setCurrentNetwork(null);
 
 		String collectionName = collection;
+
 		final ObjectMapper objMapper = new ObjectMapper();
 		final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 		final Map<String, Map<String, Object>> netProps = getNetworkProps(rootNode);
-
-		final List<CyNetwork> cxNetworks = new ArrayList<>();
 		final Map<String, Long[]> results = new HashMap<String, Long[]>();
+		final Map<Long, CyRootNetwork> sub2roots = new HashMap<>();
+
 		// Input should be array of URLs.
-		CyNetworkReader cxReader = null;
 		for (final String url : netProps.keySet()) {
-			cxReader = loadNetworkFromUrl(format, url, collectionName, cxNetworks, results, netProps);
+			loadNetworkFromUrl(format, url, collectionName, results, netProps, sub2roots);
 		}
 
-		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
-			// Special case: CX
-			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
-			addNetwork(cxArray, cxReader, collectionName, false);
-		}
-		
 		is.close();
 		return generateNetworkLoadResults(results);
 	}
 	
-	private CyNetworkReader loadNetworkFromUrl(final String format, 
+	private final void loadNetworkFromUrl(final String format, 
 			final String sourceUrl, final String collectionName,
-			final List<CyNetwork> cxNetworks,
 			final Map<String, Long[]> results, 
-			final Map<String, Map<String, Object>> netProps) throws IOException {
+			final Map<String, Map<String, Object>> netProps, 
+			final Map<Long, CyRootNetwork> sub2roots) throws IOException {
 		
 		System.out.println("******* Loading: " + sourceUrl);
+		
+		final List<CyNetwork> cxNetworks = new ArrayList<>();
 		
 		TaskIterator itr = null;
 		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
@@ -1054,20 +1048,24 @@ public class NetworkResource extends AbstractResource {
 			itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
 		}
 
-		CyNetworkReader currentReader = null;
-		CyNetworkReader cxReader = null;
+		CyNetworkReader reader = null;
 
 		while (itr.hasNext()) {
 			final Task task = itr.next();
 			try {
 				if (task instanceof CyNetworkReader) {
-					currentReader = (CyNetworkReader) task;
-					if (currentReader instanceof AbstractCyNetworkReader && collectionName != null) {
-						((AbstractCyNetworkReader) currentReader).getRootNetworkList().setSelectedValue(collectionName);
+					reader = (CyNetworkReader) task;
+					if(reader instanceof AbstractCyNetworkReader) {
+						// Set root name
+						AbstractCyNetworkReader ar = (AbstractCyNetworkReader) reader;
+						final List<String> rootNames = ar.getRootNetworkList().getPossibleValues();
+						if(collectionName != null && rootNames.contains(collectionName)) {
+							ar.getRootNetworkList().setSelectedValue(collectionName);
+						}
 					}
-					cxReader = currentReader;
-					currentReader.run(new HeadlessTaskMonitor());
+					reader.run(new HeadlessTaskMonitor());
 				} else {
+					System.out.println("\n\n******************* EXTRA TASK*********** " + task.toString());
 					task.run(new HeadlessTaskMonitor());
 				}
 			} catch (Exception e) {
@@ -1075,19 +1073,21 @@ public class NetworkResource extends AbstractResource {
 			}
 		}
 
-		final CyNetwork[] networks = currentReader.getNetworks();
+		// Extract results
+		final CyNetwork[] networks = reader.getNetworks();
+		if(networks == null || networks.length == 0) {
+			return;
+		}
+		
 		cxNetworks.addAll(Arrays.asList(networks));
 
 		final Long[] suids = new Long[networks.length];
 		int counter = 0;
-		for (CyNetwork network : networks) {
+		for (final CyNetwork network : networks) {
+			sub2roots.put(network.getSUID(), cyRootNetworkManager.getRootNetwork(network));
+			
 			System.out.println("******!! Network: " + network.getRow(network).get(CyNetwork.NAME, String.class));
-
-			// Override collection name
-			if (collectionName != null) {
-				final CyRootNetwork rootNetwork = ((CySubNetwork) network).getRootNetwork();
-				rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);
-			}
+			
 			suids[counter] = network.getSUID();
 
 			// Add props
@@ -1102,7 +1102,19 @@ public class NetworkResource extends AbstractResource {
 		}
 		results.put(sourceUrl, suids);
 		
-		return cxReader;
+		// Special case: CX
+		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+			final CyRootNetwork rootNetwork = ((CySubNetwork) cxNetworks.get(0)).getRootNetwork();
+			final String cxCollectionName = rootNetwork.getRow(rootNetwork).get(CyNetwork.NAME, String.class);
+			
+			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
+			addNetwork(cxArray, reader, cxCollectionName, false);
+		}
+		
+		if(collectionName != null) {
+			final CyRootNetwork rootNetwork = ((CySubNetwork) networks[0]).getRootNetwork();
+			rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);			
+		}
 	}
 	
 	private void setNetworkProps(String key, Object value, CyNetwork network) {
@@ -1163,7 +1175,6 @@ public class NetworkResource extends AbstractResource {
 	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName,
 			final Boolean applyStyle) {
 
-		final VisualStyle style = vmm.getCurrentVisualStyle();
 		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
 
 		final Set<CyRootNetwork> rootNetworks = new HashSet<CyRootNetwork>();
@@ -1192,9 +1203,13 @@ public class NetworkResource extends AbstractResource {
 				networkViewManager.addNetworkView(view);
 				
 				if(applyStyle || vmm.getVisualStyle(view) == vmm.getDefaultVisualStyle()) {
+					System.out.println("--------------- %%%% APPLY style: !!!!!!!!!!!!!!");
 					final VisualStyle s2 = vmm.getDefaultVisualStyle();
 					vmm.setVisualStyle(s2, view);
 					s2.apply(view);
+				} else {
+					
+					System.out.println("--------------- %%%% APPLY style: FALSE ASSIGNED: " + vmm.getVisualStyle(view).getTitle());
 				}
 				
 				if (!view.isSet(BasicVisualLexicon.NETWORK_CENTER_X_LOCATION)
@@ -1202,9 +1217,15 @@ public class NetworkResource extends AbstractResource {
 						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Z_LOCATION))
 					view.fitContent();
 				results.add(view);
+				
+				// FORCE update
+				vmm.getVisualStyle(view).apply(view);
+				view.updateView();
+				System.out.println("--------------- %%%% APPLY RESULT: ASSIGNED: " + vmm.getVisualStyle(view).getTitle());
 			} else {
 				// results.add(nullNetworkViewFactory.createNetworkView(network));
 			}
+			
 		}
 
 		// If this is a subnetwork, and there is only one subnetwork in the

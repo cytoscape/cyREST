@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,10 +15,12 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -87,8 +90,27 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public Collection<Long> getCollectionsAsSUID() {
-		return getRootNetworks().stream().map(root -> root.getSUID()).collect(Collectors.toSet());
+	public Collection<Long> getCollectionsAsSUID(@QueryParam("subsuid") Long subsuid) {
+		if(subsuid == null) {
+			// Return all collection SUIDs
+			return getRootNetworks().stream().map(root -> root.getSUID()).collect(Collectors.toSet());
+		} else {
+			// Return parent collection's SUID
+			final CyNetwork subnetwork = networkManager.getNetwork(subsuid);
+			if(subnetwork == null) {
+				throw new NotFoundException();
+			}
+			
+			final CyRootNetwork root = cyRootNetworkManager.getRootNetwork(subnetwork);
+			if(root == null) {
+				throw new NotFoundException();
+			} else {
+				final List<Long> rootId = new ArrayList<>();
+				rootId.add(root.getSUID());
+				
+				return rootId;
+			}
+		}
 	}
 
 	@GET
@@ -203,7 +225,7 @@ public class CollectionResource extends AbstractResource {
 	private final Response getCX(final Long networkId) {
 		CyRootNetwork root = null;
 
-		if (!getCollectionsAsSUID().contains(networkId)) {
+		if (!getCollectionsAsSUID(null).contains(networkId)) {
 			// This is not a root network
 			// Try find one
 			final CyNetwork subNet = networkManager.getNetwork(networkId);

@@ -16,11 +16,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
-import javax.swing.plaf.basic.DefaultMenuLayout;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -51,10 +49,8 @@ import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
-import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.Task;
@@ -1023,15 +1019,21 @@ public class NetworkResource extends AbstractResource {
 		final Map<Long, CyRootNetwork> sub2roots = new HashMap<>();
 
 		// Input should be array of URLs.
+		final Map<CyNetworkView, VisualStyle> styleMap = new HashMap<>();
+		
 		for (final String url : netProps.keySet()) {
-			loadNetworkFromUrl(format, url, collectionName, results, netProps, sub2roots);
+			final Map<CyNetworkView, VisualStyle> subMap = loadNetworkFromUrl(format, url, collectionName, results, netProps, sub2roots);
+			styleMap.putAll(subMap);
 		}
-
 		is.close();
+		
+		// Apply correct styles.
+		styleMap.keySet().stream()
+			.forEach(view->postProcess(view, styleMap.get(view)));
 		return generateNetworkLoadResults(results);
 	}
 	
-	private final void loadNetworkFromUrl(final String format, 
+	private final Map<CyNetworkView, VisualStyle> loadNetworkFromUrl(final String format, 
 			final String sourceUrl, final String collectionName,
 			final Map<String, Long[]> results, 
 			final Map<String, Map<String, Object>> netProps, 
@@ -1078,8 +1080,9 @@ public class NetworkResource extends AbstractResource {
 
 		// Extract results
 		final CyNetwork[] networks = reader.getNetworks();
+		Map<CyNetworkView, VisualStyle> styleMap = new HashMap<CyNetworkView, VisualStyle>();
 		if(networks == null || networks.length == 0) {
-			return;
+			return styleMap;
 		}
 		
 		cxNetworks.addAll(Arrays.asList(networks));
@@ -1111,13 +1114,15 @@ public class NetworkResource extends AbstractResource {
 			final String cxCollectionName = rootNetwork.getRow(rootNetwork).get(CyNetwork.NAME, String.class);
 			
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
-			addNetwork(cxArray, reader, cxCollectionName, false);
+			styleMap = addNetwork(cxArray, reader, cxCollectionName, false);
 		}
 		
 		if(collectionName != null) {
 			final CyRootNetwork rootNetwork = ((CySubNetwork) networks[0]).getRootNetwork();
 			rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);			
 		}
+		
+		return styleMap;
 	}
 	
 	private void setNetworkProps(String key, Object value, CyNetwork network) {
@@ -1175,10 +1180,11 @@ public class NetworkResource extends AbstractResource {
 	 * @param reader
 	 * @param collectionName
 	 */
-	private final void addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName,
+	private final Map<CyNetworkView, VisualStyle> addNetwork(final CyNetwork[] networks, final CyNetworkReader reader, final String collectionName,
 			final Boolean applyStyle) {
 
 		final List<CyNetworkView> results = new ArrayList<CyNetworkView>();
+		final Map<CyNetworkView, VisualStyle> styleMap = new HashMap<>();
 
 		final Set<CyRootNetwork> rootNetworks = new HashSet<CyRootNetwork>();
 
@@ -1200,37 +1206,23 @@ public class NetworkResource extends AbstractResource {
 			networkManager.addNetwork(network);
 
 			final int numGraphObjects = network.getNodeCount() + network.getEdgeCount();
-			int viewThreshold = 100000;
+			int viewThreshold = 200000;
 			if (numGraphObjects < viewThreshold) {
-				final CyNetworkView view = reader.buildCyNetworkView(network);
-				networkViewManager.addNetworkView(view);
 				
-				if(applyStyle || vmm.getVisualStyle(view) == vmm.getDefaultVisualStyle()) {
-					System.out.println("--------------- %%%% APPLY style: !!!!!!!!!!!!!!");
-					final VisualStyle s2 = vmm.getDefaultVisualStyle();
-					vmm.setVisualStyle(s2, view);
-					s2.apply(view);
-				} else {
-					
-					System.out.println("--------------- %%%% APPLY style: FALSE ASSIGNED: " + vmm.getVisualStyle(view).getTitle());
+				final CyNetworkView view = reader.buildCyNetworkView(network);
+				VisualStyle style = vmm.getVisualStyle(view);
+				if (style == null) {
+					style = vmm.getDefaultVisualStyle();
 				}
 				
-				if (!view.isSet(BasicVisualLexicon.NETWORK_CENTER_X_LOCATION)
-						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Y_LOCATION)
-						&& !view.isSet(BasicVisualLexicon.NETWORK_CENTER_Z_LOCATION))
-					view.fitContent();
-				results.add(view);
 				
-				// FORCE update
-				vmm.getVisualStyle(view).apply(view);
-				view.updateView();
-				System.out.println("--------------- %%%% APPLY RESULT: ASSIGNED: " + vmm.getVisualStyle(view).getTitle());
-			} else {
-				// results.add(nullNetworkViewFactory.createNetworkView(network));
-			}
+				styleMap.put(view, style);
+				networkViewManager.addNetworkView(view);
+				results.add(view);
+			} 
 			
 		}
-
+		
 		// If this is a subnetwork, and there is only one subnetwork in the
 		// root, check the name of the root network
 		// If there is no name yet for the root network, set it the same as its
@@ -1248,5 +1240,13 @@ public class NetworkResource extends AbstractResource {
 				}
 			}
 		}
+		return styleMap;
+	}
+	
+	private final void postProcess(final CyNetworkView view, final VisualStyle style) {
+		vmm.setVisualStyle(style, view);
+		style.apply(view);
+		view.fitContent();
+		view.updateView();
 	}
 }

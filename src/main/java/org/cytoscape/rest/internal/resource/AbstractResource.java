@@ -68,9 +68,9 @@ public abstract class AbstractResource {
 	 */
 	protected final WebApplicationException getError(final String errorMessage, final Exception ex, final Status status) {
 		// This is necessary to avoid threading issues.
-		final Exception cause = new Exception(ex.getMessage());
-		cause.setStackTrace(ex.getStackTrace());
-		final Exception wrapped = new IllegalStateException(errorMessage, cause);
+//		final Exception cause = new Exception(ex.getMessage());
+//		cause.setStackTrace(ex.getStackTrace());
+		final Exception wrapped = new IllegalStateException(errorMessage, ex);
 	
 		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
 			// Otherwise, 500.

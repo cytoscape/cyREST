@@ -858,6 +858,9 @@ public class NetworkResource extends AbstractResource {
 			try {
 				return loadNetworks(format, collection, is);
 			} catch (Exception e) {
+				
+				e.printStackTrace();
+				
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}

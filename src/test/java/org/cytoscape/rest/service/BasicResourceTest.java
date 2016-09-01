@@ -53,6 +53,7 @@ import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
@@ -524,7 +525,9 @@ public class BasicResourceTest extends JerseyTest {
 									GlobalTableResource.class,
 									SessionResource.class,
 									NetworkNameResource.class,
-									UIResource.class);
+									UIResource.class,
+									CollectionResource.class
+									);
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")

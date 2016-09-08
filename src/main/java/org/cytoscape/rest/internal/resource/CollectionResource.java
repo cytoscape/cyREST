@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyNetwork;
@@ -168,7 +169,11 @@ public class CollectionResource extends AbstractResource {
 		
 		final CyTable table = getTable(networkId, tableType);
 		if (table != null) {
-			table.deleteColumn(columnName);
+			try {
+				table.deleteColumn(columnName);
+			} catch(Exception e) {
+				throw getError("Could not delete column " + columnName, e, Response.Status.INTERNAL_SERVER_ERROR);
+			}
 			return Response.ok().build();
 		} else {
 			throw getError("No such table type: " + tableType, 

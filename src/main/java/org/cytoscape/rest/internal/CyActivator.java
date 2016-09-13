@@ -184,8 +184,6 @@ public class CyActivator extends AbstractCyActivator {
 						"(id=cytoscapejsNetworkWriterFactory)");
 				cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
 						"(id=cytoscapejsNetworkReaderFactory)");
-				cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
-						"(id=cxNetworkWriterFactory)");
 				jsonDependencyFound = true;
 			} catch(Exception ex) {
 				Thread.sleep(INTERVAL);
@@ -195,6 +193,12 @@ public class CyActivator extends AbstractCyActivator {
 		
 		if(jsonDependencyFound == false) {
 			throw new IllegalStateException("Could not find dependency: JSON support services are missing.");
+		}
+		try {
+			cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cxNetworkWriterFactory)");
+		} catch(Exception ex) {
+			logger.warn("CX Support is not available. Some of the API does not work.");
+			cxWriterFactory = null;
 		}
 		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
@@ -241,7 +245,7 @@ public class CyActivator extends AbstractCyActivator {
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, cxWriterFactory);
-				this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
+		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 	}
 	
 

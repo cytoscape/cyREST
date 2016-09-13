@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import org.cytoscape.io.write.CyWriter;
@@ -172,7 +173,7 @@ public class CollectionResource extends AbstractResource {
 			try {
 				table.deleteColumn(columnName);
 			} catch(Exception e) {
-				throw getError("Could not delete column " + columnName, e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw getError("Could not delete column: " + columnName, e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
 			return Response.ok().build();
 		} else {
@@ -228,6 +229,11 @@ public class CollectionResource extends AbstractResource {
 	}
 
 	private final Response getCX(final Long networkId) {
+		if (cxWriterFactory == null) {
+			throw getError("CX writer is not supported.  Please install CX Support App to use this API.",
+					new RuntimeException(), Status.NOT_IMPLEMENTED);
+		}
+		
 		CyRootNetwork root = null;
 
 		if (!getCollectionsAsSUID(null).contains(networkId)) {

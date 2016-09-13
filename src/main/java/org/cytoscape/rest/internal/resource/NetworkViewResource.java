@@ -28,6 +28,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.PresentationWriterFactory;
@@ -283,8 +284,13 @@ public class NetworkViewResource extends AbstractResource {
 		if(targetView == null) {
 			return Response.ok("{}").build();
 		} else {
-			System.out.println("--------------- This is CX -----------------");
-			return Response.ok(getNetworkViewStringAsCX(targetView)).build();
+			if(cxWriterFactory == null) {
+				throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
+						new RuntimeException(), Status.NOT_IMPLEMENTED);
+			} else {
+				System.out.println("--------------- This is CX -----------------");
+				return Response.ok(getNetworkViewStringAsCX(targetView)).build();
+			}
 		}
 	}
 	

@@ -195,7 +195,11 @@ public class CyBinder extends AbstractBinder {
 		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
 		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
 		bind(exportNetworkViewTaskFactory).to(ExportNetworkViewTaskFactory.class);
-		bind(cxWriterFactory).named("cxWriterFactory").to(CyNetworkViewWriterFactory.class);
+		
+		// CX Support is an optional dependency as of v3.3.7.
+		if(cxWriterFactory != null) {
+			bind(cxWriterFactory).named("cxWriterFactory").to(CyNetworkViewWriterFactory.class);
+		}
 		
 		// For Command API
 		bind(available).to(AvailableCommands.class);

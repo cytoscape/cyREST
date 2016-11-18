@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 public class CyActivator extends AbstractCyActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
-	private static final Integer MAX_RETRY = 5;
+	private static final Integer MAX_RETRY = 10;
 	private static final Integer INTERVAL = 5000; // Seconds
 
 	public class WriterListener {
@@ -194,11 +194,19 @@ public class CyActivator extends AbstractCyActivator {
 		if(jsonDependencyFound == false) {
 			throw new IllegalStateException("Could not find dependency: JSON support services are missing.");
 		}
-		try {
-			cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cxNetworkWriterFactory)");
-		} catch(Exception ex) {
+		
+		retryCount = 0;
+		while(cxWriterFactory == null && retryCount <= MAX_RETRY) {
+			try {
+				cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cxNetworkWriterFactory)");
+			} catch(Exception ex) {
+				Thread.sleep(INTERVAL);
+			}
+			retryCount++;
+		}
+		
+		if(cxWriterFactory == null) {
 			logger.warn("CX Support is not available. Some of the API does not work.");
-			cxWriterFactory = null;
 		}
 		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);

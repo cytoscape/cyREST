@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -502,16 +503,31 @@ public class NetworkViewResource extends AbstractResource {
 			final CyWriter writer = factory.createWriter(baos, engine);
 			
 			if (fileType.equals("png")) {
-				// Do some hack to set properties...
+				// FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				// This is a hack to set properties...
 				// TODO: Are there cleaner way to access these props?
-				final Object zl = writer.getClass().getMethod("getZoom").invoke(writer);
-				final BoundedDouble bound = (BoundedDouble)zl; 
-				//System.out.println("UB = " + bound.getUpperBound());
-				//System.out.println("LB = " + bound.getLowerBound());
 				
-				// Set large upper bound for generating large PNG.  
-				bound.setBounds(bound.getLowerBound(), 5000.0);
-				writer.getClass().getMethod("setHeightInPixels", int.class).invoke(writer, height);
+				final Object zl = writer.getClass().getMethod("getZoom").invoke(writer);
+				final BoundedDouble bound = (BoundedDouble)zl;
+				
+				// Set large upper bound for generating large PNG.
+				bound.setBounds(bound.getLowerBound(), 15000.0);
+
+				try {
+					// This is for 3.4 and below
+					writer.getClass().getMethod("setHeightInPixels", int.class).invoke(writer, height);
+				} catch(Exception e) {
+					// For 3.5+					
+					try {
+						Object units = writer.getClass().getMethod("getUnits").invoke(writer);
+						final Method method = units.getClass().getMethod("setSelectedValue", Object.class);
+						method.invoke(units, "pixels");
+						final Double doubleHeight = ((Integer)height).doubleValue();
+						writer.getClass().getMethod("setHeight", Double.class).invoke(writer, doubleHeight);
+					} catch(Exception e2) {
+						e2.printStackTrace();
+					}
+				}
 			}
 			writer.run(new HeadlessTaskMonitor());
 

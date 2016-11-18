@@ -32,6 +32,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
@@ -118,9 +119,8 @@ public abstract class AbstractResource {
 	@Context
 	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	
-	@Named("cxWriterFactory")
 	@Context
-	protected CyNetworkViewWriterFactory cxWriterFactory;
+	protected CyNetworkViewWriterFactoryManager viewWriterFactoryManager;
 
 	@Context
 	protected WriterListener vizmapWriterFactoryListener;

@@ -30,12 +30,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.PresentationWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
@@ -284,11 +286,13 @@ public class NetworkViewResource extends AbstractResource {
 		if(targetView == null) {
 			return Response.ok("{}").build();
 		} else {
+
+			final CyNetworkViewWriterFactory cxWriterFactory = 
+				viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
 			if(cxWriterFactory == null) {
 				throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
 						new RuntimeException(), Status.NOT_IMPLEMENTED);
 			} else {
-				System.out.println("--------------- This is CX -----------------");
 				return Response.ok(getNetworkViewStringAsCX(targetView)).build();
 			}
 		}
@@ -352,6 +356,9 @@ public class NetworkViewResource extends AbstractResource {
 	}
 	
 	private final String getNetworkViewStringAsCX(final CyNetworkView networkView) {
+		final CyNetworkViewWriterFactory cxWriterFactory = 
+				viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
+		
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyWriter writer = cxWriterFactory.createWriter(stream, networkView);
 		String jsonString = null;

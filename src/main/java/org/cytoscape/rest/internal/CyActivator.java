@@ -110,6 +110,7 @@ public class CyActivator extends AbstractCyActivator {
 	
 	private final void initDependencies(final BundleContext bc) throws Exception {
 
+		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
 				VisualMappingFunctionFactory.class);
@@ -117,6 +118,10 @@ public class CyActivator extends AbstractCyActivator {
 		final GraphicsWriterManager graphicsWriterManager = new GraphicsWriterManager();
 		registerServiceListener(bc, graphicsWriterManager, "addFactory", "removeFactory",
 				PresentationWriterFactory.class);
+		
+		final CyNetworkViewWriterFactoryManager viewWriterManager = new CyNetworkViewWriterFactoryManager();
+		registerServiceListener(bc, viewWriterManager, "addFactory", "removeFactory",
+				CyNetworkViewWriterFactory.class);
 
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
@@ -195,20 +200,6 @@ public class CyActivator extends AbstractCyActivator {
 			throw new IllegalStateException("Could not find dependency: JSON support services are missing.");
 		}
 		
-		retryCount = 0;
-		while(cxWriterFactory == null && retryCount <= MAX_RETRY) {
-			try {
-				cxWriterFactory = getService(bc, CyNetworkViewWriterFactory.class, "(id=cxNetworkWriterFactory)");
-			} catch(Exception ex) {
-				Thread.sleep(INTERVAL);
-			}
-			retryCount++;
-		}
-		
-		if(cxWriterFactory == null) {
-			logger.warn("CX Support is not available. Some of the API does not work.");
-		}
-		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
 		
@@ -252,7 +243,7 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, cxWriterFactory);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager);
 		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
 	}
 	

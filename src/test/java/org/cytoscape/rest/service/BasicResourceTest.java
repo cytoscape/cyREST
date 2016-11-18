@@ -47,6 +47,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
@@ -197,7 +198,6 @@ public class BasicResourceTest extends JerseyTest {
 		when(vmm.getDefaultVisualStyle()).thenReturn(this.style);
 
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = mock(CyNetworkViewWriterFactory.class);
-		CyNetworkViewWriterFactory cxWriterFactory = mock(CyNetworkViewWriterFactory.class);
 		WriterListener writerListsner = mock(WriterListener.class);
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
@@ -240,7 +240,8 @@ public class BasicResourceTest extends JerseyTest {
 		final AvailableCommands available = mock(AvailableCommands.class);
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
-		
+	
+		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -253,7 +254,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager, cxWriterFactory);
+				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager);
 	}
 	
 	

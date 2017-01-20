@@ -95,7 +95,8 @@ public class CyActivator extends AbstractCyActivator {
 		// Start Grizzly server in separate thread
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		service.submit(()-> {
-			try {
+			try 
+			{
 				this.initDependencies(bc);
 				
 				this.grizzlyServerManager.startServer();
@@ -244,7 +245,10 @@ public class CyActivator extends AbstractCyActivator {
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager);
-		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef);
+		
+
+		
+		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef, available);
 	}
 	
 

@@ -58,12 +58,15 @@ import org.cytoscape.work.util.BoundedDouble;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 /**
  * REST API for Network View objects.
  * 
  * TODO: add custom view information section
  * 
  */
+@Api(tags = {"Networks", "Views"})
 @Singleton
 @Path("/v1/networks/{networkId}/views")
 public class NetworkViewResource extends AbstractResource {

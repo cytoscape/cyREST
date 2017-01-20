@@ -37,7 +37,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
 
+@Api(tags = {"User Interface"})
 @Singleton
 @Path("/v1/ui")
 public class UIResource extends AbstractResource {

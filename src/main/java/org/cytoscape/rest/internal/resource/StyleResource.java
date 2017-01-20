@@ -46,6 +46,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
+@Api(tags = {"Visual Properties"})
 @Singleton
 @Path("/v1/styles")
 public class StyleResource extends AbstractResource {

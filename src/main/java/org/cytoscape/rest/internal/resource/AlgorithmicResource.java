@@ -40,12 +40,15 @@ import org.cytoscape.work.Tunable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 /**
  * 
  * Algorithmic resources.
  * Runs Cytoscape tasks, such as layouts or apply Style.
  * 
  */
+@Api(tags = {"Layout", "Visual Properties"})
 @Singleton
 @Path("/v1/apply")
 public class AlgorithmicResource extends AbstractResource {

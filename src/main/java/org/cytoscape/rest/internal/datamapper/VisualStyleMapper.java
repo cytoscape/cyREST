@@ -25,9 +25,7 @@ import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.qmino.miredot.annotations.MireDotIgnore;
 
-@MireDotIgnore
 public class VisualStyleMapper {
 
 	private static final String TITLE = "title";

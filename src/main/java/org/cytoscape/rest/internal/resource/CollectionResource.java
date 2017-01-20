@@ -38,6 +38,8 @@ import org.cytoscape.rest.internal.serializer.TableModule;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+@Api
 @Singleton
 @Path("/v1/collections")
 public class CollectionResource extends AbstractResource {

@@ -30,8 +30,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
+@Api(tags = {"Groups"})
 public class GroupResource extends AbstractResource {
 
 	private final ObjectMapper groupMapper;

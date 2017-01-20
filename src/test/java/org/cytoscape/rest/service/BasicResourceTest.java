@@ -529,11 +529,13 @@ public class BasicResourceTest extends JerseyTest {
 									UIResource.class,
 									CollectionResource.class
 									);
+							/*
 							rc.registerInstances(binder)
 									.packages(
 											"org.glassfish.jersey.examples.jackson")
 									.register(JacksonFeature.class);
-
+							 */
+							rc.registerInstances(binder).register(JacksonFeature.class);
 							this.server = GrizzlyHttpServerFactory
 									.createHttpServer(baseUri, rc);
 						} catch (Exception e) {

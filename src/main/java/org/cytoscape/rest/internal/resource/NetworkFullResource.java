@@ -12,8 +12,9 @@ import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
 
-import com.qmino.miredot.annotations.ReturnType;
+import io.swagger.annotations.Api;
 
+@Api(tags = {"Networks"})
 @Singleton
 @Path("/v1/networks.json")
 public class NetworkFullResource extends AbstractResource {
@@ -39,7 +40,6 @@ public class NetworkFullResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	@ReturnType("java.util.List<org.cytoscape.rest.internal.model.CyJsNetwork>")
 	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 		

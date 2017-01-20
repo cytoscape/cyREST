@@ -22,6 +22,7 @@ import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
+import org.cytoscape.rest.internal.task.CyRESTCommandSwaggerConfig;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
@@ -30,16 +31,19 @@ import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
+import io.swagger.annotations.Api;
+
 /**
  * 
  * JAX-RS Resource for all Command-related API
  * 
  *
  */
+@Api(tags = {"Commands"})
 @Singleton
 @Path("/v1/commands")
-public class CommandResource implements PaxAppender, TaskObserver {
-
+public class CommandResource implements PaxAppender, TaskObserver 
+{
 
 	@Context
 	@NotNull
@@ -188,7 +192,8 @@ public class CommandResource implements PaxAppender, TaskObserver {
 	 *         command
 	 */
 	@GET
-	@Path("/{namespace}/{command}")
+	@Path("/{namespace}/{command}") // Be wary of changing this, as SwaggerApiConfig hides it in favor of listing all 
+	//available commands.
 	@Produces(MediaType.TEXT_HTML)
 	public String handleHTMLCommand(@PathParam("namespace") String namespace,
 			@PathParam("command") String command, @Context UriInfo uriInfo) {

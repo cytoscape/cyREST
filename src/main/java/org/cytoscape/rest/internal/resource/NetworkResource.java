@@ -60,9 +60,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qmino.miredot.annotations.ReturnType;
 
+import io.swagger.annotations.Api;
 
+@Api(tags = {"Networks"})
 @Singleton
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
@@ -232,7 +233,6 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@ReturnType("org.cytoscape.rest.internal.model.CyJsNetwork")
 	public String getNetwork(@PathParam("networkId") Long networkId) {
 		return getNetworkString(getCyNetwork(networkId));
 	}
@@ -355,7 +355,6 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ReturnType("org.cytoscape.rest.internal.model.Node")
 	public String getNode(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
@@ -380,7 +379,6 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/edges/{edgeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ReturnType("org.cytoscape.rest.internal.model.Edge")
 	public String getEdge(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);

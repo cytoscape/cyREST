@@ -14,6 +14,8 @@ import javax.ws.rs.core.MediaType;
 import org.cytoscape.rest.internal.model.CytoscapeVersion;
 import org.cytoscape.rest.internal.model.ServerStatus;
 
+import io.swagger.annotations.Api;
+
 /**
  * Resource to provide general status of the Cytoscape REST server. 
  * 
@@ -21,6 +23,7 @@ import org.cytoscape.rest.internal.model.ServerStatus;
  * @servicetag Server status
  * 
  */
+@Api(tags = {"REST Service","Cytoscape System"})
 @Singleton
 @Path("/v1")
 public class MiscResource extends AbstractResource {
@@ -78,7 +81,7 @@ public class MiscResource extends AbstractResource {
 		}
 	}
 	
-	
+	//TODO Why is this here? It doesn't change anything, and appears to be the same as GET.
 	@PUT
 	@Path("/ui/show-details")
 	@Produces(MediaType.APPLICATION_JSON)

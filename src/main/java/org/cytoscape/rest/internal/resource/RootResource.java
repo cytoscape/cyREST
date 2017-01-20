@@ -9,12 +9,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import io.swagger.annotations.Api;
+
 /**
  * Root of the REST API server.
  * 
  */
 @Singleton
 @Path("/")
+@Api(tags = {"REST Service"})
 public class RootResource extends AbstractResource {
 
 	private static final String[] VERSION_LIST = { API_VERSION };

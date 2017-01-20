@@ -35,10 +35,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 /**
  * REST API for CyTable objects. This is for assigned table only.
  * 
  */
+@Api(tags = {"Tables"})
 @Singleton
 @Path("/v1/networks/{networkId}/tables")
 public class TableResource extends AbstractResource {

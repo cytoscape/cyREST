@@ -5,9 +5,6 @@ import java.util.Map;
 
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 
-import com.qmino.miredot.annotations.MireDotIgnore;
-
-@MireDotIgnore
 public class MappingFactoryManager {
 
 	private final Map<Class<?>, VisualMappingFunctionFactory> factories;

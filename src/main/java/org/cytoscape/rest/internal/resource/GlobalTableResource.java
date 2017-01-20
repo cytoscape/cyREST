@@ -16,8 +16,11 @@ import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 @Singleton
 @Path("/v1/tables")
+@Api(tags = {"Tables"})
 public class GlobalTableResource extends AbstractResource {
 
 	@Context

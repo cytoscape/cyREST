@@ -15,6 +15,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -23,7 +24,7 @@ import io.swagger.annotations.Api;
 @Api(tags = {"Tables"})
 public class GlobalTableResource extends AbstractResource {
 
-	@Context
+	@Inject
 	@NotNull
 	private CyTableFactory tableFactory;
 

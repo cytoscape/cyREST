@@ -1,6 +1,6 @@
 /**
  * 
- * Actual RESTful API implementations using JAX-RS (Jersey).
+ * Actual RESTful API implementations using JAX-RS
  * 
  * 
 */

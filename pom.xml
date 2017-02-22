@@ -46,12 +46,6 @@
 			<url>http://code.cytoscape.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 
-		<!-- For API document generation -->
-		<repository>
-			<id>miredot</id>
-			<name>MireDot Releases</name>
-			<url>http://nexus.qmino.com/content/repositories/miredot</url>
-		</repository>
 	</repositories>
 
 	<distributionManagement>
@@ -75,6 +69,365 @@
 
 	<build>
 		<plugins>
+		<plugin>
+				<!-- Copy bundles from maven into this bundle's resources 
+				folder. These are all necessary for the OSGi JAX RS connector
+				to function. -->
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install-pax-jetty</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<!-- PAX Web Features -->
+								<!-- pax-jetty -->
+								<artifactItem>
+									<groupId>org.apache.servicemix.specs</groupId>
+									<artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
+									<version>2.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.geronimo.specs</groupId>
+									<artifactId>geronimo-servlet_3.0_spec</artifactId>
+									<version>1.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.mail</groupId>
+									<artifactId>mail</artifactId>
+									<version>1.4.4</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.geronimo.specs</groupId>
+									<artifactId>geronimo-jta_1.1_spec</artifactId>
+									<version>1.1.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.geronimo.specs</groupId>
+									<artifactId>geronimo-annotation_1.1_spec</artifactId>
+									<version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.geronimo.specs</groupId>
+									<artifactId>geronimo-jaspic_1.0_spec</artifactId>
+									<version>1.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ow2.asm</groupId>
+									<artifactId>asm-all</artifactId>
+									<version>5.0.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.jetty.aggregate</groupId>
+									<artifactId>jetty-all-server</artifactId>
+									<version>8.1.15.v20140411</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/pax-jetty</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-pax-http</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+
+								<!-- pax-http -->
+								<artifactItem>
+									<groupId>org.ops4j.base</groupId>
+									<artifactId>ops4j-base-lang</artifactId>
+									<version>1.4.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.swissbox</groupId>
+									<artifactId>pax-swissbox-core</artifactId>
+									<version>1.7.0</version>
+								</artifactItem>
+								<!-- This is repeated in pax-http for some reason. Likely not necessary 
+									<artifactItem> <groupId>org.ow2.asm</groupId> <artifactId>asm-all</artifactId> 
+									<version>5.0.2</version> </artifactItem> -->
+								<artifactItem>
+									<groupId>org.apache.xbean</groupId>
+									<artifactId>xbean-bundleutils</artifactId>
+									<version>3.18</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.xbean</groupId>
+									<artifactId>xbean-reflect</artifactId>
+									<version>3.18</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.xbean</groupId>
+									<artifactId>xbean-finder</artifactId>
+									<version>3.18</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-api</artifactId>
+									<version>3.1.4</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-spi</artifactId>
+									<version>3.1.4</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-runtime</artifactId>
+									<version>3.1.4</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-jetty</artifactId>
+									<version>3.1.4</version>
+								</artifactItem>
+
+							</artifactItems>
+							<outputDirectory>src/main/resources/pax-http</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-karaf-scr</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.metatype</artifactId>
+									<version>1.0.10</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.scr</artifactId>
+									<version>1.8.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.karaf.scr</groupId>
+									<artifactId>org.apache.karaf.scr.command</artifactId>
+									<version>3.0.3</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/karaf-scr</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-karaf-http</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.karaf.http</groupId>
+									<artifactId>org.apache.karaf.http.core</artifactId>
+									<version>3.0.3</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.karaf.http</groupId>
+									<artifactId>org.apache.karaf.http.command</artifactId>
+									<version>3.0.3</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/karaf-http</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-hk2</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.glassfish.hk2</groupId>
+									<artifactId>hk2-api</artifactId>
+									<version>2.4.0-b34</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.hk2</groupId>
+									<artifactId>hk2-locator</artifactId>
+									<version>2.4.0-b34</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.hk2</groupId>
+									<artifactId>hk2-utils</artifactId>
+									<version>2.4.0-b34</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.hk2</groupId>
+									<artifactId>osgi-resource-locator</artifactId>
+									<version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.hk2.external</groupId>
+									<artifactId>javax.inject</artifactId>
+									<version>2.4.0-b34</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.hk2.external</groupId>
+									<artifactId>aopalliance-repackaged</artifactId>
+									<version>2.4.0-b34</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/hk2</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-glassfish-jersey</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.containers</groupId>
+									<artifactId>jersey-container-servlet</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.media</groupId>
+									<artifactId>jersey-media-sse</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.media</groupId>
+									<artifactId>jersey-media-multipart</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.containers</groupId>
+									<artifactId>jersey-container-servlet-core</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.core</groupId>
+									<artifactId>jersey-common</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.bundles.repackaged</groupId>
+									<artifactId>jersey-guava</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.core</groupId>
+									<artifactId>jersey-server</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.core</groupId>
+									<artifactId>jersey-client</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.glassfish.jersey.media</groupId>
+									<artifactId>jersey-media-jaxb</artifactId>
+									<version>2.22.2</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/glassfish-jersey</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-jersey-misc</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>javax.annotation</groupId>
+									<artifactId>javax.annotation-api</artifactId>
+									<version>1.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.validation</groupId>
+									<artifactId>validation-api</artifactId>
+									<version>1.1.0.Final</version>
+								</artifactItem>
+								<!-- JAX-RS used to be here, but we want to use an existing version -->
+								<artifactItem>
+									<groupId>org.javassist</groupId>
+									<artifactId>javassist</artifactId>
+									<version>3.18.1-GA</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jvnet.mimepull</groupId>
+									<artifactId>mimepull</artifactId>
+									<version>1.9.6</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/jersey-misc</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-osgi-jax-rs-connector</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>javax.servlet</groupId>
+									<artifactId>javax.servlet-api</artifactId>
+									<version>3.1.0</version>
+								</artifactItem>
+								<!-- We've customized this in the above to support existing JAX-RS.
+								<artifactItem>
+									<groupId>com.eclipsesource.jaxrs</groupId>
+									<artifactId>jersey-min</artifactId>
+									<version>2.22.1</version>
+								</artifactItem>
+								-->
+								<artifactItem>
+									<groupId>com.eclipsesource.jaxrs</groupId>
+									<artifactId>consumer</artifactId>
+									<version>5.3</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.eclipsesource.jaxrs</groupId>
+									<artifactId>publisher</artifactId>
+									<version>5.3</version>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>com.google.code.gson</groupId>
+									<artifactId>gson</artifactId>
+									<version>2.3</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.eclipsesource.jaxrs</groupId>
+									<artifactId>provider-gson</artifactId>
+									<version>2.2</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/resources/osgi-jax-rs-connector</outputDirectory>
+							<stripVersion>false</stripVersion>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -106,6 +459,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
+						<Export-Package>io.swagger.annotations</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
 				</configuration>
@@ -133,6 +487,7 @@
 					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
+			  <!-- Will run build.xml in same folder 
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -142,7 +497,7 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-                                <!-- Will run build.xml in same folder -->
+                              
                                 <ant dir="./" />
                             </target>
                         </configuration>
@@ -152,8 +507,46 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
 		</plugins>
+		      <pluginManagement>
+  			<plugins>
+  				<!--This plugin's configuration is used to store Eclipse m2e settings 
+  					only. It has no influence on the Maven build itself. -->
+  				<plugin>
+  					<groupId>org.eclipse.m2e</groupId>
+  					<artifactId>lifecycle-mapping</artifactId>
+  					<version>1.0.0</version>
+  					<configuration>
+  						<lifecycleMappingMetadata>
+  							<pluginExecutions>
+  								<pluginExecution>
+  									<pluginExecutionFilter>
+  										<groupId>
+  											org.apache.maven.plugins
+  										</groupId>
+  										<artifactId>
+  											maven-dependency-plugin
+  										</artifactId>
+  										<versionRange>
+  											[2.1,)
+  										</versionRange>
+  										<goals>
+  											<goal>copy</goal>
+  										</goals>
+  									</pluginExecutionFilter>
+  									<action>
+  										<ignore />
+  									</action>
+  								</pluginExecution>
+  							</pluginExecutions>
+  						</lifecycleMappingMetadata>
+  					</configuration>
+  				</plugin>
+  			</plugins>
+  		</pluginManagement>
 	</build>
+
 
 	<dependencyManagement>
 		<dependencies>
@@ -236,6 +629,28 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Guice -->
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-multibindings</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-assistedinject</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+
 		<!-- OSGi core dependency -->
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -251,6 +666,23 @@
 		</dependency>
 		
 		<!-- 3rd party libraries -->
+		<!-- osgi jax-rs bundles -->
+
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+		</dependency>
+		
+
+		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -258,16 +690,15 @@
 		</dependency>
 
 		<!-- Jersey -->
-		
+		<!--
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-grizzly2-servlet</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.media</groupId>
-			<artifactId>jersey-media-json-jackson</artifactId>
-		</dependency>
+		-->
 
+
+		<!-- Logging -->
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
@@ -298,6 +729,12 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
 			<scope>test</scope>
 		</dependency>
 
@@ -353,6 +790,7 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
 			<artifactId>jersey-test-framework-provider-grizzly2</artifactId>
@@ -363,6 +801,7 @@
 			<artifactId>jersey-test-framework-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
 
 		
 	</dependencies>

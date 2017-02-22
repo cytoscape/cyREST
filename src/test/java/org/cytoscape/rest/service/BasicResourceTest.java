@@ -121,6 +121,9 @@ import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.mockito.Mockito;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public class BasicResourceTest extends JerseyTest {
 
 	protected NetworkTestSupport nts = new NetworkTestSupport();
@@ -515,27 +518,41 @@ public class BasicResourceTest extends JerseyTest {
 
 					@Override
 					public void start() {
-						try {
-							final ResourceConfig rc = new ResourceConfig(
-									RootResource.class, NetworkResource.class,
-									NetworkFullResource.class,
-									NetworkViewResource.class,
-									TableResource.class, MiscResource.class,
-									AlgorithmicResource.class,
-									StyleResource.class, GroupResource.class,
-									GlobalTableResource.class,
-									SessionResource.class,
-									NetworkNameResource.class,
-									UIResource.class,
-									CollectionResource.class
-									);
-							/*
-							rc.registerInstances(binder)
-									.packages(
-											"org.glassfish.jersey.examples.jackson")
-									.register(JacksonFeature.class);
+						try {	
+							final Set<Class<?>> resourceClasses = new HashSet<Class<?>>();
+							resourceClasses.add(RootResource.class);
+							resourceClasses.add(NetworkResource.class);
+							resourceClasses.add(NetworkFullResource.class);
+							resourceClasses.add(NetworkViewResource.class);
+							resourceClasses.add(TableResource.class); 
+							resourceClasses.add(MiscResource.class);
+							resourceClasses.add(AlgorithmicResource.class);
+							resourceClasses.add(StyleResource.class);
+							resourceClasses.add(GroupResource.class);
+							resourceClasses.add(GlobalTableResource.class);
+							resourceClasses.add(SessionResource.class);
+							resourceClasses.add(NetworkNameResource.class);
+							resourceClasses.add(UIResource.class);
+							resourceClasses.add(CollectionResource.class);
+							
+							final ResourceConfig rc = new ResourceConfig();
+							
+							Injector injector = Guice.createInjector(binder);
+							
+							for (Class<?> clazz : resourceClasses){
+								Object instance = injector.getInstance(clazz);
+								rc.register(instance);
+							}
+							
+							/* TODO Test for Jackson and gson. 
+							 * Here we're using Jackson to handle POJO-JSON mapping. The app has migrated to gson now, 
+							 * and by keeping Jackson in the testing, it insures that whatever already existed doesn't
+							 * break after migration. However, in the future, we may wish to switch back, or switch to
+							 * something else, so we may want to check that whatever resource is built works for json 
+							 * and Jackson.
 							 */
-							rc.registerInstances(binder).register(JacksonFeature.class);
+							rc.register(JacksonFeature.class);
+							
 							this.server = GrizzlyHttpServerFactory
 									.createHttpServer(baseUri, rc);
 						} catch (Exception e) {

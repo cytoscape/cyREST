@@ -24,7 +24,7 @@
     
     <target name="info">
         <echo>*******************************************************************</echo>
-        <echo>*   This script installs the Enrichment Map Cytoscape app         *</echo>
+        <echo>*   This script installs the CyREST Cytoscape app                 *</echo>
         <echo>*******************************************************************</echo>
     </target>
     

@@ -39,6 +39,7 @@ import org.cytoscape.work.Tunable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -53,19 +54,19 @@ import io.swagger.annotations.Api;
 @Path("/v1/apply")
 public class AlgorithmicResource extends AbstractResource {
 
-	@Context
+	@Inject
 	@NotNull
 	private TaskMonitor headlessTaskMonitor;
 
-	@Context
+	@Inject
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
 
-	@Context
+	@Inject
 	@NotNull
 	private NetworkTaskFactory fitContent;
 
-	@Context
+	@Inject
 	@NotNull
 	private EdgeBundler edgeBundler;
 

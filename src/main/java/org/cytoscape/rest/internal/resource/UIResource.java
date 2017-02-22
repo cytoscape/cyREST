@@ -36,6 +36,7 @@ import com.fasterxml.jackson.core.sym.Name;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -44,15 +45,15 @@ import io.swagger.annotations.Api;
 @Path("/v1/ui")
 public class UIResource extends AbstractResource {
 
-	@Context
+	@Inject
 	@NotNull
 	protected CySwingApplication desktop;
 	
-	@Context
+	@Inject
 	@NotNull
 	protected LevelOfDetails detailsTF;
 	
-	@Context
+	@Inject
 	@NotNull
 	private TaskMonitor headlessTaskMonitor;
 

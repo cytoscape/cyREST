@@ -26,6 +26,8 @@ import org.cytoscape.task.write.SaveSessionTaskFactory;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 
+import com.google.inject.Inject;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,23 +37,22 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/session")
 public class SessionResource extends AbstractResource {
 
-	@Context
+	@Inject
 	@NotNull
 	private CySessionManager sessionManager;
 
-	@Context
-	@NotNull
+	
 	private SaveSessionTaskFactory saveSessionTaskFactory;
 
-	@Context
+	@Inject
 	@NotNull
 	private SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 
-	@Context
+	@Inject
 	@NotNull
 	private OpenSessionTaskFactory openSessionTaskFactory;
 
-	@Context
+	@Inject
 	@NotNull
 	private NewSessionTaskFactory newSessionTaskFactory;
 
@@ -145,12 +146,6 @@ public class SessionResource extends AbstractResource {
 		return new SessionFile(sessionFile.getAbsolutePath());
 	}
 
-	/**
-	 * 
-	 * @param file (Optional) Session file location as an absolute path. If this is not present, the session will attempt to automatically save with the session's stored file location.
-	 * 
-	 * @return Session file name
-	 */
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)

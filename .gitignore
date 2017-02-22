@@ -3,3 +3,12 @@ target
 .DS_Store
 .classpath
 .settings
+/local.properties
+/src/main/resources/glassfish-jersey/*
+/src/main/resources/hk2/*
+/src/main/resources/jersey-misc/*
+/src/main/resources/karaf-http/*
+/src/main/resources/karaf-scr/*
+/src/main/resources/osgi-jax-rs-connector/*
+/src/main/resources/pax-http/*
+/src/main/resources/pax-jetty/*

@@ -31,6 +31,8 @@ import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
+import com.google.inject.Inject;
+
 import io.swagger.annotations.Api;
 
 /**
@@ -45,15 +47,15 @@ import io.swagger.annotations.Api;
 public class CommandResource implements PaxAppender, TaskObserver 
 {
 
-	@Context
+	@Inject
 	@NotNull
 	private AvailableCommands available;
 
-	@Context
+	@Inject
 	@NotNull
 	private CommandExecutorTaskFactory ceTaskFactory;
 	
-	@Context
+	@Inject
 	@NotNull
 	private SynchronousTaskManager<?> taskManager;
 

@@ -60,6 +60,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -71,13 +72,13 @@ public class NetworkResource extends AbstractResource {
 	private static final String CX_READER_ID = "cytoscapeCxNetworkReaderFactory";
 	private static final String CX_FORMAT = "cx";
 	
-	@Context
+	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 	
 	// Preset types
 //	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
 	
-	@Context
+	@Inject
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
 

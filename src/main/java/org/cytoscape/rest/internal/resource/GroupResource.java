@@ -29,6 +29,7 @@ import org.cytoscape.rest.internal.serializer.GroupModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -40,10 +41,10 @@ public class GroupResource extends AbstractResource {
 	private final ObjectMapper groupMapper;
 	private final GroupMapper mapper;
 
-	@Context
+	@Inject
 	private CyGroupFactory groupFactory;
 
-	@Context
+	@Inject
 	private CyGroupManager groupManager;
 
 	public GroupResource() {

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.inject.Named;
@@ -44,9 +45,11 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.glassfish.grizzly.utils.Exceptions;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.google.inject.Inject;
 
 /**
  * Prepare services to be injected.
@@ -72,69 +75,70 @@ public abstract class AbstractResource {
 //		final Exception cause = new Exception(ex.getMessage());
 //		cause.setStackTrace(ex.getStackTrace());
 		final Exception wrapped = new IllegalStateException(errorMessage, ex);
-	
+		StackTraceElement elements[] = wrapped.getStackTrace();
+		
 		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
 			// Otherwise, 500.
 			return new InternalServerErrorException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(wrapped).build());
+					.entity(elements).build());
 		} else {
 			// All other types
 			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(wrapped).build());
+					.entity(elements).build());
 		}
 	}
 
-	@Context
+	@Inject
 	@NotNull
 	protected CyApplicationManager applicationManager;
 
-	@Context
+	@Inject
 	protected CyNetworkManager networkManager;
 
-	@Context
+	@Inject
 	protected CyRootNetworkManager cyRootNetworkManager;
 
-	@Context
+	@Inject
 	protected CyTableManager tableManager;
 
-	@Context
+	@Inject
 	protected CyNetworkViewManager networkViewManager;
 
-	@Context
+	@Inject
 	protected CyNetworkFactory networkFactory;
 
-	@Context
+	@Inject
 	protected CyNetworkViewFactory networkViewFactory;
 
-	@Context
+	@Inject
 	protected TaskFactoryManager tfManager;
 
-	@Context
+	@Inject
 	protected InputStreamTaskFactory cytoscapeJsReaderFactory;
 
-	@Context
+	@Inject
 	@NotNull
 	protected VisualMappingManager vmm;
 
-	@Context
+	@Inject
 	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
 	
-	@Context
+	@Inject
 	protected CyNetworkViewWriterFactoryManager viewWriterFactoryManager;
 
-	@Context
+	@Inject
 	protected WriterListener vizmapWriterFactoryListener;
 
-	@Context
+	@Inject
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
-	@Context
-	protected CyProperty<?> props;
+	@Inject
+	protected CyProperty<Properties> props;
 
-	@Context
+	@Inject
 	protected NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
 
-	@Context
+	@Inject
 	protected EdgeListReaderFactory edgeListReaderFactory;
 	
 

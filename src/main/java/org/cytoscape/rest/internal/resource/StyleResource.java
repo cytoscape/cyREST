@@ -45,6 +45,7 @@ import org.cytoscape.work.TaskMonitor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -55,16 +56,16 @@ public class StyleResource extends AbstractResource {
 
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
-	@Context
+	@Inject
 	private WriterListener writerListener;
 
-	@Context
+	@Inject
 	private TaskMonitor tm;
 
-	@Context
+	@Inject
 	private VisualStyleFactory vsFactory;
 
-	@Context
+	@Inject
 	private MappingFactoryManager factoryManager;
 
 	private final ObjectMapper styleMapper;

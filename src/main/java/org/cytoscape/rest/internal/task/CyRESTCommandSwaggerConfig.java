@@ -85,7 +85,6 @@ public class CyRESTCommandSwaggerConfig implements ReaderListener
 					String type = available.getArgTypeString(namespace, command, argumentName);
 					classes.add(available.getArgType(namespace, command, argumentName).toString());
 					
-	
 					String description = available.getArgDescription(namespace, command, argumentName);
 					//FIXME Since some argument type strings contain HTML special characters, we're performing
 					//a replacement here. This could probably be done a lot more comprehensively.
@@ -99,6 +98,7 @@ public class CyRESTCommandSwaggerConfig implements ReaderListener
 				
 					operation.addParameter(parameter);
 				}
+				
 				//Later, this could be very useful for extracting JSON.
 				//operation.addProduces(MediaType.APPLICATION_JSON);
 
@@ -115,15 +115,6 @@ public class CyRESTCommandSwaggerConfig implements ReaderListener
 				swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
 			}
 		}
-		/*
-		for (String path : swagger.getPaths().keySet())
-		{
-			System.out.println("Swagger Path: " + path);
-		}
-		for (String argumentClass : classes)
-		{
-			System.out.println("Argument Class: " + argumentClass);
-		}*/
 	}
 	
 	/**

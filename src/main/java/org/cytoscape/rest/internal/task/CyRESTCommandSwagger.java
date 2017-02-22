@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.models.Swagger;
@@ -34,7 +35,7 @@ public class CyRESTCommandSwagger
 			}
 		};
 	
-		//FIXME This needs to get set from the GrizzlyServerManager
+		//FIXME This needs to get set from the ResourceManager
 		commandBeanConfig.setHost("0.0.0.0" + ":" + 1234);
 		commandBeanConfig.setScan(true);
 		commandBeanConfig.setPrettyPrint(true);
@@ -42,7 +43,9 @@ public class CyRESTCommandSwagger
 		Swagger swagger = commandBeanConfig.getSwagger();
 
 		// serialization of the Swagger definition
-		try {
+		try 
+		{
+			Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
 			this.swaggerDefinition = Json.mapper().writeValueAsString(swagger);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);

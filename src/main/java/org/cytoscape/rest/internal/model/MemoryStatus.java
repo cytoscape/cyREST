@@ -6,24 +6,40 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MemoryStatus {
 
 	private static final Integer MB = 1024 * 1024;
-	private final Runtime runtime = Runtime.getRuntime();
-	private final Long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / MB;
-	private final Long freeMemory = runtime.freeMemory() / MB;
-	private final Long totalMemory = runtime.totalMemory() / MB;
-	private final Long maxMemory = runtime.maxMemory() / MB;
+	private static Runtime runtime = Runtime.getRuntime();
+	private Long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / MB;
+	private Long freeMemory = runtime.freeMemory() / MB;
+	private Long totalMemory = runtime.totalMemory() / MB;
+	private Long maxMemory = runtime.maxMemory() / MB;
 
+	public MemoryStatus()
+	{
+		
+	}
+	
 	/**
 	 * @return the usedMemory
 	 */
 	public Long getUsedMemory() {
 		return usedMemory;
 	}
+	
+	public void setUsedMemory(Long usedMemory)
+	{
+		
+	}
+	
 
 	/**
 	 * @return the freeMemory
 	 */
 	public Long getFreeMemory() {
 		return freeMemory;
+	}
+	
+	public void setFreeMemory(Long freeMemory)
+	{
+		
 	}
 
 	/**
@@ -32,11 +48,21 @@ public class MemoryStatus {
 	public Long getTotalMemory() {
 		return totalMemory;
 	}
+	
+	public void setTotalMemory(Long totalMemory)
+	{
+		
+	}
 
 	/**
 	 * @return the maxMemory
 	 */
 	public Long getMaxMemory() {
 		return maxMemory;
+	}
+	
+	public void setMaxMemory(Long maxMemory)
+	{
+		
 	}
 }

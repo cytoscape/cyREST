@@ -57,6 +57,7 @@ import org.cytoscape.work.util.BoundedDouble;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
@@ -76,15 +77,15 @@ public class NetworkViewResource extends AbstractResource {
 
 	private static final String DEF_HEIGHT = "600";
 
-	@Context
+	@Inject
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
 	
-	@Context
+	@Inject
 	@NotNull
 	private GraphicsWriterManager graphicsWriterManager;
 	
-	@Context
+	@Inject
 	@NotNull
 	private ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
 	

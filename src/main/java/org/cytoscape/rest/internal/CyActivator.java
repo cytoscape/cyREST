@@ -26,8 +26,10 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.task.CyBinder;
-import org.cytoscape.rest.internal.task.GrizzlyServerManager;
+import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
+import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
+import org.cytoscape.rest.internal.task.ResourceTracker;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
@@ -50,6 +52,8 @@ import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskMonitor;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,35 +84,50 @@ public class CyActivator extends AbstractCyActivator {
 		}
 	}
 
-	private GrizzlyServerManager grizzlyServerManager = null;
-
+	private OSGiJAXRSManager osgiJAXRSManager = null;
+	private ResourceManager resourceManager = null;
+	private ResourceTracker resourceTracker = null;
+	
 	public CyActivator() {
 		super();
 	}
 
 	
-	public void start(BundleContext bc) {
+	public void start(BundleContext bc) throws InvalidSyntaxException {
 
+		try {
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
-	
-		// Start Grizzly server in separate thread
+		final String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
+		
+		resourceTracker = new ResourceTracker(bc,bc.createFilter(ANY_SERVICE_FILTER));
+		resourceTracker.open();
+		
+		osgiJAXRSManager = new OSGiJAXRSManager();
+		
+		
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		service.submit(()-> {
 			try 
 			{
 				this.initDependencies(bc);
-				
-				this.grizzlyServerManager.startServer();
-			} catch (Exception e) {
+				osgiJAXRSManager.start(bc, this.resourceManager.getPortNumber().toString());
+				this.resourceManager.startServer();
+			} 
+			catch (Exception e) {
 				e.printStackTrace();
 				logger.warn("Failed to initialize cyREST server.", e);
 			}
 		});
+		
 		logger.info("cyREST dependency import took: " + (System.currentTimeMillis() - start) + " msec.");
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+			logger.warn("Failed to initialize cyREST server.", e);
+		}
 	}
-	
-	
+
 	private final void initDependencies(final BundleContext bc) throws Exception {
 
 		// OSGi Service listeners
@@ -160,17 +179,17 @@ public class CyActivator extends AbstractCyActivator {
 
 		final Properties clProps = commandLineProps.getProperties();
 		
-		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(GrizzlyServerManager.PORT_NUMBER_PROP);
+		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
 		
-		if (clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP) != null)
-			restPortNumber = clProps.getProperty(GrizzlyServerManager.PORT_NUMBER_PROP);
+		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
+			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
 		
 		if(restPortNumber == null) {
-			restPortNumber = GrizzlyServerManager.DEF_PORT_NUMBER.toString();
+			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
 		}
 		
 		// Set Port number
-		cyPropertyServiceRef.getProperties().setProperty(GrizzlyServerManager.PORT_NUMBER_PROP, restPortNumber);
+		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
@@ -248,15 +267,24 @@ public class CyActivator extends AbstractCyActivator {
 		
 
 		
-		this.grizzlyServerManager = new GrizzlyServerManager(binder, cyPropertyServiceRef, available);
+		this.resourceManager = new ResourceManager(bc, binder, cyPropertyServiceRef, available);
 	}
 	
 
 	@Override
 	public void shutDown() {
 		logger.info("Shutting down REST server...");
-		if (grizzlyServerManager != null) {
-			grizzlyServerManager.stopServer();
+		resourceTracker.close();
+		if (resourceManager != null) {
+			resourceManager.stopServer();
+		}
+		if (osgiJAXRSManager != null)
+		{
+			try {
+				osgiJAXRSManager.stop();
+			} catch (BundleException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

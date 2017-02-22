@@ -41,9 +41,10 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskMonitor;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
 
-public class CyBinder extends AbstractBinder {
+public class CyBinder extends AbstractModule {
 
 	private final TaskMonitor headlessMonitor;
 
@@ -161,46 +162,47 @@ public class CyBinder extends AbstractBinder {
 
 	@Override
 	protected void configure() {
-		bind(networkManager).to(CyNetworkManager.class);
-		bind(networkViewManager).to(CyNetworkViewManager.class);
-		bind(networkFactory).to(CyNetworkFactory.class);
-		bind(tfManager).to(TaskFactoryManager.class);
-		bind(vmm).to(VisualMappingManager.class);
-		bind(applicationManager).to(CyApplicationManager.class);
-		bind(cytoscapeJsReaderFactory).to(InputStreamTaskFactory.class);
-		bind(cytoscapeJsWriterFactory).to(CyNetworkViewWriterFactory.class);
-		bind(layoutManager).to(CyLayoutAlgorithmManager.class);
-		bind(vizmapWriterFactoryListener).to(WriterListener.class);
-		bind(headlessMonitor).to(TaskMonitor.class);
-		bind(tableMamanger).to(CyTableManager.class);
-		bind(vsFactory).to(VisualStyleFactory.class);
-		bind(mappingFactoryManager).to(MappingFactoryManager.class);
-		bind(groupFactory).to(CyGroupFactory.class);
-		bind(groupManager).to(CyGroupManager.class);
-		bind(cyRootNetworkManager).to(CyRootNetworkManager.class);
-		bind(loadNetworkURLTaskFactory).to(LoadNetworkURLTaskFactory.class);
-		bind(props).to(CyProperty.class);
-		bind(newNetworkSelectedNodesAndEdgesTaskFactory).to(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
-		bind(edgelistReaderFactory).to(EdgeListReaderFactory.class);
-		bind(networkViewFactory).to(CyNetworkViewFactory.class);
-		bind(tableFactory).to(CyTableFactory.class);
-		bind(fitContent).to(NetworkTaskFactory.class);
-		bind(edgeBundler).to(EdgeBundler.class);
-		bind(renderingEngineManager).to(RenderingEngineManager.class);
-		bind(sessionManager).to(CySessionManager.class);
-		bind(saveSessionAsTaskFactory).to(SaveSessionAsTaskFactory.class);
-		bind(openSessionTaskFactory).to(OpenSessionTaskFactory.class);
-		bind(newSessionTaskFactory).to(NewSessionTaskFactory.class);
-		bind(desktop).to(CySwingApplication.class);
-		bind(toggleLod).to(LevelOfDetails.class);
-		bind(selectFirstNeighborsTaskFactory).to(SelectFirstNeighborsTaskFactory.class);
-		bind(graphicsWriterManager).to(GraphicsWriterManager.class);
-		bind(exportNetworkViewTaskFactory).to(ExportNetworkViewTaskFactory.class);
-		bind(viewFactoryManager).to(CyNetworkViewWriterFactoryManager.class);
+		bind(CyNetworkManager.class).toInstance(networkManager);
+		bind(CyNetworkViewManager.class).toInstance(networkViewManager);
+		bind(CyNetworkFactory.class).toInstance(networkFactory);
+		bind(TaskFactoryManager.class).toInstance(tfManager);
+		bind(VisualMappingManager.class).toInstance(vmm);
+		bind(CyApplicationManager.class).toInstance(applicationManager);
+		bind(InputStreamTaskFactory.class).toInstance(cytoscapeJsReaderFactory);
+		bind(CyNetworkViewWriterFactory.class).toInstance(cytoscapeJsWriterFactory);
+		bind(CyLayoutAlgorithmManager.class).toInstance(layoutManager);
+		bind(WriterListener.class).toInstance(vizmapWriterFactoryListener);
+		bind(TaskMonitor.class).toInstance(headlessMonitor);
+		bind(CyTableManager.class).toInstance(tableMamanger);
+		bind(VisualStyleFactory.class).toInstance(vsFactory);
+		bind(MappingFactoryManager.class).toInstance(mappingFactoryManager);
+		bind(CyGroupFactory.class).toInstance(groupFactory);
+		bind(CyGroupManager.class).toInstance(groupManager);
+		bind(CyRootNetworkManager.class).toInstance(cyRootNetworkManager);
+		bind(LoadNetworkURLTaskFactory.class).toInstance(loadNetworkURLTaskFactory);
+		//bind(CyProperty.class).toInstance(props);
+		bind(new TypeLiteral<CyProperty<Properties>>(){}).toInstance(props);
+		bind(NewNetworkSelectedNodesAndEdgesTaskFactory.class).toInstance(newNetworkSelectedNodesAndEdgesTaskFactory);
+		bind(EdgeListReaderFactory.class).toInstance(edgelistReaderFactory);
+		bind(CyNetworkViewFactory.class).toInstance(networkViewFactory);
+		bind(CyTableFactory.class).toInstance(tableFactory);
+		bind(NetworkTaskFactory.class).toInstance(fitContent);
+		bind(EdgeBundler.class).toInstance(edgeBundler);
+		bind(RenderingEngineManager.class).toInstance(renderingEngineManager);
+		bind(CySessionManager.class).toInstance(sessionManager);
+		bind(SaveSessionAsTaskFactory.class).toInstance(saveSessionAsTaskFactory);
+		bind(OpenSessionTaskFactory.class).toInstance(openSessionTaskFactory);
+		bind(NewSessionTaskFactory.class).toInstance(newSessionTaskFactory);
+		bind(CySwingApplication.class).toInstance(desktop);
+		bind(LevelOfDetails.class).toInstance(toggleLod);
+		bind(SelectFirstNeighborsTaskFactory.class).toInstance(selectFirstNeighborsTaskFactory);
+		bind(GraphicsWriterManager.class).toInstance(graphicsWriterManager);
+		bind(ExportNetworkViewTaskFactory.class).toInstance(exportNetworkViewTaskFactory);
+		bind(CyNetworkViewWriterFactoryManager.class).toInstance(viewFactoryManager);
 		
 		// For Command API
-		bind(available).to(AvailableCommands.class);
-		bind(ceTaskFactory).to(CommandExecutorTaskFactory.class);
-		bind(synchronousTaskManager).to(SynchronousTaskManager.class);
+		bind(AvailableCommands.class).toInstance(available);
+		bind(CommandExecutorTaskFactory.class).toInstance(ceTaskFactory);
+		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
 	}
 }

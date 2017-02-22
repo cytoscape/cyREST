@@ -10,6 +10,11 @@ public class Message
 {
 	private String message;
 	
+	public Message()
+	{
+		
+	}
+	
 	public Message(String string) {
 		setMessage(string);
 	}

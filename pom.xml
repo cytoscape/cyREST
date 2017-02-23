@@ -688,6 +688,13 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.7.4</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.eclipsesource.jaxrs</groupId>
+			<artifactId>provider-gson</artifactId>
+			<version>2.3</version>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- Jersey -->
 		<!--

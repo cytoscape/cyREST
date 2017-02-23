@@ -121,6 +121,7 @@ import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.mockito.Mockito;
 
+import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -544,14 +545,9 @@ public class BasicResourceTest extends JerseyTest {
 								rc.register(instance);
 							}
 							
-							/* TODO Test for Jackson and gson. 
-							 * Here we're using Jackson to handle POJO-JSON mapping. The app has migrated to gson now, 
-							 * and by keeping Jackson in the testing, it insures that whatever already existed doesn't
-							 * break after migration. However, in the future, we may wish to switch back, or switch to
-							 * something else, so we may want to check that whatever resource is built works for json 
-							 * and Jackson.
-							 */
-							rc.register(JacksonFeature.class);
+							// Note: This should match the POJO/JSON serializer we use for the OSGi JAX RS Connector
+							//rc.register(JacksonFeature.class); //Old feature
+							rc.register(GsonProvider.class);
 							
 							this.server = GrizzlyHttpServerFactory
 									.createHttpServer(baseUri, rc);

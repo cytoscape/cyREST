@@ -134,8 +134,8 @@ public class OSGiJAXRSManager
 		installBundlesFromResources(bundleContext, HK2_BUNDLES);
 		installBundlesFromResources(bundleContext, GLASSFISH_JERSEY_BUNDLES);
 	
-		
 		installBundlesFromResources(bundleContext, OSGI_JAX_RS_CONNECTOR_BUNDLES);
+		
 	}
 
 	private void setRootResourceConfig(BundleContext context) throws Exception

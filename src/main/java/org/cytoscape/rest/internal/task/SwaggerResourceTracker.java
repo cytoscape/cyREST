@@ -1,11 +1,10 @@
 package org.cytoscape.rest.internal.task;
 
-import java.lang.annotation.Annotation;
-
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.ext.Provider;
 
+import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
@@ -13,18 +12,16 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import io.swagger.annotations.Api;
 
-@SuppressWarnings("rawtypes")
-public class ResourceTracker extends ServiceTracker
+public class SwaggerResourceTracker extends ServiceTracker
 {
-	//CyRESTCommandSwagger swaggerResource;
+	CyRESTSwagger swaggerResource;
 	
 	  private final BundleContext context;
 
-	  public ResourceTracker( BundleContext context, Filter filter) {
+	  public SwaggerResourceTracker( BundleContext context, Filter filter, CyRESTSwagger swaggerResource ) {
 	    super( context, filter, null );
-	    System.out.println("Path class: " + Path.class);
 	    this.context = context;
-	    //this.swaggerResource = swaggerResource;
+	    this.swaggerResource = swaggerResource;
 	  }
 
 	  @Override
@@ -36,9 +33,7 @@ public class ResourceTracker extends ServiceTracker
 	  private Object delegateAddService( ServiceReference reference, Object service ) {
 	    Object result;
 	    if( isResource( service ) ) {
-	    	System.out.println("Is resource:" + reference + " " + service);
-	    	  //FIXME implement below
-	        //swaggerResource.addResource( service.getClass() );
+	        swaggerResource.addResource( service.getClass() );
 	    	result = service;
 	    } else {
 	      context.ungetService( reference );
@@ -49,15 +44,15 @@ public class ResourceTracker extends ServiceTracker
 
 	  @Override
 	  public void removedService( ServiceReference reference, Object service ) {
-		  //FIXME implement below
-		 // swaggerResource.removeResource( service.getClass() );
+		 
+		  swaggerResource.removeResource( service.getClass() );
 	    context.ungetService( reference );
 	  }
 
 	  @Override
 	  public void modifiedService( ServiceReference reference, Object service ) {
-		  //FIXME implement below
-		  //swaggerResource.removeResource(  service.getClass() );
+		 
+		  swaggerResource.removeResource(  service.getClass() );
 	    delegateAddService( reference, service );
 	  }
 
@@ -78,18 +73,7 @@ public class ResourceTracker extends ServiceTracker
 
 	  private boolean isRegisterableAnnotationPresent( Class<?> type ) 
 	  {
-		  for (Annotation annotation : type.getAnnotations())
-		  {
-			  if (annotation.annotationType().getName().contains("javax.ws.rs.Path"))
-			  {
-				  System.out.println("Path annotation found in " + type.getName() + " " + annotation.annotationType().equals(Path.class));
-			  }
-		  }
-		  return (type.isAnnotationPresent( Path.class ) || type.isAnnotationPresent( Provider.class ));
+		  return (type.isAnnotationPresent( Path.class ) || type.isAnnotationPresent( Provider.class )) && type.isAnnotationPresent(Api.class);
 	  }
 	
-	  private boolean isSwaggerAnnotationPresent(Class<?> type)
-	  {
-		  return (type.isAnnotationPresent(Api.class));
-	  }
 }

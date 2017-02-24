@@ -29,7 +29,6 @@ import org.cytoscape.rest.internal.task.CyBinder;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
-import org.cytoscape.rest.internal.task.ResourceTracker;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
@@ -84,9 +83,9 @@ public class CyActivator extends AbstractCyActivator {
 		}
 	}
 
+	private String cyRESTPort = null;
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
-	private ResourceTracker resourceTracker = null;
 	
 	public CyActivator() {
 		super();
@@ -95,24 +94,17 @@ public class CyActivator extends AbstractCyActivator {
 	
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
-		try {
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
-		final String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
-		
-		resourceTracker = new ResourceTracker(bc,bc.createFilter(ANY_SERVICE_FILTER));
-		resourceTracker.open();
 		
 		osgiJAXRSManager = new OSGiJAXRSManager();
 		
-		
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		service.submit(()-> {
-			try 
-			{
+			try {
 				this.initDependencies(bc);
-				osgiJAXRSManager.start(bc, this.resourceManager.getPortNumber().toString());
-				this.resourceManager.startServer();
+				osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
+				resourceManager.registerResourceServices();
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -120,12 +112,7 @@ public class CyActivator extends AbstractCyActivator {
 			}
 		});
 		
-		logger.info("cyREST dependency import took: " + (System.currentTimeMillis() - start) + " msec.");
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-			logger.warn("Failed to initialize cyREST server.", e);
-		}
+		logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
 	}
 
 	private final void initDependencies(final BundleContext bc) throws Exception {
@@ -180,13 +167,15 @@ public class CyActivator extends AbstractCyActivator {
 		final Properties clProps = commandLineProps.getProperties();
 		
 		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
-		
+				
 		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
 			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
 		
 		if(restPortNumber == null) {
 			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
 		}
+		
+		this.cyRESTPort = restPortNumber;
 		
 		// Set Port number
 		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
@@ -195,11 +184,9 @@ public class CyActivator extends AbstractCyActivator {
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		
-			
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = null;
 		InputStreamTaskFactory cytoscapeJsReaderFactory = null;
 		CyNetworkViewWriterFactory cxWriterFactory = null;
-		
 		
 		Boolean jsonDependencyFound = false;
 		Integer retryCount = 0;
@@ -254,6 +241,8 @@ public class CyActivator extends AbstractCyActivator {
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
+		
+		
 		// Start REST Server
 		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
@@ -263,25 +252,23 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, restPortNumber);
 		
-
-		
-		this.resourceManager = new ResourceManager(bc, binder, cyPropertyServiceRef, available);
+		this.resourceManager = new ResourceManager(bc, binder);
 	}
 	
 
 	@Override
 	public void shutDown() {
 		logger.info("Shutting down REST server...");
-		resourceTracker.close();
+	
 		if (resourceManager != null) {
-			resourceManager.stopServer();
+			resourceManager.unregisterResourceServices();
 		}
 		if (osgiJAXRSManager != null)
 		{
 			try {
-				osgiJAXRSManager.stop();
+				osgiJAXRSManager.uninstallOSGiJAXRSBundles();
 			} catch (BundleException e) {
 				e.printStackTrace();
 			}

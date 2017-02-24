@@ -116,7 +116,7 @@ public class OSGiJAXRSManager
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
 	};
 
-	public void start(BundleContext bundleContext, String port) throws Exception 
+	public void installOSGiJAXRSBundles(BundleContext bundleContext, String port) throws Exception 
 	{
 		context = bundleContext;
 		
@@ -168,6 +168,12 @@ public class OSGiJAXRSManager
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param context
+	 * @throws Exception
+	 */
 	private void setPortConfig(BundleContext context) throws Exception
 	{
 		ServiceReference configurationAdminReference = 
@@ -236,8 +242,7 @@ public class OSGiJAXRSManager
 		Bundle bundle = null;
 
 		URL url = bundleContext.getBundle().getResource(resourceName);
-		try 
-		{
+		try {
 			bundle = bundleContext.installBundle(url.toString() ,url.openConnection().getInputStream());
 		} catch (BundleException e) {
 			e.printStackTrace();
@@ -246,17 +251,14 @@ public class OSGiJAXRSManager
 			e.printStackTrace();
 			bundle = null;
 		}
-
-
 		return bundle;
 	}
 	
-	public void stop() throws BundleException
+	public void uninstallOSGiJAXRSBundles() throws BundleException
 	{
-		for (Bundle bundle : bundles)
-		{
-		bundle.stop();
-		bundle.uninstall();
+		for (Bundle bundle : bundles){
+			bundle.stop();
+			bundle.uninstall();
 		}
 	}
 }

@@ -97,6 +97,7 @@ public class CyBinder extends AbstractModule {
 	
 	private final CyNetworkViewWriterFactoryManager viewFactoryManager;
 	
+	private final String cyRESTPort;
 
 	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -117,7 +118,8 @@ public class CyBinder extends AbstractModule {
 			final LevelOfDetails toggleLod, final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory,
 			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
-			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager) {
+			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
+			final String cyRESTPort) {
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -157,6 +159,7 @@ public class CyBinder extends AbstractModule {
 		this.ceTaskFactory = ceTaskFactory;
 		this.synchronousTaskManager = synchronousTaskManager;
 		this.viewFactoryManager = viewFactoryManager;
+		this.cyRESTPort = cyRESTPort;
 	}
 
 
@@ -204,5 +207,7 @@ public class CyBinder extends AbstractModule {
 		bind(AvailableCommands.class).toInstance(available);
 		bind(CommandExecutorTaskFactory.class).toInstance(ceTaskFactory);
 		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
+		
+		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
 	}
 }

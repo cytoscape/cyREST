@@ -247,6 +247,8 @@ public class BasicResourceTest extends JerseyTest {
 	
 		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 		
+		final String cyRESTPort = "1234";
+		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
 				edgeListReaderFactory, layouts, writerListsner,
@@ -258,7 +260,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager);
+				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, cyRESTPort);
 	}
 	
 	

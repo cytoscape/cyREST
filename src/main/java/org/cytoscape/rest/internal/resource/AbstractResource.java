@@ -7,12 +7,10 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -37,6 +35,7 @@ import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
+import org.cytoscape.rest.internal.task.CyRESTPort;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -45,8 +44,6 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingManager;
-import org.glassfish.grizzly.utils.Exceptions;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.inject.Inject;
@@ -141,13 +138,18 @@ public abstract class AbstractResource {
 	@Inject
 	protected EdgeListReaderFactory edgeListReaderFactory;
 	
-
+	@Inject
+	@CyRESTPort
+	protected String cyRESTPort;
+	
 	protected final GraphObjectSerializer serializer;
 
 	public AbstractResource() {
 		this.serializer = new GraphObjectSerializer();
 	}
 
+	
+	
 	protected final CyNetwork getCyNetwork(final Long id) {
 		if (id == null) {
 			throw new NotFoundException("SUID is null.");

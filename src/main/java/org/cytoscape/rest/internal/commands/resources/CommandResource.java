@@ -22,7 +22,6 @@ import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
-import org.cytoscape.rest.internal.task.CyRESTCommandSwaggerConfig;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;

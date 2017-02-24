@@ -130,7 +130,7 @@ public class CyRESTSwagger extends AbstractResource
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
 			)
-	public class CyRESTSwaggerConfig implements ReaderListener
+	public static class CyRESTSwaggerConfig implements ReaderListener
 	{
 
 		public static final String SESSION_TAG = "Session";

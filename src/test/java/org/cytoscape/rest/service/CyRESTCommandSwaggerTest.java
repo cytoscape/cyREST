@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
+
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -15,7 +17,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CyRESTCommandSwaggerTest extends JerseyTest 
+public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 {
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -25,15 +27,17 @@ public class CyRESTCommandSwaggerTest extends JerseyTest
 	}
 
 	@Test
-	public void test() throws Exception {
-		String result = target("/v1/commands/swagger.json").request().get(String.class);
+	public void hasValidSwaggerConfig() throws Exception {
+		Response response = target("/v1/commands/swagger.json").request().get();
+		String result = response.readEntity(String.class);
 		assertNotNull(result);
 		
-		
 		System.out.println("CyREST Command Swagger exists at /v1/commands/swagger.json");
+		System.out.println(result);
 		
 		final JsonNode root = mapper.readTree(result);
-		//TODO Verify that the Swagger json or yaml documents the same resources as the server.
+	
+		swaggerConfigTest(root);
 	}
 	
 	@Test

@@ -16,8 +16,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ws.rs.core.Context;
-
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
@@ -55,6 +53,8 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
+import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
@@ -85,7 +85,6 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
-import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngineFactory;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
@@ -112,7 +111,6 @@ import org.cytoscape.work.TaskMonitor;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
@@ -151,6 +149,8 @@ public class BasicResourceTest extends JerseyTest {
 	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
+	protected final String cyRESTPort = "1234";
+	
 	public BasicResourceTest() {
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
 		Object context = new Object();
@@ -242,12 +242,14 @@ public class BasicResourceTest extends JerseyTest {
 		ExportNetworkViewTaskFactory exportNetworkViewTaskFactory = mock(ExportNetworkViewTaskFactory.class);
 		
 		final AvailableCommands available = mock(AvailableCommands.class);
+		when(available.getNamespaces()).thenReturn(new ArrayList<String>());
+		
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 	
 		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 		
-		final String cyRESTPort = "1234";
+		final String cyRESTPort = this.cyRESTPort;
 		
 		this.binder = new CyBinder(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
@@ -537,7 +539,7 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(NetworkNameResource.class);
 							resourceClasses.add(UIResource.class);
 							resourceClasses.add(CollectionResource.class);
-							
+							resourceClasses.add(CyRESTCommandSwagger.class);
 							final ResourceConfig rc = new ResourceConfig();
 							
 							Injector injector = Guice.createInjector(binder);
@@ -546,7 +548,8 @@ public class BasicResourceTest extends JerseyTest {
 								Object instance = injector.getInstance(clazz);
 								rc.register(instance);
 							}
-							
+							CyRESTSwagger swagger = injector.getInstance(CyRESTSwagger.class);
+							rc.register(swagger);
 							// Note: This should match the POJO/JSON serializer we use for the OSGi JAX RS Connector
 							//rc.register(JacksonFeature.class); //Old feature
 							rc.register(GsonProvider.class);

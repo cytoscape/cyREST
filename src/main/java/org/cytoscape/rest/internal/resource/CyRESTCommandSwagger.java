@@ -38,24 +38,24 @@ public class CyRESTCommandSwagger extends AbstractResource
 	@Inject
 	@NotNull
 	private AvailableCommands available;
-	
+
 	private String swaggerDefinition;
-	
+
 	public CyRESTCommandSwagger()
 	{
 		updateSwagger();
 	}
-	
+
 	protected void updateSwagger()
 	{
 		swaggerDefinition = null;
 	}
-	
+
 	public boolean isSwaggerDefinitionNull()
 	{
 		return (swaggerDefinition == null);
 	}	
-	
+
 	protected void buildSwagger()
 	{
 		BeanConfig commandBeanConfig = new BeanConfig(){
@@ -67,13 +67,13 @@ public class CyRESTCommandSwagger extends AbstractResource
 				return classes;
 			}
 		};
-	
+
 		commandBeanConfig.setHost(ResourceManager.HOST + ":" +  cyRESTPort);
 		commandBeanConfig.setScan(true);
 		commandBeanConfig.setPrettyPrint(true);
-		
-		Swagger swagger = commandBeanConfig.getSwagger();
 
+		Swagger swagger = commandBeanConfig.getSwagger();
+		addCommandPaths(swagger);
 		// serialization of the Swagger definition
 		try 
 		{
@@ -83,7 +83,75 @@ public class CyRESTCommandSwagger extends AbstractResource
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	/**
+	 * Scans the AvailableCommands service, translates available commands and parameters into their Swagger annotation 
+	 * equivalents, and adds them to the passed Swagger instance.
+	 * 
+	 * @param swagger
+	 */
+	private void addCommandPaths(Swagger swagger)
+	{
+		Set<String> classes = new HashSet<String>();
+
+		if (available != null)	{
+
+			for (String namespace : available.getNamespaces())
+			{
+				for (String command : available.getCommands(namespace))
+				{
+					io.swagger.models.Path testPath = new io.swagger.models.Path();
+					Operation operation = new Operation();
+					operation.addTag(namespace);
+					operation.setOperationId(namespace + "/" + command);
+					operation.setSummary(available.getDescription(namespace, command));
+
+					for (String argumentName : available.getArguments(namespace, command))
+					{
+
+						QueryParameter parameter = new QueryParameter();
+						parameter.setName(argumentName);
+
+						String type = available.getArgTypeString(namespace, command, argumentName);
+						classes.add(available.getArgType(namespace, command, argumentName).toString());
+
+						String description = available.getArgDescription(namespace, command, argumentName);
+						//FIXME Since some argument type strings contain HTML special characters, we're performing
+						//a replacement here. This could probably be done a lot more comprehensively.
+						parameter.setDescription(type.replaceAll("<", "&lt;").replaceAll(">","&gt;")+ ": " + description);
+
+						Class<?> typeClass = available.getArgType(namespace, command, argumentName);
+						setTypeAndFormatFromClass(parameter,typeClass);
+
+						boolean required = available.getArgRequired(namespace, command, argumentName);
+						parameter.setRequired(required);
+
+						operation.addParameter(parameter);
+					}
+
+					//Later, this could be very useful for extracting JSON.
+					//operation.addProduces(MediaType.APPLICATION_JSON);
+
+					operation.addProduces(MediaType.TEXT_PLAIN);
+					Response response = new Response();
+					response.setDescription("successful operation");
+					StringProperty stringProperty =  new StringProperty();
+					stringProperty.setName("testName");
+					response.setSchema(stringProperty);
+
+					operation.addResponse("200", response);
+
+					testPath.setGet(operation);
+					swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
+				}
+			}
+		}
+		else
+		{
+			System.out.println("CyRESTCommandSwagger availableCommands is null");
+		}
+	}
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public String get() throws JsonProcessingException 
@@ -94,7 +162,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		}
 		return swaggerDefinition;
 	}
-	
+
 	@SwaggerDefinition(
 			info = @Info(
 					description = "A bridge to offer access to Cytoscape command line commands through a REST-like service.",
@@ -120,132 +188,81 @@ public class CyRESTCommandSwagger extends AbstractResource
 			schemes = {SwaggerDefinition.Scheme.HTTP},
 			tags = 
 		{
-				
+
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
-		)
-	public class CyRESTCommandSwaggerConfig implements ReaderListener
+			)
+	public static class CyRESTCommandSwaggerConfig implements ReaderListener
 	{
 
 		@Override
 		public void beforeScan(Reader arg0, Swagger swagger) 
 		{
-			//Here we hide the single path used for all commands and replace it with ALL available commands.
-			swagger.getPaths().remove("/v1/commands/{namespace}/{command}");
+		
 		}
 
 		public void afterScan(Reader reader, Swagger swagger)
 		{
-			Set<String> classes = new HashSet<String>();
-			
-			for (String namespace : available.getNamespaces())
-			{
-				for (String command : available.getCommands(namespace))
-				{
-					io.swagger.models.Path testPath = new io.swagger.models.Path();
-					Operation operation = new Operation();
-					operation.addTag(namespace);
-					operation.setOperationId(namespace + "/" + command);
-					operation.setSummary(available.getDescription(namespace, command));
-				
-					for (String argumentName : available.getArguments(namespace, command))
-					{
-						
-						QueryParameter parameter = new QueryParameter();
-						parameter.setName(argumentName);
-						
-						String type = available.getArgTypeString(namespace, command, argumentName);
-						classes.add(available.getArgType(namespace, command, argumentName).toString());
-						
-						String description = available.getArgDescription(namespace, command, argumentName);
-						//FIXME Since some argument type strings contain HTML special characters, we're performing
-						//a replacement here. This could probably be done a lot more comprehensively.
-						parameter.setDescription(type.replaceAll("<", "&lt;").replaceAll(">","&gt;")+ ": " + description);
-						
-						Class<?> typeClass = available.getArgType(namespace, command, argumentName);
-						setTypeAndFormatFromClass(parameter,typeClass);
-						
-						boolean required = available.getArgRequired(namespace, command, argumentName);
-						parameter.setRequired(required);
-					
-						operation.addParameter(parameter);
-					}
-					
-					//Later, this could be very useful for extracting JSON.
-					//operation.addProduces(MediaType.APPLICATION_JSON);
 
-					operation.addProduces(MediaType.TEXT_PLAIN);
-					Response response = new Response();
-					response.setDescription("successful operation");
-					StringProperty stringProperty =  new StringProperty();
-					stringProperty.setName("testName");
-					response.setSchema(stringProperty);
-
-					operation.addResponse("200", response);
-
-					testPath.setGet(operation);
-					swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
-				}
-			}
 		}
-		
-		/**
-		 * Sets the Type and Format for the passed QueryParameter based on the passed Class
-		 * produced by AvailableCommands
-		 * 
-		 * Note that this takes into account some basic primitives, plus String, but defaults
-		 * to a String type for any other class. This was done because more complex arguments
-		 * are generally translated from String using StringTunableHandler.
-		 * 
-		 * @see org.cytoscape.command.AvailableCommands
-		 * @see org.cytoscape.command.StringTunableHandler
-		 * 
-		 * @param parameter
-		 * @param clazz
-		 */
-		public void setTypeAndFormatFromClass(QueryParameter parameter, Class<?> clazz)
+	}
+
+	/**
+	 * Sets the Type and Format for the passed QueryParameter based on the passed Class
+	 * produced by AvailableCommands
+	 * 
+	 * Note that this takes into account some basic primitives, plus String, but defaults
+	 * to a String type for any other class. This was done because more complex arguments
+	 * are generally translated from String using StringTunableHandler.
+	 * 
+	 * @see org.cytoscape.command.AvailableCommands
+	 * @see org.cytoscape.command.StringTunableHandler
+	 * 
+	 * @param parameter
+	 * @param clazz
+	 */
+	public static void setTypeAndFormatFromClass(QueryParameter parameter, Class<?> clazz)
+	{
+
+		//FIXME This shouldn't be producing hard-coded strings here, but instead should 
+		//access some Swagger or JSON constant.
+		//These were extracted from the Swagger Specification (http://swagger.io/specification/)
+		if (int.class.equals(clazz))
 		{
-			
-			//FIXME This shouldn't be producing hard-coded strings here, but instead should 
-			//access some Swagger or JSON constant.
-			//These were extracted from the Swagger Specification (http://swagger.io/specification/)
-			if (int.class.equals(clazz))
-			{
-				parameter.setType("integer");
-				parameter.setFormat("int32");
-			}
-			else if (long.class.equals(clazz))
-			{
-				parameter.setType("integer");
-				parameter.setFormat("int64");
-			}
-			else if (float.class.equals(clazz))
-			{
-				parameter.setType("number");
-				parameter.setFormat("int32");
-			}
-			else if (double.class.equals(clazz))
-			{
-				parameter.setType("number");
-				parameter.setFormat("int64");
-			}
-			else if (String.class.equals(clazz))
-			{
-				parameter.setType("string");
-			}
-			else if (byte.class.equals(clazz))
-			{
-				parameter.setType("string");
-				parameter.setFormat("byte");
-			}
-			else if (boolean.class.equals(clazz))
-			{
-				parameter.setType("boolean");
-			}
-			else
-			{	
-				parameter.setType("string");
-			}
+			parameter.setType("integer");
+			parameter.setFormat("int32");
+		}
+		else if (long.class.equals(clazz))
+		{
+			parameter.setType("integer");
+			parameter.setFormat("int64");
+		}
+		else if (float.class.equals(clazz))
+		{
+			parameter.setType("number");
+			parameter.setFormat("int32");
+		}
+		else if (double.class.equals(clazz))
+		{
+			parameter.setType("number");
+			parameter.setFormat("int64");
+		}
+		else if (String.class.equals(clazz))
+		{
+			parameter.setType("string");
+		}
+		else if (byte.class.equals(clazz))
+		{
+			parameter.setType("string");
+			parameter.setFormat("byte");
+		}
+		else if (boolean.class.equals(clazz))
+		{
+			parameter.setType("boolean");
+		}
+		else
+		{	
+			parameter.setType("string");
 		}
 	}
 }

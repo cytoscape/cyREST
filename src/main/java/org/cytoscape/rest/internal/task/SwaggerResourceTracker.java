@@ -15,65 +15,63 @@ import io.swagger.annotations.Api;
 public class SwaggerResourceTracker extends ServiceTracker
 {
 	CyRESTSwagger swaggerResource;
-	
-	  private final BundleContext context;
 
-	  public SwaggerResourceTracker( BundleContext context, Filter filter, CyRESTSwagger swaggerResource ) {
-	    super( context, filter, null );
-	    this.context = context;
-	    this.swaggerResource = swaggerResource;
-	  }
+	private final BundleContext context;
 
-	  @Override
-	  public Object addingService( ServiceReference reference ) {
-	    Object service = context.getService( reference );
-	    return delegateAddService( reference, service );
-	  }
+	public SwaggerResourceTracker( BundleContext context, Filter filter, CyRESTSwagger swaggerResource ) {
+		super( context, filter, null );
+		this.context = context;
+		this.swaggerResource = swaggerResource;
+	}
 
-	  private Object delegateAddService( ServiceReference reference, Object service ) {
-	    Object result;
-	    if( isResource( service ) ) {
-	        swaggerResource.addResource( service.getClass() );
-	    	result = service;
-	    } else {
-	      context.ungetService( reference );
-	      result = null;
-	    }
-	    return result;
-	  }
+	@Override
+	public Object addingService( ServiceReference reference ) {
+		Object service = context.getService( reference );
+		return delegateAddService( reference, service );
+	}
 
-	  @Override
-	  public void removedService( ServiceReference reference, Object service ) {
-		 
-		  swaggerResource.removeResource( service.getClass() );
-	    context.ungetService( reference );
-	  }
+	private Object delegateAddService( ServiceReference reference, Object service ) {
+		Object result;
+		if( isResource( service ) ) {
+			swaggerResource.addResource( service.getClass() );
+			result = service;
+		} else {
+			context.ungetService( reference );
+			result = null;
+		}
+		return result;
+	}
 
-	  @Override
-	  public void modifiedService( ServiceReference reference, Object service ) {
-		 
-		  swaggerResource.removeResource(  service.getClass() );
-	    delegateAddService( reference, service );
-	  }
+	@Override
+	public void removedService( ServiceReference reference, Object service ) {
+		swaggerResource.removeResource( service.getClass() );
+		context.ungetService( reference );
+	}
 
-	  private boolean isResource( Object service ) {
-	    return service != null && ( hasRegisterableAnnotation( service ) || service instanceof Feature );
-	  }
+	@Override
+	public void modifiedService( ServiceReference reference, Object service ) {
+		swaggerResource.removeResource(  service.getClass() );
+		delegateAddService( reference, service );
+	}
 
-	  private boolean hasRegisterableAnnotation( Object service ) {
-	    boolean result = isRegisterableAnnotationPresent( service.getClass() );
-	    if( !result ) {
-	      Class<?>[] interfaces = service.getClass().getInterfaces();
-	      for( Class<?> type : interfaces ) {
-	        result = result || isRegisterableAnnotationPresent( type );
-	      }
-	    }
-	    return result;
-	  }
+	private boolean isResource( Object service ) {
+		return service != null && ( hasRegisterableAnnotation( service ) || service instanceof Feature );
+	}
 
-	  private boolean isRegisterableAnnotationPresent( Class<?> type ) 
-	  {
-		  return (type.isAnnotationPresent( Path.class ) || type.isAnnotationPresent( Provider.class )) && type.isAnnotationPresent(Api.class);
-	  }
-	
+	private boolean hasRegisterableAnnotation( Object service ) {
+		boolean result = isRegisterableAnnotationPresent( service.getClass() );
+		if( !result ) {
+			Class<?>[] interfaces = service.getClass().getInterfaces();
+			for( Class<?> type : interfaces ) {
+				result = result || isRegisterableAnnotationPresent( type );
+			}
+		}
+		return result;
+	}
+
+	private boolean isRegisterableAnnotationPresent( Class<?> type ) 
+	{
+		return (type.isAnnotationPresent( Path.class ) || type.isAnnotationPresent( Provider.class )) && type.isAnnotationPresent(Api.class);
+	}
+
 }

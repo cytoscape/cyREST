@@ -3,8 +3,6 @@ package org.cytoscape.rest.internal.task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.cytoscape.command.AvailableCommands;
-import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.CORSFilter;
@@ -95,10 +93,7 @@ public final class ResourceManager {
 	public void registerResourceServices() throws Exception 
 	{
 		loadTime = System.currentTimeMillis();
-
-		//FIXME See CyRESTCommandSwaggerConfig.available for details.
-		//CyRESTCommandSwaggerConfig.available = available;
-
+		
 		Injector injector = Guice.createInjector(binder);
 
 		for (Class<?> clazz : resourceClasses)

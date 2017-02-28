@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,7 +132,6 @@ public class OSGiJAXRSManager
 		installBundlesFromResources(bundleContext, JERSEY_MISC_BUNDLES);
 		installBundlesFromResources(bundleContext, HK2_BUNDLES);
 		installBundlesFromResources(bundleContext, GLASSFISH_JERSEY_BUNDLES);
-	
 		installBundlesFromResources(bundleContext, OSGI_JAX_RS_CONNECTOR_BUNDLES);
 		
 	}
@@ -149,27 +147,20 @@ public class OSGiJAXRSManager
 
 			Configuration config = configurationAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null);
 
-			if (config != null)
-			{
+			Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
+			dictionary.put("root", "/*");
 
-				Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
-				dictionary.put("root", "/*");
-
-				config.update(dictionary);
-			}
-			else
-			{
-				System.err.println("com.eclipsesource.jaxrs.connector config is null");
-			}
+			config.update(dictionary);
+			
 			context.ungetService(configurationAdminReference);
 		}
 		else{
-			System.err.println("Config Admin is null");
+			throw new IllegalStateException("No available ConfigurationAdmin service.");
 		}
 	}
 
 	/**
-	 * 
+	 * Set the port the CyREST service will be listening on.
 	 * 
 	 * @param context
 	 * @throws Exception
@@ -184,32 +175,17 @@ public class OSGiJAXRSManager
 			ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) context.getService(configurationAdminReference);
 
 			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.web", null);
-			if (config != null)
-			{
+			
+			Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
+			dictionary.put("org.osgi.service.http.port", port);
 
-				Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
-				dictionary.put("org.osgi.service.http.port", port);
-
-				if (config.getProperties()!= null)
-				{
-					Enumeration<String> stringEnum = config.getProperties().keys();
-					for (String key = stringEnum.nextElement(); stringEnum.hasMoreElements(); key = stringEnum.nextElement())
-					{
-						System.out.println(key + " = " + config.getProperties().get(key));
-					}
-				}
-				config.update(dictionary);
-
-			}
-			else
-			{
-				System.err.println("org.ops4j.pax.web config is null");
-			}
+			config.update(dictionary);
+			
 			context.ungetService(configurationAdminReference);
 		}
 		else
 		{
-			System.err.println("Config Admin is null");
+			throw new IllegalStateException("No available ConfigurationAdmin service.");
 		}
 	}
 

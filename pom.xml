@@ -471,6 +471,7 @@
 				<configuration>
 				<includes>
             		<include>org/cytoscape/rest/**/*</include>
+            		<include>org/cytoscape/rest/*</include>
        			</includes>
     			</configuration>
         		<executions>

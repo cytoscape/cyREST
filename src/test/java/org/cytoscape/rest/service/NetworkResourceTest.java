@@ -547,8 +547,9 @@ public class NetworkResourceTest extends BasicResourceTest {
 		final String newVal = createNetworkListJson();
 		System.out.println("New values: " + newVal);
 		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
-		Response result = target("/v1/networks").request().post(entity);
+		Response result = target("/v1/networks").queryParam("source", "url").queryParam("format", "edgelist").request().post(entity);
 		assertNotNull(result);
+		assertEquals(200, result.getStatus());
 		final String body = result.readEntity(String.class);
 		System.out.println("BODY: " + body);
 		System.out.println("res: " + result.toString());

@@ -32,16 +32,19 @@ import org.cytoscape.ding.impl.ObjectPositionImpl;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
+import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.NetworkTestSupport;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
@@ -219,6 +222,11 @@ public class BasicResourceTest extends JerseyTest {
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
 		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
+		CyNetworkReader cyNetworkReader = mock(CyNetworkReader.class);
+	
+		when(cyNetworkReader.getNetworks()).thenReturn(new CyNetwork[]{network});
+		when(loadNetworkURLTaskFactory.loadCyNetworks((java.net.URL) anyObject())).thenReturn(new TaskIterator(cyNetworkReader));
+		
 		CyProperty<Properties> cyPropertyServiceRef = mock(CyProperty.class);
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);

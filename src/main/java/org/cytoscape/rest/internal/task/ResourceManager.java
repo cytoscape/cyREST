@@ -77,7 +77,7 @@ public final class ResourceManager {
 			CyRESTCommandSwagger.class,
 
 			//For CORS
-			CORSFilter.class
+			CORSFilter.class,
 	};
 
 	public ResourceManager(final BundleContext bundleContext, final Module binder) throws InvalidSyntaxException {

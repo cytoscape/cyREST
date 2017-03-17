@@ -69,10 +69,9 @@
 
 	<build>
 		<plugins>
-		<plugin>
-				<!-- Copy bundles from maven into this bundle's resources 
-				folder. These are all necessary for the OSGi JAX RS connector
-				to function. -->
+			<plugin>
+				<!-- Copy bundles from maven into this bundle's resources folder. These 
+					are all necessary for the OSGi JAX RS connector to function. -->
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
@@ -393,13 +392,9 @@
 									<artifactId>javax.servlet-api</artifactId>
 									<version>3.1.0</version>
 								</artifactItem>
-								<!-- We've customized this in the above to support existing JAX-RS.
-								<artifactItem>
-									<groupId>com.eclipsesource.jaxrs</groupId>
-									<artifactId>jersey-min</artifactId>
-									<version>2.22.1</version>
-								</artifactItem>
-								-->
+								<!-- We've customized this in the above to support existing JAX-RS. 
+									<artifactItem> <groupId>com.eclipsesource.jaxrs</groupId> <artifactId>jersey-min</artifactId> 
+									<version>2.22.1</version> </artifactItem> -->
 								<artifactItem>
 									<groupId>com.eclipsesource.jaxrs</groupId>
 									<artifactId>consumer</artifactId>
@@ -455,7 +450,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Private-Package>org.cytoscape.io.internal.*,${bundle.namespace}.internal.*</Private-Package>
+						<Private-Package>${bundle.namespace}.internal.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -470,81 +465,71 @@
 				<version>3.1.0</version>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.6</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.ow2.asm</groupId>
-						<artifactId>asm</artifactId>
-						<version>5.0.3</version>
-					</dependency>
-				</dependencies>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.9</version>
 				<configuration>
-					<format>xml</format>
-					<maxmem>256m</maxmem>
-					<!-- aggregated reports for multi-module projects -->
-					<aggregate>true</aggregate>
-				</configuration>
-			</plugin>
-			  <!-- Will run build.xml in same folder 
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
+				<includes>
+            		<include>org/cytoscape/rest/**/*</include>
+       			</includes>
+    			</configuration>
+        		<executions>
                     <execution>
-                        <phase>install</phase>
-                        <configuration>
-                            <target>
-                              
-                                <ant dir="./" />
-                            </target>
-                        </configuration>
                         <goals>
-                            <goal>run</goal>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            -->
+			</plugin>
+			<!-- Will run build.xml in same folder <plugin> <groupId>org.apache.maven.plugins</groupId> 
+				<artifactId>maven-antrun-plugin</artifactId> <version>1.7</version> <executions> 
+				<execution> <phase>install</phase> <configuration> <target> <ant dir="./" 
+				/> </target> </configuration> <goals> <goal>run</goal> </goals> </execution> 
+				</executions> </plugin> -->
 		</plugins>
-		      <pluginManagement>
-  			<plugins>
-  				<!--This plugin's configuration is used to store Eclipse m2e settings 
-  					only. It has no influence on the Maven build itself. -->
-  				<plugin>
-  					<groupId>org.eclipse.m2e</groupId>
-  					<artifactId>lifecycle-mapping</artifactId>
-  					<version>1.0.0</version>
-  					<configuration>
-  						<lifecycleMappingMetadata>
-  							<pluginExecutions>
-  								<pluginExecution>
-  									<pluginExecutionFilter>
-  										<groupId>
-  											org.apache.maven.plugins
-  										</groupId>
-  										<artifactId>
-  											maven-dependency-plugin
-  										</artifactId>
-  										<versionRange>
-  											[2.1,)
-  										</versionRange>
-  										<goals>
-  											<goal>copy</goal>
-  										</goals>
-  									</pluginExecutionFilter>
-  									<action>
-  										<ignore />
-  									</action>
-  								</pluginExecution>
-  							</pluginExecutions>
-  						</lifecycleMappingMetadata>
-  					</configuration>
-  				</plugin>
-  			</plugins>
-  		</pluginManagement>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-dependency-plugin
+										</artifactId>
+										<versionRange>
+											[2.1,)
+										</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 
@@ -664,7 +649,7 @@
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- 3rd party libraries -->
 		<!-- osgi jax-rs bundles -->
 
@@ -680,7 +665,7 @@
 			<artifactId>validation-api</artifactId>
 			<version>1.0.0.GA</version>
 		</dependency>
-		
+
 
 		<!-- Jackson -->
 		<dependency>
@@ -688,7 +673,7 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.7.4</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.eclipsesource.jaxrs</groupId>
 			<artifactId>provider-gson</artifactId>
@@ -697,12 +682,8 @@
 		</dependency>
 
 		<!-- Jersey -->
-		<!--
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-grizzly2-servlet</artifactId>
-		</dependency>
-		-->
+		<!-- <dependency> <groupId>org.glassfish.jersey.containers</groupId> <artifactId>jersey-container-grizzly2-servlet</artifactId> 
+			</dependency> -->
 
 
 		<!-- Logging -->
@@ -797,7 +778,7 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
 			<artifactId>jersey-test-framework-provider-grizzly2</artifactId>
@@ -808,8 +789,8 @@
 			<artifactId>jersey-test-framework-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
 
-		
+
+
 	</dependencies>
 </project>

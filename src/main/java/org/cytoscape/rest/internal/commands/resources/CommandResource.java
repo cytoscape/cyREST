@@ -193,8 +193,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 	 *         command
 	 */
 	@GET
-	@Path("/{namespace}/{command}") // Be wary of changing this, as SwaggerApiConfig hides it in favor of listing all 
-	//available commands.
+	@Path("/{namespace}/{command}") 
 	@Produces(MediaType.TEXT_HTML)
 	public String handleHTMLCommand(@PathParam("namespace") String namespace,
 			@PathParam("command") String command, @Context UriInfo uriInfo) {

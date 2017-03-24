@@ -873,10 +873,17 @@ public class NetworkResource extends AbstractResource {
 			collectionName = collection;
 		}
 
+		
+		
 		final TaskIterator it;
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
 			it = edgeListReaderFactory.createTaskIterator(is, collection);
 		} else {
+			InputStreamTaskFactory cytoscapeJsReaderFactory = (InputStreamTaskFactory) this.cytoscapeJsReaderFactory.getService();
+			if (cytoscapeJsReaderFactory == null)
+			{
+				throw getError("Cytoscape js reader factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+			}
 			it = cytoscapeJsReaderFactory.createTaskIterator(is, collection);
 		}
 

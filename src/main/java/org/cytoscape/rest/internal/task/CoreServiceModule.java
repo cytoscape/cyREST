@@ -8,8 +8,6 @@ import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
-import org.cytoscape.io.read.InputStreamTaskFactory;
-import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
@@ -41,10 +39,13 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskMonitor;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 
-public class CyBinder extends AbstractModule {
+public class CoreServiceModule extends AbstractModule {
 
 	private final TaskMonitor headlessMonitor;
 
@@ -57,7 +58,7 @@ public class CyBinder extends AbstractModule {
 	private final CyApplicationManager applicationManager;
 	private final VisualMappingManager vmm;
 	private final CyLayoutAlgorithmManager layoutManager;
-	private final CyTableManager tableMamanger;
+	private final CyTableManager tableManager;
 	private final CyTableFactory tableFactory;
 
 	private final WriterListener vizmapWriterFactoryListener;
@@ -75,8 +76,8 @@ public class CyBinder extends AbstractModule {
 	// TFs
 	private final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory;
 	private final EdgeListReaderFactory edgelistReaderFactory;
-	private final CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
-	private final InputStreamTaskFactory cytoscapeJsReaderFactory;
+	private final ServiceTracker cytoscapeJsWriterFactory;
+	private final ServiceTracker cytoscapeJsReaderFactory;
 	private final NetworkTaskFactory fitContent;
 	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
@@ -98,12 +99,12 @@ public class CyBinder extends AbstractModule {
 	private final CyNetworkViewWriterFactoryManager viewFactoryManager;
 	
 	private final String cyRESTPort;
-
-	public CyBinder(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
+	
+	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
-			final CyNetworkViewWriterFactory cytoscapeJsWriterFactory,
-			final InputStreamTaskFactory cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
+			final ServiceTracker cytoscapeJsWriterFactory,
+			final ServiceTracker cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
@@ -120,6 +121,7 @@ public class CyBinder extends AbstractModule {
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
 			final String cyRESTPort) {
+	
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -131,7 +133,7 @@ public class CyBinder extends AbstractModule {
 		this.layoutManager = layoutManager;
 		this.vizmapWriterFactoryListener = vizmapWriterFactoryListener;
 		this.headlessMonitor = headlessMonitor;
-		this.tableMamanger = tableManager;
+		this.tableManager = tableManager;
 		this.vsFactory = vsFactory;
 		this.mappingFactoryManager = mappingFactoryManager;
 		this.groupFactory = groupFactory;
@@ -171,12 +173,12 @@ public class CyBinder extends AbstractModule {
 		bind(TaskFactoryManager.class).toInstance(tfManager);
 		bind(VisualMappingManager.class).toInstance(vmm);
 		bind(CyApplicationManager.class).toInstance(applicationManager);
-		bind(InputStreamTaskFactory.class).toInstance(cytoscapeJsReaderFactory);
-		bind(CyNetworkViewWriterFactory.class).toInstance(cytoscapeJsWriterFactory);
+		bind(ServiceTracker.class).annotatedWith(CytoscapeJsReaderFactory.class).toInstance(cytoscapeJsReaderFactory);
+		bind(ServiceTracker.class).annotatedWith(CytoscapeJsWriterFactory.class).toInstance(cytoscapeJsWriterFactory);
 		bind(CyLayoutAlgorithmManager.class).toInstance(layoutManager);
 		bind(WriterListener.class).toInstance(vizmapWriterFactoryListener);
 		bind(TaskMonitor.class).toInstance(headlessMonitor);
-		bind(CyTableManager.class).toInstance(tableMamanger);
+		bind(CyTableManager.class).toInstance(tableManager);
 		bind(VisualStyleFactory.class).toInstance(vsFactory);
 		bind(MappingFactoryManager.class).toInstance(mappingFactoryManager);
 		bind(CyGroupFactory.class).toInstance(groupFactory);

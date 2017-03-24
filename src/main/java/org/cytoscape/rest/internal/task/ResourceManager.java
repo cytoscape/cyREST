@@ -1,7 +1,9 @@
 package org.cytoscape.rest.internal.task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
@@ -20,6 +22,8 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
+import org.cytoscape.rest.internal.resource.apps.AppConstants;
+import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.osgi.framework.BundleContext;
@@ -44,62 +48,63 @@ public final class ResourceManager {
 
 	public static final String HOST = "0.0.0.0";
 
-	private final Module binder;
-
 	private CyRESTSwagger swagger;
 
-	private SwaggerResourceTracker resourceTracker;
+	private SwaggerResourceTracker swaggerResourceTracker;
 
 	private long loadTime;
 
 	private BundleContext bundleContext;
 
-	private List<ServiceRegistration> serviceRegistrations;
+	private final List<ServiceRegistration> serviceRegistrations;
 
-	public static final Class<?>[] resourceClasses = {
-			RootResource.class,
-			NetworkResource.class,
-			NetworkFullResource.class,
-			NetworkViewResource.class,
-			TableResource.class,
-			MiscResource.class,
-			AlgorithmicResource.class,
-			StyleResource.class,
-			GroupResource.class,
-			GlobalTableResource.class,
-			SessionResource.class,
-			NetworkNameResource.class,
-			UIResource.class,
-			CollectionResource.class,
+	public final Class<?>[] coreResourceClasses;
 
-			// For Commands
-			CommandResource.class,
-			CyRESTCommandSwagger.class,
+	private final Module coreServicesModule;
 
-			//For CORS
-			CORSFilter.class,
-	};
+	private final Map<Class<?>, Module> shimResources;
 
-	public ResourceManager(final BundleContext bundleContext, final Module binder) throws InvalidSyntaxException {
+	public ResourceManager(final BundleContext bundleContext, final Class<?>[] coreResourceClasses, final Module coreServicesModule, final Map<Class<?>, Module> shimResources) throws InvalidSyntaxException {
 
 		this.bundleContext = bundleContext;
 
-		this.binder = binder;
+		this.coreResourceClasses = coreResourceClasses;
+
+		this.coreServicesModule = coreServicesModule;
+
+		this.shimResources = shimResources;
 
 		this.serviceRegistrations = new ArrayList<ServiceRegistration>();
+
 	}
 
 	//TODO Add this config to integration testing, otherwise our tests and reality could be out of sync.
 	public void registerResourceServices() throws Exception 
 	{
 		loadTime = System.currentTimeMillis();
-		
-		Injector injector = Guice.createInjector(binder);
 
-		for (Class<?> clazz : resourceClasses)
-		{
+		Injector injector = Guice.createInjector(coreServicesModule);
+
+		for (Class<?> clazz : coreResourceClasses){
 			Object instance = injector.getInstance(clazz);
 			serviceRegistrations.add(bundleContext.registerService(clazz.getName(), instance, new Properties()));
+		}
+
+		for (Map.Entry<Class<?>, Module> entry : shimResources.entrySet()){
+			if (AppConstants.hasValidAppRoot(entry.getKey()))
+			{
+				Object instance = injector.getInstance(entry.getKey());
+				if (entry.getValue() != null)
+				{
+					Injector appInjector = Guice.createInjector(entry.getValue());
+					appInjector.injectMembers(instance);
+				}
+				serviceRegistrations.add(bundleContext.registerService(entry.getKey().getName(), instance, new Properties()));
+			}
+			else
+			{
+				logger.error("App resource " + entry.getKey().getName() + " has an invalid @Path annotation, and could not be loaded.");
+			}
 		}
 
 		serviceRegistrations.add(bundleContext.registerService(CyExceptionMapper.class.getName(), new CyExceptionMapper(), new Properties()));
@@ -108,8 +113,8 @@ public final class ResourceManager {
 
 		swagger = injector.getInstance(CyRESTSwagger.class);
 
-		resourceTracker = new SwaggerResourceTracker(bundleContext,bundleContext.createFilter(ANY_SERVICE_FILTER), swagger);
-		resourceTracker.open();
+		swaggerResourceTracker = new SwaggerResourceTracker(bundleContext,bundleContext.createFilter(ANY_SERVICE_FILTER), swagger);
+		swaggerResourceTracker.open();
 
 		serviceRegistrations.add(bundleContext.registerService(CyRESTSwagger.class.getName(), swagger, new Properties()));
 
@@ -124,7 +129,7 @@ public final class ResourceManager {
 		{
 			serviceRegistration.unregister();
 		}
-		resourceTracker.close();
-		resourceTracker = null;
+		swaggerResourceTracker.close();
+		swaggerResourceTracker = null;
 	}
 }

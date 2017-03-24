@@ -12,7 +12,8 @@ public class SwaggerResourceTest extends BasicResourceTest
 		assertTrue(root.has("swagger"));
 		assertTrue(root.has("info"));
 		assertTrue(root.has("host"));
-		assertTrue(root.has("basePath"));
+		//Since we have no root, this isn't applicable.
+		//assertTrue(root.has("basePath"));
 		assertTrue(root.has("tags"));
 		assertTrue(root.has("schemes"));
 		assertTrue(root.has("consumes"));
@@ -22,9 +23,5 @@ public class SwaggerResourceTest extends BasicResourceTest
 		
 		final JsonNode hostNode = root.get("host");
 		assertEquals("0.0.0.0:" + cyRESTPort , hostNode.asText());
-		
-		final JsonNode pathNode = root.get("basePath");
-		assertEquals("/", pathNode.asText());
-		
 	}
 }

@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.CyNetworkReader;
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -71,7 +73,7 @@ import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
-import org.cytoscape.rest.internal.task.CyBinder;
+import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
@@ -122,6 +124,7 @@ import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.mockito.Mockito;
+import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
 import com.google.inject.Guice;
@@ -132,7 +135,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected NetworkTestSupport nts = new NetworkTestSupport();
 	protected NetworkViewTestSupport nvts = new NetworkViewTestSupport();
 
-	protected final CyBinder binder;
+	protected final CoreServiceModule binder;
 
 	protected CyNetwork network;
 	protected CyNetworkView view;
@@ -210,6 +213,9 @@ public class BasicResourceTest extends JerseyTest {
 		when(vmm.getDefaultVisualStyle()).thenReturn(this.style);
 
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = mock(CyNetworkViewWriterFactory.class);
+		ServiceTracker cytoscapeJsWriterFactoryTracker = mock(ServiceTracker.class);
+		when(cytoscapeJsWriterFactoryTracker.getService()).thenReturn(cytoscapeJsWriterFactory);
+		
 		WriterListener writerListsner = mock(WriterListener.class);
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
@@ -230,6 +236,12 @@ public class BasicResourceTest extends JerseyTest {
 		CyProperty<Properties> cyPropertyServiceRef = mock(CyProperty.class);
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);
+		
+		InputStreamTaskFactory cytoscapeJsReaderFactory = mock(InputStreamTaskFactory.class);
+		when(cytoscapeJsReaderFactory.createTaskIterator((InputStream)anyObject(), (String)anyObject())).thenReturn(new TaskIterator(cyNetworkReader));
+		ServiceTracker cytoscapeJsReaderFactoryTracker = mock(ServiceTracker.class);
+		when(cytoscapeJsReaderFactoryTracker.getService()).thenReturn(cytoscapeJsReaderFactory);
+		
 		CyTableFactory tableFactory = mock(CyTableFactory.class);
 		NetworkTaskFactory fitContent = mock(NetworkTaskFactory.class);
 		EdgeBundler edgeBundler = mock(EdgeBundler.class);
@@ -271,10 +283,10 @@ public class BasicResourceTest extends JerseyTest {
 		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
 		final String cyRESTPort = this.cyRESTPort;
-
-		this.binder = new CyBinder(networkManager, viewManager, netFactory,
-				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactory,
-				edgeListReaderFactory, layouts, writerListsner,
+		
+		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
+				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
+				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,

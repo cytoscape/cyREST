@@ -348,6 +348,7 @@ public class NetworkViewResource extends AbstractResource {
 
 	private final String getNetworkViewString(final CyNetworkView networkView) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, networkView);
 		String jsonString = null;
 		try {

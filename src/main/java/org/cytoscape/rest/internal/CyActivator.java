@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -24,8 +25,26 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
-import org.cytoscape.rest.internal.task.CyBinder;
+import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CORSFilter;
+import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
+import org.cytoscape.rest.internal.resource.GlobalTableResource;
+import org.cytoscape.rest.internal.resource.GroupResource;
+import org.cytoscape.rest.internal.resource.MiscResource;
+import org.cytoscape.rest.internal.resource.NetworkFullResource;
+import org.cytoscape.rest.internal.resource.NetworkNameResource;
+import org.cytoscape.rest.internal.resource.NetworkResource;
+import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.RootResource;
+import org.cytoscape.rest.internal.resource.SessionResource;
+import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.TableResource;
+import org.cytoscape.rest.internal.resource.UIResource;
+import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
+import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
@@ -53,8 +72,11 @@ import org.cytoscape.work.TaskMonitor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Module;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -86,19 +108,19 @@ public class CyActivator extends AbstractCyActivator {
 	private String cyRESTPort = null;
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
-	
+
 	public CyActivator() {
 		super();
 	}
 
-	
+
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
-		
+
 		osgiJAXRSManager = new OSGiJAXRSManager();
-		
+
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		service.submit(()-> {
 			try {
@@ -111,7 +133,7 @@ public class CyActivator extends AbstractCyActivator {
 				logger.warn("Failed to initialize cyREST server.", e);
 			}
 		});
-		
+
 		logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
 	}
 
@@ -121,11 +143,11 @@ public class CyActivator extends AbstractCyActivator {
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
 				VisualMappingFunctionFactory.class);
-		
+
 		final GraphicsWriterManager graphicsWriterManager = new GraphicsWriterManager();
 		registerServiceListener(bc, graphicsWriterManager, "addFactory", "removeFactory",
 				PresentationWriterFactory.class);
-		
+
 		final CyNetworkViewWriterFactoryManager viewWriterManager = new CyNetworkViewWriterFactoryManager();
 		registerServiceListener(bc, viewWriterManager, "addFactory", "removeFactory",
 				CyNetworkViewWriterFactory.class);
@@ -159,57 +181,43 @@ public class CyActivator extends AbstractCyActivator {
 		final AvailableCommands available = getService(bc, AvailableCommands.class);
 		final CommandExecutorTaskFactory ceTaskFactory = getService(bc, CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = getService(bc, SynchronousTaskManager.class);
-		
+
 		// Get any command line arguments. The "-R" is ours
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
 
 		final Properties clProps = commandLineProps.getProperties();
-		
+
 		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
-				
+
 		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
 			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
-		
+
 		if(restPortNumber == null) {
 			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
 		}
-		
+
 		this.cyRESTPort = restPortNumber;
-		
+
 		// Set Port number
 		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
-		
-		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = null;
-		InputStreamTaskFactory cytoscapeJsReaderFactory = null;
-		CyNetworkViewWriterFactory cxWriterFactory = null;
-		
-		Boolean jsonDependencyFound = false;
-		Integer retryCount = 0;
-		while(jsonDependencyFound == false && retryCount <= MAX_RETRY) {
-			try {
-				cytoscapeJsWriterFactory = getService(bc, CyNetworkViewWriterFactory.class,
-						"(id=cytoscapejsNetworkWriterFactory)");
-				cytoscapeJsReaderFactory = getService(bc, InputStreamTaskFactory.class,
-						"(id=cytoscapejsNetworkReaderFactory)");
-				jsonDependencyFound = true;
-			} catch(Exception ex) {
-				Thread.sleep(INTERVAL);
-			}
-			retryCount++;
-		}
-		
-		if(jsonDependencyFound == false) {
-			throw new IllegalStateException("Could not find dependency: JSON support services are missing.");
-		}
+
+		ServiceTracker cytoscapeJsWriterFactory = null;
+		ServiceTracker cytoscapeJsReaderFactory = null;
+		//CyNetworkViewWriterFactory cxWriterFactory = null;
+
+		cytoscapeJsWriterFactory = new ServiceTracker(bc, bc.createFilter("(&(objectClass=org.cytoscape.io.write.CyNetworkViewWriterFactory)(id=cytoscapejsNetworkWriterFactory))"), null);
+		cytoscapeJsWriterFactory.open();
+		cytoscapeJsReaderFactory = new ServiceTracker(bc, bc.createFilter("(&(objectClass=org.cytoscape.io.read.InputStreamTaskFactory)(id=cytoscapejsNetworkReaderFactory))"), null);
+		cytoscapeJsReaderFactory.open();
 		
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
-		
+
 		// TODO: need ID for these services.
 		final NetworkTaskFactory fitContent = getService(bc, NetworkTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
@@ -218,8 +226,8 @@ public class CyActivator extends AbstractCyActivator {
 
 		final RenderingEngineManager renderingEngineManager = getService(bc,RenderingEngineManager.class);
 
-		final WriterListener writerListsner = new WriterListener();
-		registerServiceListener(bc, writerListsner, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
+		final WriterListener writerListener = new WriterListener();
+		registerServiceListener(bc, writerListener, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
 
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 
@@ -241,27 +249,53 @@ public class CyActivator extends AbstractCyActivator {
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
+		final Class<?>[] coreResourceClasses = {
+				RootResource.class,
+				NetworkResource.class,
+				NetworkFullResource.class,
+				NetworkViewResource.class,
+				TableResource.class,
+				MiscResource.class,
+				AlgorithmicResource.class,
+				StyleResource.class,
+				GroupResource.class,
+				GlobalTableResource.class,
+				SessionResource.class,
+				NetworkNameResource.class,
+				UIResource.class,
+				CollectionResource.class,
+
+				// For Commands
+				CommandResource.class,
+				CyRESTCommandSwagger.class,
+				
+				//For CORS
+				CORSFilter.class,
+		};
 		
+		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
+		shimResources.put(ClusterMaker2Resource.class, null);
+
 		
 		// Start REST Server
-		final CyBinder binder = new CyBinder(netMan, netViewMan, netFact, taskFactoryManagerManager,
+		final CoreServiceModule coreServiceModule = new CoreServiceModule(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
-				writerListsner, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
+				writerListener, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, restPortNumber);
-		
-		this.resourceManager = new ResourceManager(bc, binder);
+
+		this.resourceManager = new ResourceManager(bc, coreResourceClasses, coreServiceModule, shimResources);
 	}
-	
+
 
 	@Override
 	public void shutDown() {
 		logger.info("Shutting down REST server...");
-	
+
 		if (resourceManager != null) {
 			resourceManager.unregisterResourceServices();
 		}
@@ -273,6 +307,7 @@ public class CyActivator extends AbstractCyActivator {
 				e.printStackTrace();
 			}
 		}
+		super.shutDown();
 	}
 
 	class EdgeBundlerImpl implements EdgeBundler {
@@ -289,7 +324,7 @@ public class CyActivator extends AbstractCyActivator {
 		}
 
 	}
-	
+
 	public class LevelOfDetails {
 
 		private final NetworkTaskFactory lod;

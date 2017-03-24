@@ -182,7 +182,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 			//Be wary of this host parameter if you are using BeanConfig; use one or the other, as they will
 			//cause conflicts.
 			//host = "localhost:1234",
-			basePath = "/",
+			basePath = "",
 			consumes = {"application/json", "application/xml"},
 			produces = {"application/json", "application/xml"},
 			schemes = {SwaggerDefinition.Scheme.HTTP},

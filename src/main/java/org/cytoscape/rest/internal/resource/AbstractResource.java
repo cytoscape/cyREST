@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyIdentifiable;
@@ -36,6 +35,8 @@ import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.task.CyRESTPort;
+import org.cytoscape.rest.internal.task.CytoscapeJsReaderFactory;
+import org.cytoscape.rest.internal.task.CytoscapeJsWriterFactory;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -44,6 +45,8 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingManager;
+import org.osgi.util.tracker.ServiceTracker;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.inject.Inject;
@@ -111,14 +114,16 @@ public abstract class AbstractResource {
 	protected TaskFactoryManager tfManager;
 
 	@Inject
-	protected InputStreamTaskFactory cytoscapeJsReaderFactory;
+	@CytoscapeJsReaderFactory
+	protected ServiceTracker cytoscapeJsReaderFactory;
 
 	@Inject
 	@NotNull
 	protected VisualMappingManager vmm;
 
 	@Inject
-	protected CyNetworkViewWriterFactory cytoscapeJsWriterFactory;
+	@CytoscapeJsWriterFactory
+	protected ServiceTracker cytoscapeJsWriterFactory;
 	
 	@Inject
 	protected CyNetworkViewWriterFactoryManager viewWriterFactoryManager;
@@ -259,6 +264,11 @@ public abstract class AbstractResource {
 	
 	protected final String getNetworkString(final CyNetwork network) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
+		if (cytoscapeJsWriterFactory == null)
+		{
+			throw getError("Cytoscape js writer factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+		}
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
 		String jsonString = null;
 		try {

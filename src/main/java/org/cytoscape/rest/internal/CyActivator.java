@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -25,24 +26,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
-import org.cytoscape.rest.internal.resource.AlgorithmicResource;
-import org.cytoscape.rest.internal.resource.CORSFilter;
-import org.cytoscape.rest.internal.resource.CollectionResource;
-import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
-import org.cytoscape.rest.internal.resource.GlobalTableResource;
-import org.cytoscape.rest.internal.resource.GroupResource;
-import org.cytoscape.rest.internal.resource.MiscResource;
-import org.cytoscape.rest.internal.resource.NetworkFullResource;
-import org.cytoscape.rest.internal.resource.NetworkNameResource;
-import org.cytoscape.rest.internal.resource.NetworkResource;
-import org.cytoscape.rest.internal.resource.NetworkViewResource;
-import org.cytoscape.rest.internal.resource.RootResource;
-import org.cytoscape.rest.internal.resource.SessionResource;
-import org.cytoscape.rest.internal.resource.StyleResource;
-import org.cytoscape.rest.internal.resource.TableResource;
-import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
@@ -72,6 +56,8 @@ import org.cytoscape.work.TaskMonitor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +65,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Module;
 
 public class CyActivator extends AbstractCyActivator {
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
 	private static final Integer MAX_RETRY = 10;
 	private static final Integer INTERVAL = 5000; // Seconds
@@ -214,7 +200,7 @@ public class CyActivator extends AbstractCyActivator {
 		cytoscapeJsWriterFactory.open();
 		cytoscapeJsReaderFactory = new ServiceTracker(bc, bc.createFilter("(&(objectClass=org.cytoscape.io.read.InputStreamTaskFactory)(id=cytoscapejsNetworkReaderFactory))"), null);
 		cytoscapeJsReaderFactory.open();
-		
+
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = getService(bc, LoadNetworkURLTaskFactory.class);
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
 
@@ -249,34 +235,29 @@ public class CyActivator extends AbstractCyActivator {
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
-		final Class<?>[] coreResourceClasses = {
-				RootResource.class,
-				NetworkResource.class,
-				NetworkFullResource.class,
-				NetworkViewResource.class,
-				TableResource.class,
-				MiscResource.class,
-				AlgorithmicResource.class,
-				StyleResource.class,
-				GroupResource.class,
-				GlobalTableResource.class,
-				SessionResource.class,
-				NetworkNameResource.class,
-				UIResource.class,
-				CollectionResource.class,
+		final String logLocation;
 
-				// For Commands
-				CommandResource.class,
-				CyRESTCommandSwagger.class,
-				
-				//For CORS
-				CORSFilter.class,
-		};
-		
+		// Extract Karaf's log file location
+		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
+		if (configurationAdmin != null) {
+			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
+
+			Dictionary<?,?> dictionary = config.getProperties();
+			Object logObject = dictionary.get("log4j.appender.file.File");
+			if (logObject != null && logObject instanceof String) {
+				logLocation = (String) logObject;
+			}
+			else {
+				logLocation = null;
+			}
+		}
+		else {
+			logLocation = null;
+		}
+
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
 
-		
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
@@ -286,9 +267,9 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, restPortNumber);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, restPortNumber, logLocation);
 
-		this.resourceManager = new ResourceManager(bc, coreResourceClasses, coreServiceModule, shimResources);
+		this.resourceManager = new ResourceManager(bc, CyRESTConstants.coreResourceClasses, coreServiceModule, shimResources);
 	}
 
 

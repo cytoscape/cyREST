@@ -1,31 +1,12 @@
 package org.cytoscape.rest.internal.task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.cytoscape.rest.internal.commands.resources.CommandResource;
-import org.cytoscape.rest.internal.resource.AlgorithmicResource;
-import org.cytoscape.rest.internal.resource.CORSFilter;
-import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.CyExceptionMapper;
-import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
-import org.cytoscape.rest.internal.resource.GlobalTableResource;
-import org.cytoscape.rest.internal.resource.GroupResource;
-import org.cytoscape.rest.internal.resource.MiscResource;
-import org.cytoscape.rest.internal.resource.NetworkFullResource;
-import org.cytoscape.rest.internal.resource.NetworkNameResource;
-import org.cytoscape.rest.internal.resource.NetworkResource;
-import org.cytoscape.rest.internal.resource.NetworkViewResource;
-import org.cytoscape.rest.internal.resource.StyleResource;
-import org.cytoscape.rest.internal.resource.TableResource;
-import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
-import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
-import org.cytoscape.rest.internal.resource.RootResource;
-import org.cytoscape.rest.internal.resource.SessionResource;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
@@ -42,7 +23,7 @@ import com.google.inject.Module;
 public final class ResourceManager {
 
 	private final static Logger logger = LoggerFactory.getLogger(ResourceManager.class);
-
+	
 	public static final String PORT_NUMBER_PROP = "rest.port";
 	public static final Integer DEF_PORT_NUMBER = 1234;
 
@@ -108,7 +89,7 @@ public final class ResourceManager {
 		}
 
 		serviceRegistrations.add(bundleContext.registerService(CyExceptionMapper.class.getName(), new CyExceptionMapper(), new Properties()));
-
+		
 		final String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
 
 		swagger = injector.getInstance(CyRESTSwagger.class);
@@ -121,7 +102,6 @@ public final class ResourceManager {
 		loadTime = System.currentTimeMillis() - loadTime;
 
 		logger.info("========== Cytoscape RESTful API registered core resources in (" + loadTime + ") milliseconds.");
-
 	}
 
 	public void unregisterResourceServices() {

@@ -1,10 +1,16 @@
 package org.cytoscape.rest.internal.resource.apps.clustermaker2;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -18,13 +24,18 @@ import javax.ws.rs.Produces;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.model.CyNetworkManager;
-import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.rest.internal.model.CIError;
+import org.cytoscape.rest.internal.model.CIResponse;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
+import org.cytoscape.rest.internal.task.LogLocation;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
@@ -32,11 +43,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Api(tags = {AppConstants.APP_TAG, "Clustering"})
 @Path(AppConstants.APPS_ROOT + "clustermaker2/")
 public class ClusterMaker2Resource  
 {
+	private static final Logger logger = LoggerFactory.getLogger(ClusterMaker2Resource.class);
 	
 	@Inject
 	protected CyNetworkManager networkManager;
@@ -52,21 +66,38 @@ public class ClusterMaker2Resource
 	@NotNull
 	private CommandExecutorTaskFactory ceTaskFactory;
 	
+	@Inject
+	@LogLocation
+	private String logLocation;
+	
 	public ClusterMaker2Resource(){
 	
 	}
 	
 	class MCODETaskObserver implements TaskObserver {
 		
-		private String message;
+		private CIResponse ciResponse;
+		private String resourcePath;
+		private String errorCode;
 		
-		public MCODETaskObserver(){
-			message = null;
+		public MCODETaskObserver(String resourcePath, String errorCode){
+			ciResponse = null;
+			this.resourcePath = resourcePath;
+			this.errorCode = errorCode;
 		}
 		
 		@Override
 		public void allFinished(FinishStatus arg0) {
-			message = arg0.getType().toString();
+			ciResponse = new CIResponse();
+			if (arg0.getType() == FinishStatus.Type.SUCCEEDED || arg0.getType() == FinishStatus.Type.CANCELLED)
+			{
+				ciResponse.data = arg0.getType().toString();
+				ciResponse.errors = new ArrayList<CIError>();
+			}
+			else
+			{
+				ciResponse = buildCIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), resourcePath, errorCode, arg0.getException().getMessage(), arg0.getException());
+			}
 		}
 
 		@Override
@@ -74,6 +105,32 @@ public class ClusterMaker2Resource
 			//Unfortunately, clustermaker2's MCODE is not an observableTask, so this won't get called and we cannot access
 			//the algorithm's results.
 		}
+	}
+	
+	private final static String cyRESTErrorRoot = "cy://cyrest-core";
+	
+	private CIResponse buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
+	{
+		CIResponse ciResponse = new CIResponse();
+		ciResponse.data = new Object();
+		List<CIError> errors = new ArrayList<CIError>();
+		CIError error= new CIError();
+		error.code = cyRESTErrorRoot + resourcePath+ "/"+ code;
+		if (e != null)
+		{
+			logger.error(message, e);
+		}
+		else
+		{
+			logger.error(message);
+		}
+		URI link = (new File(logLocation)).toURI();
+		error.link = link;
+		error.status = status;
+		error.message = message;
+		errors.add(error);
+		ciResponse.errors = errors;
+		return ciResponse;
 	}
 	
 	private static final String CLUSTER_ATTRIBUTE_KEY = "clusterAttribute";
@@ -125,22 +182,43 @@ public class ClusterMaker2Resource
 	@Consumes("application/json")
 	@ApiOperation(value = "Execute MCODE Clustering",
     notes = "",
-    response = Message.class)
+    response = CIResponse.class)
+	@ApiResponses(value = { 
+			  @ApiResponse(code = 404, message = "Network does not exist", response = CIResponse.class),
+			  @ApiResponse(code = 503, message = "clusterMaker2 MCODE command is unavailable", response = CIResponse.class),
+			  @ApiResponse(code = 400, message = "Invalid or missing parameters", response = CIResponse.class)
+		})
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = CLUSTER_ATTRIBUTE_KEY, value = CLUSTER_ATTRIBUTE_DESCRIPTION, required = false, dataType = "string", paramType = "query", defaultValue=MCODE_CLUSTER_ATTRIBUTE),
 	    @ApiImplicitParam(name = CREATE_GROUPS_KEY, value = CREATE_GROUPS_DESCRIPTION, required = false, dataType = "boolean", paramType = "query", defaultValue="false"),
 	    @ApiImplicitParam(name = SHOW_UI_KEY, value = SHOW_UI_DESCRIPTION, required = false, dataType = "boolean", paramType = "query", defaultValue="false"),
 	    @ApiImplicitParam(name = RESTORE_EDGES_KEY, value = RESTORE_EDGES_DESCRIPTION, required = false, dataType = "boolean", paramType = "query", defaultValue="false")})
-	public Message cluster(@ApiParam(value = "The SUID of the Network", required = true) @PathParam("networkSUID") long suid, MCODEParameters parameters, @Context UriInfo info){
+	public Response cluster(@ApiParam(value = "The SUID of the Network", required = true) @PathParam("networkSUID") long suid, MCODEParameters parameters, @Context UriInfo info){
 		
 		if (!available.getNamespaces().contains(CLUSTERMAKER2_NAMESPACE) || !available.getCommands(CLUSTERMAKER2_NAMESPACE).contains(MCODE_COMMAND)){
 			String messageString = "clusterMaker2 MCODE command is unavailable";
 			throw new ServiceUnavailableException(messageString, Response.status(Response.Status.SERVICE_UNAVAILABLE)
 					.type(MediaType.APPLICATION_JSON)
-					.entity(new Message(messageString)).build());
+					.entity(buildCIErrorResponse(503, "/"+MCODE_COMMAND+"/{networkSUID}", "1", messageString, null)).build());
 		}
 		
-		MCODETaskObserver taskObserver = new MCODETaskObserver();
+		if (!networkManager.networkExists(suid))
+		{
+			String messageString = "Network " + suid + " does not exist";
+			throw new NotFoundException(messageString, Response.status(Response.Status.NOT_FOUND)
+					.type(MediaType.APPLICATION_JSON)
+					.entity(buildCIErrorResponse(404, "/"+MCODE_COMMAND+"/{networkSUID}", "2", messageString, null)).build());
+		}
+		
+		if (parameters == null)
+		{
+			String messageString = "Invalid or missing parameters";
+			throw new BadRequestException(messageString, Response.status(Response.Status.BAD_REQUEST).
+					type(MediaType.APPLICATION_JSON)
+					.entity(buildCIErrorResponse(400, "/"+MCODE_COMMAND+"/{networkSUID}", "3", messageString, null)).build());
+		}
+		
+		MCODETaskObserver taskObserver = new MCODETaskObserver("/"+MCODE_COMMAND+"/{networkSUID}", "4");
 		
 		Map<String, Object> tunableMap = new HashMap<String, Object>();
 		
@@ -153,7 +231,10 @@ public class ClusterMaker2Resource
 		TaskIterator taskIterator = ceTaskFactory.createTaskIterator(CLUSTERMAKER2_NAMESPACE,MCODE_COMMAND, tunableMap, taskObserver); 
 		taskManager.execute(taskIterator, taskObserver);
 		
-		return new Message(taskObserver.message); 
+		return Response.status(taskObserver.ciResponse.errors.size() == 0 ? Response.Status.OK : Response.Status.INTERNAL_SERVER_ERROR)
+				.type(MediaType.APPLICATION_JSON)
+				.entity(taskObserver.ciResponse).build(); 
+		
 	}
 	
 }

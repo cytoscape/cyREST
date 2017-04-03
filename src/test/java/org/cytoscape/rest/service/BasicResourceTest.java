@@ -41,12 +41,10 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.NetworkTestSupport;
-import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
@@ -158,9 +156,16 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
 	protected final String DUMMY_COMMAND = "dummyCommand";
+	protected final String DUMMY_ARGUMENT_NAME = "dummyArgument";
+	protected final String DUMMY_ARGUMENT_DESCRIPTION = "dummyArgumentDescription";
+	protected final Class DUMMY_ARGUMENT_CLASS = int.class;
+	protected final boolean DUMMY_ARGUMENT_REQUIRED = false;
+	
 	protected CyRESTSwagger cyRESTSwagger;
 	
 	protected final String cyRESTPort = "1234";
+	
+	protected final String logLocation = "dummyLogLocation";
 
 	public BasicResourceTest() {
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
@@ -274,15 +279,24 @@ public class BasicResourceTest extends JerseyTest {
 		final List<String> dummyCommands = new ArrayList<String>();
 		dummyCommands.add(DUMMY_COMMAND);
 		
+		final List<String> dummyArguments = new ArrayList<String>();
+		dummyArguments.add(DUMMY_ARGUMENT_NAME);
+		
 		when(available.getNamespaces()).thenReturn(dummynameSpaces);
 		when(available.getCommands(DUMMY_NAMESPACE)).thenReturn(dummyCommands);
-		
+		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_COMMAND)).thenReturn(dummyArguments);
+		when(available.getArgTypeString(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_CLASS.getName());
+		when(available.getArgType(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_CLASS);
+		when(available.getArgDescription(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_DESCRIPTION);
+		when(available.getArgRequired(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(false);
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 
 		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
 		final String cyRESTPort = this.cyRESTPort;
+		
+		final String logLocation = this.logLocation;
 		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
@@ -295,7 +309,7 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, cyRESTPort);
+				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, cyRESTPort, logLocation);
 	}
 
 

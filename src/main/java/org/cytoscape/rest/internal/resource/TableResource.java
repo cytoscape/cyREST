@@ -152,6 +152,7 @@ public class TableResource extends AbstractResource {
 			return Response.ok().build();
 		} else {
 			logger.error("Failed to delete a column. (Missing table?)");
+			
 			throw new NotFoundException("Could not find the table.  (This should not happen!)");
 		}
 	}

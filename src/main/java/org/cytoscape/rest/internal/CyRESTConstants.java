@@ -1,0 +1,45 @@
+package org.cytoscape.rest.internal;
+
+import org.cytoscape.rest.internal.commands.resources.CommandResource;
+import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CORSFilter;
+import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
+import org.cytoscape.rest.internal.resource.GlobalTableResource;
+import org.cytoscape.rest.internal.resource.GroupResource;
+import org.cytoscape.rest.internal.resource.MiscResource;
+import org.cytoscape.rest.internal.resource.NetworkFullResource;
+import org.cytoscape.rest.internal.resource.NetworkNameResource;
+import org.cytoscape.rest.internal.resource.NetworkResource;
+import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.RootResource;
+import org.cytoscape.rest.internal.resource.SessionResource;
+import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.TableResource;
+import org.cytoscape.rest.internal.resource.UIResource;
+
+public class CyRESTConstants {
+	public static final Class<?>[] coreResourceClasses = {
+			RootResource.class,
+			NetworkResource.class,
+			NetworkFullResource.class,
+			NetworkViewResource.class,
+			TableResource.class,
+			MiscResource.class,
+			AlgorithmicResource.class,
+			StyleResource.class,
+			GroupResource.class,
+			GlobalTableResource.class,
+			SessionResource.class,
+			NetworkNameResource.class,
+			UIResource.class,
+			CollectionResource.class,
+
+			// For Commands
+			CommandResource.class,
+			CyRESTCommandSwagger.class,
+
+			//For CORS
+			CORSFilter.class
+	};
+}

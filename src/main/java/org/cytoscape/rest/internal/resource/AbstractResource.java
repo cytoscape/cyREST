@@ -33,6 +33,7 @@ import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.rest.internal.serializer.ExceptionSerializer;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.task.CyRESTPort;
 import org.cytoscape.rest.internal.task.CytoscapeJsReaderFactory;
@@ -49,6 +50,9 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Inject;
 
 /**
@@ -75,16 +79,27 @@ public abstract class AbstractResource {
 //		final Exception cause = new Exception(ex.getMessage());
 //		cause.setStackTrace(ex.getStackTrace());
 		final Exception wrapped = new IllegalStateException(errorMessage, ex);
-		StackTraceElement elements[] = wrapped.getStackTrace();
+		ObjectMapper mapper = new ObjectMapper();
+		 
+		SimpleModule module = new SimpleModule();
+		module.addSerializer(Exception.class, new ExceptionSerializer());
+		mapper.registerModule(module);
+		String serialized;
+		try {
+			serialized = mapper.writeValueAsString(wrapped);
+		} catch (JsonProcessingException e) {
+			serialized = "Exception processing Error.";
+			e.printStackTrace();
+		}
 		
 		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
 			// Otherwise, 500.
 			return new InternalServerErrorException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(elements).build());
+					.entity(serialized ).build());
 		} else {
 			// All other types
 			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(elements).build());
+					.entity(serialized ).build());
 		}
 	}
 

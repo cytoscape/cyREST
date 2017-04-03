@@ -100,6 +100,8 @@ public class CoreServiceModule extends AbstractModule {
 	
 	private final String cyRESTPort;
 	
+	private final String logLocation;
+	
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
@@ -120,7 +122,7 @@ public class CoreServiceModule extends AbstractModule {
 			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
-			final String cyRESTPort) {
+			final String cyRESTPort, final String logLocation) {
 	
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -162,6 +164,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.synchronousTaskManager = synchronousTaskManager;
 		this.viewFactoryManager = viewFactoryManager;
 		this.cyRESTPort = cyRESTPort;
+		this.logLocation = logLocation;
 	}
 
 
@@ -211,5 +214,6 @@ public class CoreServiceModule extends AbstractModule {
 		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
 		
 		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
+		bind(String.class).annotatedWith(LogLocation.class).toInstance(logLocation);
 	}
 }

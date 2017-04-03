@@ -1,5 +1,8 @@
 package org.cytoscape.rest.service;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -12,6 +15,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.models.parameters.QueryParameter;
 
 public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 {
@@ -40,9 +45,63 @@ public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 	}
 	
 	@Test
-	public void isDefinitionNullOnInit()
-	{
+	public void isDefinitionNullOnInit() {
 		CyRESTCommandSwagger cyRESTCommandSwagger = new CyRESTCommandSwagger();
 		assertTrue(cyRESTCommandSwagger.isSwaggerDefinitionNull());
+	}
+	
+	@Test
+	public void isIntJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, int.class);
+		verify(parameter).setType("integer");
+		verify(parameter).setFormat("int32");
+	}
+	
+	@Test
+	public void isLongJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, long.class);
+		verify(parameter).setType("integer");
+		verify(parameter).setFormat("int64");
+	}
+	
+	@Test
+	public void isFloatJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, float.class);
+		verify(parameter).setType("number");
+		verify(parameter).setFormat("int32");
+	}
+	
+	@Test
+	public void isDoubleJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, double.class);
+		verify(parameter).setType("number");
+		verify(parameter).setFormat("int64");
+	}
+	
+	@Test
+	public void isStringJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, String.class);
+		verify(parameter).setType("string");
+	}
+	
+	@Test
+	public void isByteJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, byte.class);
+		verify(parameter).setType("string");
+		verify(parameter).setFormat("byte");
+	}
+	
+	@Test
+	public void isBooleanJSONTypeCorrect() {
+		QueryParameter parameter = mock(QueryParameter.class);
+		CyRESTCommandSwagger.setTypeAndFormatFromClass(parameter, boolean.class);
+		verify(parameter).setType("boolean");
+
 	}
 }

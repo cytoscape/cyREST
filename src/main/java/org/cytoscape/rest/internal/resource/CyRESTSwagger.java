@@ -125,8 +125,23 @@ public class CyRESTSwagger extends AbstractResource
 			schemes = {SwaggerDefinition.Scheme.HTTP},
 			tags = 
 		{
-				@Tag(name = CyRESTSwaggerConfig.SESSION_TAG),
+			@Tag(name = CyRESTSwaggerConfig.APPS_TAG, description="Access to Apps"),
+			@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),
+			@Tag(name = CyRESTSwaggerConfig.GROUPS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.LAYOUTS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.NETWORKS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.NETWORK_VIEWS_TAG),
+			@Tag(name = CyRESTSwaggerConfig.REST_SERVICE_TAG),
+			@Tag(name = CyRESTSwaggerConfig.SESSION_TAG),
+			@Tag(name = CyRESTSwaggerConfig.TABLES_TAG),	
+			@Tag(name = CyRESTSwaggerConfig.USER_INTERFACE_TAG),			
+			@Tag(name = CyRESTSwaggerConfig.VISUAL_PROPERTIES_TAG),
+			@Tag(name = CyRESTSwaggerConfig.VISUAL_STYLES_TAG)
 				
+		
+			
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
 			)
@@ -134,6 +149,19 @@ public class CyRESTSwagger extends AbstractResource
 	{
 
 		public static final String SESSION_TAG = "Session";
+		public static final String APPS_TAG = "Apps";
+		public static final String USER_INTERFACE_TAG = "User Interface";
+		public static final String NETWORKS_TAG = "Networks";
+		public static final String TABLES_TAG = "Tables";
+		public static final String COMMANDS_TAG = "Commands";
+		public static final String REST_SERVICE_TAG = "REST Service";
+		public static final String LAYOUTS_TAG = "Layouts";
+		public static final String NETWORK_VIEWS_TAG = "Network Views";
+		public static final String VISUAL_PROPERTIES_TAG = "Visual Properties";
+		public static final String VISUAL_STYLES_TAG = "Visual Styles";
+		public static final String GROUPS_TAG = "Groups";
+		public static final String COLLECTIONS_TAG = "Collections";
+		public static final String CYTOSCAPE_SYSTEM_TAG = "Cytoscape System";
 
 		@Override
 		public void beforeScan(Reader arg0, Swagger arg1) 

@@ -22,6 +22,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -63,21 +64,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
-@Api(tags = {"Networks"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
-	
+
 	private static final String CX_READER_ID = "cytoscapeCxNetworkReaderFactory";
 	private static final String CX_FORMAT = "cx";
-	
+
 	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
-	
+
 	// Preset types
-//	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
-	
+	//	private static final String DEF_COLLECTION_PREFIX = "Created by cyREST: ";
+
 	@Inject
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
@@ -138,7 +141,7 @@ public class NetworkResource extends AbstractResource {
 			final String query) {
 		final CyNetwork network = getCyNetwork(id);
 		CyTable table = null;
-		
+
 		List<? extends CyIdentifiable> graphObjects;
 		if (objType.equals("nodes")) {
 			table = network.getDefaultNodeTable();
@@ -163,9 +166,9 @@ public class NetworkResource extends AbstractResource {
 			Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
 			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
 			final Set<Long> selectedSuid = rows.stream()
-				.map(row->row.get(CyIdentifiable.SUID, Long.class))
-				.collect(Collectors.toSet());
-			
+					.map(row->row.get(CyIdentifiable.SUID, Long.class))
+					.collect(Collectors.toSet());
+
 			final Set<Long> allSuid = graphObjects.stream()
 					.map(obj->obj.getSUID())
 					.collect(Collectors.toSet());
@@ -176,25 +179,15 @@ public class NetworkResource extends AbstractResource {
 
 	}
 
-
-	/**
-	 * 
-	 * Returns list of networks as an array of network SUID.
-	 * 
-	 * @summary Get SUID list of networks
-	 * 
-	 * @param column Optional.  Network table column name to be used for search.
-	 * @param query Optional.  Search query.
-	 * 
-	 * @return Matched networks as list of SUIDs.  If no query is given, returns all network SUIDs.
-	 * 
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public Collection<Long> getNetworksAsSUID(@QueryParam("column") String column, @QueryParam("query") String query) {
+	@ApiOperation(value="Get SUID list of networks", notes="Returns a list of matching networks. If a query and column are indicated, a matching network is defined as a network whose network table contains a value matching the query in the given column. If no query and column is given, all network SUIDs are returned.")
+	public Collection<Long> getNetworksAsSUID(
+			@ApiParam(value="Network table column name to be queried against", required=false) @QueryParam("column") String column, 
+			@ApiParam(value="A value to be matched in the given column in the network table.", required=false) @QueryParam("query") String query) {
 		Collection<CyNetwork> networks = new HashSet<>();
-		
+
 		if (column == null && query == null) {
 			networks = networkManager.getNetworkSet();
 		} else {
@@ -211,12 +204,12 @@ public class NetworkResource extends AbstractResource {
 				throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		}
-		
+
 		final Collection<Long> suids = new HashSet<Long>();
 		for(final CyNetwork network: networks) {
 			suids.add(network.getSUID());
 		}
-		
+
 		return suids;
 	}
 
@@ -266,17 +259,52 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/selected")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSelectedNodes(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get selected nodes as SUID list")
+	public Collection<Long> getSelectedNodes(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId
+			) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final List<CyNode> selectedNodes = CyTableUtil.getNodesInState(network, CyNetwork.SELECTED, true);
 		final List<Long> selectedNodeIds = selectedNodes.stream()
-			.map(node -> node.getSUID())
-			.collect(Collectors.toList());
-		
-		return Response.ok(selectedNodeIds).build();
+				.map(node -> node.getSUID())
+				.collect(Collectors.toList());
+
+		return selectedNodeIds;
 	}
-	
-	
+
+	@PUT
+	@Path("/{networkId}/nodes/selected")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Set selected nodes")
+	public Collection<Long> setSelectedNodes(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, @ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final CyTable table = network.getDefaultNodeTable();
+
+		return setSelected(network, table, suids);
+	}
+
+	private Collection<Long> setSelected(CyNetwork network, CyTable table, Collection<Double> suids)
+	{
+		//Clear selection first.
+		for (CyRow row : table.getAllRows()) {
+			row.set("selected", false);
+		}
+		//Select rows
+		Set<Long> output = new HashSet<Long>();
+		for (Double suid : suids) {
+			//Check if edge exists; table side-effect new rows if you try to get a non-existent edge.
+			if (table.rowExists(suid.longValue())) {
+				CyRow row = table.getRow(suid.longValue());
+				row.set("selected", true);
+				output.add(suid.longValue());
+			}
+			else {
+				throw getError("SUID " + suid + " cannot be found in table.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+			}
+		}
+		return output;
+	}
+
 	/**
 	 * 
 	 * The return value does not includes originally selected nodes.
@@ -290,17 +318,20 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes/selected/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNeighborsSelected(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get all neighbors of selected nodes as SUID list", notes="The return value does not includes originally selected nodes.")
+	public Collection<Long> getNeighborsSelected(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId
+			) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final List<CyNode> selectedNodes = CyTableUtil.getNodesInState(network, CyNetwork.SELECTED, true);
-	
+
 		final Set<Long> res = selectedNodes.stream()
-			.map(node -> network.getNeighborList(node, Type.ANY))
-			.flatMap(List::stream)
-			.map(neighbor -> neighbor.getSUID())
-			.collect(Collectors.toSet());
-		
-		return Response.ok(res).build();
+				.map(node -> network.getNeighborList(node, Type.ANY))
+				.flatMap(List::stream)
+				.map(neighbor -> neighbor.getSUID())
+				.collect(Collectors.toSet());
+
+		return res;
 	}
 
 
@@ -314,14 +345,28 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/edges/selected")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSelectedEdges(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get all selected edges as SUID list")
+	public Collection<Long> getSelectedEdges(
+			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) 
+	{
 		final CyNetwork network = getCyNetwork(networkId);
 		final List<CyEdge> selectedEdges = CyTableUtil.getEdgesInState(network, CyNetwork.SELECTED, true);
 		final List<Long> selectedEdgeIds = selectedEdges.stream()
-			.map(edge -> edge.getSUID())
-			.collect(Collectors.toList());
-		
-		return Response.ok(selectedEdgeIds).build();
+				.map(edge -> edge.getSUID())
+				.collect(Collectors.toList());
+
+		return selectedEdgeIds;
+	}
+
+	@PUT
+	@Path("/{networkId}/edges/selected")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Set selected edges")
+	public Collection<Long> setSelectedEdges(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, @ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
+		final CyNetwork network = getCyNetwork(networkId);
+		final CyTable table = network.getDefaultEdgeTable();
+		//Clear selection first.
+		return setSelected(network, table, suids);
 	}
 
 	/**
@@ -491,7 +536,7 @@ public class NetworkResource extends AbstractResource {
 		if (pointer == null) {
 			throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
 		}
-		
+
 		return Response.ok(getNumberObjectString(JsonTags.NETWORK_SUID, pointer.getSUID())).build();
 	}
 
@@ -514,7 +559,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final List<CyNode> nodes = network.getNeighborList(node, Type.ANY);
-		
+
 		return Response.status(Response.Status.OK).entity(getGraphObjectArray(nodes)).build();
 	}
 
@@ -527,8 +572,8 @@ public class NetworkResource extends AbstractResource {
 	 */
 	private final Collection<Long> getGraphObjectArray(final Collection<? extends CyIdentifiable> objects) {
 		return objects.stream()
-			.map(CyIdentifiable::getSUID)
-			.collect(Collectors.toList());
+				.map(CyIdentifiable::getSUID)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -589,15 +634,15 @@ public class NetworkResource extends AbstractResource {
 			} catch (Exception e) {
 				throw getError("Could not create node list.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			}
-			
+
 			return Response.status(Response.Status.CREATED).entity(result).build();
 		} else {
 			throw getError("Need to post as array.", new IllegalArgumentException(),
 					Response.Status.PRECONDITION_FAILED);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Add new edge(s) to the network.  Body should include an array of new node names.
 	 * <pre>
@@ -663,17 +708,17 @@ public class NetworkResource extends AbstractResource {
 					} else {
 						edge = network.addEdge(sourceNode, targetNode, true);
 					}
-					
+
 					final String sourceName = network.getRow(sourceNode).get(CyNetwork.NAME, String.class);
 					final String targetName = network.getRow(targetNode).get(CyNetwork.NAME, String.class);
-					
+
 					final String interactionString;
 					if (interaction != null) {
 						interactionString = interaction.textValue();
 					} else {
 						interactionString = "-";
 					}
-					
+
 					network.getRow(edge).set(CyEdge.INTERACTION, interactionString);
 					network.getRow(edge).set(CyNetwork.NAME, sourceName + " (" + interactionString + ") " + targetName);
 
@@ -701,17 +746,14 @@ public class NetworkResource extends AbstractResource {
 
 	// //////////////// Delete //////////////////////////////////
 
-	
-	/**
-	 * 
-	 * @summary Delete all networks in current session
-	 */
+
+	@ApiOperation(value="Delete all networks in current session")
 	@DELETE
 	@Path("/")
 	public Response deleteAllNetworks() {
 		this.networkManager.getNetworkSet().stream()
-			.forEach(network->this.networkManager.destroyNetwork(network));
-		
+		.forEach(network->this.networkManager.destroyNetwork(network));
+
 		return Response.ok().build();
 	}
 
@@ -740,7 +782,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		network.removeNodes(network.getNodeList());
 		updateViews(network);
-		
+
 		return Response.ok().build();
 	}
 
@@ -756,7 +798,7 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		network.removeEdges(network.getEdgeList());
 		updateViews(network);
-		
+
 		return Response.ok().build();
 	}
 
@@ -781,7 +823,7 @@ public class NetworkResource extends AbstractResource {
 		nodes.add(node);
 		network.removeNodes(nodes);
 		updateViews(network);
-		
+
 		return Response.ok().build();
 	}
 
@@ -807,7 +849,7 @@ public class NetworkResource extends AbstractResource {
 		edges.add(edge);
 		network.removeEdges(edges);
 		updateViews(network);
-		
+
 		return Response.ok().build();
 	}
 
@@ -825,7 +867,7 @@ public class NetworkResource extends AbstractResource {
 
 	// ///////////////////// Object Creation ////////////////////
 
-	
+
 	/**
 	 * @summary Create a new network from Cytoscape.js JSON or Edgelist
 	 * 
@@ -844,7 +886,7 @@ public class NetworkResource extends AbstractResource {
 			@QueryParam("source") String source, @QueryParam("format") String format, 
 			@QueryParam("title") String title, final InputStream is,
 			@Context HttpHeaders headers) {
-		
+
 		applicationManager.setCurrentNetworkView(null);
 		applicationManager.setCurrentNetwork(null);
 
@@ -853,9 +895,9 @@ public class NetworkResource extends AbstractResource {
 			try {
 				return loadNetworks(format, collection, is);
 			} catch (Exception e) {
-				
+
 				e.printStackTrace();
-				
+
 				throw getError("Could not load networks from given locations.", e,
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
@@ -867,14 +909,14 @@ public class NetworkResource extends AbstractResource {
 		if (agent != null) {
 			userAgent = agent.get(0);
 		}
-		
+
 		String collectionName = null;
 		if (collection != null) {
 			collectionName = collection;
 		}
 
-		
-		
+
+
 		final TaskIterator it;
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
 			it = edgeListReaderFactory.createTaskIterator(is, collection);
@@ -895,18 +937,18 @@ public class NetworkResource extends AbstractResource {
 			e.printStackTrace();
 			throw getError("Could not parse the given network JSON.", e, Response.Status.PRECONDITION_FAILED);
 		}
-		
+
 		final CyNetwork[] networks = reader.getNetworks();
 		final CyNetwork newNetwork = networks[0];
-		
+
 		if(title!= null && title.isEmpty() == false) {
 			try {
-			newNetwork.getTable(CyNetwork.class, CyNetwork.LOCAL_ATTRS).getRow(newNetwork.getSUID()).set(CyNetwork.NAME, title);
+				newNetwork.getTable(CyNetwork.class, CyNetwork.LOCAL_ATTRS).getRow(newNetwork.getSUID()).set(CyNetwork.NAME, title);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		addNetwork(networks, reader, collectionName);
 
 		try {
@@ -983,9 +1025,9 @@ public class NetworkResource extends AbstractResource {
 
 
 	private final Map<String, Map<String, Object>> getNetworkProps(JsonNode root) {
-		
+
 		final Map<String, Map<String, Object>> result=new HashMap<>();
-		
+
 		for (final JsonNode node : root) {
 			String sourceUrl = null; 
 			if(node.isObject()) {
@@ -1010,7 +1052,7 @@ public class NetworkResource extends AbstractResource {
 		}
 		return result;
 	}
-	
+
 	private final String loadNetworks(final String format, final String collection, final InputStream is)
 			throws Exception {
 		applicationManager.setCurrentNetworkView(null);
@@ -1026,29 +1068,29 @@ public class NetworkResource extends AbstractResource {
 
 		// Input should be array of URLs.
 		final Map<CyNetworkView, VisualStyle> styleMap = new HashMap<>();
-		
+
 		for (final String url : netProps.keySet()) {
 			final Map<CyNetworkView, VisualStyle> subMap = loadNetworkFromUrl(format, url, collectionName, results, netProps, sub2roots);
 			styleMap.putAll(subMap);
 		}
 		is.close();
-		
+
 		// Apply correct styles.
 		styleMap.keySet().stream()
-			.forEach(view->postProcess(view, styleMap.get(view)));
+		.forEach(view->postProcess(view, styleMap.get(view)));
 		return generateNetworkLoadResults(results);
 	}
-	
+
 	private final Map<CyNetworkView, VisualStyle> loadNetworkFromUrl(final String format, 
 			final String sourceUrl, final String collectionName,
 			final Map<String, Long[]> results, 
 			final Map<String, Map<String, Object>> netProps, 
 			final Map<Long, CyRootNetwork> sub2roots) throws IOException {
-		
+
 		System.out.println("******* Loading: " + sourceUrl);
-		
+
 		final List<CyNetwork> cxNetworks = new ArrayList<>();
-		
+
 		TaskIterator itr = null;
 		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 			// Special case: load as CX
@@ -1090,16 +1132,16 @@ public class NetworkResource extends AbstractResource {
 		if(networks == null || networks.length == 0) {
 			return styleMap;
 		}
-		
+
 		cxNetworks.addAll(Arrays.asList(networks));
 
 		final Long[] suids = new Long[networks.length];
 		int counter = 0;
 		for (final CyNetwork network : networks) {
 			sub2roots.put(network.getSUID(), cyRootNetworkManager.getRootNetwork(network));
-			
+
 			System.out.println("******!! Network: " + network.getRow(network).get(CyNetwork.NAME, String.class));
-			
+
 			suids[counter] = network.getSUID();
 
 			// Add props
@@ -1113,30 +1155,30 @@ public class NetworkResource extends AbstractResource {
 			counter++;
 		}
 		results.put(sourceUrl, suids);
-		
+
 		// Special case: CX
 		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
 			final CyRootNetwork rootNetwork = ((CySubNetwork) cxNetworks.get(0)).getRootNetwork();
 			final String cxCollectionName = rootNetwork.getRow(rootNetwork).get(CyNetwork.NAME, String.class);
-			
+
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
 			styleMap = addNetwork(cxArray, reader, cxCollectionName, false);
 		}
-		
+
 		if(collectionName != null) {
 			final CyRootNetwork rootNetwork = ((CySubNetwork) networks[0]).getRootNetwork();
 			rootNetwork.getRow(rootNetwork).set(CyNetwork.NAME, collectionName);			
 		}
-		
+
 		return styleMap;
 	}
-	
+
 	private void setNetworkProps(String key, Object value, CyNetwork network) {
 		final CyColumn col = network.getDefaultNetworkTable().getColumn(key);
 		if(col == null) {
 			network.getDefaultNetworkTable().createColumn(key, String.class, true);
 		}
-		
+
 		network.getRow(network).set(key, value.toString());
 	}
 
@@ -1214,21 +1256,21 @@ public class NetworkResource extends AbstractResource {
 			final int numGraphObjects = network.getNodeCount() + network.getEdgeCount();
 			int viewThreshold = 200000;
 			if (numGraphObjects < viewThreshold) {
-				
+
 				final CyNetworkView view = reader.buildCyNetworkView(network);
 				VisualStyle style = vmm.getVisualStyle(view);
 				if (style == null) {
 					style = vmm.getDefaultVisualStyle();
 				}
-				
-				
+
+
 				styleMap.put(view, style);
 				networkViewManager.addNetworkView(view);
 				results.add(view);
 			} 
-			
+
 		}
-		
+
 		// If this is a subnetwork, and there is only one subnetwork in the
 		// root, check the name of the root network
 		// If there is no name yet for the root network, set it the same as its
@@ -1248,7 +1290,7 @@ public class NetworkResource extends AbstractResource {
 		}
 		return styleMap;
 	}
-	
+
 	private final void postProcess(final CyNetworkView view, final VisualStyle style) {
 		vmm.setVisualStyle(style, view);
 		style.apply(view);

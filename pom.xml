@@ -387,12 +387,9 @@
 						</goals>
 						<configuration>
 							<artifactItems>
-								<!-- This is already in karaf, so was causing shading
-								<artifactItem>
-									<groupId>javax.servlet</groupId>
-									<artifactId>javax.servlet-api</artifactId>
-									<version>3.1.0</version>
-								</artifactItem> -->
+								<!-- This is already in karaf, so was causing shading <artifactItem> 
+									<groupId>javax.servlet</groupId> <artifactId>javax.servlet-api</artifactId> 
+									<version>3.1.0</version> </artifactItem> -->
 								<!-- We've customized this in the above to support existing JAX-RS. 
 									<artifactItem> <groupId>com.eclipsesource.jaxrs</groupId> <artifactId>jersey-min</artifactId> 
 									<version>2.22.1</version> </artifactItem> -->
@@ -406,12 +403,8 @@
 									<artifactId>publisher</artifactId>
 									<version>5.3</version>
 								</artifactItem>
-
-								<artifactItem>
-									<groupId>com.google.code.gson</groupId>
-									<artifactId>gson</artifactId>
-									<version>2.3</version>
-								</artifactItem>
+								<!-- <artifactItem> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
+									<version>2.3</version> </artifactItem> -->
 								<artifactItem>
 									<groupId>com.eclipsesource.jaxrs</groupId>
 									<artifactId>provider-gson</artifactId>
@@ -470,25 +463,25 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.7.9</version>
 				<configuration>
-				<includes>
-            		<include>org/cytoscape/rest/**/*</include>
-            		<include>org/cytoscape/rest/*</include>
-       			</includes>
-    			</configuration>
-        		<executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
+					<includes>
+						<include>org/cytoscape/rest/**/*</include>
+						<include>org/cytoscape/rest/*</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<!-- Will run build.xml in same folder <plugin> <groupId>org.apache.maven.plugins</groupId> 
 				<artifactId>maven-antrun-plugin</artifactId> <version>1.7</version> <executions> 
@@ -678,6 +671,12 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-grizzly2-http</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 
 		<dependency>

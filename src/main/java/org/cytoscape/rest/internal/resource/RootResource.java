@@ -17,7 +17,7 @@ import io.swagger.annotations.Api;
  */
 @Singleton
 @Path("/")
-@Api(tags = {"REST Service"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.REST_SERVICE_TAG})
 public class RootResource extends AbstractResource {
 
 	private static final String[] VERSION_LIST = { API_VERSION };

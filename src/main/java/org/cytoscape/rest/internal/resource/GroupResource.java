@@ -23,6 +23,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
+import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,7 +35,7 @@ import io.swagger.annotations.Api;
 
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
-@Api(tags = {"Groups"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.TABLES_TAG})
 public class GroupResource extends AbstractResource {
 
 	private final ObjectMapper groupMapper;
@@ -88,9 +89,9 @@ public class GroupResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroupCount(@PathParam("networkId") Long networkId) {
+	public Count getGroupCount(@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		return getNumberObjectString(JsonTags.COUNT, groupManager.getGroupSet(network).size());
+		return new Count(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
 	}
 
 	/**

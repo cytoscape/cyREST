@@ -5,8 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.Paint;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -166,49 +172,84 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 				String.class);
 		assertNotNull(result);
 		System.out.println("Result = " + result);
-		// TODO: Mock JSON writer?
+		// TODO: Verify JSON writer calls
+		
 	}
 	
 
 	@Test
+	public void testGetNetworkViewWrite() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		// Test valid
+		String result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString()).queryParam("file", "networkViewWrite.tmp").request().get(
+				String.class);
+		assertNotNull(result);
+		System.out.println("Result = " + result);
+		// TODO: Verify JSON writer calls
+		
+	}
+
+	@Test
 	public void testGetFirstNetworkImage() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		verify(graphicsWriterManager, never()).getFactory("svg");
+		verify(graphicsWriterManager, never()).getFactory("pdf");
 		
 		final Long suid = network.getSUID();
 		
 		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("png");
 		System.out.println("Result = " + result);
 		result = target("/v1/networks/" + suid.toString() + "/views/first.svg").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("svg");
 		System.out.println("Result = " + result);
 		result = target("/v1/networks/" + suid.toString() + "/views/first.pdf").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
-		System.out.println("Result = " + result);
-		// TODO: Mock IMAGE writer?
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("pdf");
+		
+		verify(presentationWriterFactory, times(3)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		
+		// TODO: Check that proper proportions were set.
 	}
 	
 	@Test
 	public void testGetNetworkImage() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		verify(graphicsWriterManager, never()).getFactory("svg");
+		verify(graphicsWriterManager, never()).getFactory("pdf");
 		
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
 		
 		Response result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".png").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("png");
 		System.out.println("Result = " + result);
 		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".svg").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("svg");
 		System.out.println("Result = " + result);
 		result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".pdf").request().get();
 		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("pdf");
 		System.out.println("Result = " + result);
-		// TODO: Mock IMAGE writer?
+		
+		verify(presentationWriterFactory, times(3)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		
+		// TODO: Check that proper proportions were set.
 	}
 
 
@@ -300,6 +341,8 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		final String newVal = "[{"
 				+ "\"visualProperty\": \"" + vp + "\","
 				+ "\"value\": \"red\" }]";
+		
+	
 		
 		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network").request().put(entity);

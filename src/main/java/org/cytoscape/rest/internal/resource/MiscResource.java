@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
  * @servicetag Server status
  * 
  */
-@Api(tags = {"REST Service","Cytoscape System"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.REST_SERVICE_TAG,CyRESTSwagger.CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG})
 @Singleton
 @Path("/v1")
 public class MiscResource extends AbstractResource {

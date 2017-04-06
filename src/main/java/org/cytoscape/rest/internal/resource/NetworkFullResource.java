@@ -14,7 +14,7 @@ import org.cytoscape.model.CyNetwork;
 
 import io.swagger.annotations.Api;
 
-@Api(tags = {"Networks"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks.json")
 public class NetworkFullResource extends AbstractResource {

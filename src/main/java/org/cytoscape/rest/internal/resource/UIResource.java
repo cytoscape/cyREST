@@ -35,7 +35,7 @@ import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
-@Api(tags = {"User Interface"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.USER_INTERFACE_TAG})
 @Singleton
 @Path("/v1/ui")
 public class UIResource extends AbstractResource {

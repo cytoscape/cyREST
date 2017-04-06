@@ -2,6 +2,9 @@ package org.cytoscape.rest.internal.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 @XmlRootElement
 public class MemoryStatus {
 

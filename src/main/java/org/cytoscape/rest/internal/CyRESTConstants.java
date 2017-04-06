@@ -42,4 +42,5 @@ public class CyRESTConstants {
 			//For CORS
 			CORSFilter.class
 	};
+	
 }

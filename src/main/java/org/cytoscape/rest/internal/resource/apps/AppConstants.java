@@ -3,7 +3,6 @@ package org.cytoscape.rest.internal.resource.apps;
 import javax.ws.rs.Path;
 
 public final class AppConstants {
-	public static final String APP_TAG = "App";
 	
 	public static final String APPS_ROOT = "/v1/apps/";
 

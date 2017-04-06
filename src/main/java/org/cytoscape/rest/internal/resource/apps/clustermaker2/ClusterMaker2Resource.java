@@ -26,6 +26,7 @@ import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.rest.internal.model.CIError;
 import org.cytoscape.rest.internal.model.CIResponse;
+import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.cytoscape.work.FinishStatus;
@@ -46,7 +47,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(tags = {AppConstants.APP_TAG, "Clustering"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.APPS_TAG, "Clustering"})
 @Path(AppConstants.APPS_ROOT + "clustermaker2/")
 public class ClusterMaker2Resource  
 {

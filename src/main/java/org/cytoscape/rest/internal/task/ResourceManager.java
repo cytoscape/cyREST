@@ -88,7 +88,7 @@ public final class ResourceManager {
 			}
 		}
 
-		serviceRegistrations.add(bundleContext.registerService(CyExceptionMapper.class.getName(), new CyExceptionMapper(), new Properties()));
+		//serviceRegistrations.add(bundleContext.registerService(ServletExceptionMapper.class.getName(), new ServletExceptionMapper(), new Properties()));
 		
 		final String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
 

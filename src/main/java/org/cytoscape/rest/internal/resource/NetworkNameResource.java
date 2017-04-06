@@ -18,8 +18,9 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.model.CyNetwork;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
-@Api(tags = {"Networks"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks.names")
 public class NetworkNameResource extends AbstractResource {
@@ -51,8 +52,9 @@ public class NetworkNameResource extends AbstractResource {
 	@ApiOperation(value = "Get networks in Cytoscape.js JSON format",
 		    notes = "Returns full list of network data as a JSON array. JSON is in Cytoscape.js format. If no query parameter is given, returns all networks in current session.",
 		    response = List.class)
-	public List<Map<String,?>> getNetworksNames(@QueryParam("column") String column,
-			@QueryParam("query") String query) {
+	public List<Map<String,?>> getNetworksNames(
+			@ApiParam(value="Column Name for Matching") @QueryParam("column") String column,
+			@ApiParam(value="Value to Match") @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 
 		if (column == null && query == null) {

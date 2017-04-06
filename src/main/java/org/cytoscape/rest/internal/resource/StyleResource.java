@@ -49,7 +49,7 @@ import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 
-@Api(tags = {"Visual Properties"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
 @Singleton
 @Path("/v1/styles")
 public class StyleResource extends AbstractResource {
@@ -114,7 +114,7 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getStylCount() {
+	public String getStyleCount() {
 		return getNumberObjectString(JsonTags.COUNT, vmm.getAllVisualStyles().size());
 	}
 

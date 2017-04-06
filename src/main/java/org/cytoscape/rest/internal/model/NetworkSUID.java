@@ -3,17 +3,16 @@ package org.cytoscape.rest.internal.model;
 import io.swagger.annotations.ApiModel;
 
 /**
- * Message model for returning messages from REST calls.
  * 
  * @author David Otasek (dotasek.dev@gmail.com)
  *
  */
 @ApiModel
-public class Message 
+public class NetworkSUID 
 {
-	public String message;
+	public Long networkSUID;
 	
-	public Message(String string) {
-		message = string;
+	public NetworkSUID(Long networkSUID) {
+		this.networkSUID=networkSUID;
 	}
 }

@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.Paint;
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,21 +32,27 @@ import org.cytoscape.ding.Position;
 import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
 import org.cytoscape.ding.impl.ObjectPositionImpl;
 import org.cytoscape.event.CyEventHelper;
+import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
+import org.cytoscape.io.write.CyWriter;
+import org.cytoscape.io.write.PresentationWriterFactory;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.NetworkTestSupport;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
+import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
@@ -89,6 +96,7 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
+import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineFactory;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
@@ -112,6 +120,8 @@ import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.util.BoundedDouble;
+import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -135,6 +145,11 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected final CoreServiceModule binder;
 
+	CyGroup cyGroup;
+	CyNode cyGroupNode;
+	
+	protected CyRootNetworkManager rootNetworkManager;
+	
 	protected CyNetwork network;
 	protected CyNetworkView view;
 
@@ -145,13 +160,28 @@ public class BasicResourceTest extends JerseyTest {
 	private ContinuousMappingFactory continuousFactory;
 	private DiscreteMappingFactory discreteFactory;
 
+	protected TaskFactoryManager tfManager;
+	protected InputStreamTaskFactory inputStreamCXTaskFactory;
+	
+	protected CyNetworkReader inputStreamCXNetworkReader;
+	
 	protected CyNetworkManager networkManager = nts.getNetworkManager();
 
+	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
+	
+	protected RenderingEngine<?> renderingEngine;
+	
 	protected SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	protected OpenSessionTaskFactory openSessionTaskFactory;
 	protected NewSessionTaskFactory newSessionTaskFactory;
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
+	protected GraphicsWriterManager graphicsWriterManager;
+	
+	protected ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
+	
+	protected PresentationWriterFactory presentationWriterFactory;
+	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
@@ -167,12 +197,22 @@ public class BasicResourceTest extends JerseyTest {
 	
 	protected final String logLocation = "dummyLogLocation";
 
+	protected interface DummyCyWriter extends CyWriter
+	{
+		public BoundedDouble getZoom();
+		public ListSingleSelection<String> getUnits();
+		public void setHeight(Double height);
+	}
+	
 	public BasicResourceTest() {
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
 		Object context = new Object();
 		when(def.createLayoutContext()).thenReturn(context);
 		when(def.getDefaultLayoutContext()).thenReturn(context);
 		when(def.getName()).thenReturn("grid");
+		TaskIterator gridLayoutTaskIterator = new TaskIterator();
+		gridLayoutTaskIterator.append(mock(Task.class));
+		when(def.createTaskIterator(any(CyNetworkView.class), anyObject(), any(Set.class), any(String.class))).thenReturn(gridLayoutTaskIterator);
 
 		Collection<CyLayoutAlgorithm> algorithms = new ArrayList<>();
 		algorithms.add(def);
@@ -189,7 +229,7 @@ public class BasicResourceTest extends JerseyTest {
 		CyNetwork network2 = createNetwork("network2");
 		networkManager.addNetwork(network2);
 
-		CyRootNetworkManager rootNetworkManager = nts.getRootNetworkFactory();
+		rootNetworkManager = nts.getRootNetworkFactory();
 		CyNetworkViewManager viewManager = mock(CyNetworkViewManager.class);
 		Collection<CyNetworkView> views = new HashSet<>();
 		views.add(view);
@@ -198,7 +238,38 @@ public class BasicResourceTest extends JerseyTest {
 		CyApplicationManager cyApplicationManager = mock(CyApplicationManager.class);
 		CyNetworkViewFactory viewFactory = nvts.getNetworkViewFactory();
 
-		TaskFactoryManager tfm = mock(TaskFactoryManager.class);
+		tfManager = mock(TaskFactoryManager.class);
+		inputStreamCXTaskFactory = mock(InputStreamTaskFactory.class);
+		
+		TaskIterator inputStreamTaskIterator = new TaskIterator();
+		
+		// Start Mocks for CX URL Reading
+		inputStreamCXNetworkReader = mock(CyNetworkReader.class);
+	
+		CyRootNetwork cyRootNetwork = mock(CyRootNetwork.class);//, withSettings().extraInterfaces(CySubNetwork.class));
+		CySubNetwork cySubNetwork = mock(CySubNetwork.class);
+		
+		when(inputStreamCXNetworkReader.buildCyNetworkView(cyRootNetwork)).thenReturn(mock(CyNetworkView.class));
+		when(inputStreamCXNetworkReader.buildCyNetworkView(cySubNetwork)).thenReturn(mock(CyNetworkView.class));
+		
+		when(cyRootNetwork.getSUID()).thenReturn(1l);
+		when(cySubNetwork.getSUID()).thenReturn(2l);
+		when(cyRootNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
+		when(cySubNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
+		when(cySubNetwork.getRootNetwork()).thenReturn(cyRootNetwork);
+		CyRow cyRow = mock(CyRow.class);
+		when(cyRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx network name");
+		when(cyRootNetwork.getRow(cyRootNetwork)).thenReturn(cyRow);
+		when(cySubNetwork.getRow(cySubNetwork)).thenReturn(cyRow);
+		CyNetwork[] inputStreamNetworks = new CyNetwork[]{cySubNetwork, cyRootNetwork};
+		when(inputStreamCXNetworkReader.getNetworks()).thenReturn(inputStreamNetworks);
+		
+		inputStreamTaskIterator.append(inputStreamCXNetworkReader);
+		
+		when(inputStreamCXTaskFactory.createTaskIterator(any(InputStream.class), eq("cx file"))).thenReturn(inputStreamTaskIterator);
+		when(tfManager.getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"))).thenReturn(inputStreamCXTaskFactory);
+		// End Mocks for CX URL Reading
+		
 		VisualMappingManager vmm = mock(VisualMappingManager.class);
 		Set<VisualStyle> styles = new HashSet<VisualStyle>();
 		VisualStyle mockStyle = mock(VisualStyle.class);
@@ -218,6 +289,8 @@ public class BasicResourceTest extends JerseyTest {
 		when(vmm.getDefaultVisualStyle()).thenReturn(this.style);
 
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = mock(CyNetworkViewWriterFactory.class);
+		when(cytoscapeJsWriterFactory.createWriter(any(OutputStream.class), any(CyNetworkView.class))).thenReturn(mock(CyWriter.class));
+		
 		ServiceTracker cytoscapeJsWriterFactoryTracker = mock(ServiceTracker.class);
 		when(cytoscapeJsWriterFactoryTracker.getService()).thenReturn(cytoscapeJsWriterFactory);
 		
@@ -231,8 +304,13 @@ public class BasicResourceTest extends JerseyTest {
 		when(vsFactory.createVisualStyle(anyString())).thenReturn(emptyStyle);
 
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
+		cyGroup = mock(CyGroup.class);
+		cyGroupNode = mock(CyNode.class);
+		when(cyGroupNode.getSUID()).thenReturn(0l);
+		when(cyGroup.getGroupNode()).thenReturn(cyGroupNode);
+		when(groupFactory.createGroup(any(CyNetwork.class), any(List.class), eq(null), eq(true))).thenReturn(cyGroup);
 		CyGroupManager groupManager = mock(CyGroupManager.class);
-		LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
+		loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
 		CyNetworkReader cyNetworkReader = mock(CyNetworkReader.class);
 	
 		when(cyNetworkReader.getNetworks()).thenReturn(new CyNetwork[]{network});
@@ -248,10 +326,29 @@ public class BasicResourceTest extends JerseyTest {
 		when(cytoscapeJsReaderFactoryTracker.getService()).thenReturn(cytoscapeJsReaderFactory);
 		
 		CyTableFactory tableFactory = mock(CyTableFactory.class);
-		NetworkTaskFactory fitContent = mock(NetworkTaskFactory.class);
+		NetworkTaskFactory fitContentTaskFactory = mock(NetworkTaskFactory.class);
+		TaskIterator fitTaskIterator = new TaskIterator();
+		fitTaskIterator.append(mock(Task.class));
+		
+		when(fitContentTaskFactory.createTaskIterator(any(CyNetwork.class))).thenReturn(fitTaskIterator);
+		
 		EdgeBundler edgeBundler = mock(EdgeBundler.class);
+		NetworkTaskFactory edgeBundlerTaskFactory = mock(NetworkTaskFactory.class);
+		TaskIterator edgeBundlerTaskIterator = new TaskIterator();
+		edgeBundlerTaskIterator.append(mock(Task.class));
+		when(edgeBundlerTaskFactory.createTaskIterator(any(CyNetwork.class))).thenReturn(edgeBundlerTaskIterator);
+		when(edgeBundler.getBundlerTF()).thenReturn(edgeBundlerTaskFactory);
+		
 		RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
-
+		
+		renderingEngine = mock(RenderingEngine.class);
+		when(renderingEngine.getRendererId()).thenReturn("org.cytoscape.ding");
+		Collection<RenderingEngine<?>> renderingEngines = new ArrayList<RenderingEngine<?>>();
+		renderingEngines.add(renderingEngine);
+		
+		when(renderingEngineManager.getRenderingEngines(anyObject())).thenReturn(renderingEngines);
+	
+		
 		CySessionManager sessionManager = mock(CySessionManager.class);
 		when(sessionManager.getCurrentSessionFileName()).thenReturn("testSession");
 
@@ -265,11 +362,27 @@ public class BasicResourceTest extends JerseyTest {
 		CySwingApplication desktop = mock(CySwingApplication.class);
 		LevelOfDetails lodTF = mock(LevelOfDetails.class);
 
-		this.selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
+		selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
 
-		GraphicsWriterManager graphicsWriterManager = mock(GraphicsWriterManager.class);
-
-		ExportNetworkViewTaskFactory exportNetworkViewTaskFactory = mock(ExportNetworkViewTaskFactory.class);
+		graphicsWriterManager = mock(GraphicsWriterManager.class);
+		
+		presentationWriterFactory = mock(PresentationWriterFactory.class);
+	
+		DummyCyWriter cyWriter = mock(DummyCyWriter.class);
+		BoundedDouble boundedDouble = new BoundedDouble(0d,1d,10d, true, true);
+		
+		ListSingleSelection<String> listSingleSelection =  new ListSingleSelection<String>();
+	
+		when(cyWriter.getUnits()).thenReturn(listSingleSelection);
+		when(cyWriter.getZoom()).thenReturn(boundedDouble);
+		
+		when(presentationWriterFactory.createWriter(anyObject(), anyObject())).thenReturn(cyWriter);
+		
+		when(graphicsWriterManager.getFactory(anyString())).thenReturn(presentationWriterFactory);
+		
+		exportNetworkViewTaskFactory = mock(ExportNetworkViewTaskFactory.class);
+		TaskIterator exportTaskIterator = new TaskIterator();
+		when(exportNetworkViewTaskFactory.createTaskIterator(any(CyNetworkView.class), any(File.class))).thenReturn(exportTaskIterator);
 
 		final AvailableCommands available = mock(AvailableCommands.class);
 		
@@ -299,13 +412,13 @@ public class BasicResourceTest extends JerseyTest {
 		final String logLocation = this.logLocation;
 		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
-				tfm, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
+				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
 				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,
 				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
-				edgeListReaderFactory, viewFactory, tableFactory, fitContent,
+				edgeListReaderFactory, viewFactory, tableFactory, fitContentTaskFactory,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,

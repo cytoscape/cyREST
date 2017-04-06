@@ -11,16 +11,18 @@ import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
+import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Singleton
 @Path("/v1/tables")
-@Api(tags = {"Tables"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.TABLES_TAG})
 public class GlobalTableResource extends AbstractResource {
 
 	@Inject
@@ -44,8 +46,9 @@ public class GlobalTableResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTableCount() {
+	@ApiOperation(value="Get number of global tables")
+	public Count getTableCount() {
 		final Set<CyTable> globals = tableManager.getGlobalTables();
-		return getNumberObjectString(JsonTags.COUNT, globals.size());
+		return new Count(Integer.valueOf(globals.size()).longValue());
 	}
 }

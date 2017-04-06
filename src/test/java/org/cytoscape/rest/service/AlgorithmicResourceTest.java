@@ -2,6 +2,7 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,7 +41,6 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertEquals("grid", root.get(0).asText());
 	}
 
-
 	@Test
 	public void testGetLayout() throws Exception {
 		final Response result = target("/v1/apply/layouts/grid").request().get();
@@ -56,7 +57,41 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertTrue(root.get("parameters").isArray());
 	}
 
+	@Test
+	public void testGetFit() throws Exception {
+		
+		Long suid = view.getModel().getSUID();
+		final Response result = target("/v1/apply/fit/" + suid).request().get();
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		System.out.println("res: " + result.toString());
+		
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+		assertEquals("Fit content success.", root.get("message").asText());
+	}
 
+	@Test
+	public void testEdgeBundling() throws Exception {
+		
+		Long suid = view.getModel().getSUID();
+		final Response result = target("/v1/apply/edgebundling/" + suid).request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		
+		final JsonNode root = mapper.readTree(body);
+		assertEquals("Edge bundling success.", root.get("message").asText());
+	}
+	
 	@Test
 	public void testGetLayoutParameters() throws Exception {
 		final Response result = target("/v1/apply/layouts/grid/parameters").request().get();
@@ -111,14 +146,18 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
-	public void testApplyLayout() {
+	public void testApplyLayout() throws JsonProcessingException, IOException {
 		Long suid = view.getModel().getSUID();
 		Response result = target("/v1/apply/layouts/grid/" + suid)
 				.queryParam("column", "test").request().get();
 		System.out.println("res: " + result.toString());
-		
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
 		// TODO: Add more realistic test
-		assertTrue(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		final JsonNode root = mapper.readTree(body);
+		assertTrue(root.isObject());
+		assertEquals("Layout finished.", root.get("message").asText());
 	}
 
 
@@ -133,6 +172,6 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isObject());
-		assertNotNull(root.get("message").asText());
+		assertEquals("Visual Style applied.",root.get("message").asText());
 	}
 }

@@ -22,6 +22,7 @@ import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
+import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
@@ -40,7 +41,7 @@ import io.swagger.annotations.Api;
  * 
  *
  */
-@Api(tags = {"Commands"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.COMMANDS_TAG})
 @Singleton
 @Path("/v1/commands")
 public class CommandResource implements PaxAppender, TaskObserver 

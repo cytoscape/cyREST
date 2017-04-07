@@ -2,7 +2,6 @@ package org.cytoscape.rest;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -75,15 +74,12 @@ public class SwaggerCoverageTest {
 					int apiParams = 0;
 					for (Parameter parameter : method.getParameters())
 					{
-						if (parameter.isAnnotationPresent(PathParam.class) 
-								|| parameter.isAnnotationPresent(QueryParam.class)
-								|| parameter.isAnnotationPresent(FormParam.class)
-								) {
+						
 							params++;
 							if (parameter.isAnnotationPresent(ApiParam.class)){
 								apiParams++;
 							}
-						}
+						
 					}
 					if (isBasic && apiParams == params){
 						strictSwaggerTotal++;

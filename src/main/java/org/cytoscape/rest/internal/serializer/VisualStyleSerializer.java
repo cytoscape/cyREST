@@ -55,7 +55,7 @@ public class VisualStyleSerializer {
 		return result;
 	}
 
-
+	/*
 	public final String serializeVisualProperties(final Set<VisualProperty<?>> vps) throws IOException {
 		final JsonFactory factory = new JsonFactory();
 		
@@ -83,6 +83,7 @@ public class VisualStyleSerializer {
 		stream.close();
 		return result;
 	}
+	*/
 
 
 	public final String serializeVisualProperty(final VisualProperty vp) throws IOException {

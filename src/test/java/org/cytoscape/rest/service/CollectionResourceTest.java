@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -72,6 +73,7 @@ public class CollectionResourceTest extends BasicResourceTest {
 	@Test
 	public void testGetSubnetworks() throws Exception {
 		final Long rootSUID = ((CySubNetwork)this.network).getRootNetwork().getSUID();
+		
 		Response result = target("/v1/collections/" + rootSUID.toString() + "/subnetworks").request().get();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
@@ -79,6 +81,7 @@ public class CollectionResourceTest extends BasicResourceTest {
 		final JsonNodeType dataType = root.getNodeType();
 		assertEquals(JsonNodeType.ARRAY, dataType);
 		assertEquals(1, root.size());
+		assertEquals(this.network.getSUID().longValue(), root.get(0).asLong());
 	}
 	
 	@Test

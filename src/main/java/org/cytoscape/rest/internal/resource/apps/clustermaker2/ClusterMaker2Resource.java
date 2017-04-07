@@ -112,7 +112,7 @@ public class ClusterMaker2Resource
 	
 	private CIResponse buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
 	{
-		CIResponse ciResponse = new CIResponse();
+		CIResponse<Object> ciResponse = new CIResponse<Object>();
 		ciResponse.data = new Object();
 		List<CIError> errors = new ArrayList<CIError>();
 		CIError error= new CIError();
@@ -177,13 +177,16 @@ public class ClusterMaker2Resource
 	private static final String MCODE_COMMAND = "mcode";
 	private static final String MCODE_CLUSTER_ATTRIBUTE = "_mcodeCluster";
 	
+	private static class ClusterMakerCIResult extends CIResponse<String> {
+	}
+	
 	@Path("/"+MCODE_COMMAND+"/{networkSUID}")
 	@POST
 	@Produces("application/json")
 	@Consumes("application/json")
 	@ApiOperation(value = "Execute MCODE Clustering",
     notes = "",
-    response = CIResponse.class)
+    response = ClusterMakerCIResult.class)
 	@ApiResponses(value = { 
 			  @ApiResponse(code = 404, message = "Network does not exist", response = CIResponse.class),
 			  @ApiResponse(code = 503, message = "clusterMaker2 MCODE command is unavailable", response = CIResponse.class),

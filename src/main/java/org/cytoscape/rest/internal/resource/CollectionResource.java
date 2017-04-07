@@ -33,12 +33,15 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
+import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.COLLECTIONS_TAG})
 @Singleton
 @Path("/v1/collections")
@@ -83,10 +86,9 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCollectionCount() {
-		final Map<String, Integer> kvPair = new HashMap<>();
-		kvPair.put(JsonTags.COUNT, getRootNetworks().size());
-		return getResponse(kvPair);
+	@ApiOperation(value="Get a count of all root networks.")
+	public Count getCollectionCount() {
+		return new Count((long) getRootNetworks().size());
 	}
 
 	/**
@@ -95,7 +97,8 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public Collection<Long> getCollectionsAsSUID(@QueryParam("subsuid") Long subsuid) {
+	@ApiOperation(value="Get one or all root networks.", notes="Returns an array of SUIDs.<br><br>If subsuid is set, return a list with only one entry containing the root network SUID of that sub-network.")
+	public Collection<Long> getCollectionsAsSUID(@ApiParam(value="Sub-Network SUID", required=false) @QueryParam("subsuid") Long subsuid) {
 		if(subsuid == null) {
 			// Return all collection SUIDs
 			return getRootNetworks().stream().map(root -> root.getSUID()).collect(Collectors.toSet());
@@ -135,12 +138,15 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/subnetworks")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSubnetworks(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get SubNetworks")
+	public Collection<Long> getSubnetworks(
+			@ApiParam(value="Root Network SUID") @PathParam("networkId") Long networkId
+			) {
 		final CyRootNetwork root = getRootNetwork(networkId);
 		final List<CySubNetwork> subnetworks = root.getSubNetworkList();
 		final Set<Long> subnetIds = subnetworks.stream().map(subNet -> subNet.getSUID()).collect(Collectors.toSet());
 
-		return getResponse(subnetIds);
+		return subnetIds;
 	}
 
 	@GET

@@ -360,8 +360,15 @@ public class BasicResourceTest extends JerseyTest {
 		newSessionTaskFactory = mock(NewSessionTaskFactory.class);
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
 		CySwingApplication desktop = mock(CySwingApplication.class);
+		
+		NetworkTaskFactory lodNetworkTaskFactory = mock(NetworkTaskFactory.class);
+		TaskIterator lodTaskIterator = new TaskIterator();
+		lodTaskIterator.append(mock(Task.class));
+		when(lodNetworkTaskFactory.createTaskIterator(null)).thenReturn(lodTaskIterator);
+		
 		LevelOfDetails lodTF = mock(LevelOfDetails.class);
-
+		when(lodTF.getLodTF()).thenReturn(lodNetworkTaskFactory);
+		
 		selectFirstNeighborsTaskFactory = mock(SelectFirstNeighborsTaskFactory.class);
 
 		graphicsWriterManager = mock(GraphicsWriterManager.class);

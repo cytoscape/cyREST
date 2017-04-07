@@ -403,7 +403,7 @@
 									<artifactId>publisher</artifactId>
 									<version>5.3</version>
 								</artifactItem>
-								<!-- <artifactItem> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
+								<!-- We this plugin exports its own GSON, so this one was just causing shading <artifactItem> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
 									<version>2.3</version> </artifactItem> -->
 								<artifactItem>
 									<groupId>com.eclipsesource.jaxrs</groupId>
@@ -448,7 +448,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
 				</configuration>
@@ -678,6 +678,12 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+
+	<dependency>
+		<groupId>com.google.code.gson</groupId>
+		<artifactId>gson</artifactId> 
+		<version>2.3</version>
+	</dependency>
 
 		<dependency>
 			<groupId>com.eclipsesource.jaxrs</groupId>

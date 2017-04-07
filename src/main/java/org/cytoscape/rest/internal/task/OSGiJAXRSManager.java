@@ -111,7 +111,7 @@ public class OSGiJAXRSManager
 			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "jersey-min-2.22.1.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "gson-2.3.jar",
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "gson-2.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
 	};
 

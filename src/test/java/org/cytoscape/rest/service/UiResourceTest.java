@@ -71,7 +71,11 @@ public class UiResourceTest extends BasicResourceTest {
 		Entity<String> entity = Entity.entity("", MediaType.APPLICATION_JSON_TYPE);
 		final Response result = target("/v1/ui/lod").request().put(entity);
 		assertNotNull(result);
-		assertTrue(result.getStatus() == 500);
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		assertTrue(result.getStatus() == 200);
+		JsonNode root = mapper.readTree(body);
+		assertEquals("Toggled Graphics level of details.", root.get("message").asText());
 		// TODO: prepare mock
 	}
 }

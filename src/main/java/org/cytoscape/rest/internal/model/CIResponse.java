@@ -7,8 +7,8 @@ import java.util.List;
  * Response from CI standard services
  * 
  */
-public class CIResponse {
+public class CIResponse<T> {
 
-	public Object data;
+	public T data;
 	public List<CIError> errors;
 }

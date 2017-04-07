@@ -33,6 +33,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,7 +46,7 @@ public class StyleResourceTest extends BasicResourceTest {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
-	
+
 	@Test
 	public void testGetStyles() throws Exception {
 		String result = target("/v1/styles").request().get(String.class);
@@ -71,8 +72,8 @@ public class StyleResourceTest extends BasicResourceTest {
 		int count = root.get("count").asInt();
 		assertEquals(2, count);
 	}
-	
-	
+
+
 	@Test
 	public void testGetStyle() throws Exception {
 		String result = target("/v1/styles/mock1").request().get(String.class);
@@ -80,8 +81,8 @@ public class StyleResourceTest extends BasicResourceTest {
 		final JsonNode root = mapper.readTree(result);
 		assertEquals("mock1", root.get("title").asText());
 	}
-	
-	
+
+
 	@Test
 	public void testGetDefaultValues() throws Exception {
 		final Response result = target("/v1/styles/vs1/defaults").request().get();
@@ -103,8 +104,8 @@ public class StyleResourceTest extends BasicResourceTest {
 		testRange(BasicVisualLexicon.EDGE_SOURCE_ARROW_SHAPE);
 		testRange(BasicVisualLexicon.EDGE_TARGET_ARROW_SHAPE);
 	}
-	
-	
+
+
 	private final void testRange(VisualProperty<?> vp) throws JsonProcessingException, IOException {
 		Set<?> values = ((DiscreteRange<?>)vp.getRange()).values();
 		Set<String> valueStrings = new HashSet<>();
@@ -112,7 +113,7 @@ public class StyleResourceTest extends BasicResourceTest {
 			VisualPropertyValue vpv = (VisualPropertyValue) val;
 			valueStrings.add(vpv.getSerializableString());
 		}
-		
+
 		Response result = target("/v1/styles/visualproperties/" + vp.getIdString() + "/values").request().get();
 		assertNotNull(result);
 		final String body = result.readEntity(String.class);
@@ -123,7 +124,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertNotNull(generatedValues);
 		assertTrue(generatedValues.isArray());
 		assertEquals(values.size(), generatedValues.size());
-		
+
 		for(JsonNode node: generatedValues) {
 			assertTrue(valueStrings.contains(node.asText()));
 		}
@@ -141,6 +142,51 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(106, root.size());
 	}
 
+	@Test
+	public void testGetEqualProperties() throws Exception {
+		Response result1 = target("/v1/styles/visualproperties").request().get();
+		assertNotNull(result1);
+
+		final String body1 = result1.readEntity(String.class);
+		System.out.println(body1);
+		final JsonNode root1 = mapper.readTree(body1);
+		assertTrue(root1.isArray());
+		assertEquals(106, root1.size());
+
+		//assertEquals(root1, root);
+
+		List<org.cytoscape.rest.internal.model.VisualProperty> list1;
+		TypeReference<List<org.cytoscape.rest.internal.model.VisualProperty>> tRef = new TypeReference<List<org.cytoscape.rest.internal.model.VisualProperty>>() {};
+		list1 = mapper.readValue(body1, tRef);
+
+
+		final Set<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+
+		for (VisualProperty vp : vps)
+		{
+			assertTrue(containsVisualProperty(list1, vp));
+		}
+	}
+
+	private boolean containsVisualProperty(List<org.cytoscape.rest.internal.model.VisualProperty> list, VisualProperty<Object> vp)
+	{
+		for (org.cytoscape.rest.internal.model.VisualProperty entry : list)
+		{
+			if ( entry.visualProperty.equals(vp.getIdString())
+					&& entry.name.equals(vp.getDisplayName())
+					&& entry.targetDataType.equals(vp.getTargetDataType().getSimpleName())
+					&& ((entry._default == null && vp.toSerializableString(vp.getDefault()) == null) || entry._default.equals(vp.toSerializableString(vp.getDefault())))
+					)
+			{
+				System.out.println(entry.visualProperty + " " + vp.getIdString());
+				System.out.println(entry.name + " " + vp.getDisplayName());
+				System.out.println(entry.targetDataType + vp.getTargetDataType().getSimpleName());
+				System.out.println(entry._default + vp.toSerializableString(vp.getDefault()));
+				return true;
+			}
+		}
+		return false;
+	}
 
 	@Test
 	public void testGetVisualProperty() throws Exception {
@@ -158,15 +204,15 @@ public class StyleResourceTest extends BasicResourceTest {
 			String def = vp.toSerializableString(vp.getDefault());
 			if(def != null)
 				assertEquals(def, 
-					root.get("default").asText());
+						root.get("default").asText());
 		}
-	
+
 	}
-	
-	
+
+
 	@Test
 	public void testGetDefaultValue() throws Exception {
-		
+
 		final String vp = BasicVisualLexicon.NODE_FILL_COLOR.getIdString();
 		Response result = target("/v1/styles/vs1/defaults/NODE_FILL_COLOR").request().get();
 		assertNotNull(result);
@@ -199,7 +245,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		final JsonNode root0 = mapper.readTree(body0);
 		assertTrue(root0.isArray());
 		assertEquals(0, root0.size());
-		
+
 		final Response result = target("/v1/styles/vs1/mappings").request().get();
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
@@ -210,7 +256,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isArray());
 		assertEquals(11, root.size());
-		
+
 		for(JsonNode mapping:root) {
 			JsonNode type = mapping.get("mappingType");
 			assertNotNull(type);
@@ -225,20 +271,20 @@ public class StyleResourceTest extends BasicResourceTest {
 			}
 		}
 	}
-	
+
 	private void testDiscrete(JsonNode mapping) {
 		checkBasicSettings(mapping);
 		final JsonNode map = mapping.get("map");
 		assertNotNull(map);
 		assertTrue(map.isArray());
 	}
-	
+
 	private void testContinuous(JsonNode mapping) {
 		checkBasicSettings(mapping);
 		final JsonNode points = mapping.get("points");
 		assertNotNull(points);
 		assertTrue(points.isArray());
-		
+
 		for(JsonNode point:points) {
 			JsonNode val = point.get("value");
 			assertNotNull(val);
@@ -251,11 +297,11 @@ public class StyleResourceTest extends BasicResourceTest {
 			assertNotNull(g);
 		}
 	}
-	
+
 	private void testPassthrough(JsonNode mapping) {
 		checkBasicSettings(mapping);
 	}
-	
+
 	private final void checkBasicSettings(JsonNode mapping) {
 		final JsonNode column = mapping.get("mappingColumn");
 		assertNotNull(column);
@@ -265,7 +311,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertNotNull(vp);
 	}
 
-	
+
 	@Test
 	public void testCreateStyle() throws Exception {
 		final String style1 = "{ \"title\": \"style1\""
@@ -280,7 +326,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(201, result.getStatus());
 		assertTrue(body.contains("title"));
 	}
-	
+
 	@Test
 	public void testCreateMapping() throws Exception {
 		testCreateDiscrete();
@@ -300,7 +346,7 @@ public class StyleResourceTest extends BasicResourceTest {
 				+ "{\"key\" : \"pp\", \"value\" : \"1.5\"}"
 				+ "]}"
 				+ "]";
-		
+
 		// Test String column
 		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
@@ -308,7 +354,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(201, result.getStatus());
 		System.out.println("res: " + result.toString());
-		
+
 	}
 
 
@@ -323,7 +369,7 @@ public class StyleResourceTest extends BasicResourceTest {
 				+ "{\"value\" : 20, \"lesser\" : \"120\" , \"equal\" : \"120\", \"greater\" : \"220\" }"
 				+ "]}"
 				+ "]";
-		
+
 		// Test String column
 		Entity<String> entity = Entity.entity(nodeSizeMapping, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
@@ -332,7 +378,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(201, result.getStatus());
 		System.out.println("res: " + result.toString());
-		
+
 		ContinuousMapping<?, Double> mapping = (ContinuousMapping<?, Double>) style.getVisualMappingFunction(BasicVisualLexicon.NODE_SIZE);
 		assertNotNull(mapping);
 		assertEquals("Degree", mapping.getMappingColumnName());
@@ -350,7 +396,7 @@ public class StyleResourceTest extends BasicResourceTest {
 				+ "\"mappingColumn\": \"name\","
 				+ "\"mappingColumnType\": \"String\","
 				+ "\"visualProperty\": \"EDGE_LABEL\" }]";
-		
+
 		// Test String column
 		Entity<String> entity = Entity.entity(edgeLabelMapping, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
@@ -359,7 +405,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(201, result.getStatus());
 		System.out.println("res: " + result.toString());
 	}
-	
+
 	@Test
 	public void testUpdateMapping() throws Exception {
 		final String nodeLabelMapping = "[{"
@@ -367,7 +413,7 @@ public class StyleResourceTest extends BasicResourceTest {
 				+ "\"mappingColumn\": \"name\","
 				+ "\"mappingColumnType\": \"String\","
 				+ "\"visualProperty\": \"NODE_LABEL\" }]";
-		
+
 		// Test String column
 		Entity<String> entity = Entity.entity(nodeLabelMapping, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/styles/vs1/mappings/NODE_LABEL").request().put(entity);
@@ -375,13 +421,13 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(200, result.getStatus());
 		System.out.println("res: " + result.toString());
-		
+
 		final String nodeTooltipMapping = "[{"
 				+ "\"mappingType\": \"passthrough\","
 				+ "\"mappingColumn\": \"name\","
 				+ "\"mappingColumnType\": \"String\","
 				+ "\"visualProperty\": \"NODE_TOOLTIP\" }]";
-		
+
 		// Test String column
 		entity = Entity.entity(nodeTooltipMapping, MediaType.APPLICATION_JSON_TYPE);
 		result = target("/v1/styles/vs1/mappings/NODE_TOOLTIP").request().put(entity);
@@ -390,39 +436,39 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		System.out.println("res: " + result.toString());
 	}
-	
+
 	@Test
 	public void testDeleteStyle() throws Exception {
-		
+
 		final Response result = target("/v1/styles/vs1").request().delete();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 	}
-	
-	
+
+
 	@Test
 	public void testDeleteAllStyles() throws Exception {
-		
+
 		final Response result = target("/v1/styles").request().delete();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 	}
-	
+
 	@Test
 	public void testDeleteMapping() throws Exception {
-		
+
 		final Response result = target("/v1/styles/vs1/mappings/NODE_LABEL").request().delete();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 	}
-	
+
 	private final String createDefaultsJson() throws Exception {
 		final JsonFactory factory = new JsonFactory();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		JsonGenerator generator = null;
 		generator = factory.createGenerator(stream);
 		generator.writeStartArray();
-			
+
 		generator.writeStartObject();
 		generator.writeStringField("visualProperty", BasicVisualLexicon.NODE_FILL_COLOR.getIdString());
 		generator.writeStringField("value", "blue");
@@ -432,12 +478,12 @@ public class StyleResourceTest extends BasicResourceTest {
 		generator.writeStringField("visualProperty", BasicVisualLexicon.NODE_SIZE.getIdString());
 		generator.writeNumberField("value", 120);
 		generator.writeEndObject();
-		
+
 		generator.writeStartObject();
 		generator.writeStringField("visualProperty", BasicVisualLexicon.EDGE_LABEL_FONT_SIZE.getIdString());
 		generator.writeNumberField("value", 20);
 		generator.writeEndObject();
-		
+
 		generator.writeEndArray();
 		generator.close();
 		final String result = stream.toString("UTF-8");
@@ -458,11 +504,11 @@ public class StyleResourceTest extends BasicResourceTest {
 		final String body = result.readEntity(String.class);
 		System.out.println("BODY: " + body);
 		assertEquals("", body);
-		
+
 		// TODO: Add more updated value check
 		Paint fillColor = style.getDefaultValue(BasicVisualLexicon.NODE_FILL_COLOR);
 		System.out.println("Fill Color: " + ((Color)fillColor));
 		assertEquals(Color.blue, fillColor);
 	}
-	
+
 }

@@ -234,7 +234,8 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Column Name") @PathParam("columnName") String columnName,
-			@ApiParam(value="Default Value. If this value is provided, all cells will be set to this.", required=false) @QueryParam("default") String defaultValue, final InputStream is) {
+			@ApiParam(value="Default Value. If this value is provided, all cells will be set to this.", required=false) @QueryParam("default") String defaultValue, 
+			final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 
@@ -303,7 +304,8 @@ public class TableResource extends AbstractResource {
 			@ApiParam() @PathParam("networkId") Long networkId, 
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(allowableValues="local", required=false) @QueryParam("class") String tableClass,
-		 final InputStream is) {
+			final InputStream is
+			) {
 		
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, tableClass);

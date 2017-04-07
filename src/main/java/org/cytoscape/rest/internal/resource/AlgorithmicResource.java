@@ -272,7 +272,8 @@ public class AlgorithmicResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update layout parameters for the algorithm", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG})
 	public Response updateLayoutParameters(
-			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName, final InputStream is
+			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName, 
+			final InputStream is
 			) {
 		final ObjectMapper objMapper = new ObjectMapper();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);

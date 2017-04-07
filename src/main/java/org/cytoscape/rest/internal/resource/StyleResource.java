@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -48,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
 @Singleton
@@ -234,26 +236,14 @@ public class StyleResource extends AbstractResource {
 		return serializeRangeValue(vp);
 	}
 
-
-	/**
-	 * @summary Get all available Visual Properties
-	 * 
-	 * @return Array of Visual Properties
-	 * 
-	 */
 	@GET
 	@Path("/visualproperties")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getVisualProperties() {
-		final Set<VisualProperty<?>> vps = getAllVisualProperties();
-		try {
-			return styleSerializer.serializeVisualProperties(vps);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw getError("Could not serialize Visual Properties.", e, Response.Status.INTERNAL_SERVER_ERROR);
-		}
+	@ApiOperation(value="Get all available Visual Properties")
+	public Collection<org.cytoscape.rest.internal.model.VisualProperty> getVisualProperties() {
+		Set<VisualProperty<?>> vps = getAllVisualProperties();	
+		return vps.stream().map(cyVp -> new org.cytoscape.rest.internal.model.VisualProperty((VisualProperty<Object>) cyVp)).collect(Collectors.toList());
 	}
-
 
 	/**
 	 * @summary Get a Visual Property

@@ -26,6 +26,7 @@ import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
+import org.cytoscape.rest.internal.model.Message;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
@@ -34,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.USER_INTERFACE_TAG})
 @Singleton
@@ -87,7 +89,8 @@ public class UIResource extends AbstractResource {
 	@PUT
 	@Path("/lod")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response updateLodState() {
+	@ApiOperation(value="Toggle level of details.")
+	public Message updateLodState() {
 		final TaskIterator lod = detailsTF.getLodTF().createTaskIterator(null);
 		
 		try {
@@ -97,9 +100,7 @@ public class UIResource extends AbstractResource {
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
-		return Response.status(Response.Status.OK)
-				.type(MediaType.APPLICATION_JSON)
-				.entity("{\"message\":\"Toggled Graphics level of details.\"}").build();
+		return new Message("Toggled Graphics level of details.");
 	}
 
 	/**

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
 import org.osgi.framework.BundleContext;
@@ -27,7 +26,8 @@ public final class ResourceManager {
 	public static final String PORT_NUMBER_PROP = "rest.port";
 	public static final Integer DEF_PORT_NUMBER = 1234;
 
-	public static final String HOST = "0.0.0.0";
+	// Note; this used to be used 
+	public static final String HOST = "localhost";
 
 	private CyRESTSwagger swagger;
 

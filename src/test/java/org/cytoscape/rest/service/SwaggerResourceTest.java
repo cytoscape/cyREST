@@ -22,6 +22,6 @@ public class SwaggerResourceTest extends BasicResourceTest
 		assertTrue(root.has("externalDocs"));
 		
 		final JsonNode hostNode = root.get("host");
-		assertEquals("0.0.0.0:" + cyRESTPort , hostNode.asText());
+		assertEquals("localhost:" + cyRESTPort , hostNode.asText());
 	}
 }

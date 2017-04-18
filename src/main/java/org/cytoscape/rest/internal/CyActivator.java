@@ -67,9 +67,7 @@ import com.google.inject.Module;
 public class CyActivator extends AbstractCyActivator {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
-	private static final Integer MAX_RETRY = 10;
-	private static final Integer INTERVAL = 5000; // Seconds
-
+	
 	public class WriterListener {
 
 		private VizmapWriterFactory jsFactory;
@@ -239,6 +237,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Extract Karaf's log file location
 		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
+		
 		if (configurationAdmin != null) {
 			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
 

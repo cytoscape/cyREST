@@ -8,5 +8,16 @@ public class CIError {
 	public String code;
 	public String message;
 	public URI link;
+	
+	public CIError() {
+		
+	}
+	
+	public CIError(Integer status, String code, String message, URI link) {
+		this.status = status;
+		this.code = code;
+		this.message = message;
+		this.link = link;
+	}
 
 }

@@ -1,5 +1,6 @@
 package org.cytoscape.rest.service;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.*;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -61,6 +63,7 @@ import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
+import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.CollectionResource;
@@ -116,10 +119,14 @@ import org.cytoscape.view.vizmap.internal.mappings.PassthroughMappingFactory;
 import org.cytoscape.view.vizmap.mappings.BoundaryRangeValues;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
+import org.cytoscape.work.FinishStatus;
+import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -132,6 +139,8 @@ import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
@@ -403,16 +412,40 @@ public class BasicResourceTest extends JerseyTest {
 		dummyArguments.add(DUMMY_ARGUMENT_NAME);
 		
 		when(available.getNamespaces()).thenReturn(dummynameSpaces);
-		when(available.getCommands(DUMMY_NAMESPACE)).thenReturn(dummyCommands);
+		when(available.getCommands(eq(DUMMY_NAMESPACE))).thenReturn(dummyCommands);
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_COMMAND)).thenReturn(dummyArguments);
 		when(available.getArgTypeString(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_CLASS.getName());
 		when(available.getArgType(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_CLASS);
 		when(available.getArgDescription(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_DESCRIPTION);
 		when(available.getArgRequired(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(false);
+
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
+		TaskIterator dummyTaskIterator = new TaskIterator();
+		ObservableTask dummyJsonTask = mock(ObservableTask.class);
+		
+		//when(dummyJsonTask.)
+
+		JSONResult dummyJsonResult = mock(JSONResult.class);
+		when(dummyJsonResult.getJSON()).thenReturn("{\"dummy\" : false}");
+
+		when(dummyJsonTask.getResults(JSONResult.class)).thenReturn(dummyJsonResult);
+		dummyTaskIterator.append(dummyJsonTask);
+	
+
+		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 
-		final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
+		doAnswer(new Answer<Void>() {
+			public Void answer(InvocationOnMock invocation) {
+				Object[] args = invocation.getArguments();
+				if (args[1] instanceof TaskObserver) {
+					//TODO make this execute closer to how Commands are actually executed.
+					((TaskObserver) args[1]).taskFinished(dummyJsonTask);
+					((TaskObserver) args[1]).allFinished(FinishStatus.getSucceeded());
+				}
+				return null;
+			}
+		}).when(synchronousTaskManager).execute(any(TaskIterator.class), any(TaskObserver.class));final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
 		final String cyRESTPort = this.cyRESTPort;
 		
@@ -438,6 +471,9 @@ public class BasicResourceTest extends JerseyTest {
 		lexicon = new DVisualLexicon(cgManager);
 
 		final CyEventHelper eventHelper = mock(CyEventHelper.class);
+		
+		final CyServiceRegistrar cyServiceRegistrar = mock(CyServiceRegistrar.class);
+		when(cyServiceRegistrar.getService(CyEventHelper.class)).thenReturn(mock(CyEventHelper.class));
 		passthroughFactory = new PassthroughMappingFactory(eventHelper);
 		discreteFactory = new DiscreteMappingFactory(eventHelper);
 		continuousFactory = new ContinuousMappingFactory(eventHelper);
@@ -706,6 +742,7 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(NetworkNameResource.class);
 							resourceClasses.add(UIResource.class);
 							resourceClasses.add(CollectionResource.class);
+							resourceClasses.add(CommandResource.class);
 							resourceClasses.add(CyRESTCommandSwagger.class);
 							final ResourceConfig rc = new ResourceConfig();
 

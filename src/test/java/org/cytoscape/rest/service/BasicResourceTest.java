@@ -126,7 +126,7 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
-import org.cytoscape.work.json.JSONResult;
+
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -425,11 +425,7 @@ public class BasicResourceTest extends JerseyTest {
 		
 		//when(dummyJsonTask.)
 
-		JSONResult dummyJsonResult = mock(JSONResult.class);
-		when(dummyJsonResult.getJSON()).thenReturn("{\"dummy\" : false}");
-
-		when(dummyJsonTask.getResults(JSONResult.class)).thenReturn(dummyJsonResult);
-		dummyTaskIterator.append(dummyJsonTask);
+	
 	
 
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);

@@ -24,6 +24,7 @@ import javax.ws.rs.Produces;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.CIError;
 import org.cytoscape.rest.internal.model.CIResponse;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
@@ -108,7 +109,7 @@ public class ClusterMaker2Resource
 		}
 	}
 	
-	private final static String cyRESTErrorRoot = "cy://cyrest-core";
+
 	
 	private CIResponse buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
 	{
@@ -116,7 +117,10 @@ public class ClusterMaker2Resource
 		ciResponse.data = new Object();
 		List<CIError> errors = new ArrayList<CIError>();
 		CIError error= new CIError();
-		error.code = cyRESTErrorRoot + resourcePath+ "/"+ code;
+		error.code = CyRESTConstants.cyRESTCIErrorRoot + resourcePath+ "/"+ code;
+		
+		System.out.println("Current Thread: " + Thread.currentThread().getName());
+	
 		if (e != null)
 		{
 			logger.error(message, e);

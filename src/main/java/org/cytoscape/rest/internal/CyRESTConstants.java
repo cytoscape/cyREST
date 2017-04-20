@@ -43,4 +43,5 @@ public class CyRESTConstants {
 			CORSFilter.class
 	};
 	
+	public final static String cyRESTCIErrorRoot = "cy://cyrest-core";
 }

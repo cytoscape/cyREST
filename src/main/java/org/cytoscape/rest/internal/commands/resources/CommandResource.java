@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.commands.resources;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,21 +21,27 @@ import javax.ws.rs.core.UriInfo;
 
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
+import org.cytoscape.rest.internal.model.CIError;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.json.JSONResult;
+import org.glassfish.grizzly.http.util.HttpStatus;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 
@@ -54,7 +62,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@Inject
 	@NotNull
 	private CommandExecutorTaskFactory ceTaskFactory;
-	
+
 	@Inject
 	@NotNull
 	private SynchronousTaskManager<?> taskManager;
@@ -153,7 +161,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		for (final String command : commands) {
 			handler.appendMessage("  " + command);
 		}
-		
+
 		return handler.getMessages();
 	}
 
@@ -174,11 +182,11 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@Produces(MediaType.TEXT_PLAIN)
 	public String handleCommand(@PathParam("namespace") String namespace,
 			@PathParam("command") String command, @Context UriInfo uriInfo) {
-		
+
 		final MessageHandler handler = new TextPlainHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
-		
-		return handleCommand(namespace, command, queryParameters, handler);
+
+		return handleCommand(namespace, command, queryParameters, handler, this);
 	}
 
 
@@ -200,21 +208,94 @@ public class CommandResource implements PaxAppender, TaskObserver
 			@PathParam("command") String command, @Context UriInfo uriInfo) {
 		final MessageHandler handler = new TextHTMLHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
-		
-		return handleCommand(namespace, command, queryParameters, handler);
+
+		return handleCommand(namespace, command, queryParameters, handler, this);
 	}
 
 
+	@POST
+	@Path("/{namespace}/{command}") 
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Execute Command with JSON output", hidden=true)
+	public String handleJSONCommand(@PathParam("namespace") String namespace,
+			@PathParam("command") String command, @Context UriInfo uriInfo) {
+		final MessageHandler handler = new TextHTMLHandler();
+		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
+		JSONTaskObserver jsonTaskObserver = new JSONTaskObserver();
+		try {
+			handleCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
+
+			return buildCIResult(namespace, command, jsonTaskObserver);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	// We're getting strings from commands; it would cost us to translate to JSON and back to string, so we're building
+	// our result manually for efficiency.
+	private String buildCIResult(String namespace, String command, JSONTaskObserver jsonTaskObserver) {
+		String output = "{ \"data\": ";
+		if (jsonTaskObserver.jsonResultStrings.size() == 0)
+		{
+			output += "null ";
+		}
+		else if (jsonTaskObserver.jsonResultStrings.size() == 1)
+		{
+			output += jsonTaskObserver.jsonResultStrings.get(0);
+		}
+		else
+		{
+			output += "[";
+			
+			output += "]";
+		}
+		Gson gson = new Gson();
+		List<CIError> errors = new ArrayList<CIError>();
+		if (jsonTaskObserver.finishStatus.getException() != null){
+			errors.add(new CIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), CyRESTConstants.cyRESTCIErrorRoot + "/v1/commands/{namespace}/{command}/2", "Error in command execution:" + jsonTaskObserver.finishStatus.getException().getMessage() , null));
+		}
+			
+		output += ", \"errors\": " + gson.toJson(errors) + "}";
+		return output;
+	}
+	
+	private class JSONTaskObserver implements TaskObserver
+	{
+		FinishStatus finishStatus;
+		final List<String> jsonResultStrings = new ArrayList<String>();
+
+		@Override
+		public void taskFinished(ObservableTask task) {
+
+			JSONResult jsonResult = task.getResults(JSONResult.class);
+			if (jsonResult != null)	{
+				jsonResultStrings.add(jsonResult.getJSON());
+			} else {
+				Gson gson = new Gson();
+				String stringResult = task.getResults(String.class);
+				jsonResultStrings.add(gson.toJson(stringResult, String.class));
+			}
+		}
+
+		@Override
+		public void allFinished(FinishStatus finishStatus) {
+			this.finishStatus = finishStatus;
+		}
+	}
+
 	private final String handleCommand(final String namespace, final String command,
 			final MultivaluedMap<String, String> queryParameters,
-			final MessageHandler handler) throws WebApplicationException {
-		
+			final MessageHandler handler,
+			final TaskObserver taskObserver) throws WebApplicationException {
+
 		final List<String> args = available.getArguments(namespace, command);
 
 		if ((queryParameters != null && queryParameters.size() > 0)
 				|| (args == null || args.size() == 0)) {
 			// Execute!
-			return executeCommand(namespace, command, queryParameters, handler);
+			return executeCommand(namespace, command, queryParameters, handler, taskObserver);
 		}
 
 		handler.appendCommand("Available arguments for '" + namespace + " " + command + "':");
@@ -228,7 +309,8 @@ public class CommandResource implements PaxAppender, TaskObserver
 	private final String executeCommand(
 			final String namespace, final String command,
 			final MultivaluedMap<String, String> args,
-			final MessageHandler handler) throws WebApplicationException {
+			final MessageHandler handler,
+			TaskObserver taskObserver) throws WebApplicationException {
 
 		final List<String> commands = available.getCommands(namespace);
 		if (commands == null || commands.size() == 0) {
@@ -271,7 +353,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		taskException = null;
 
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
-				command, modifiedSettings, this), this);
+				command, modifiedSettings, taskObserver), taskObserver);
 
 		String messages = messageHandler.getMessages();
 		processingCommand = false;
@@ -298,7 +380,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 	}
 
 	////////////////// For Observable Task //////////////////////////
-	
+
 	@Override
 	public void taskFinished(ObservableTask t) {
 		final Object res = t.getResults(String.class);

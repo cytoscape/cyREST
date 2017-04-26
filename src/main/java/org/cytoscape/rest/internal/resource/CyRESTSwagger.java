@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Singleton;
@@ -21,6 +22,8 @@ import io.swagger.annotations.Tag;
 import io.swagger.jaxrs.Reader;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.config.ReaderListener;
+import io.swagger.models.HttpMethod;
+import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 
@@ -171,6 +174,25 @@ public class CyRESTSwagger extends AbstractResource
 
 		public void afterScan(Reader reader, Swagger swagger)
 		{
+			Map<String, io.swagger.models.Path> paths = swagger.getPaths();
+			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
+			
+				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
+				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
+					//Should be want to scan descriptions, parameter details, etc. and automatically generate links,
+					//this is how it could happen. Note that 
+					//operationEntry.getValue().setDescription("Test afterScan replacement.");
+				}
+			}
+		
 		}
 	}
+	
+	/*
+	 * This may need to be changed should we switch from Swagger UI 2.x to 3.x. The 3.x id tags are in the following 
+	 * format: operations,get-/v1/networks/{networkId}/views,Network Views
+	 */
+	
+	public final static String NETWORK_GET_LINK = "[/v1/networks](#!/Networks/getNetworksAsSUID)";
+	public final static String NETWORK_VIEWS_LINK = "[/v1/networks/{networkId}/views](#!/Network32Views/getAllNetworkViews)";
 }

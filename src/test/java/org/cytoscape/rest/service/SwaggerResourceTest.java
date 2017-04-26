@@ -3,6 +3,8 @@ package org.cytoscape.rest.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class SwaggerResourceTest extends BasicResourceTest
@@ -24,4 +26,5 @@ public class SwaggerResourceTest extends BasicResourceTest
 		final JsonNode hostNode = root.get("host");
 		assertEquals("localhost:" + cyRESTPort , hostNode.asText());
 	}
+
 }

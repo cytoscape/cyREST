@@ -8,7 +8,6 @@ import java.util.List;
  * 
  */
 public class CIResponse<T> {
-
 	public T data;
 	public List<CIError> errors;
 }

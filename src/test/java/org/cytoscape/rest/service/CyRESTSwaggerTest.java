@@ -103,4 +103,10 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 		assertTrue(cyRESTSwagger.isSwaggerDefinitionNull());
 	}
 	
+	@Test
+	public void testLiquidStyleReplacement() {
+		String testString = "{{feh}} and such.".replaceAll("\\{\\{feh\\}\\}", "Happy Days");
+		System.out.println(testString);
+		assertEquals("Happy Days and such.", testString);
+	}
 }

@@ -218,13 +218,12 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Execute Command with JSON output", hidden=true)
 	public String handleJSONCommand(@PathParam("namespace") String namespace,
-			@PathParam("command") String command, @Context UriInfo uriInfo) {
+			@PathParam("command") String command, Map<String, Object> queryParameters) {
 		final MessageHandler handler = new TextHTMLHandler();
-		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
+		//TODO Verify that all query parameters are strings. the command 
 		JSONTaskObserver jsonTaskObserver = new JSONTaskObserver();
 		try {
-			handleCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
-
+			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
 			return buildCIResult(namespace, command, jsonTaskObserver);
 		}
 		catch (Exception e){
@@ -348,12 +347,20 @@ public class CommandResource implements PaxAppender, TaskObserver
 			}
 		}
 
+		return executeCommand(namespace, command, modifiedSettings, handler, taskObserver);
+	}
+
+	private final String executeCommand(
+			final String namespace, final String command,
+			final Map<String, Object> args,
+			final MessageHandler handler,
+			TaskObserver taskObserver) throws WebApplicationException {
 		processingCommand = true;
 		messageHandler = handler;
 		taskException = null;
 
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
-				command, modifiedSettings, taskObserver), taskObserver);
+				command, args, taskObserver), taskObserver);
 
 		String messages = messageHandler.getMessages();
 		processingCommand = false;
@@ -361,7 +368,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 			throw taskException;
 		return messages;
 	}
-
+	
 	public void doAppend(PaxLoggingEvent event) {
 		// System.out.println(event.getLevel().toInt() + ": " + event.getMessage());
 		// Get prefix

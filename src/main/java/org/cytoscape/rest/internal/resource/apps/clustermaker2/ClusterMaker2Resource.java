@@ -21,12 +21,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import org.cytoscape.ci.model.CIError;
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
-import org.cytoscape.rest.internal.model.CIError;
-import org.cytoscape.rest.internal.model.CIResponse;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
 import org.cytoscape.rest.internal.task.LogLocation;
@@ -79,12 +79,12 @@ public class ClusterMaker2Resource
 	class MCODETaskObserver implements TaskObserver {
 		
 		private CIResponse ciResponse;
-		private String resourcePath;
+		private String resourceName;
 		private String errorCode;
 		
-		public MCODETaskObserver(String resourcePath, String errorCode){
+		public MCODETaskObserver(String resourceName, String errorCode){
 			ciResponse = null;
-			this.resourcePath = resourcePath;
+			this.resourceName = resourceName;
 			this.errorCode = errorCode;
 		}
 		
@@ -98,7 +98,7 @@ public class ClusterMaker2Resource
 			}
 			else
 			{
-				ciResponse = buildCIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), resourcePath, errorCode, arg0.getException().getMessage(), arg0.getException());
+				ciResponse = buildCIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), resourceName, errorCode, arg0.getException().getMessage(), arg0.getException());
 			}
 		}
 
@@ -109,15 +109,13 @@ public class ClusterMaker2Resource
 		}
 	}
 	
-
-	
-	private CIResponse buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
+	private CIResponse<Object> buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
 	{
 		CIResponse<Object> ciResponse = new CIResponse<Object>();
 		ciResponse.data = new Object();
 		List<CIError> errors = new ArrayList<CIError>();
 		CIError error= new CIError();
-		error.code = CyRESTConstants.cyRESTCIErrorRoot + resourcePath+ "/"+ code;
+		error.type = CyRESTConstants.cyRESTCIRoot + ":" + resourcePath + CyRESTConstants.cyRESTCIErrorRoot + ":"+ code;
 		
 		System.out.println("Current Thread: " + Thread.currentThread().getName());
 	
@@ -207,7 +205,7 @@ public class ClusterMaker2Resource
 			String messageString = "clusterMaker2 MCODE command is unavailable";
 			throw new ServiceUnavailableException(messageString, Response.status(Response.Status.SERVICE_UNAVAILABLE)
 					.type(MediaType.APPLICATION_JSON)
-					.entity(buildCIErrorResponse(503, "/"+MCODE_COMMAND+"/{networkSUID}", "1", messageString, null)).build());
+					.entity(buildCIErrorResponse(503, MCODE_COMMAND, "1", messageString, null)).build());
 		}
 		
 		if (!networkManager.networkExists(suid))
@@ -215,7 +213,7 @@ public class ClusterMaker2Resource
 			String messageString = "Network " + suid + " does not exist";
 			throw new NotFoundException(messageString, Response.status(Response.Status.NOT_FOUND)
 					.type(MediaType.APPLICATION_JSON)
-					.entity(buildCIErrorResponse(404, "/"+MCODE_COMMAND+"/{networkSUID}", "2", messageString, null)).build());
+					.entity(buildCIErrorResponse(404, MCODE_COMMAND, "2", messageString, null)).build());
 		}
 		
 		if (parameters == null)
@@ -223,10 +221,10 @@ public class ClusterMaker2Resource
 			String messageString = "Invalid or missing parameters";
 			throw new BadRequestException(messageString, Response.status(Response.Status.BAD_REQUEST).
 					type(MediaType.APPLICATION_JSON)
-					.entity(buildCIErrorResponse(400, "/"+MCODE_COMMAND+"/{networkSUID}", "3", messageString, null)).build());
+					.entity(buildCIErrorResponse(400, MCODE_COMMAND, "3", messageString, null)).build());
 		}
 		
-		MCODETaskObserver taskObserver = new MCODETaskObserver("/"+MCODE_COMMAND+"/{networkSUID}", "4");
+		MCODETaskObserver taskObserver = new MCODETaskObserver(MCODE_COMMAND, "4");
 		
 		Map<String, Object> tunableMap = new HashMap<String, Object>();
 		

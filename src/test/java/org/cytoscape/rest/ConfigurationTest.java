@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
@@ -56,7 +58,12 @@ public class ConfigurationTest
 				//For CORS
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));
 		
-		assertEquals(17, CyRESTConstants.coreResourceClasses.length);
+		
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
+		
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
+		
+		assertEquals(19, CyRESTConstants.coreResourceClasses.length);
 	}
 	
 	private boolean contains(Class<?>[] array, Class<?> key)

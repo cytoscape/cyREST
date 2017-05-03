@@ -444,11 +444,11 @@
 					<instructions>
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Private-Package>${bundle.namespace}.internal.*</Private-Package>
+						<Private-Package>${bundle.namespace}.internal.*, org.cytoscape.ci.internal</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, org.cytoscape.work.json</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
 				</configuration>
@@ -607,6 +607,16 @@
 			<artifactId>command-executor-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		 	 <groupId>org.cytoscape</groupId>
+  			<artifactId>work-json-api</artifactId>
+  			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+		 	 <groupId>org.cytoscape</groupId>
+  			<artifactId>ci-api</artifactId>
+  			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Guice -->

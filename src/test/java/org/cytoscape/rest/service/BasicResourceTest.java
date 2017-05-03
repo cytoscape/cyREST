@@ -3,12 +3,16 @@ package org.cytoscape.rest.service;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -20,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.NetworkViewRenderer;
@@ -66,7 +72,9 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
@@ -144,6 +152,8 @@ import org.mockito.stubbing.Answer;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -744,6 +754,9 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(CollectionResource.class);
 							resourceClasses.add(CommandResource.class);
 							resourceClasses.add(CyRESTCommandSwagger.class);
+							
+							resourceClasses.add(CIResponseFilter.class);
+							resourceClasses.add(CyExceptionMapper.class);
 							final ResourceConfig rc = new ResourceConfig();
 
 							Injector injector = Guice.createInjector(binder);
@@ -773,5 +786,23 @@ public class BasicResourceTest extends JerseyTest {
 
 			}
 		};
+	}
+	
+	protected void errorReverseCompatibility(Response response, String message) {
+		ObjectMapper mapper = new ObjectMapper();
+		final String body = response.readEntity(String.class);
+		//System.out.println("BODY: " + body);
+		try {
+			final JsonNode root = mapper.readTree(body);
+			assertNotNull(root.get("cause"));
+			assertNotNull(root.get("stackTrace"));
+			assertNotNull(root.get("classContext"));
+			assertNotNull(root.get("suppressed"));
+			assertEquals(message, root.get("message").asText());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new AssertionError("Result is invalid JSON");
+		}
+		
 	}
 }

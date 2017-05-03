@@ -19,13 +19,14 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.rest.internal.CIErrorFactoryImpl;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
-import org.cytoscape.rest.internal.model.CIError;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
@@ -253,9 +254,8 @@ public class CommandResource implements PaxAppender, TaskObserver
 		Gson gson = new Gson();
 		List<CIError> errors = new ArrayList<CIError>();
 		if (jsonTaskObserver.finishStatus.getException() != null){
-			errors.add(new CIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), CyRESTConstants.cyRESTCIErrorRoot + "/v1/commands/{namespace}/{command}/2", "Error in command execution:" + jsonTaskObserver.finishStatus.getException().getMessage() , null));
+			errors.add(new CIErrorFactoryImpl().getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", "Error in command execution:" + jsonTaskObserver.finishStatus.getException().getMessage() , null));
 		}
-			
 		output += ", \"errors\": " + gson.toJson(errors) + "}";
 		return output;
 	}

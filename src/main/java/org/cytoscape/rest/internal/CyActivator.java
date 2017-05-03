@@ -9,6 +9,8 @@ import java.util.concurrent.Executors;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -100,6 +102,9 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
+		this.registerService(bc, new CIExceptionFactoryImpl(), CIExceptionFactory.class, new Properties());
+		this.registerService(bc, new CIErrorFactoryImpl(), CIErrorFactory.class, new Properties());
+		
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
 

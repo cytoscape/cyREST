@@ -70,7 +70,7 @@ public class ClusterMaker2Resource
 	
 	@Inject
 	@LogLocation
-	private String logLocation;
+	private URI logLocation;
 	
 	public ClusterMaker2Resource(){
 	

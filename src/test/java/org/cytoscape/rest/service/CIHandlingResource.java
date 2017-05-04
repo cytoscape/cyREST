@@ -1,13 +1,11 @@
 package org.cytoscape.rest.service;
 
-import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -17,12 +15,11 @@ import org.cytoscape.rest.internal.CIErrorFactoryImpl;
 import org.cytoscape.rest.internal.CIExceptionFactoryImpl;
 import org.cytoscape.rest.internal.model.Message;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 @Path("/ciresource")
 public class CIHandlingResource {
+	
+	private URI logLocation = URI.create("dummyLog");
 	
 	@Path("/success")
 	@GET    
@@ -69,7 +66,16 @@ public class CIHandlingResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@CIWrapping
 	public String failWithCIError() throws WebApplicationException {
-		CIError ciError = new CIErrorFactoryImpl().getCIError(500, "urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", "Intentional fail to report with CI Resource.", URI.create("http://www.google.ca"));
+		CIError ciError = new CIErrorFactoryImpl(logLocation).getCIError(500, "urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", "Intentional fail to report with CI Resource.", URI.create("http://www.google.ca"));
+		throw new CIExceptionFactoryImpl().getCIException(500, new CIError[]{ciError});
+	}
+	
+	@Path("/failwithautolinkedresource")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@CIWrapping
+	public String failWithAutoLinkedCIError() throws WebApplicationException {
+		CIError ciError = new CIErrorFactoryImpl(logLocation).getCIError(500, "urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", "Intentional fail to report with CI Resource.");
 		throw new CIExceptionFactoryImpl().getCIException(500, new CIError[]{ciError});
 	}
 	

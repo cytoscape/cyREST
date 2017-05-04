@@ -1,5 +1,8 @@
 package org.cytoscape.rest.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -92,9 +95,11 @@ public class CyActivator extends AbstractCyActivator {
 	}
 
 	private String cyRESTPort = null;
+	private URI logLocation = null;
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
 
+	
 	public CyActivator() {
 		super();
 	}
@@ -103,7 +108,15 @@ public class CyActivator extends AbstractCyActivator {
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
 		this.registerService(bc, new CIExceptionFactoryImpl(), CIExceptionFactory.class, new Properties());
-		this.registerService(bc, new CIErrorFactoryImpl(), CIErrorFactory.class, new Properties());
+		
+		try {
+			this.logLocation = this.getLogLocation(bc);
+		} catch (IOException e1) {
+			this.logLocation = null;
+			logger.warn("CyREST is unable to find the Karaf log");
+		}
+		
+		this.registerService(bc, new CIErrorFactoryImpl(this.logLocation), CIErrorFactory.class, new Properties());
 		
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
@@ -126,6 +139,30 @@ public class CyActivator extends AbstractCyActivator {
 		logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
 	}
 
+	private final URI getLogLocation(BundleContext bc) throws IOException {
+		final String logLocation;
+
+		// Extract Karaf's log file location
+		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
+		
+		if (configurationAdmin != null) {
+			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
+
+			Dictionary<?,?> dictionary = config.getProperties();
+			Object logObject = dictionary.get("log4j.appender.file.File");
+			if (logObject != null && logObject instanceof String) {
+				logLocation = (String) logObject;
+			}
+			else {
+				logLocation = null;
+			}
+		}
+		else {
+			logLocation = null;
+		}
+		return (new File(logLocation)).toURI();
+	}
+	
 	private final void initDependencies(final BundleContext bc) throws Exception {
 
 		// OSGi Service listeners
@@ -238,26 +275,7 @@ public class CyActivator extends AbstractCyActivator {
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
-		final String logLocation;
-
-		// Extract Karaf's log file location
-		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
-		
-		if (configurationAdmin != null) {
-			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
-
-			Dictionary<?,?> dictionary = config.getProperties();
-			Object logObject = dictionary.get("log4j.appender.file.File");
-			if (logObject != null && logObject instanceof String) {
-				logLocation = (String) logObject;
-			}
-			else {
-				logLocation = null;
-			}
-		}
-		else {
-			logLocation = null;
-		}
+	
 
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);

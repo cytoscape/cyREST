@@ -214,7 +214,7 @@ public class BasicResourceTest extends JerseyTest {
 	
 	protected final String cyRESTPort = "1234";
 	
-	protected final String logLocation = "dummyLogLocation";
+	protected final URI logLocation = URI.create("dummyLogLocation");
 
 	protected interface DummyCyWriter extends CyWriter
 	{
@@ -459,7 +459,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		final String cyRESTPort = this.cyRESTPort;
 		
-		final String logLocation = this.logLocation;
+		final URI logLocation = this.logLocation;
 		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,

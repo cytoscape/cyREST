@@ -4,11 +4,11 @@ package org.cytoscape.rest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyObject;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,7 +135,7 @@ public class ResourceManagerTest
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 		final CyNetworkViewWriterFactoryManager viewFactoryManager = mock(CyNetworkViewWriterFactoryManager.class);
 		final String cyRESTPort = "1234"; 
-		final String logLocation = "nowhere";
+		final URI logLocation = URI.create("nowhere");
 
 		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, cyRESTPort, logLocation);
 

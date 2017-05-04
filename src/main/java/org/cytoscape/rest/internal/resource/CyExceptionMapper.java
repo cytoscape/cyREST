@@ -3,9 +3,6 @@ package org.cytoscape.rest.internal.resource;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -13,7 +10,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.ci.model.CIResponse;
-import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.slf4j.Logger;
@@ -28,7 +24,7 @@ public class CyExceptionMapper implements ExceptionMapper<Throwable> {
 	
 	@Inject
 	@LogLocation
-	private String logLocation;
+	private URI logLocation;
 	
 	@Override
 	public Response toResponse(Throwable ex) {
@@ -46,8 +42,8 @@ public class CyExceptionMapper implements ExceptionMapper<Throwable> {
 			ciResponse.errors = new ArrayList<CIError>();
 			CIError error = new CIError();
 			//System.out.println("Error report from thread: " + Thread.currentThread());
-			URI link = (new File(logLocation)).toURI();
-			error.link = link;
+			
+			error.link = logLocation;
 			error.type = CyRESTConstants.cyRESTCIRoot + ":error-handling" + CyRESTConstants.cyRESTCIErrorRoot + ":0";
 			error.status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
 			error.message = "Uncaught exception while processing resource [" +Thread.currentThread().getName()+"]: " + ex.getMessage();

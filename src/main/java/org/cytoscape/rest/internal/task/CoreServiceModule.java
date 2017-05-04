@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.task;
 
+import java.net.URI;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
@@ -100,7 +101,7 @@ public class CoreServiceModule extends AbstractModule {
 	
 	private final String cyRESTPort;
 	
-	private final String logLocation;
+	private final URI logLocation;
 	
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -122,7 +123,7 @@ public class CoreServiceModule extends AbstractModule {
 			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
-			final String cyRESTPort, final String logLocation) {
+			final String cyRESTPort, final URI logLocation) {
 	
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -214,6 +215,6 @@ public class CoreServiceModule extends AbstractModule {
 		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
 		
 		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
-		bind(String.class).annotatedWith(LogLocation.class).toInstance(logLocation);
+		bind(URI.class).annotatedWith(LogLocation.class).toInstance(logLocation);
 	}
 }

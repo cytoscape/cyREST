@@ -20,8 +20,9 @@ public class CIResponseFilter implements ContainerResponseFilter {
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
 
 		boolean hasCIWrapperAnnotation = false;
-
+		
 		Annotation[] annotations = response.getEntityAnnotations();
+	
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().equals(CIWrapping.class)) {
 				hasCIWrapperAnnotation = true;

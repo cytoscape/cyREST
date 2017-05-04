@@ -167,7 +167,7 @@ public class CIHandlingTest extends BasicResourceTest {
 				assertTrue(error.message.startsWith("Uncaught exception while processing resource ["));
 				assertTrue(error.message.endsWith("]: Kaboom."));
 				assertEquals(new Integer(500), error.status);
-				assertEquals("file:/git/cytoscape/cytoscape/apps/cyREST/dummyLogLocation", error.link.toString());
+				assertEquals("dummyLogLocation", error.link.toString());
 				assertEquals("urn:cytoscape:ci:cyrest-core:v1:error-handling:errors:0", error.type);
 			
 			}
@@ -189,6 +189,24 @@ public class CIHandlingTest extends BasicResourceTest {
 			assertEquals("http://www.google.ca", error.link.toString());
 			assertEquals("urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", error.type);
 		}
-	//	assertNotNull(result);
+	}
+	
+	@Test
+	public void testExplicitCIErrorAutoLink() {
+		try {
+		String response = target("/ciresource/failwithautolinkedresource").request().get(String.class);
+		} catch (InternalServerErrorException e) {
+			CIResponse<?> ciResponse = e.getResponse().readEntity(CIResponse.class);
+			System.out.println(ciResponse.errors.size());
+			Map<String, Object> object = (Map<String, Object>) ciResponse.data;
+			assertEquals(0, object.size());
+			assertEquals(1, ciResponse.errors.size());
+			CIError error = ciResponse.errors.get(0);
+			assertEquals("Intentional fail to report with CI Resource.", error.message);
+			assertEquals(new Integer(500), error.status);
+			assertEquals("dummyLog", error.link.toString());
+			assertEquals("urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", error.type);
+		}
+	
 	}
 }

@@ -652,7 +652,7 @@ public class NetworkViewResource extends AbstractResource {
 							new IllegalArgumentException(),
 							Response.Status.NOT_FOUND);
 				}
-				styleMapper.updateView(view, viewNode, getLexicon());
+				styleMapper.updateView(view, viewNode, getLexicon(), false);
 			}
 			
 			// Repaint
@@ -698,7 +698,7 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateView(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
-			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId,
+			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId, @QueryParam("bypass") Boolean bypass,
 			final InputStream is) {
 		
 		final CyNetworkView networkView = getView(networkId, viewId);
@@ -720,10 +720,15 @@ public class NetworkViewResource extends AbstractResource {
 		
 		final ObjectMapper objMapper = new ObjectMapper();
 
+		//TODO Decide if the default behavior is to be true or not. For now, it's 3.3.8 behavior.
+		if (bypass == null) {
+			bypass = false;
+		}
+		
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(view, rootNode, getLexicon());
+			styleMapper.updateView(view, rootNode, getLexicon(), bypass);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -768,7 +773,7 @@ public class NetworkViewResource extends AbstractResource {
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(networkView, rootNode, getLexicon());
+			styleMapper.updateView(networkView, rootNode, getLexicon(), false);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

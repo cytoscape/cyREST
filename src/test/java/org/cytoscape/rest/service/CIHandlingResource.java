@@ -70,6 +70,15 @@ public class CIHandlingResource {
 		throw new CIExceptionFactoryImpl().getCIException(500, new CIError[]{ciError});
 	}
 	
+	@Path("/failwithresource501")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@CIWrapping
+	public String failWithCIError501() throws WebApplicationException {
+		CIError ciError = new CIErrorFactoryImpl(logLocation).getCIError(500, "urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", "Intentional fail to report with CI Resource.", URI.create("http://www.google.ca"));
+		throw new CIExceptionFactoryImpl().getCIException(501, new CIError[]{ciError});
+	}
+	
 	@Path("/failwithautolinkedresource")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

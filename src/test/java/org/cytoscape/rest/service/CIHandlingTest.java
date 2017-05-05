@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Application;
 
 import org.cytoscape.ci.model.CIError;
@@ -177,8 +178,27 @@ public class CIHandlingTest extends BasicResourceTest {
 	public void testExplicitCIError() {
 		try {
 		String response = target("/ciresource/failwithresource").request().get(String.class);
-		} catch (InternalServerErrorException e) {
+		} catch (ServerErrorException e) {
 			CIResponse<?> ciResponse = e.getResponse().readEntity(CIResponse.class);
+			System.out.println(ciResponse.errors.size());
+			Map<String, Object> object = (Map<String, Object>) ciResponse.data;
+			assertEquals(0, object.size());
+			assertEquals(1, ciResponse.errors.size());
+			CIError error = ciResponse.errors.get(0);
+			assertEquals("Intentional fail to report with CI Resource.", error.message);
+			assertEquals(new Integer(500), error.status);
+			assertEquals("http://www.google.ca", error.link.toString());
+			assertEquals("urn:cytoscape:ci:ci-wrap-test:v1:fail-with-ci-error:errors:1", error.type);
+		}
+	}
+	
+	@Test
+	public void testExplicitCIError501() {
+		try {
+		String response = target("/ciresource/failwithresource501").request().get(String.class);
+		} catch (ServerErrorException e) {
+			CIResponse<?> ciResponse = e.getResponse().readEntity(CIResponse.class);
+			System.out.println(e.getResponse().getStatus());
 			System.out.println(ciResponse.errors.size());
 			Map<String, Object> object = (Map<String, Object>) ciResponse.data;
 			assertEquals(0, object.size());

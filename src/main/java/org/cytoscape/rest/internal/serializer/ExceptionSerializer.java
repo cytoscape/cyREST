@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * This serializer exists to provide serialization for Exceptions. Initially, this was handled by the Grizzly server and 
- * its Jackson libraries, but the switch from the OSGi JAX RS Connector changed both the exception types generated, and 
- * the way they were serialized. This class attempts to follow the original structure as closely as possible to support 
- * backward compatibility.
+ * This serializer exists to provide backwards compatibility for Exceptions thrown by < v3.4 endpoints. Initially, this 
+ * was handled by the Grizzly server and its Jackson libraries, but the switch from the OSGi JAX RS Connector changed 
+ * both the exception types generated, and the way they were serialized. This class attempts to follow the original 
+ * structure as closely as possible.
  * 
  * @author davidotasek
  *

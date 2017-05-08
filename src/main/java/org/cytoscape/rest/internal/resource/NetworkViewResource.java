@@ -40,7 +40,6 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
-import org.cytoscape.rest.internal.model.CIResponse;
 import org.cytoscape.rest.internal.model.NetworkViewSUID;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;

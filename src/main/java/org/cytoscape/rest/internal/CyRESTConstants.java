@@ -43,5 +43,6 @@ public class CyRESTConstants {
 			CORSFilter.class
 	};
 	
-	public final static String cyRESTCIErrorRoot = "cy://cyrest-core";
+	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
+	public final static String cyRESTCIErrorRoot = ":errors";
 }

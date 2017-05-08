@@ -18,7 +18,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>3.4.0-SNAPSHOT</version>
+	<version>3.4.0</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
@@ -711,7 +711,11 @@
 			<scope>provided</scope>
 		</dependency>
 
-
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.5.7</version>
+		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
@@ -721,6 +725,10 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.swagger</groupId>
+					<artifactId>swagger-annotations</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

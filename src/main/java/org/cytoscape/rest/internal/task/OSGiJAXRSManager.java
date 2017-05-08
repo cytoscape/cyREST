@@ -178,6 +178,8 @@ public class OSGiJAXRSManager
 			
 			Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
 			dictionary.put("org.osgi.service.http.port", port);
+			//Set session timeout to infinite (while Cytoscape is running)
+			dictionary.put("org.ops4j.pax.web.session.timeout", "0");
 
 			config.update(dictionary);
 			

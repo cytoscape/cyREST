@@ -175,10 +175,17 @@ public class ClusterMaker2Resource
 
 	}
 	
+	private static final String CLUSTERMAKER2_ROOT = "clustermaker2";
+	
 	private static final String CLUSTERMAKER2_NAMESPACE = "cluster";
 	private static final String MCODE_COMMAND = "mcode";
 	private static final String MCODE_CLUSTER_ATTRIBUTE = "_mcodeCluster";
 	
+<<<<<<< HEAD
+=======
+	private static final String MCODE_ERROR_NAME = CLUSTERMAKER2_ROOT + ":" + MCODE_COMMAND;
+	
+>>>>>>> master
 	private static class ClusterMakerCIResponse extends CIResponse<String> {
 	}
 	
@@ -205,7 +212,11 @@ public class ClusterMaker2Resource
 			String messageString = "clusterMaker2 MCODE command is unavailable";
 			throw new ServiceUnavailableException(messageString, Response.status(Response.Status.SERVICE_UNAVAILABLE)
 					.type(MediaType.APPLICATION_JSON)
+<<<<<<< HEAD
 					.entity(buildCIErrorResponse(503, MCODE_COMMAND, "1", messageString, null)).build());
+=======
+					.entity(buildCIErrorResponse(503, MCODE_ERROR_NAME, "1", messageString, null)).build());
+>>>>>>> master
 		}
 		
 		if (!networkManager.networkExists(suid))
@@ -213,7 +224,11 @@ public class ClusterMaker2Resource
 			String messageString = "Network " + suid + " does not exist";
 			throw new NotFoundException(messageString, Response.status(Response.Status.NOT_FOUND)
 					.type(MediaType.APPLICATION_JSON)
+<<<<<<< HEAD
 					.entity(buildCIErrorResponse(404, MCODE_COMMAND, "2", messageString, null)).build());
+=======
+					.entity(buildCIErrorResponse(404, MCODE_ERROR_NAME, "2", messageString, null)).build());
+>>>>>>> master
 		}
 		
 		if (parameters == null)
@@ -221,10 +236,17 @@ public class ClusterMaker2Resource
 			String messageString = "Invalid or missing parameters";
 			throw new BadRequestException(messageString, Response.status(Response.Status.BAD_REQUEST).
 					type(MediaType.APPLICATION_JSON)
+<<<<<<< HEAD
 					.entity(buildCIErrorResponse(400, MCODE_COMMAND, "3", messageString, null)).build());
 		}
 		
 		MCODETaskObserver taskObserver = new MCODETaskObserver(MCODE_COMMAND, "4");
+=======
+					.entity(buildCIErrorResponse(400, MCODE_ERROR_NAME, "3", messageString, null)).build());
+		}
+		
+		MCODETaskObserver taskObserver = new MCODETaskObserver(MCODE_ERROR_NAME, "4");
+>>>>>>> master
 		
 		Map<String, Object> tunableMap = new HashMap<String, Object>();
 		

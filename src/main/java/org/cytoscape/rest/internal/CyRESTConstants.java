@@ -45,4 +45,6 @@ public class CyRESTConstants {
 	
 	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
 	public final static String cyRESTCIErrorRoot = ":errors";
+	
+	public final static String cyRESTHelpMenu = "Help.Automation";
 }

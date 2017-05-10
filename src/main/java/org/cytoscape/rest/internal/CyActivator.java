@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
@@ -33,6 +34,7 @@ import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
 import org.cytoscape.service.util.AbstractCyActivator;
+import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
@@ -100,6 +102,8 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
+		
+		
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
 
@@ -182,10 +186,21 @@ public class CyActivator extends AbstractCyActivator {
 		}
 
 		this.cyRESTPort = restPortNumber;
-
+		
 		// Set Port number
 		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 
+		final CyServiceRegistrar serviceRegistrar = getService(bc, CyServiceRegistrar.class);
+		
+		CyRESTCoreSwaggerAction swaggerCoreAction = new CyRESTCoreSwaggerAction(serviceRegistrar, this.cyRESTPort);
+		registerService(bc, swaggerCoreAction, CyAction.class, new Properties());
+		
+		CyRESTCommandSwaggerAction swaggerCommandAction = new CyRESTCommandSwaggerAction(serviceRegistrar, this.cyRESTPort);
+		registerService(bc, swaggerCommandAction, CyAction.class, new Properties());
+		
+		CyAutomationAction automationAction = new CyAutomationAction(serviceRegistrar);
+		registerService(bc, automationAction, CyAction.class, new Properties());
+		
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);

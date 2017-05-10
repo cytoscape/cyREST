@@ -18,7 +18,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>3.4.0</version>
+	<version>3.4.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
@@ -605,6 +605,12 @@
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>command-executor-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>swing-util-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>

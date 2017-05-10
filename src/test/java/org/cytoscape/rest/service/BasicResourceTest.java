@@ -484,9 +484,9 @@ public class BasicResourceTest extends JerseyTest {
 		
 		final CyServiceRegistrar cyServiceRegistrar = mock(CyServiceRegistrar.class);
 		when(cyServiceRegistrar.getService(CyEventHelper.class)).thenReturn(mock(CyEventHelper.class));
-		passthroughFactory = new PassthroughMappingFactory(eventHelper);
-		discreteFactory = new DiscreteMappingFactory(eventHelper);
-		continuousFactory = new ContinuousMappingFactory(eventHelper);
+		passthroughFactory = new PassthroughMappingFactory(cyServiceRegistrar);
+		discreteFactory = new DiscreteMappingFactory(cyServiceRegistrar);
+		continuousFactory = new ContinuousMappingFactory(cyServiceRegistrar);
 
 		mappingFactoryManager.addFactory(passthroughFactory, null);
 		mappingFactoryManager.addFactory(continuousFactory, null);

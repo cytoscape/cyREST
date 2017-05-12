@@ -43,6 +43,7 @@ import com.google.inject.Inject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -184,7 +185,7 @@ public class ClusterMaker2Resource
 
 	private static final String MCODE_ERROR_NAME = CLUSTERMAKER2_ROOT + ":" + MCODE_COMMAND;
 	
-
+	
 	private static class ClusterMakerCIResponse extends CIResponse<String> {
 	}
 	

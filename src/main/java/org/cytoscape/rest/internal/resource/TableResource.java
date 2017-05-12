@@ -26,7 +26,6 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
-import org.cytoscape.rest.internal.model.UpdateRow;
 import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.TableModule;
 import org.slf4j.Logger;
@@ -230,12 +229,15 @@ public class TableResource extends AbstractResource {
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update values in a column", notes="By default, you need to provide key-value pair to set values. However, if \"default\" is provided, it will be used for the entire column. This is useful to set columns like \"selected.\"")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="Array of SUID Keyed values", dataType="[Lorg.cytoscape.rest.internal.model.SUIDKeyValue;", type="array", paramType="body", required=true)
+			)
 	public Response updateColumnValues(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Column Name") @PathParam("columnName") String columnName,
 			@ApiParam(value="Default Value. If this value is provided, all cells will be set to this.", required=false) @QueryParam("default") String defaultValue, 
-			final InputStream is) {
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 

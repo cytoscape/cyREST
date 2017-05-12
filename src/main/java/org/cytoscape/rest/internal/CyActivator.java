@@ -248,6 +248,8 @@ public class CyActivator extends AbstractCyActivator {
 		edgeListReaderFactoryProps.setProperty("ID", "edgeListReaderFactory");
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
+		BundleResourceProvider bundleResourceProvider = new BundleResourceProvider(bc);
+		
 		final String logLocation;
 
 		// Extract Karaf's log file location
@@ -271,7 +273,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
-
+		
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager,
@@ -281,7 +283,7 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, restPortNumber, logLocation);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation);
 
 		this.resourceManager = new ResourceManager(bc, CyRESTConstants.coreResourceClasses, coreServiceModule, shimResources);
 	}

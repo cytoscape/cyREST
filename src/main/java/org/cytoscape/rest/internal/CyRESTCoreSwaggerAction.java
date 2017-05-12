@@ -9,7 +9,7 @@ public class CyRESTCoreSwaggerAction extends CyRESTSwaggerAction{
 	}
 
 	protected String rootURL()	{
-		return "http://chianti.ucsd.edu/~bdemchak/CySwagger/core/";
+		return "http://localhost:"+getCyRESTPort()+"/v1/swaggerUI/swagger-ui/index.html";
 	}
 	
 	protected String swaggerPath() {

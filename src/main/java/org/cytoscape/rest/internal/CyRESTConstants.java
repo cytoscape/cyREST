@@ -15,6 +15,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.SwaggerUI;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 
@@ -38,6 +39,8 @@ public class CyRESTConstants {
 			// For Commands
 			CommandResource.class,
 			CyRESTCommandSwagger.class,
+			
+			SwaggerUI.class,
 
 			//For CORS
 			CORSFilter.class

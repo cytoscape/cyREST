@@ -26,6 +26,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
@@ -134,10 +135,15 @@ public class ResourceManagerTest
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 		final CyNetworkViewWriterFactoryManager viewFactoryManager = mock(CyNetworkViewWriterFactoryManager.class);
+		
+		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
+		
 		final String cyRESTPort = "1234"; 
 		final String logLocation = "nowhere";
 
-		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, cyRESTPort, logLocation);
+		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
+				bundleResourceProvider,
+				cyRESTPort, logLocation);
 
 		final Map<Class<?>, Module> shimMap = new HashMap<Class<?>, Module>();
 		shimMap.put(TestShimClass.class, new TestModule(coreServiceModule));

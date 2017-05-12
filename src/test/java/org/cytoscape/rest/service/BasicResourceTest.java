@@ -56,6 +56,7 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -443,6 +444,8 @@ public class BasicResourceTest extends JerseyTest {
 			}
 		}).when(synchronousTaskManager).execute(any(TaskIterator.class), any(TaskObserver.class));final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
+		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
+		
 		final String cyRESTPort = this.cyRESTPort;
 		
 		final String logLocation = this.logLocation;
@@ -458,7 +461,9 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, cyRESTPort, logLocation);
+				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, 
+				bundleResourceProvider,
+				cyRESTPort, logLocation);
 	}
 
 

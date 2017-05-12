@@ -36,4 +36,8 @@ public abstract class CyRESTSwaggerAction extends AbstractCyAction{
 	
 	protected abstract String swaggerPath();
 	
+	protected final String getCyRESTPort(){
+		return cyRESTPort;
+	}
+	
 }

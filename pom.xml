@@ -403,7 +403,8 @@
 									<artifactId>publisher</artifactId>
 									<version>5.3</version>
 								</artifactItem>
-								<!-- We this plugin exports its own GSON, so this one was just causing shading <artifactItem> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
+								<!-- We this plugin exports its own GSON, so this one was just causing 
+									shading <artifactItem> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
 									<version>2.3</version> </artifactItem> -->
 								<artifactItem>
 									<groupId>com.eclipsesource.jaxrs</groupId>
@@ -436,6 +437,23 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.1.1</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>org.cytoscape.rest.internal.swagger.install.SwaggerInstaller</mainClass>
+							<workingDirectory>/swagger</workingDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>${maven-bundle-plugin.version}</version>
@@ -448,7 +466,8 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson,
+							com.google.gson.annotations</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
 				</configuration>
@@ -679,11 +698,11 @@
 			<version>3.1.0</version>
 		</dependency>
 
-	<dependency>
-		<groupId>com.google.code.gson</groupId>
-		<artifactId>gson</artifactId> 
-		<version>2.3</version>
-	</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.eclipsesource.jaxrs</groupId>
@@ -714,13 +733,13 @@
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.7</version>
+			<version>1.5.13</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
-			<version>1.5.9</version>
+			<version>1.5.13</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

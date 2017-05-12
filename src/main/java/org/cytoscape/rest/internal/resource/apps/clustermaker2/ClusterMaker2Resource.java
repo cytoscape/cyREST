@@ -184,8 +184,8 @@ public class ClusterMaker2Resource
 	
 
 	private static final String MCODE_ERROR_NAME = CLUSTERMAKER2_ROOT + ":" + MCODE_COMMAND;
-	
-	
+
+	@ApiModel(parent=CIResponse.class)
 	private static class ClusterMakerCIResponse extends CIResponse<String> {
 	}
 	

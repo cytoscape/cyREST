@@ -230,7 +230,7 @@ public class TableResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update values in a column", notes="By default, you need to provide key-value pair to set values. However, if \"default\" is provided, it will be used for the entire column. This is useful to set columns like \"selected.\"")
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="Array of SUID Keyed values", dataType="[Lorg.cytoscape.rest.internal.model.SUIDKeyValue;", type="array", paramType="body", required=true)
+			@ApiImplicitParam(value="Array of SUID Keyed values", dataType="[Lorg.cytoscape.rest.internal.model.SUIDKeyValue;", paramType="body", required=true)
 			)
 	public Response updateColumnValues(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,

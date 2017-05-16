@@ -11,7 +11,7 @@ import org.cytoscape.rest.internal.BundleResourceProvider;
 import com.google.inject.Inject;
 
 @Path("/v1/swaggerUI")
-public class SwaggerUI {
+public class SwaggerUIResource {
 	
 	@Inject
 	BundleResourceProvider bundleResourceProvider;

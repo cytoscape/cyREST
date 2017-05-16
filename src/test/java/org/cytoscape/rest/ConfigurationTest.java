@@ -19,7 +19,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
-import org.cytoscape.rest.internal.resource.SwaggerUI;
+import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class ConfigurationTest
 				// For Commands
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CommandResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CyRESTCommandSwagger.class));
-		assertTrue(contains(CyRESTConstants.coreResourceClasses,SwaggerUI.class));
+		assertTrue(contains(CyRESTConstants.coreResourceClasses,SwaggerUIResource.class));
 
 				//For CORS
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));

@@ -15,7 +15,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
-import org.cytoscape.rest.internal.resource.SwaggerUI;
+import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 
@@ -40,7 +40,7 @@ public class CyRESTConstants {
 			CommandResource.class,
 			CyRESTCommandSwagger.class,
 			
-			SwaggerUI.class,
+			SwaggerUIResource.class,
 
 			//For CORS
 			CORSFilter.class
@@ -49,5 +49,5 @@ public class CyRESTConstants {
 	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
 	public final static String cyRESTCIErrorRoot = ":errors";
 	
-	public final static String cyRESTHelpMenu = "Help.Automation";
+	public final static String cyRESTHelpMenu = "Help.Automation[1.9999999]"; //That's enough 9's right? Yeah. Probably.
 }

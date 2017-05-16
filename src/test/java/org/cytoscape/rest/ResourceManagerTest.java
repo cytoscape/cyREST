@@ -137,7 +137,7 @@ public class ResourceManagerTest
 		final CyNetworkViewWriterFactoryManager viewFactoryManager = mock(CyNetworkViewWriterFactoryManager.class);
 		
 		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
-		
+
 		final String cyRESTPort = "1234"; 
 		final String logLocation = "nowhere";
 

@@ -2,11 +2,7 @@ package org.cytoscape.rest;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.junit.Test;
 

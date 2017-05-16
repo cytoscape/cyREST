@@ -1,11 +1,14 @@
 package org.cytoscape.rest.internal;
 
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.swing.JOptionPane;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
@@ -55,6 +58,7 @@ import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.TaskMonitor;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -101,9 +105,6 @@ public class CyActivator extends AbstractCyActivator {
 
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
-
-		
-		
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
 
@@ -112,21 +113,41 @@ public class CyActivator extends AbstractCyActivator {
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		service.submit(()-> {
 			try {
-				this.initDependencies(bc);
-				osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
-				resourceManager.registerResourceServices();
+				if (suggestRestart(bc)) {
+					final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
+					JOptionPane.showMessageDialog(
+							swingApplication.getJFrame(), "CyREST requires a restart of Cytoscape for changes to take effect.", "Restart required", JOptionPane.WARNING_MESSAGE);
+					logger.info("Notified user of new installation. Suggested restart.");
+				} else {
+					this.initDependencies(bc);
+					osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
+					resourceManager.registerResourceServices();
+				}
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
 				logger.warn("Failed to initialize cyREST server.", e);
 			}
 		});
-
 		logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
 	}
 
+	private boolean suggestRestart(BundleContext bc) {
+		Bundle defaultBundle = bc.getBundle();	
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
+		Object cyRESTVersion = cyPropertyServiceRef.getProperties().get("cyrest.version");
+		if (!defaultBundle.getVersion().toString().equals(cyRESTVersion)) {
+			logger.info("CyREST [" + defaultBundle.getVersion().toString() + "] discovered previous CyREST Version: " + cyRESTVersion);
+			cyPropertyServiceRef.getProperties().put("cyrest.version", defaultBundle.getVersion().toString());
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	private final void initDependencies(final BundleContext bc) throws Exception {
-
+		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",

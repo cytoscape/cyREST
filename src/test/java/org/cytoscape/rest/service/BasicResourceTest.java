@@ -3,12 +3,15 @@ package org.cytoscape.rest.service;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.*;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -80,6 +83,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
@@ -426,9 +430,6 @@ public class BasicResourceTest extends JerseyTest {
 		
 		//when(dummyJsonTask.)
 
-	
-	
-
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 
@@ -445,6 +446,12 @@ public class BasicResourceTest extends JerseyTest {
 		}).when(synchronousTaskManager).execute(any(TaskIterator.class), any(TaskObserver.class));final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
 		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
+		
+		try {
+			when(bundleResourceProvider.getResourceInputStream("dummyResourcePath")).thenReturn(new ByteArrayInputStream("test data".getBytes()));
+		} catch (IOException e) {
+			fail();
+		}
 		
 		final String cyRESTPort = this.cyRESTPort;
 		
@@ -744,6 +751,9 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(UIResource.class);
 							resourceClasses.add(CollectionResource.class);
 							resourceClasses.add(CommandResource.class);
+							
+							resourceClasses.add(SwaggerUIResource.class);
+							
 							resourceClasses.add(CyRESTCommandSwagger.class);
 							final ResourceConfig rc = new ResourceConfig();
 

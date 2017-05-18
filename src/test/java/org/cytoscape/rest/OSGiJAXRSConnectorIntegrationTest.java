@@ -216,8 +216,7 @@ public class OSGiJAXRSConnectorIntegrationTest
 
 	@Test 
 	public void testBundleUninstallation() throws Exception {
-		OSGiJAXRSManager manager = new OSGiJAXRSManager();
-		
+		OSGiJAXRSManager manager = new OSGiJAXRSManager();	
 		final List<Bundle> bundleList = new ArrayList<Bundle>();
 		
 		doAnswer( new Answer<Bundle>() {

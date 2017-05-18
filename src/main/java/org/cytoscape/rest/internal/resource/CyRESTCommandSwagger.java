@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.resource;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -114,7 +115,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 						String type = available.getArgTypeString(namespace, command, argumentName);
 						classes.add(available.getArgType(namespace, command, argumentName).toString());
-
+						
 						String description = available.getArgDescription(namespace, command, argumentName);
 						//FIXME Since some argument type strings contain HTML special characters, we're performing
 						//a replacement here. This could probably be done a lot more comprehensively.
@@ -125,10 +126,10 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 						boolean required = available.getArgRequired(namespace, command, argumentName);
 						parameter.setRequired(required);
-
+						
 						operation.addParameter(parameter);
 					}
-
+					
 					//Later, this could be very useful for extracting JSON.
 					//operation.addProduces(MediaType.APPLICATION_JSON);
 
@@ -136,7 +137,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 					Response response = new Response();
 					response.setDescription("successful operation");
 					StringProperty stringProperty =  new StringProperty();
-					stringProperty.setName("testName");
+					stringProperty.setName("noName");
 					response.setSchema(stringProperty);
 
 					operation.addResponse("200", response);

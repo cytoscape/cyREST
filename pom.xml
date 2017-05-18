@@ -15,7 +15,7 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>[3.5.0,3.5.1]</cytoscape.api.version>
+		<cytoscape.api.version>3.6.0-SNAPSHOT</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -623,13 +623,9 @@
 		<dependency>
 		 	<groupId>org.cytoscape</groupId>
   			<artifactId>ci-api</artifactId>
-  			<version>0.1.0-SNAPSHOT</version>
+  			<version>${cytoscape.api.version}</version>
 		</dependency>
-	<dependency>
-		 	<groupId>org.cytoscape</groupId>
-  			<artifactId>work-json-api</artifactId>
-  			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
+	
 		<!-- Guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>

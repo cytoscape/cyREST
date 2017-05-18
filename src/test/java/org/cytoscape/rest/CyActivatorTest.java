@@ -140,6 +140,8 @@ public class CyActivatorTest {
 			}
 		}).when(bc).getServiceReferences(anyString(), anyString());
 
+		when(bc.getAllServiceReferences(anyString(), anyString())).thenReturn(new ServiceReference[]{});
+		
 		doAnswer( new Answer<ServiceReference>() {
 			public ServiceReference answer(InvocationOnMock invocation) {
 				if (ConfigurationAdmin.class.getName().equals((String)invocation.getArguments()[0])) {

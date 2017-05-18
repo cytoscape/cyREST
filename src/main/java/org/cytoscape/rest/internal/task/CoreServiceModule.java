@@ -15,6 +15,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -98,9 +99,10 @@ public class CoreServiceModule extends AbstractModule {
 	
 	private final CyNetworkViewWriterFactoryManager viewFactoryManager;
 	
-	private final String cyRESTPort;
+	private final BundleResourceProvider bundleResourceProvider;
 	
 	private final URI logLocation;
+	private final String cyRESTPort;
 	
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -122,6 +124,7 @@ public class CoreServiceModule extends AbstractModule {
 			final GraphicsWriterManager graphicsWriterManager, final ExportNetworkViewTaskFactory exportNetworkViewTaskFactory,
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
+			final BundleResourceProvider bundleResourceProvider,
 			final String cyRESTPort, final URI logLocation) {
 	
 		this.networkManager = networkManager;
@@ -163,6 +166,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.ceTaskFactory = ceTaskFactory;
 		this.synchronousTaskManager = synchronousTaskManager;
 		this.viewFactoryManager = viewFactoryManager;
+		this.bundleResourceProvider = bundleResourceProvider;
 		this.cyRESTPort = cyRESTPort;
 		this.logLocation = logLocation;
 	}
@@ -212,6 +216,8 @@ public class CoreServiceModule extends AbstractModule {
 		bind(AvailableCommands.class).toInstance(available);
 		bind(CommandExecutorTaskFactory.class).toInstance(ceTaskFactory);
 		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
+		
+		bind(BundleResourceProvider.class).toInstance(bundleResourceProvider);
 		
 		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
 		bind(URI.class).annotatedWith(LogLocation.class).toInstance(logLocation);

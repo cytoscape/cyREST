@@ -21,6 +21,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 import org.junit.Test;
@@ -54,16 +55,16 @@ public class ConfigurationTest
 				// For Commands
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CommandResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CyRESTCommandSwagger.class));
+		assertTrue(contains(CyRESTConstants.coreResourceClasses,SwaggerUIResource.class));
 
 				//For CORS
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));
 		
-		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
-		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(19, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(20, CyRESTConstants.coreResourceClasses.length);
+
 	}
 	
 	private boolean contains(Class<?>[] array, Class<?> key)

@@ -3,14 +3,17 @@ package org.cytoscape.rest.service;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import static org.mockito.Matchers.*;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +65,7 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -87,6 +91,7 @@ import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
+import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
@@ -435,9 +440,6 @@ public class BasicResourceTest extends JerseyTest {
 		
 		//when(dummyJsonTask.)
 
-	
-	
-
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 
@@ -453,6 +455,14 @@ public class BasicResourceTest extends JerseyTest {
 			}
 		}).when(synchronousTaskManager).execute(any(TaskIterator.class), any(TaskObserver.class));final CyNetworkViewWriterFactoryManager viewWriterFactoryManager = new CyNetworkViewWriterFactoryManager();
 
+		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
+		
+		try {
+			when(bundleResourceProvider.getResourceInputStream("dummyResourcePath")).thenReturn(new ByteArrayInputStream("test data".getBytes()));
+		} catch (IOException e) {
+			fail();
+		}
+		
 		final String cyRESTPort = this.cyRESTPort;
 		
 		final URI logLocation = this.logLocation;
@@ -468,7 +478,9 @@ public class BasicResourceTest extends JerseyTest {
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
-				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, cyRESTPort, logLocation);
+				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, 
+				bundleResourceProvider,
+				cyRESTPort, logLocation);
 	}
 
 
@@ -749,6 +761,9 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(UIResource.class);
 							resourceClasses.add(CollectionResource.class);
 							resourceClasses.add(CommandResource.class);
+							
+							resourceClasses.add(SwaggerUIResource.class);
+							
 							resourceClasses.add(CyRESTCommandSwagger.class);
 							
 							resourceClasses.add(CIResponseFilter.class);

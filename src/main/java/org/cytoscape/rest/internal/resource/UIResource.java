@@ -174,7 +174,6 @@ public class UIResource extends AbstractResource {
 		return Response.ok(getMap(panelObject)).build();
 	}
 
-
 	/**
 	 * 
 	 * You can update multiple panel states at once.

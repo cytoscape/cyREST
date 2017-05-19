@@ -29,28 +29,10 @@ public class NetworkNameResource extends AbstractResource {
 		super();
 	}
 
-	/**
-	 * 
-	 * Returns full list of network data as a JSON array. JSON is in <a
-	 * href="http://cytoscape.github.io/cytoscape.js/">Cytoscape.js</a> format.
-	 * If no query parameter is given, returns all networks in current session.
-	 * 
-	 * @summary Get networks in Cytoscape.js JSON format
-	 * 
-	 * @param column
-	 *            Optional. Network table column name to be used for search.
-	 * @param query
-	 *            Optional. Search query.
-	 * 
-	 * @return Matched networks in Cytoscape.js JSON. If no query is given, all
-	 *         networks.
-	 * 
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	@ApiOperation(value = "Get networks in Cytoscape.js JSON format",
-		    notes = "Returns full list of network data as a JSON array. JSON is in Cytoscape.js format. If no query parameter is given, returns all networks in current session.",
+	@ApiOperation(value = "Returns a list of network names with corresponding SUIDs",
 		    response = List.class)
 	public List<Map<String,?>> getNetworksNames(
 			@ApiParam(value="Column Name for Matching") @QueryParam("column") String column,

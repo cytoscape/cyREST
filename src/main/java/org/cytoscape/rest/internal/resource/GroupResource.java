@@ -32,6 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
@@ -89,7 +91,8 @@ public class GroupResource extends AbstractResource {
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Count getGroupCount(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get number of groups in the network")
+	public Count getGroupCount(@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		return new Count(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
 	}

@@ -13,6 +13,8 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.model.CyNetwork;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
@@ -23,24 +25,18 @@ public class NetworkFullResource extends AbstractResource {
 		super();
 	}
 	
-	/**
-	 * 
-	 * Returns full list of network data as a JSON array.
-	 * JSON is in <a href="http://cytoscape.github.io/cytoscape.js/">Cytoscape.js</a> 
-	 * format.  If no query parameter is given, returns all networks in current session.
-	 * 
-	 * @summary Get networks in Cytoscape.js JSON format
-	 * 
-	 * @param column Optional.  Network table column name to be used for search.
-	 * @param query Optional.  Search query.
-	 * 
-	 * @return Matched networks in Cytoscape.js JSON.  If no query is given, all networks.
-	 * 
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public String getNetworks(@QueryParam("column") String column, @QueryParam("query") String query) {
+	@ApiOperation(
+			value=" Get networks in Cytoscape.js JSON format",
+			notes="Returns full list of network data as an array of "
+					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) entries. If no query parameter is "
+					+ "given, returns all networks in current session."
+	)
+	public String getNetworks(
+			@ApiParam(value="Network table column name to be used for search", required=false) @QueryParam("column") String column, 
+			@ApiParam(value="Search query string", required=false) @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 		
 		if (column == null && query == null) {

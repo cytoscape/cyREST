@@ -40,6 +40,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * REST API for CyTable objects. This is for assigned table only.
@@ -78,35 +80,22 @@ public class TableResource extends AbstractResource {
 		this.tableSerializer = new CyTableSerializer();
 	}
 
-	/**
-	 * Create new, empty column in an assigned table.
-	 * This accepts the following object OR allay of this objects:
-	 * 
-	 * <pre>
-	 * 		{
-	 * 			"name":"COLUMN NAME",
-	 * 			"type":"data type, Double, String, Boolean, Long, Integer",
-	 * 			"immutable": "Optional: boolean value to specify immutable or not",
-	 * 			"list": "Optional.  If true, return create List column for the given type."
-	 * 			"local": "Optional.  If true, it will be a local column"
-	 * 		}
-	 * </pre>
-	 * 
-	 * @summary Create new column(s) in the table
-	 * 
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param tableType
-	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
-	 * 
-	 */
+	
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Create new column(s) in the table", notes="Creates a new, empty column in an assigned table.\n\n"
+	 + "This resource can also accept an array of NewColumn objects to create multiple columns.")
+	@ApiImplicitParams( value= {
+			@ApiImplicitParam(value="New Column Info", dataType="org.cytoscape.rest.internal.model.NewColumn", paramType="body", required=true),
+	})
+	@ApiResponses ( value = {
+			@ApiResponse(code=201, message="Column(s) createed"),
+			@ApiResponse(code=412, message="Could not process column JSON")
+	})
 	public Response createColumn(@PathParam("networkId") Long networkId, 
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
-			final InputStream is) {
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final CyTable localTable = getTableByType(
@@ -132,24 +121,13 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
-	/**
-	 * 
-	 * @summary Delete a column in a table
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param tableType
-	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
-	 * @param columnName
-	 *            Name of the column to be deleted
-	 * 
-	 */
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
+	@ApiOperation(value="Delete a column in a table")
 	public Response deleteColumn(
-			@PathParam("networkId") Long networkId, 
-			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
-			@PathParam("columnName") String columnName) {
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
+			@ApiParam(value="Column Name") @PathParam("columnName") String columnName) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		if (table != null) {
@@ -162,34 +140,17 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
-	/**
-	 * To update the column name, you need to provide the parameters in the body:
-	 * 
-	 * <pre>
-	 * {
-	 * 		"oldName": OLD_COLUMN_NAME,
-	 * 		"newName": NEW_COLUMN_NAME
-	 * }
-	 * </pre>
-	 * 
-	 * Both parameters are required.
-	 * 
-	 * 
-	 * @summary Update a column name
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param tableType
-	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
-	 * 
-	 */
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Update a column name")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="Old and new column name", dataType="org.cytoscape.rest.internal.model.Rename", paramType="body", required=true)
+			)
 	public Response updateColumnName(
-			@PathParam("networkId") Long networkId,
-			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
-			final InputStream is) {
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
+			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -204,31 +165,12 @@ public class TableResource extends AbstractResource {
 		}
 	}
 
-
-	/**
-	 * 
-	 * @summary Update values in a column
-	 * 
-	 * By default, you need to provide key-value pair to set values.
-	 * However, if "default" is provided, it will be used for the entire column.
-	 * 
-	 * This is useful to set columns like "selected."
-	 * 
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param tableType
-	 *            Table type: "defaultnode", "defaultedge" or "defaultnetwork"
-	 * @param columnName
-	 *            Target column name
-	 * @param default
-	 *            Optional. If this value is provided, all cells will be set to this.
-	 * 
-	 */
 	@PUT
 	@Path("/{tableType}/columns/{columnName}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update values in a column", notes="By default, you need to provide key-value pair to set values. However, if \"default\" is provided, it will be used for the entire column. This is useful to set columns like \"selected.\"")
+	@ApiOperation(value="Update values in a column", notes="By default, you need to provide key-value pair to set "
+			+ "values. However, if \"default\" is provided, it will be used for the entire column. This is useful to "
+			+ "set columns like \"selected.\"")
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="Array of SUID Keyed values", dataType="[Lorg.cytoscape.rest.internal.model.SUIDKeyValue;", paramType="body", required=true)
 			)

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import javax.ws.rs.Path;
 import org.cytoscape.rest.internal.CyRESTConstants;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.swagger.annotations.ApiOperation;
@@ -23,17 +24,17 @@ public class SwaggerCoverageTest {
 		swaggerCoverage(PrintMode.STRICT);
 	}
 	
-	@Test
+	@Ignore @Test
 	public void uncovered() {
 		swaggerCoverage(PrintMode.UNCOVERED);
 	}
 
-	@Test
+	@Ignore @Test
 	public void basic() {
 		swaggerCoverage(PrintMode.BASIC);
 	}
 
-	@Test
+	@Ignore  @Test
 	public void all() {
 		swaggerCoverage(PrintMode.ALL);
 	}
@@ -70,12 +71,10 @@ public class SwaggerCoverageTest {
 					int apiParams = 0;
 					for (Parameter parameter : method.getParameters())
 					{
-						
-							params++;
-							if (parameter.isAnnotationPresent(ApiParam.class)){
-								apiParams++;
-							}
-						
+						params++;
+						if (parameter.isAnnotationPresent(ApiParam.class)){
+							apiParams++;
+						}
 					}
 					if (isBasic && apiParams == params){
 						strictSwaggerTotal++;

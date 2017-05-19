@@ -41,6 +41,7 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
+import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.model.NetworkViewSUID;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -155,10 +156,14 @@ public class NetworkViewResource extends AbstractResource {
 	 * @return Number of views for the network model
 	 * 
 	 */
+	@ApiOperation(value = "Get number of views for the given network model",
+		    notes = "Cytoscape can have multiple views per network model. This feature is not exposed to end-users, but"
+		    		+ " you can access it from this API",
+		    response = Count.class)
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkViewCount(@PathParam("networkId") Long networkId) {
+	public String getNetworkViewCount(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		return getNumberObjectString(JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(networkId)).size());
 	}
 

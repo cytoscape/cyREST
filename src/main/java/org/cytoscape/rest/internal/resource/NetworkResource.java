@@ -47,6 +47,9 @@ import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
+import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.NetworkSUID;
+import org.cytoscape.rest.internal.model.NodeNameSUID;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
@@ -64,8 +67,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
@@ -89,50 +96,36 @@ public class NetworkResource extends AbstractResource {
 		super();
 	}
 
-	/**
-	 * 
-	 * @summary Get number of networks in current session
-	 * 
-	 * @return Number of networks in current Cytoscape session
-	 * 
-	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get number of networks in current session",
+    notes = "Returns the number of networks in current Cytoscape session.",
+    response = Count.class)
 	public Response getNetworkCount() {
 		final String result = getNumberObjectString(JsonTags.COUNT, networkManager.getNetworkSet().size());
 		return Response.ok(result).build();
 	}
 
-	/**
-	 * 
-	 * @summary Get number of nodes in the network
-	 * 
-	 * @param id
-	 *            Network SUID
-	 * @return Number of nodes in the network with given SUID
-	 */
+	
 	@GET
 	@Path("/{networkId}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNodeCount(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value = "Get number of nodes in the network",
+    notes = "Returns the number of nodes in the network with given SUID.",
+    response = Count.class)
+	public Response getNodeCount(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getNodeCount());
 		return Response.ok(result).build();
 	}
 
-	/**
-	 * 
-	 * @summary Get number of edges in the network
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 * @return number of edges in the network
-	 */
 	@GET
 	@Path("/{networkId}/edges/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getEdgeCount(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value = "Get number of edges in the network",
+    notes = "Returns the number of edges in the network with given SUID.",
+    response = Count.class)
+	public Response getEdgeCount(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(networkId).getEdgeCount());
 		return Response.ok(result).build();
 	}
@@ -182,7 +175,10 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	@ApiOperation(value="Get SUID list of networks", notes="Returns a list of matching networks. If a query and column are indicated, a matching network is defined as a network whose network table contains a value matching the query in the given column. If no query and column is given, all network SUIDs are returned.")
+	@ApiOperation(value="Get SUID list of networks", 
+					notes="Returns a list of matching networks. If a query and column are indicated, a matching network "
+							+ "is defined as a network whose network table contains a value matching the query in the "
+							+ "given column. If no query and column is given, all network SUIDs are returned.")
 	public Collection<Long> getNetworksAsSUID(
 			@ApiParam(value="Network table column name to be queried against", required=false) @QueryParam("column") String column, 
 			@ApiParam(value="A value to be matched in the given column in the network table.", required=false) @QueryParam("query") String query) {
@@ -213,21 +209,16 @@ public class NetworkResource extends AbstractResource {
 		return suids;
 	}
 
-
-	/**
-	 * 
-	 * @summary Get a network in Cytoscape.js format
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 * @return Network with all associated tables in Cytoscape.js format.
-	 * 
-	 */
 	@GET
 	@Path("/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public String getNetwork(@PathParam("networkId") Long networkId) {
+	@ApiOperation(
+			value="Get a network in Cytoscape.js format",
+			notes="Returns Network with all associated tables in "
+					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) format"
+	)
+	public String getNetwork(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		return getNetworkString(getCyNetwork(networkId));
 	}
 
@@ -243,8 +234,14 @@ public class NetworkResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/nodes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Long> getNodes(@PathParam("networkId") Long networkId, @QueryParam("column") String column,
-			@QueryParam("query") String query) {
+	@ApiOperation(
+			value="Get matching nodes",
+			notes="Returns a list of node SUIDs that match the query string.  If no parameter is given, returns all node SUIDs"
+	)
+	public Collection<Long> getNodes(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Node table column name to be used for search", required=false) @QueryParam("column") String column,
+			@ApiParam(value="Search query string", required=false) @QueryParam("query") String query) {
 		return getByQuery(networkId, "nodes", column, query);
 	}
 
@@ -276,7 +273,9 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}/nodes/selected")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Set selected nodes")
-	public Collection<Long> setSelectedNodes(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, @ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
+	public Collection<Long> setSelectedNodes(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = network.getDefaultNodeTable();
 
@@ -305,20 +304,11 @@ public class NetworkResource extends AbstractResource {
 		return output;
 	}
 
-	/**
-	 * 
-	 * The return value does not includes originally selected nodes.
-	 * 
-	 * @summary Utility to get all neighbors of selected nodes
-	 * 
-	 * @param networkId Network SUID
-	 * 
-	 * @return Neighbors as list.  Note that this does not includes original nodes.
-	 */
 	@GET
 	@Path("/{networkId}/nodes/selected/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all neighbors of selected nodes as SUID list", notes="The return value does not includes originally selected nodes.")
+	@ApiOperation(value="Get all neighbors of selected nodes as SUID list", notes="Returns the neighbors of the "
+			+ "selected nodes as a list.  Note that this does not includes original nodes")
 	public Collection<Long> getNeighborsSelected(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId
 			) {
@@ -334,14 +324,6 @@ public class NetworkResource extends AbstractResource {
 		return res;
 	}
 
-
-	/**
-	 * @summary Utility to get all selected edges
-	 * 
-	 * @param networkId Network SUID
-	 * 
-	 * @return Selected edges as a list of SUID
-	 */
 	@GET
 	@Path("/{networkId}/edges/selected")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -362,46 +344,35 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}/edges/selected")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Set selected edges")
-	public Collection<Long> setSelectedEdges(@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, @ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
+	public Collection<Long> setSelectedEdges(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Array of edge SUIDs") Collection<Double> suids) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = network.getDefaultEdgeTable();
 		//Clear selection first.
 		return setSelected(network, table, suids);
 	}
 
-	/**
-	 * @summary Get matching edges
-	 * 
-	 * @param networkId Network SUID
-	 * @param column Optional.  Edge table column name to be used for search.
-	 * @param query Optional.  Search query.
-	 * 
-	 * @return List of matched edge SUIDs.  If no parameter is given, returns all edge SUIDs.
-	 */
 	@GET
 	@Path("/{networkId}/edges")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Long> getEdges(@PathParam("networkId") Long networkId, @QueryParam("column") String column,
-			@QueryParam("query") String query) {
+	@ApiOperation(value="Get matching edges", notes="Returns a list of matched edge SUIDs. "
+			+ "If no parameter is given, returns all edge SUIDs.")
+	public Collection<Long> getEdges(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Edge table column name to be used for search.", required=false) @QueryParam("column") String column,
+			@ApiParam(value="Search query", required=false) @QueryParam("query") String query) {
 		return getByQuery(networkId, "edges", column, query);
 	}
 
-	/**
-	 * 
-	 * @summary Get a node
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param nodeId
-	 *            Node SUID
-	 * 
-	 * @return Node with associated row data.
-	 * 
-	 */
+	
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNode(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	@ApiOperation(value="Get a node", notes="Returns a node with associated row data.")
+	public String getNode(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Node SUID") @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
@@ -410,22 +381,13 @@ public class NetworkResource extends AbstractResource {
 		return getGraphObject(network, node);
 	}
 
-	/**
-	 * 
-	 * @summary Get an edge
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param edgeId
-	 *            Edge SUID
-	 * 
-	 * @return Edge with associated row data
-	 * 
-	 */
 	@GET
 	@Path("/{networkId}/edges/{edgeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdge(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
+	@ApiOperation(value="Get an edge", notes="Returns an edge with associated row data.")
+	public String getEdge(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Edge SUID") @PathParam("edgeId") Long edgeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
@@ -434,24 +396,14 @@ public class NetworkResource extends AbstractResource {
 		return getGraphObject(network, edge);
 	}
 
-	/**
-	 * @summary Get source/target node of an edge
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param edgeId
-	 *            Edge SUID
-	 * @param type
-	 *            "source" or "target"
-	 * 
-	 * @return SUID of the source/target node
-	 * 
-	 */
 	@GET
 	@Path("/{networkId}/edges/{edgeId}/{type}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEdgeComponent(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId,
-			@PathParam("type") String type) {
+	@ApiOperation(value="Get source/target node of an edge", notes="Returns the SUID of the source/target node")
+	public String getEdgeComponent(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Edge SUID") @PathParam("edgeId") Long edgeId,
+			@ApiParam(value="Node Type", allowableValues="source,target") @PathParam("type") String type) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 
@@ -470,22 +422,14 @@ public class NetworkResource extends AbstractResource {
 		return getNumberObjectString(type, nodeSUID);
 	}
 
-	/**
-	 * 
-	 * @summary Get edge directionality
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param edgeId
-	 *            Target edge SUID
-	 * 
-	 * @return true if the edge is directed.
-	 * 
-	 */
 	@GET
 	@Path("/{networkId}/edges/{edgeId}/isDirected")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Boolean getEdgeDirected(@PathParam("networkId") Long networkId, @PathParam("edgeId") Long edgeId) {
+	@ApiOperation(value = "Get edge directionality",
+    notes = "Returns true if the edge is directed.")
+	public Boolean getEdgeDirected(
+			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId, 
+			@ApiParam("Edge SUID") @PathParam("edgeId") Long edgeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
@@ -494,42 +438,27 @@ public class NetworkResource extends AbstractResource {
 		return edge.isDirected();
 	}
 
-	/**
-	 * 
-	 * @summary Get adjacent edges for a node
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param nodeId
-	 *            Target node SUID
-	 * 
-	 * @return List of connected edges (as SUID)
-	 * 
-	 */
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/adjEdges")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Long> getAdjEdges(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	@ApiOperation(value = "Get adjacent edges for a node",
+    notes = "Returns a list of connected edges as SUIDs.")
+	public Collection<Long> getAdjEdges(@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId, @ApiParam(value="Node SUID")@PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final List<CyEdge> edges = network.getAdjacentEdgeList(node, Type.ANY);
 		return getGraphObjectArray(edges);
 	}
 
-	/**
-	 * @summary Get network pointer (nested network SUID)
-	 * 
-	 * @param networkId
-	 *            Network SUID.
-	 * @param nodeId
-	 *            target node SUID.
-	 * 
-	 * @return Nested network SUID
-	 */
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/pointer")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNetworkPointer(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	@ApiOperation(value = "Get network pointer (nested network SUID)",
+    notes = "Returns the nested network SUID.",
+    response = NetworkSUID.class)
+	public NetworkSUID getNetworkPointer(
+			@ApiParam("Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam("Target Node SUID") @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final CyNetwork pointer = node.getNetworkPointer();
@@ -537,30 +466,23 @@ public class NetworkResource extends AbstractResource {
 			throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
 		}
 
-		return Response.ok(getNumberObjectString(JsonTags.NETWORK_SUID, pointer.getSUID())).build();
+		return new NetworkSUID(pointer.getSUID());
 	}
 
-	/**
-	 * 
-	 * @summary Get first neighbors of the node
-	 * 
-	 * @param networkId
-	 *            Target network SUID.
-	 * @param nodeId
-	 *            Node SUID.
-	 * 
-	 * @return Neighbors of the node as a list of SUIDs.
-	 * 
-	 */
+	
 	@GET
 	@Path("/{networkId}/nodes/{nodeId}/neighbors")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNeighbours(@PathParam("networkId") Long networkId, @PathParam("nodeId") Long nodeId) {
+	@ApiOperation(value = "Get first neighbors of the node",
+    notes = "Returns the neighbors of the node as a list of SUIDs.")
+	public Collection<Long> getNeighbours(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam("Node SUID")@PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = getNode(network, nodeId);
 		final List<CyNode> nodes = network.getNeighborList(node, Type.ANY);
 
-		return Response.status(Response.Status.OK).entity(getGraphObjectArray(nodes)).build();
+		return getGraphObjectArray(nodes);
 	}
 
 	/**
@@ -597,9 +519,19 @@ public class NetworkResource extends AbstractResource {
 	@Path("/{networkId}/nodes")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createNode(@PathParam("networkId") Long networkId, final InputStream is) {
+	@ApiOperation(value="Add node(s) to existing network")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="Array of new Node names", dataType="[Ljava.lang.String;", paramType="body", required=true)
+			)
+	@ApiResponses ( value= {
+			@ApiResponse(code=201, message="", response=NodeNameSUID.class, responseContainer="List") ,
+			@ApiResponse(code=412, message="") }
+			)
+	public Response createNode(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final ObjectMapper objMapper = new ObjectMapper();
+ 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);

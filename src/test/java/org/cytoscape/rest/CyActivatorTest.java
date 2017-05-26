@@ -76,7 +76,6 @@ public class CyActivatorTest {
 		when(bc.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(configAdminServiceReference);
 		when(bc.getService(configAdminServiceReference)).thenReturn(configAdmin);
 
-
 		bundle = mock(Bundle.class);
 		when(bundle.getSymbolicName()).thenReturn("dummyCyRESTBundleName");
 		when(bundle.getVersion()).thenReturn(new Version(1,2,3));
@@ -120,10 +119,11 @@ public class CyActivatorTest {
 		when(bc.createFilter(anyString())).thenReturn(mock(Filter.class));
 
 		ServiceReference cyPropertyServiceReference = mock(ServiceReference.class);
-
+		when(cyPropertyServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		ServiceReference cyCommandPropertyServiceReference = mock(ServiceReference.class);
+		when(cyCommandPropertyServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		
-		ServiceReference configAdminServiceReference = mock(ServiceReference.class);
+		when(configAdminServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		
 		doAnswer( new Answer<ServiceReference[]>() {
 			public ServiceReference[] answer(InvocationOnMock invocation) {
@@ -135,6 +135,13 @@ public class CyActivatorTest {
 					}
 				}
 				ServiceReference serviceReference = mock(ServiceReference.class);
+				if (invocation.getArguments()[0] == null) {
+					when(serviceReference.getPropertyKeys()).thenReturn(new String[]{});
+					return new ServiceReference[] {serviceReference};
+				}
+			
+				when(serviceReference.getPropertyKeys()).thenReturn(new String[]{"castClass"});
+				
 				when(serviceReference.getProperty(eq("castClass"))).thenReturn(invocation.getArguments()[0]);
 				return new ServiceReference[] {serviceReference};
 			}
@@ -148,6 +155,7 @@ public class CyActivatorTest {
 					return configAdminServiceReference;
 				} 
 				ServiceReference serviceReference = mock(ServiceReference.class);
+				when(serviceReference.getPropertyKeys()).thenReturn(new String[]{"castClass"});
 				when(serviceReference.getProperty(eq("castClass"))).thenReturn(invocation.getArguments()[0]);
 				return serviceReference;
 			}

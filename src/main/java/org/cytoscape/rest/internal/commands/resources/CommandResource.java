@@ -20,6 +20,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.cytoscape.ci.CIErrorFactory;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
@@ -34,6 +35,7 @@ import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.TunableValidator;
 import org.cytoscape.work.json.JSONResult;
 import org.glassfish.grizzly.http.util.HttpStatus;
 import org.ops4j.pax.logging.spi.PaxAppender;
@@ -99,7 +101,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 			handler.appendMessage("  " + namespace);
 		}
 
-		return handler.getMessages();
+		return handler.getMessageString();
 	}
 
 	/**
@@ -120,7 +122,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 			handler.appendMessage(namespace);
 		}
 
-		return handler.getMessages();
+		return handler.getMessageString();
 	}
 
 
@@ -144,7 +146,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		for (final String command : commands) {
 			handler.appendMessage("  " + command);
 		}
-		return handler.getMessages();
+		return handler.getMessageString();
 	}
 
 
@@ -169,7 +171,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 			handler.appendMessage("  " + command);
 		}
 
-		return handler.getMessages();
+		return handler.getMessageString();
 	}
 
 
@@ -224,14 +226,19 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@Path("/{namespace}/{command}") 
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Execute Command with JSON output", hidden=true)
-	public String handleJSONCommand(@PathParam("namespace") String namespace,
+	public Response handleJSONCommand(@PathParam("namespace") String namespace,
 			@PathParam("command") String command, Map<String, Object> queryParameters) {
-		final MessageHandler handler = new TextHTMLHandler();
+		final MessageHandler handler = new TextPlainHandler();
 		//TODO Verify that all query parameters are strings. the command 
+		
+		for (String key : queryParameters.keySet()) {
+			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
+		}
+		
 		JSONTaskObserver jsonTaskObserver = new JSONTaskObserver();
 		try {
 			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
-			return buildCIResult(namespace, command, jsonTaskObserver);
+			return Response.status(jsonTaskObserver.ciErrors.isEmpty() ? 200 : 500).entity(buildCIResult(namespace, command, jsonTaskObserver, handler)).build();
 		}
 		catch (Exception e){
 			e.printStackTrace();
@@ -241,39 +248,27 @@ public class CommandResource implements PaxAppender, TaskObserver
 
 	// We're getting strings from commands; it would cost us to translate to JSON and back to string, so we're building
 	// our result manually for efficiency.
-	private String buildCIResult(String namespace, String command, JSONTaskObserver jsonTaskObserver) {
-		String output = "{ \"data\": ";
-		if (jsonTaskObserver.jsonResultStrings.size() == 0)
-		{
-			output += "null ";
+	private String buildCIResult(String namespace, String command, JSONTaskObserver jsonTaskObserver, MessageHandler messageHandler) {
+		List<CIError> ciErrorList = new ArrayList<CIError>(jsonTaskObserver.ciErrors);
+		
+		if (jsonTaskObserver.succeeded == false) {
+			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
+			ciErrorList.add(ciErrorFactory.getCIError(
+					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+					"Successful response was not returned."));
 		}
-		else if (jsonTaskObserver.jsonResultStrings.size() == 1)
-		{
-			output += jsonTaskObserver.jsonResultStrings.get(0);
-		}
-		else
-		{
-			output += "[";
-			
-			output += "]";
-		}
-		Gson gson = new Gson();
-		List<CIError> errors = new ArrayList<CIError>();
-		if (jsonTaskObserver.finishStatus.getException() != null){
-			errors.add(new CIErrorFactoryImpl(logLocation).getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", "Error in command execution:" + jsonTaskObserver.finishStatus.getException().getMessage() , null));
-		}
-		output += ", \"errors\": " + gson.toJson(errors) + "}";
-		return output;
+		return getJSONResponse(jsonTaskObserver.jsonResultStrings, jsonTaskObserver.ciErrors, logLocation);
 	}
 	
 	private class JSONTaskObserver implements TaskObserver
 	{
-		FinishStatus finishStatus;
+		List<CIError> ciErrors = new ArrayList<CIError>();
+		boolean succeeded = false;
 		final List<String> jsonResultStrings = new ArrayList<String>();
 
 		@Override
 		public void taskFinished(ObservableTask task) {
-
 			JSONResult jsonResult = task.getResults(JSONResult.class);
 			if (jsonResult != null)	{
 				jsonResultStrings.add(jsonResult.getJSON());
@@ -286,7 +281,50 @@ public class CommandResource implements PaxAppender, TaskObserver
 
 		@Override
 		public void allFinished(FinishStatus finishStatus) {
-			this.finishStatus = finishStatus;
+			if (finishStatus.getType() == FinishStatus.Type.CANCELLED) {
+				CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
+				CIError ciError;
+				if (finishStatus.getTask() != null && finishStatus.getTask() instanceof TunableValidator) {
+					StringBuilder stringBuilder = new StringBuilder();
+					if (((TunableValidator)finishStatus.getTask()).getValidationState(stringBuilder) == TunableValidator.ValidationState.INVALID)
+					{
+						ciError = ciErrorFactory.getCIError(
+								HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+								"Task Cancelled. Could not validate Tunable inputs: " + stringBuilder.toString());
+					} else {
+						ciError = ciErrorFactory.getCIError(
+								HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+								"Task Cancelled. All inputs were validated.");
+					}
+				} else {
+					ciError = ciErrorFactory.getCIError(
+							HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+							CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+							"Task Cancelled.");
+				}
+				ciErrors.add(ciError);
+			}
+			else if (finishStatus.getType() == FinishStatus.Type.FAILED) {
+				CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
+				CIError ciError;
+				if (finishStatus.getException() != null) {
+					 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+							CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+							finishStatus.getException().getMessage()
+							);
+				} else {
+					 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+								"Task Failed with No Exception: " + (finishStatus.getTask() != null ? finishStatus.getTask().getClass().getName() : "no attached class")
+								);
+				}
+				ciErrors.add(ciError);
+			} 
+			else if (finishStatus.getType() == FinishStatus.Type.SUCCEEDED) {
+				succeeded |= true;
+			}
 		}
 	}
 
@@ -307,7 +345,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		for (final String arg : args) {
 			handler.appendMessage("  " + arg);
 		}
-		return handler.getMessages();
+		return handler.getMessageString();
 	}
 
 
@@ -364,11 +402,11 @@ public class CommandResource implements PaxAppender, TaskObserver
 		processingCommand = true;
 		messageHandler = handler;
 		taskException = null;
-
+	
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);
-
-		String messages = messageHandler.getMessages();
+		
+		String messages = messageHandler.getMessageString();
 		processingCommand = false;
 		if (taskException != null)
 			throw taskException;
@@ -384,6 +422,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		}
 
 		PaxLevel level = event.getLevel();
+		
 		if (level.toInt() == 40000)
 			messageHandler.appendError(event.getMessage());
 		else if (level.toInt() == 30000)
@@ -426,6 +465,31 @@ public class CommandResource implements PaxAppender, TaskObserver
 		if (tqString.startsWith("\"") && tqString.endsWith("\""))
 			return tqString.substring(1, tqString.length() - 1);
 		return tqString;
+	}
+	
+	public static String getJSONResponse(List<String> jsonResultStrings, List<CIError> errors, URI logLocation) {
+		
+		StringBuilder jsonResultBuilder = new StringBuilder();
+		jsonResultBuilder.append("{\n \"data\": { \"results\":[ ");
+		
+		for (int i = 0; i < jsonResultStrings.size(); i++) {
+			String jsonResult = jsonResultStrings.get(i);
+			jsonResultBuilder.append(jsonResult);
+			if (i != jsonResultStrings.size() - 1) {
+				jsonResultBuilder.append(",");
+			}
+		}
+		jsonResultBuilder.append("]},\n \"errors\":");
+		Gson gson = new Gson();
+	
+		
+		if (!errors.isEmpty()){
+			jsonResultBuilder.append(gson.toJson(errors));
+		} else {
+			jsonResultBuilder.append("[]");
+		}
+		jsonResultBuilder.append("\n}");	
+		return jsonResultBuilder.toString();
 	}
 
 	public class CustomNotFoundException extends WebApplicationException {

@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Root of the REST API server.
@@ -36,6 +37,7 @@ public class RootResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Get available REST API versions", notes="Returns a list of available REST API versions. Currently, v1 is the only available version")
 	public Map<String, String[]> getVersions() {
 		return VERSION_MAP;
 	}

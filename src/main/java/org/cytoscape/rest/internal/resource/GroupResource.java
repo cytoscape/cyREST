@@ -56,19 +56,14 @@ public class GroupResource extends AbstractResource {
 		this.mapper = new GroupMapper();
 	}
 
-	/**
-	 * @summary Get all groups in the network
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 * @return List of all groups in the network
-	 * 
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllGroups(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get all groups in the network",
+			notes="Returns a list of all groups in the network"
+			)
+	public String getAllGroups(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
@@ -79,38 +74,27 @@ public class GroupResource extends AbstractResource {
 	}
 
 
-	/**
-	 * 
-	 * @summary Get number of groups in the network
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 * @return Number of groups in the network
-	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get number of groups in the network")
-	public Count getGroupCount(@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get number of groups in the network",
+		notes="Returns the number of groups in the network"
+			)
+	public Count getGroupCount(
+			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		return new Count(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
 	}
 
-	/**
-	 * @summary Get group for a node
-	 * 
-	 * @param networkId
-	 *            Networks SUID
-	 * @param groupNodeId
-	 *            Group Node SUID
-	 * 
-	 * @return A group where the node belongs to
-	 */
 	@GET
 	@Path("/{groupNodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long nodeId) {
+	@ApiOperation(value = "Get group for a node",
+		notes="Returns a group the node belongs to."
+			)
+	public String getGroup(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
@@ -128,16 +112,11 @@ public class GroupResource extends AbstractResource {
 		}
 	}
 
-	/**
-	 * @summary Delete all groups in the network
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 */
 	@DELETE
 	@Path("/")
-	public void deleteAllGroups(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Delete all groups in the network")
+	public void deleteAllGroups(
+			@ApiParam(value = "Network SUID") @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
@@ -149,18 +128,12 @@ public class GroupResource extends AbstractResource {
 		}
 	}
 
-	/**
-	 * 
-	 * @summary Delete a group
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param groupNodeId
-	 *            Group node SUID
-	 */
 	@DELETE
 	@Path("/{groupNodeId}")
-	public void deleteGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+	@ApiOperation(value="Delete a group")
+	public void deleteGroup(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Group Node SUID")@PathParam("groupNodeId") Long groupNodeId) {
 		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
 			groupManager.destroyGroup(group);
@@ -169,33 +142,21 @@ public class GroupResource extends AbstractResource {
 		}
 	}
 
-	/**
-	 * @summary Expand group nodes
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param groupNodeId
-	 *            Group node SUID
-	 * 
-	 */
 	@GET
 	@Path("/{groupNodeId}/expand")
-	public void expandGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+	@ApiOperation(value="Expand group nodes")
+	public void expandGroup(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
 		toggle(networkId, groupNodeId, false);
 	}
 
-	/**
-	 * @summary Collapse group nodes
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * @param groupNodeId
-	 *            Group node SUID
-	 * 
-	 */
 	@GET
 	@Path("/{groupNodeId}/collapse")
-	public void collapseGroup(@PathParam("networkId") Long networkId, @PathParam("groupNodeId") Long groupNodeId) {
+	@ApiOperation(value="Collapse group nodes")
+	public void collapseGroup(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
 		toggle(networkId, groupNodeId, true);
 	}
 
@@ -229,32 +190,24 @@ public class GroupResource extends AbstractResource {
 		return group;
 	}
 
-	/**
-	 * Create a new group from a list of nodes.  The Body should be in the following format:
-	 * 
-	 * <pre>
-	 * 	{
-	 * 		"name": (New group node name),
-	 * 		"nodes": [
-	 * 			nodeSUID1, nodeSUID2, ...
-	 * 		]
-	 * 	}
-	 * </pre>
-	 * 
-	 * 
-	 * @summary Create a new group
-	 * 
-	 * @param networkId
-	 *            Network SUID
-	 * 
-	 * @return New group node's SUID
-	 * 
-	 */
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String createGroup(@PathParam("networkId") Long networkId, final InputStream is) {
+	@ApiOperation(value="Create a new group",
+		notes="Create a new group from a list of nodes.  The Body should be in the following format:\n"
+		+ "\n"
+		+ "```\n"
+		+ "{\n"
+		+ "  \"name\": (New group node name),\n"
+		+ "  \"nodes\": [\n"
+		+ "    nodeSUID1, nodeSUID2, ...\n"
+		+ "  ]\n"
+		+ "}\n"
+		+ "```"
+			)
+	public String createGroup(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 

@@ -15,6 +15,7 @@ import org.cytoscape.rest.internal.model.CytoscapeVersion;
 import org.cytoscape.rest.internal.model.ServerStatus;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Resource to provide general status of the Cytoscape REST server. 
@@ -28,44 +29,29 @@ import io.swagger.annotations.Api;
 @Path("/v1")
 public class MiscResource extends AbstractResource {
 
-	/**
-	 * @summary Cytoscape RESTful API server status
-	 * 
-	 * @return Summary of server status
-	 * 
-	 * @statuscode 500 If REST API Module is not working.
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@ApiOperation(value="Cytoscape RESTful API server status",
+			notes="500 If REST API Module is not working")
 	public ServerStatus getStatus() {
 		return new ServerStatus();
 	}
 
-
-	/**
-	 * Run System.gc().  In general, this is not necessary.
-	 * 
-	 * @summary Force to run garbage collection to free up memory
-	 */
 	@GET
 	@Path("/gc")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Run Java garbage collection",
+			notes="Call System.gc() to free up memory. In general, this is not necessary.")
 	public void runGarbageCollection() {
 		Runtime.getRuntime().gc();
 	}
 	
-	
-	/**
-	 * 
-	 * @summary Get Cytoscape and REST API version
-	 * 
-	 * @return Cytoscape version and REST API version
-	 * 
-	 */
 	@GET
 	@Path("/version")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Get Cytoscape and REST API version"
+	)
 	public CytoscapeVersion getCytoscapeVersion() {
 
 		if (props == null) {

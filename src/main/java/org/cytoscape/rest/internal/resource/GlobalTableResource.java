@@ -37,16 +37,11 @@ public class GlobalTableResource extends AbstractResource {
 		this.tableObjectMapper.registerModule(new TableModule());
 	}
 
-	/**
-	 * 
-	 * @summary Get number of global tables
-	 * 
-	 * @return Number of global tables.
-	 */
 	@GET
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get number of global tables")
+	@ApiOperation(value="Get number of global tables", 
+			notes="Returns the number of global tables.")
 	public Count getTableCount() {
 		final Set<CyTable> globals = tableManager.getGlobalTables();
 		return new Count(Integer.valueOf(globals.size()).longValue());

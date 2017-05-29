@@ -61,12 +61,6 @@ public class SessionResource extends AbstractResource {
 	}
 
 
-	/**
-	 * 
-	 * @summary Get current session name
-	 * 
-	 * @return Current session name
-	 */
 	@GET
 	@Path("/name")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -83,13 +77,7 @@ public class SessionResource extends AbstractResource {
 	}
 
 
-	/**
-	 * 
-	 * @summary Delete current session and start new one
-	 * 
-	 * @return Success message
-	 * 
-	 */
+	
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -111,22 +99,11 @@ public class SessionResource extends AbstractResource {
 		return new Message("New session created.");
 	}
 
-
-	/**
-	 * This get method load a new session from a file
-	 * 
-	 * @summary Load new session from a local file
-	 * 
-	 * @param file File name (should be absolute path)
-	 * 
-	 * @return Session file name as string
-	 * 
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Load a Session from a local file",
-    notes = "",
+    notes = "Returns the session file name",
     response = SessionFile.class)
 	public SessionFile getSessionFromFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) throws IOException
 	{

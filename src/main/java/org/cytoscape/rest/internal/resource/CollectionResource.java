@@ -4,10 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,14 +89,12 @@ public class CollectionResource extends AbstractResource {
 		return new Count((long) getRootNetworks().size());
 	}
 
-	/**
-	 * Return SUID of root networks
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(value="Get one or all root networks.", notes="Returns an array of SUIDs.<br><br>If subsuid is set, return a list with only one entry containing the root network SUID of that sub-network.")
-	public Collection<Long> getCollectionsAsSUID(@ApiParam(value="Sub-Network SUID", required=false) @QueryParam("subsuid") Long subsuid) {
+	public Collection<Long> getCollectionsAsSUID(
+			@ApiParam(value="Sub-Network SUID", required=false) @QueryParam("subsuid") Long subsuid) {
 		if(subsuid == null) {
 			// Return all collection SUIDs
 			return getRootNetworks().stream().map(root -> root.getSUID()).collect(Collectors.toSet());

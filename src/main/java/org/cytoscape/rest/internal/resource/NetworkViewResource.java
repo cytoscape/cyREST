@@ -527,17 +527,23 @@ public class NetworkViewResource extends AbstractResource {
 	+ "  {}\n"
 	+ "]\n"
 	+ "```\n"
-	+ "Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.\n")
+	+ "Note that if the Bypass parameter is not present or is false, the API will directly set the value to the view "
+	+ "objects, and once a Visual Style applied, those values will be overridden by the Visual Style.\n")
 	public Response updateViews(
 			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId,
 			@ApiParam(value="Network View SUID", required=true) @PathParam("viewId") Long viewId,
 			@ApiParam(value="Object Type", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
 			final InputStream is
 		) {
 
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		final ObjectMapper objMapper = new ObjectMapper();
+		
+		if (bypass == null) {
+			bypass = false;
+		}
 		
 		try {
 			// This should be an JSON array.
@@ -572,7 +578,7 @@ public class NetworkViewResource extends AbstractResource {
 							new IllegalArgumentException(),
 							Response.Status.NOT_FOUND);
 				}
-				styleMapper.updateView(view, viewNode, getLexicon());
+				styleMapper.updateView(view, viewNode, getLexicon(), bypass);
 			}
 			
 			// Repaint
@@ -601,14 +607,16 @@ public class NetworkViewResource extends AbstractResource {
 					+ "  ...\n"
 					+ "]\n"
 					+ "```\n\n" 
-					+ "Note that this API directly set the value to the view objects, and once Visual Style applied," 
-					+ "those values are overridden by the Visual Style.\n"
+					+ "Note that if the Bypass parameter is not present or is false, the API will directly set the "
+					+ "value to the view objects, and once a Visual Style is applied, those values will be overridden "
+					+ "by the Visual Style.\n"
 			)
 	public Response updateView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Type of objects", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
 			@ApiParam(value="node/edge SUID (NOT node/edge view SUID)") @PathParam("objectId") Long objectId,
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
 			final InputStream is) {
 		
 		final CyNetworkView networkView = getView(networkId, viewId);
@@ -630,10 +638,14 @@ public class NetworkViewResource extends AbstractResource {
 		
 		final ObjectMapper objMapper = new ObjectMapper();
 
+		if (bypass == null) {
+			bypass = false;
+		}
+		
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(view, rootNode, getLexicon());
+			styleMapper.updateView(view, rootNode, getLexicon(), bypass);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -658,17 +670,24 @@ public class NetworkViewResource extends AbstractResource {
 	+ "  {}\n"
 	+ "]\n"
 	+ "```\n"
-	+ "Note that this API directly set the value to the view objects, and once Visual Style applied, those values are overridden by the Visual Style.\n")
+	+ "Note that if the Bypass parameter is not present or is false, the API will directly set the value to the view, "
+	+ "and once a Visual Style is applied, that value will be overridden by the Visual Style.\n")
 	public Response updateNetworkView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId, final InputStream is) {
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass, 
+			final InputStream is) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
+		if (bypass == null) {
+			bypass = false;
+		}
+		
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(networkView, rootNode, getLexicon());
+			styleMapper.updateView(networkView, rootNode, getLexicon(), bypass);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

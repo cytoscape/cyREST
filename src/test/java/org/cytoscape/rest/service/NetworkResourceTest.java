@@ -326,6 +326,58 @@ public class NetworkResourceTest extends BasicResourceTest {
 	}
 
 	@Test
+	public void testPutSelectedNodes() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyNode> nodes = network.getNodeList();
+		final CyNode node1 =  nodes.get(0);
+		final CyNode node2 =  nodes.get(1);
+		final CyNode node3 =  nodes.get(2);
+		// Set selected.
+		
+		network.getRow(node1).set(CyNetwork.SELECTED, false);
+		network.getRow(node2).set(CyNetwork.SELECTED, false);
+		network.getRow(node3).set(CyNetwork.SELECTED, false);
+		
+		final Entity<String> entity = Entity.entity("[" + node1.getSUID() +"," + node2.getSUID() +"]", MediaType.APPLICATION_JSON_TYPE);
+				
+		Response response = target("/v1/networks/" + suid.toString() + "/nodes/selected")
+				.request()
+				.put(entity);
+		
+		assertEquals(200, response.getStatus());
+		
+		assertTrue(network.getRow(node1).get(CyNetwork.SELECTED, Boolean.class));
+		assertTrue(network.getRow(node2).get(CyNetwork.SELECTED, Boolean.class));
+		assertFalse(network.getRow(node3).get(CyNetwork.SELECTED, Boolean.class));
+	}
+	
+	@Test
+	public void testPutSelectedEdges() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyEdge edge2 =  edges.get(1);
+		final CyEdge edge3 =  edges.get(2);
+		// Set selected.
+		
+		network.getRow(edge1).set(CyNetwork.SELECTED, false);
+		network.getRow(edge2).set(CyNetwork.SELECTED, false);
+		network.getRow(edge3).set(CyNetwork.SELECTED, false);
+		
+		final Entity<String> entity = Entity.entity("[" + edge1.getSUID() +"," + edge2.getSUID() +"]", MediaType.APPLICATION_JSON_TYPE);
+				
+		Response response = target("/v1/networks/" + suid.toString() + "/edges/selected")
+				.request()
+				.put(entity);
+		
+		assertEquals(200, response.getStatus());
+		
+		assertTrue(network.getRow(edge1).get(CyNetwork.SELECTED, Boolean.class));
+		assertTrue(network.getRow(edge2).get(CyNetwork.SELECTED, Boolean.class));
+		assertFalse(network.getRow(edge3).get(CyNetwork.SELECTED, Boolean.class));
+	}
+	
+	@Test
 	public void testGetEdges() throws Exception {
 		final Long suid = network.getSUID();
 		String result = target("/v1/networks/" + suid.toString() + "/edges").request().get(

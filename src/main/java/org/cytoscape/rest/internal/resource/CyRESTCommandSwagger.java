@@ -166,10 +166,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 		List<ResultDescriptor> resultDescriptors = available.getResultDescriptors(namespace, command);
 		List<String> jsonResultExamples = new ArrayList<String>();
 		for (ResultDescriptor resultDescriptor : resultDescriptors) {
-			Iterator<Class<?>> i = resultDescriptor.getResultTypes();
-			if (i!=null) {
-				for (; i.hasNext(); ) {
-					Class<?> resultClass = i.next();
+			List<Class<?>> resultClasses = resultDescriptor.getResultTypes();
+			if (resultClasses!=null) {
+				for (Class<?> resultClass : resultClasses) {
 					if (JSONResult.class.isAssignableFrom(resultClass)){
 						isJSONCapable = true;
 						JSONResult jsonResult = resultDescriptor.getResultExample(JSONResult.class);

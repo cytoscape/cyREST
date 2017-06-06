@@ -18,6 +18,7 @@ import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.ci.CIErrorFactory;
 import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -112,6 +113,7 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
+		this.registerService(bc, new CIResponseFactoryImpl(), CIResponseFactory.class, new Properties());
 		this.registerService(bc, new CIExceptionFactoryImpl(), CIExceptionFactory.class, new Properties());
 		
 		try {

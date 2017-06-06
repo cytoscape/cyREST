@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.resource;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.cytoscape.ci.CISwaggerConstants;
 import org.cytoscape.rest.internal.task.ResourceManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +26,12 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.config.ReaderListener;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
+import io.swagger.models.Response;
 import io.swagger.models.Swagger;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.ObjectProperty;
+import io.swagger.models.properties.Property;
+import io.swagger.models.properties.RefProperty;
 import io.swagger.util.Json;
 
 @Path("/v1/swagger.json")
@@ -32,35 +39,35 @@ import io.swagger.util.Json;
 public class CyRESTSwagger extends AbstractResource
 {
 	private String swaggerDefinition;
-	
+
 	final Set<Class<?>> classes = new HashSet<Class<?>>();
-	
+
 	public void addResource(Class<?> clazz)
 	{
 		classes.add(clazz);
 		updateSwagger();
 	}
-	
+
 	public void removeResource(Class<?> clazz)
 	{
 		classes.remove(clazz);
 		updateSwagger();
 	}
-	
+
 	public CyRESTSwagger(){
 		updateSwagger();
 	}
-	
+
 	protected void updateSwagger()
 	{
 		swaggerDefinition = null;
 	}
-	
+
 	public boolean isSwaggerDefinitionNull()
 	{
 		return (swaggerDefinition == null);
 	}
-	
+
 	protected void buildSwagger()
 	{
 		final Set<Class<?>> classes = new HashSet<Class<?>>(this.classes);
@@ -73,14 +80,14 @@ public class CyRESTSwagger extends AbstractResource
 				return classes;
 			}
 		};
-	
+
 		//FIXME This needs to get set from the ResourceManager
 		beanConfig.setHost(ResourceManager.HOST + ":" + cyRESTPort);
 		beanConfig.setScan(true);
 		beanConfig.setPrettyPrint(true);
-		
-		Swagger swagger = beanConfig.getSwagger();
 
+		Swagger swagger = beanConfig.getSwagger();
+		wrapCIResponses(swagger);
 		// serialization of the Swagger definition
 		try 
 		{
@@ -91,7 +98,46 @@ public class CyRESTSwagger extends AbstractResource
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	private void wrapCIResponses(Swagger swagger) {
+		Map<String, io.swagger.models.Path> paths = swagger.getPaths();
+		if (paths != null)
+			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
+
+				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
+				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
+
+					Object ciExtension = operationEntry.getValue().getVendorExtensions().get(CISwaggerConstants.X_CI_EXTENSION);
+
+					if (ciExtension != null && ciExtension instanceof Map) {
+						Map<?,?> map = (Map<?, ?>) ciExtension;
+						if (CISwaggerConstants.TRUE.equals(map.get(CISwaggerConstants.CI_EXTENSION_CI_WRAPPING))) {
+							System.out.println("ci-extension class:"  + ciExtension.getClass());
+							for (Map.Entry<String, Response> responseEntry : operationEntry.getValue().getResponses().entrySet()) {
+								System.out.println("Wrapping Response: " + responseEntry.getKey());
+
+								Map<String, Property> propertyMap = new HashMap<String, Property>();
+								propertyMap.put("data", responseEntry.getValue().getSchema());
+
+								RefProperty errorProperty = new RefProperty("#/definitions/CIError");
+
+								propertyMap.put("errors", new ArrayProperty(errorProperty));
+								ObjectProperty ciProperty = new ObjectProperty(propertyMap);
+
+								responseEntry.getValue().setSchema(ciProperty);
+							}
+						}
+						
+
+					}
+					
+					//Should be want to scan descriptions, parameter details, etc. and automatically generate links,
+					//this is how it could happen. Note that 
+					//operationEntry.getValue().setDescription("Test afterScan replacement.");
+				}
+			}
+	}
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public String get()
@@ -102,7 +148,7 @@ public class CyRESTSwagger extends AbstractResource
 		}
 		return swaggerDefinition;
 	}
-	
+
 	@SwaggerDefinition(
 			info = @Info(
 					description = "A RESTful service for accessing Cytoscape 3.",
@@ -128,23 +174,23 @@ public class CyRESTSwagger extends AbstractResource
 			schemes = {SwaggerDefinition.Scheme.HTTP},
 			tags = 
 		{
-			@Tag(name = CyRESTSwaggerConfig.APPS_TAG, description="Access to Apps"),
-			@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),
-			@Tag(name = CyRESTSwaggerConfig.GROUPS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.LAYOUTS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.NETWORKS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.NETWORK_VIEWS_TAG),
-			@Tag(name = CyRESTSwaggerConfig.REST_SERVICE_TAG),
-			@Tag(name = CyRESTSwaggerConfig.SESSION_TAG),
-			@Tag(name = CyRESTSwaggerConfig.TABLES_TAG),	
-			@Tag(name = CyRESTSwaggerConfig.USER_INTERFACE_TAG),			
-			@Tag(name = CyRESTSwaggerConfig.VISUAL_PROPERTIES_TAG),
-			@Tag(name = CyRESTSwaggerConfig.VISUAL_STYLES_TAG)
-				
-		
-			
+				@Tag(name = CyRESTSwaggerConfig.APPS_TAG, description="Access to Apps"),
+				@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),
+				@Tag(name = CyRESTSwaggerConfig.GROUPS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.LAYOUTS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.NETWORKS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.NETWORK_VIEWS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.REST_SERVICE_TAG),
+				@Tag(name = CyRESTSwaggerConfig.SESSION_TAG),
+				@Tag(name = CyRESTSwaggerConfig.TABLES_TAG),	
+				@Tag(name = CyRESTSwaggerConfig.USER_INTERFACE_TAG),			
+				@Tag(name = CyRESTSwaggerConfig.VISUAL_PROPERTIES_TAG),
+				@Tag(name = CyRESTSwaggerConfig.VISUAL_STYLES_TAG)
+
+
+
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
 			)
@@ -169,30 +215,20 @@ public class CyRESTSwagger extends AbstractResource
 		@Override
 		public void beforeScan(Reader arg0, Swagger arg1) 
 		{
-			
+
 		}
 
 		public void afterScan(Reader reader, Swagger swagger)
 		{
-			Map<String, io.swagger.models.Path> paths = swagger.getPaths();
-			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
-			
-				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
-				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
-					//Should be want to scan descriptions, parameter details, etc. and automatically generate links,
-					//this is how it could happen. Note that 
-					//operationEntry.getValue().setDescription("Test afterScan replacement.");
-				}
-			}
-		
+
 		}
 	}
-	
+
 	/*
 	 * This may need to be changed should we switch from Swagger UI 2.x to 3.x. The 3.x id tags are in the following 
 	 * format: operations,get-/v1/networks/{networkId}/views,Network Views
 	 */
-	
+
 	public final static String NETWORK_GET_LINK = "[/v1/networks](#!/Networks/getNetworksAsSUID)";
 	public final static String NETWORK_VIEWS_LINK = "[/v1/networks/{networkId}/views](#!/Network32Views/getAllNetworkViews)";
 }

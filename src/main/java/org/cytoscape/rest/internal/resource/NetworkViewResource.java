@@ -508,12 +508,12 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update node/edge view objects at once",
-			notes="By passing list of key-value pair for each Visual Property, update node view.\n\n"
+			notes="By passing list of key-value pair for each Visual Property, update node/edge view.\n\n"
 	+ "The body should have the following JSON:\n"			
 	+ "```\n"
 	+ "[\n"
 	+ "  {\n"
-	+ "    \"SUID\": SUID of node,\n"
+	+ "    \"SUID\": SUID of node/edge,\n"
 	+ "    \"view\": [\n"
 	+ "      {\n"
 	+ "        \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n"

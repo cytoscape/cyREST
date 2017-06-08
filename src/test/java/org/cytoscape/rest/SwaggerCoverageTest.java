@@ -8,8 +8,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-import javax.naming.spi.DirStateFactory.Result;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -19,6 +19,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.junit.Test;
@@ -87,7 +88,7 @@ public class SwaggerCoverageTest {
 					
 					
 					hasResponseModel = !(String.class.equals(method.getReturnType()) ||
-							Result.class.equals(method.getReturnType()));
+							Response.class.equals(method.getReturnType()));
 					Path annotationPath = method.getAnnotation(Path.class);
 					if (annotationPath != null) {
 						path += method.getAnnotation(Path.class).value();
@@ -125,12 +126,13 @@ public class SwaggerCoverageTest {
 								) {
 								hasMessageBodyModel = false;
 							} 
-							else if (Collection.class.isAssignableFrom(parameter.getType())) {
+							else if (Collection.class.isAssignableFrom(parameter.getType())
+									|| Map.class.isAssignableFrom(parameter.getType())) {
 								hasMessageBodyModel = true;
 							}
 							else {
 								// This is an unexpected body type.
-								fail("Unrecognized body parameter type:" + parameter.getClass().getName());
+								fail("Unrecognized body parameter type:" + clazz.getName() + method.toGenericString() + " " + parameter.getType().getName());
 							}
 						}
 					}

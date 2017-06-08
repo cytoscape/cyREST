@@ -1,6 +1,3 @@
-# This repoditory is obsolete.
-# Please visit [new repository](https://github.com/cytoscape/cyREST)
-
 ![](http://cl.ly/XohP/logo300.png)
 
 # cyREST

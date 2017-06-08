@@ -34,6 +34,8 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * 
@@ -157,23 +159,16 @@ public class CommandResource implements PaxAppender, TaskObserver
 		return handler.getMessages();
 	}
 
-
-	/**
-	 * Method to enumerate all arguments for a given namespace and command or
-	 * execute a namespace and command if query strings are provided
-	 * 
-	 * @param namespace
-	 * @param command
-	 * @param uriInfo
-	 *            this provides access to the query strings
-	 * @return list of arguments as text/plain or the results of executing the
-	 *         command
-	 */
 	@GET
 	@Path("/{namespace}/{command}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String handleCommand(@PathParam("namespace") String namespace,
-			@PathParam("command") String command, @Context UriInfo uriInfo) {
+	@ApiOperation(value="List command arguments",
+			notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
+					+ "command if query strings are provided.\n\nReturns a list of arguments as text/plain or the "
+					+ "results of executing the command.")
+	public String handleCommand(
+			@ApiParam(value="Command Namespace") @PathParam("namespace") String namespace,
+			@ApiParam(value="Command Name") @PathParam("command") String command, @Context UriInfo uriInfo) {
 		
 		final MessageHandler handler = new TextPlainHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);

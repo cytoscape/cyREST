@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.APPS_TAG, "Clustering"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.APPS_TAG + ": clusterMaker2"})
 @Path(AppConstants.APPS_ROOT + "clustermaker2/")
 public class ClusterMaker2Resource  
 {

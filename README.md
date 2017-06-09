@@ -28,9 +28,10 @@ __An app to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://
 
 ## System Requirements
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* [Cytoscape 3.3.0+](http://www.cytoscape.org/)
+* [Cytoscape 3.5.0+](http://www.cytoscape.org/)
 
 ## Documentation
+* CyREST API docs are available within Cytoscape main menu through the Help &rarr; Automation sub-menu.
 * [cyREST Wiki](https://github.com/cytoscape/cyREST/wiki)
 
 ## Problems or Feature Requests?
@@ -38,7 +39,7 @@ Please send your feature requests to our [mailing list](https://groups.google.co
 
 Please report the problems to our issue tracker:
 
-* [cyREST Issue Tracker](https://github.com/idekerlab/cyREST/issues)
+* [cyREST Issue Tracker](https://github.com/cytoscape/cyREST/issues)
 
 And of course, pull requests are always welcome!
 

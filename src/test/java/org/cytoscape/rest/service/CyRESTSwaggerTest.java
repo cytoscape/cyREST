@@ -46,7 +46,7 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 	public class DummyCommandSwaggerResource{
 		@GET
 		@Produces(MediaType.APPLICATION_JSON)
-		@ApiOperation(value="", notes="")
+		@ApiOperation(value="", notes="dummy notes")
 		public String greeting(){
 			return null;
 		}
@@ -92,7 +92,7 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 		assertTrue(pathsNode.has("/dummyCommand"));
 		
 		JsonNode description = pathsNode.get("/dummyCommand").get("get").get("description");
-		assertEquals("\n\nFor a detailed list of all commands see the [CyREST Command API](http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http%3A%2F%2Flocalhost%3A1234%2Fv1%2Fcommands%2Fswagger.json)", description.asText());
+		assertEquals("dummy notes" + CyRESTSwagger.COMMAND_LINK_PREFIX + "http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http%3A%2F%2Flocalhost%3A1234%2Fv1%2Fcommands%2Fswagger.json" + CyRESTSwagger.COMMAND_LINK_POSTFIX, description.asText());
 	}
 	@Test
 	public void updatesAfterResourceAdd() throws JsonProcessingException, IOException {

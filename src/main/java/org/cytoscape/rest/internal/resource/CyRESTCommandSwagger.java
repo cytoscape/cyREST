@@ -166,9 +166,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 	@SwaggerDefinition(
 			info = @Info(
-					description = "A bridge to offer access to Cytoscape command line commands through a REST-like service.",
+					description = "An API to offer access to Cytoscape command line commands through a REST-like service.",
 					version = "V2.0.0",
-					title = "CyREST Command Bridge API"
+					title = "CyREST Command API"
 					//termsOfService = "http://theweatherapi.io/terms.html",
 					// contact = @Contact(
 					//   name = "Rain Moore", 

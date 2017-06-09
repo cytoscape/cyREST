@@ -94,25 +94,30 @@ public class CyRESTSwagger extends AbstractResource
 		}
 	}
 
+	public static final String COMMAND_LINK_PREFIX = "\n\nFor a list of all available commands and their documentation, see the [CyREST Command API](";
+	
+	public static final String COMMAND_LINK_POSTFIX = ")";
+	
 	private String getCommandLink() {
 		String url;
 		try {
 			url = "http://localhost:"+cyRESTPort+"/v1/swaggerUI/swagger-ui/index.html"
 					+ "?url=" + URLEncoder.encode("http://" + ResourceManager.HOST + ":" + this.cyRESTPort + "/v1/commands/swagger.json", "UTF-8");
 		
-		return "\n\nFor a detailed list of all commands see the [CyREST Command API]("+url+")";
+			//TODO this should be done with a string formatting utility.
+		return COMMAND_LINK_PREFIX +url + COMMAND_LINK_POSTFIX;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			return "\n\nUnable to make hyperlink link to CyREST Command API";
+			return "\n\nUnable to make a hyperlink to the CyREST Command API";
 		}
 	}
 	
 	private void addCommandLinks(Swagger swagger) {
 		Map<String, io.swagger.models.Path> paths = swagger.getPaths();
-		System.out.println("Here.");
+		
 		if (paths != null) {
 			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
-				System.out.println(pathEntry.getKey());
+				
 				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
 				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
 
@@ -171,7 +176,7 @@ public class CyRESTSwagger extends AbstractResource
 			schemes = {SwaggerDefinition.Scheme.HTTP},
 			tags = 
 		{
-				@Tag(name = CyRESTSwaggerConfig.APPS_TAG, description="Access to Apps"),
+				@Tag(name = CyRESTSwaggerConfig.APPS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),

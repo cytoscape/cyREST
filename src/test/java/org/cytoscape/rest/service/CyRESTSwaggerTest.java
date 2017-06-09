@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 public class CyRESTSwaggerTest extends SwaggerResourceTest 
 {
@@ -34,6 +35,18 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 	public class DummySwaggerResource{
 		@GET
 		@Produces(MediaType.APPLICATION_JSON)
+		@ApiOperation(value="", notes="")
+		public String greeting(){
+			return null;
+		}
+	}
+	
+	@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.COMMANDS_TAG})
+	@Path("/dummyCommand")
+	public class DummyCommandSwaggerResource{
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		@ApiOperation(value="", notes="dummy notes")
 		public String greeting(){
 			return null;
 		}
@@ -57,6 +70,30 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 		assertFalse(root.has("paths"));
 	}
 	
+	
+	@Test
+	public void addsCommandLink() throws JsonProcessingException, IOException {
+		this.cyRESTSwagger.addResource(DummyCommandSwaggerResource.class);
+		
+		Response response = target("/v1/swagger.json").request().get();
+		String result = response.readEntity(String.class);
+		
+		System.out.println(result);
+		
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+		swaggerConfigTest(root);
+		
+		assertTrue(root.has("paths"));
+		
+		JsonNode pathsNode = root.get("paths");
+		
+		assertTrue(pathsNode.has("/dummyCommand"));
+		
+		JsonNode description = pathsNode.get("/dummyCommand").get("get").get("description");
+		assertEquals("dummy notes" + CyRESTSwagger.COMMAND_LINK_PREFIX + "http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http%3A%2F%2Flocalhost%3A1234%2Fv1%2Fcommands%2Fswagger.json" + CyRESTSwagger.COMMAND_LINK_POSTFIX, description.asText());
+	}
 	@Test
 	public void updatesAfterResourceAdd() throws JsonProcessingException, IOException {
 		this.cyRESTSwagger.addResource(DummySwaggerResource.class);

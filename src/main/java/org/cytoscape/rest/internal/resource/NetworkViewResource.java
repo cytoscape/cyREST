@@ -233,8 +233,11 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNetworkViewAsCx(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
-			@QueryParam("file") String file) {
+	@ApiOperation(value = "Get a Network View in CX format")
+	public Response getNetworkViewAsCx(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="File (unused)") @QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		
 		CyNetworkView targetView = null;
@@ -701,7 +704,10 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNetworkVisualProps(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId) {
+	@ApiOperation(value = "List the Visual Properties for a Network View")
+	public Response getNetworkVisualProps(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId) {
 		return this.getViews(networkId, viewId, "network", null);
 	}
 
@@ -712,7 +718,7 @@ public class NetworkViewResource extends AbstractResource {
 	public String getView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Obejct Type", allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Object Type", allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
 			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
@@ -745,9 +751,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getSingleVisualPropertyValue(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
-			@PathParam("objectType") String objectType, @PathParam("objectId") Long objectId, 
-			@PathParam("visualProperty") String visualProperty) {
+	@ApiOperation(value="Get a specific object visual property")
+	public String getSingleVisualPropertyValue(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
 		Collection<VisualProperty<?>> vps = null;
@@ -774,8 +784,11 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getNetworkVisualProp(@PathParam("networkId") Long networkId, @PathParam("viewId") Long viewId,
-			@PathParam("visualProperty") String visualProperty) {
+	@ApiOperation(value="Get a specific network visual property")
+	public String getNetworkVisualProp(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Unique name of a Visual Property") @PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
 		if(nodeLexicon == null) {

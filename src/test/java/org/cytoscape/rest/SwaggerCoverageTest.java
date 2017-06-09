@@ -51,7 +51,7 @@ public class SwaggerCoverageTest {
 		}
 		
 		public String getName() {
-			return className + "\t" + methodName + "\t" + path;
+			return methodName + "\t" + path;
 		}
 		
 		public String toString() {

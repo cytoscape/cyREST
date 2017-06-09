@@ -60,6 +60,11 @@ public class CollectionResource extends AbstractResource {
 				.collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns the root network for the SUID.
+	 * @param suid
+	 * @return
+	 */
 	private final CyRootNetwork getRootNetwork(final Long suid) {
 		final Set<CyRootNetwork> roots = getRootNetworks();
 		for (final CyRootNetwork root : roots) {
@@ -120,14 +125,18 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCollecitonAsCx(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get a collection as CX", notes="If the Network SUID is a root network, this returns that root network. If the Network SUID is a subnetwork, this returns the root network containing that subnetwork.")
+	public Response getCollectionAsCx(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		return getCX(networkId);
 	}
 
 	@GET
 	@Path("/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getColleciton(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get a collection", notes="If the Network SUID is a root network, this returns that root network. If the Network SUID is a subnetwork, this returns the root network containing that subnetwork.")
+	public Response getCollection(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		return getCX(networkId);
 	}
 
@@ -148,7 +157,9 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/tables")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRootTables(@PathParam("networkId") Long networkId) {
+	@ApiOperation(value="Get Tables in a Root Network")
+	public Response getRootTables(
+			@ApiParam(value="Root Network SUID") @PathParam("networkId") Long networkId) {
 		final CyRootNetwork root = getRootNetwork(networkId);
 		final CyTable table = root.getDefaultNetworkTable();
 		final CyTable shared = root.getSharedNetworkTable();
@@ -162,16 +173,19 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/tables/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRootTable(@PathParam("networkId") Long networkId,
-			@PathParam("tableType") String tableType) {
+	@ApiOperation(value="Get a specific Table in a Root Network")
+	public Response getRootTable(
+			@ApiParam(value="Root Network SUID") @PathParam("networkId") Long networkId,
+			@ApiParam(value="Table Type", allowableValues="default,shared") @PathParam("tableType") String tableType) {
 		return getResponse(getTable(networkId, tableType));
 	}
 	
 	@DELETE
 	@Path("/{networkId}/tables/{tableType}/columns/{columnName}")
+	@ApiOperation(value="Delete a column")
 	public Response deleteColumn(@PathParam("networkId") Long networkId, 
-			@PathParam("tableType") String tableType,
-			@PathParam("columnName") String columnName) {
+			@ApiParam(value="Table Type", allowableValues="default,shared") @PathParam("tableType") String tableType,
+			@ApiParam(value="Column Name") @PathParam("columnName") String columnName) {
 		
 		final CyTable table = getTable(networkId, tableType);
 		if (table != null) {
@@ -189,8 +203,10 @@ public class CollectionResource extends AbstractResource {
 	
 	@GET
 	@Path("/{networkId}/tables/{tableType}/columns")
-	public Response getColumns(@PathParam("networkId") Long networkId, 
-			@PathParam("tableType") String tableType) {
+	@ApiOperation(value="Get a list of columns for a table")
+	public Response getColumns(
+			@ApiParam(value="Root Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Table Type", allowableValues="default,shared") @PathParam("tableType") String tableType) {
 		final CyTable table = getTable(networkId, tableType);
 		
 		try {
@@ -216,8 +232,10 @@ public class CollectionResource extends AbstractResource {
 	@PUT
 	@Path("/{networkId}/tables/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateTable(@PathParam("networkId") Long networkId, 
-			@PathParam("tableType") String tableType, final InputStream is) {
+	@ApiOperation(value="Update table values")
+	public Response updateTable(
+			@ApiParam(value="Root Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Table Type", allowableValues="default,shared") @PathParam("tableType") String tableType, final InputStream is) {
 		final CyTable table = getTable(networkId, tableType);
 		if(table == null) {
 			throw getError("No such table type", new NullPointerException(), Response.Status.NOT_FOUND);

@@ -71,6 +71,8 @@ public class MiscResource extends AbstractResource {
 	@PUT
 	@Path("/ui/show-details")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Show Level of Graphics Details", hidden=true,
+	notes="### Unimplemented\n\nDo not rely on this function.")
 	public CytoscapeVersion updateShowGraphicsDetailsOption() {
 
 		if (props == null) {

@@ -83,17 +83,12 @@ public class CommandResource implements PaxAppender, TaskObserver
 	private MessageHandler messageHandler;
 	private boolean processingCommand = false;
 
-
-
-	/**
-	 * Method handling HTTP GET requests to enumerate all namespaces. The
-	 * returned list will be sent to the client as "text/plain" media type.
-	 * 
-	 * @return String that will be returned as a text/plain response.
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
+	@ApiOperation(value="List all available command namespaces",
+			notes="Method handling HTTP GET requests to enumerate all namespaces. The"
+	 + " returned list will be sent to the client as \"text/plain\" media type.")
 	public String enumerateNamespaces() {
 		final MessageHandler handler = new TextPlainHandler();
 		final List<String> namespaces = available.getNamespaces();
@@ -106,15 +101,12 @@ public class CommandResource implements PaxAppender, TaskObserver
 		return handler.getMessageString();
 	}
 
-	/**
-	 * Method handling HTTP GET requests to enumerate all namespaces. The
-	 * returned list will be sent to the client as "text/html" media type.
-	 * 
-	 * @return String that will be returned as a text/html response.
-	 */
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_HTML)
+	@ApiOperation(value="List all available command namespaces",
+	notes="Method handling HTTP GET requests to enumerate all namespaces. The"
+			+ " returned list will be sent to the client as \"text/html\" media type.")
 	public String enumerateNamespacesHtml() {
 		final MessageHandler handler = new TextHTMLHandler();
 		final List<String> namespaces = available.getNamespaces();
@@ -137,6 +129,9 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@GET
 	@Path("/{namespace}")
 	@Produces(MediaType.TEXT_PLAIN)
+	@ApiOperation(value="List all available commands in a namespace",
+			notes="Method to enumerate all commands for a given namespace. The"
+			+ " returned list will be sent to the client as \"text/plain\" media type.")
 	public String enumerateCommands(@PathParam("namespace") String namespace) {
 		final MessageHandler handler = new TextPlainHandler();
 		final List<String> commands = available.getCommands(namespace);
@@ -161,6 +156,9 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@GET
 	@Path("/{namespace}")
 	@Produces(MediaType.TEXT_HTML)
+	@ApiOperation(value="List all available commands in a namespace",
+	notes="Method to enumerate all commands for a given namespace. The"
+	+ " returned list will be sent to the client as \"text/html\" media type.")
 	public String enumerateHTMLCommands(@PathParam("namespace") String namespace) {
 		final MessageHandler handler = new TextHTMLHandler();
 		final List<String> commands = available.getCommands(namespace);
@@ -179,13 +177,14 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@GET
 	@Path("/{namespace}/{command}")
 	@Produces(MediaType.TEXT_PLAIN)
-	@ApiOperation(value="List command arguments",
+	@ApiOperation(value="Execute a command or list its arguments",
 			notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
 					+ "command if query strings are provided.\n\nReturns a list of arguments as text/plain or the "
 					+ "results of executing the command.")
 	public String handleCommand(
 			@ApiParam(value="Command Namespace") @PathParam("namespace") String namespace,
-			@ApiParam(value="Command Name") @PathParam("command") String command, @Context UriInfo uriInfo) {
+			@ApiParam(value="Command Name") @PathParam("command") String command, 
+			@Context UriInfo uriInfo) {
 		
 
 		final MessageHandler handler = new TextPlainHandler();
@@ -209,8 +208,14 @@ public class CommandResource implements PaxAppender, TaskObserver
 	@GET
 	@Path("/{namespace}/{command}") 
 	@Produces(MediaType.TEXT_HTML)
-	public String handleHTMLCommand(@PathParam("namespace") String namespace,
-			@PathParam("command") String command, @Context UriInfo uriInfo) {
+	@ApiOperation(value="Execute a command or list its arguments",
+	notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
+			+ "command if query strings are provided.\n\nReturns a list of arguments as text/html or the "
+			+ "results of executing the command.")
+	public String handleHTMLCommand(
+			@ApiParam(value="Command Namespace") @PathParam("namespace") String namespace,
+			@ApiParam(value="Command Name") @PathParam("command") String command, 
+			@Context UriInfo uriInfo) {
 		final MessageHandler handler = new TextHTMLHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
 

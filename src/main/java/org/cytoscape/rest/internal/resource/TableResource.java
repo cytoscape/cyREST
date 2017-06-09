@@ -94,7 +94,7 @@ public class TableResource extends AbstractResource {
 			@ApiResponse(code=412, message="Could not process column JSON")
 	})
 	public Response createColumn(@PathParam("networkId") Long networkId, 
-			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
+			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);

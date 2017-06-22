@@ -232,9 +232,10 @@ public class CommandResource implements PaxAppender, TaskObserver
 		final MessageHandler handler = new TextPlainHandler();
 		//TODO Verify that all query parameters are strings. the command 
 		
+		/*
 		for (String key : queryParameters.keySet()) {
 			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
-		}
+		}*/
 		
 		JSONTaskObserver jsonTaskObserver = new JSONTaskObserver();
 		try {

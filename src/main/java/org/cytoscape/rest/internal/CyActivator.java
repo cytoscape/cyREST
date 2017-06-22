@@ -219,15 +219,15 @@ public class CyActivator extends AbstractCyActivator {
 		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
-		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, mappingFactoryManager::addFactory, mappingFactoryManager::removeFactory,
 				VisualMappingFunctionFactory.class);
 
 		final GraphicsWriterManager graphicsWriterManager = new GraphicsWriterManager();
-		registerServiceListener(bc, graphicsWriterManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, graphicsWriterManager::addFactory, graphicsWriterManager::removeFactory,
 				PresentationWriterFactory.class);
 
 		final CyNetworkViewWriterFactoryManager viewWriterManager = new CyNetworkViewWriterFactoryManager();
-		registerServiceListener(bc, viewWriterManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, viewWriterManager::addFactory, viewWriterManager::removeFactory,
 				CyNetworkViewWriterFactory.class);
 
 		@SuppressWarnings("unchecked")
@@ -316,7 +316,7 @@ public class CyActivator extends AbstractCyActivator {
 		final RenderingEngineManager renderingEngineManager = getService(bc,RenderingEngineManager.class);
 
 		final WriterListener writerListener = new WriterListener();
-		registerServiceListener(bc, writerListener, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
+		registerServiceListener(bc, writerListener::registerFactory, writerListener::unregisterFactory, VizmapWriterFactory.class);
 
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 

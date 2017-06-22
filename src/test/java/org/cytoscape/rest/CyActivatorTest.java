@@ -26,6 +26,7 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyActivator.ServerState;
 import org.cytoscape.rest.internal.task.ResourceManager;
+import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -76,6 +77,8 @@ public class CyActivatorTest {
 		when(bc.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(configAdminServiceReference);
 		when(bc.getService(configAdminServiceReference)).thenReturn(configAdmin);
 
+		VisualMappingFunctionFactory visualMappingFunctionFactory = mock(VisualMappingFunctionFactory.class);
+		
 		bundle = mock(Bundle.class);
 		when(bundle.getSymbolicName()).thenReturn("dummyCyRESTBundleName");
 		when(bundle.getVersion()).thenReturn(new Version(1,2,3));
@@ -137,11 +140,10 @@ public class CyActivatorTest {
 				ServiceReference serviceReference = mock(ServiceReference.class);
 				if (invocation.getArguments()[0] == null) {
 					when(serviceReference.getPropertyKeys()).thenReturn(new String[]{});
-					return new ServiceReference[] {serviceReference};
+					return new ServiceReference[] {};//{serviceReference};
 				}
 			
 				when(serviceReference.getPropertyKeys()).thenReturn(new String[]{"castClass"});
-				
 				when(serviceReference.getProperty(eq("castClass"))).thenReturn(invocation.getArguments()[0]);
 				return new ServiceReference[] {serviceReference};
 			}
@@ -174,6 +176,7 @@ public class CyActivatorTest {
 				if (classCast != null) {
 					return mock(Class.forName((String) classCast));
 				} else {
+					System.out.print(invocation.getArguments()[0]);
 					return new Object();
 				}
 			}

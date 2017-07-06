@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cytoscape.model.CyColumn;
@@ -134,12 +133,13 @@ public class GraphObjectSerializer {
 	public final String serializeColumnValues(final CyColumn column, final Collection<Object> values) throws IOException {
 
 		final JsonFactory factory = new JsonFactory();
-
+		
 		String result = null;
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		JsonGenerator generator = null;
+	
 		generator = factory.createGenerator(stream);
-
+		
 		try {
 		generator.writeStartObject();
 		generator.writeStringField(JsonTags.COLUMN_NAME, column.getName());
@@ -245,6 +245,7 @@ public class GraphObjectSerializer {
 	private final void writeValue(final Class<?> type, final Object value, final JsonGenerator generator)
 			throws IOException {
 		if(value == null) {
+			generator.writeNull();
 			return;
 		}
 		

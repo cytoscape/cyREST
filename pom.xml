@@ -3,8 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
+		<!-- Produces timestamped builds.
 	 	<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     	<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
+    	-->
 		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -20,7 +22,7 @@
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>3.5.0</version>
+	<version>3.5.1</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 

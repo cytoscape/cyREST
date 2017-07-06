@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiParam;
 
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
-@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.TABLES_TAG})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.GROUPS_TAG})
 public class GroupResource extends AbstractResource {
 
 	private final ObjectMapper groupMapper;

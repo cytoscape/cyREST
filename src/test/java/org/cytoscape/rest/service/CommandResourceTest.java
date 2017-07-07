@@ -33,4 +33,15 @@ public class CommandResourceTest extends BasicResourceTest {
 		
 		assertEquals(200, response.getStatus());
 	}
+	
+	@Test 
+	public void testMultiTaskCommand() throws Exception {
+		Response response = target("/v1/commands/dummyNamespace/dummyMultiTaskCommand").request().get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	}
 }

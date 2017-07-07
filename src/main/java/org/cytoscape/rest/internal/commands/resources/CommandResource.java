@@ -46,9 +46,9 @@ import io.swagger.annotations.ApiParam;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.COMMANDS_TAG})
 @Singleton
 @Path("/v1/commands")
-public class CommandResource implements PaxAppender, TaskObserver 
+public class CommandResource 
 {
-
+	
 	@Inject
 	@NotNull
 	private AvailableCommands available;
@@ -62,9 +62,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 	private SynchronousTaskManager<?> taskManager;
 
 
-	private CustomFailureException taskException;
-	private MessageHandler messageHandler;
-	private boolean processingCommand = false;
+
 
 	@GET
 	@Path("/")
@@ -266,65 +264,31 @@ public class CommandResource implements PaxAppender, TaskObserver
 			}
 		}
 
-		processingCommand = true;
-		messageHandler = handler;
-		taskException = null;
-
+			
+		CommandResourceTaskObserver taskObserver = new CommandResourceTaskObserver(handler);
+		
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
-				command, modifiedSettings, this), this);
+				command, modifiedSettings, taskObserver), taskObserver);
 
-		String messages = messageHandler.getMessages();
-		processingCommand = false;
-		if (taskException != null)
-			throw taskException;
+		synchronized (taskObserver) {
+            try{
+            	while (!taskObserver.isFinished()) {
+            		System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
+            		taskObserver.wait();
+                }
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+		}
+		String messages = taskObserver.getMessageHandler().getMessages();
+	
+		if (taskObserver.getTaskException() != null)
+			throw taskObserver.getTaskException();
 		return messages;
 	}
 
-	public void doAppend(PaxLoggingEvent event) {
-		// System.out.println(event.getLevel().toInt() + ": " + event.getMessage());
-		// Get prefix
-		// Handle levels
-		if (!processingCommand) {
-			return;
-		}
-
-		PaxLevel level = event.getLevel();
-		if (level.toInt() == 40000)
-			messageHandler.appendError(event.getMessage());
-		else if (level.toInt() == 30000)
-			messageHandler.appendWarning(event.getMessage());
-		else
-			messageHandler.appendMessage(event.getMessage());
-	}
-
-	////////////////// For Observable Task //////////////////////////
 	
-	@Override
-	public void taskFinished(ObservableTask t) {
-		final Object res = t.getResults(String.class);
-		if (res != null)
-			messageHandler.appendResult(res);
-	}
-
-
-	@Override
-	public void allFinished(FinishStatus status) {
-		if (status.getType().equals(FinishStatus.Type.SUCCEEDED))
-			messageHandler.appendMessage("Finished");
-		else if (status.getType().equals(FinishStatus.Type.CANCELLED))
-			messageHandler.appendWarning("Cancelled by user");
-		else if (status.getType().equals(FinishStatus.Type.FAILED)) {
-			if (status.getException() != null) {
-				messageHandler.appendError("Failed: "
-						+ status.getException().getMessage());
-				taskException = new CustomFailureException("Failed: "
-						+ status.getException().getMessage());
-			} else {
-				messageHandler.appendError("Failed");
-				taskException = new CustomFailureException();
-			}
-		}
-	}
+	
 
 	private final String stripQuotes(final String quotedString) {
 		String tqString = quotedString.trim();
@@ -344,14 +308,5 @@ public class CommandResource implements PaxAppender, TaskObserver
 		}
 	}
 
-	public class CustomFailureException extends WebApplicationException {
-		public CustomFailureException() {
-			super(500);
-		}
-
-		public CustomFailureException(String message) {
-			super(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-					.entity(message).type("text/plain").build());
-		}
-	}
+	
 }

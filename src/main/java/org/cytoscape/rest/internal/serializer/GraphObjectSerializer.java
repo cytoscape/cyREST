@@ -245,6 +245,7 @@ public class GraphObjectSerializer {
 	private final void writeValue(final Class<?> type, final Object value, final JsonGenerator generator)
 			throws IOException {
 		if(value == null) {
+			generator.writeNull();
 			return;
 		}
 		

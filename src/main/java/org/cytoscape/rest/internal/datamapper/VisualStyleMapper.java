@@ -130,10 +130,12 @@ public class VisualStyleMapper {
 			}
 
 			if (newMapping != null) {
+				/*
 				if(style.getVisualMappingFunction(vp) != null) {
 					style.removeVisualMappingFunction(vp);
-				}
+				}*/
 				style.addVisualMappingFunction(newMapping);
+				
 			}
 		}
 	}

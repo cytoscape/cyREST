@@ -748,7 +748,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		localNodeTable.createColumn("local1", Double.class, false);
 		localNodeTable.getRow(n1.getSUID()).set("local1", 1.0);
-		localNodeTable.getRow(n2.getSUID()).set("local1", 2.0);
+		localNodeTable.getRow(n2.getSUID()).set("local1", null);
 		localNodeTable.getRow(n3.getSUID()).set("local1", 3.0);
 		localNodeTable.getRow(n4.getSUID()).set("local1", 4.0);
 

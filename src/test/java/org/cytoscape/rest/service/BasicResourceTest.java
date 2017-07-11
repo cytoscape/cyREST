@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.swing.JOptionPane;
-
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
@@ -65,7 +63,6 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
-import org.cytoscape.rest.internal.CyActivator.ServerState;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.EdgeBundler;
@@ -136,7 +133,6 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
-
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -211,6 +207,12 @@ public class BasicResourceTest extends JerseyTest {
 	protected final boolean DUMMY_ARGUMENT_REQUIRED = false;
 
 	protected final String DUMMY_MULTI_TASK_COMMAND = "dummyMultiTaskCommand";
+	protected boolean multiTaskAComplete = false;
+	protected boolean multiTaskBComplete = false;
+	
+	protected final String DUMMY_APPEND_TASK_COMMAND = "dummyAppendTaskCommand";
+	protected boolean appendTaskAComplete = false;
+	protected boolean appendTaskBComplete = false;
 
 	protected CyRESTSwagger cyRESTSwagger;
 
@@ -421,6 +423,7 @@ public class BasicResourceTest extends JerseyTest {
 		final List<String> dummyCommands = new ArrayList<String>();
 		dummyCommands.add(DUMMY_COMMAND);
 		dummyCommands.add(DUMMY_MULTI_TASK_COMMAND);
+		dummyCommands.add(DUMMY_APPEND_TASK_COMMAND);
 
 		final List<String> dummyArguments = new ArrayList<String>();
 		dummyArguments.add(DUMMY_ARGUMENT_NAME);
@@ -433,9 +436,10 @@ public class BasicResourceTest extends JerseyTest {
 		when(available.getArgDescription(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_DESCRIPTION);
 		when(available.getArgRequired(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(false);
 
-		//No arguments for multi-task command
+		//No arguments for multi-task command and append task command
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(new ArrayList<String>());
-
+		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_APPEND_TASK_COMMAND)).thenReturn(new ArrayList<String>());
+		
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		TaskIterator dummyTaskIterator = new TaskIterator();
 		ObservableTask dummyTask = mock(ObservableTask.class);
@@ -446,7 +450,25 @@ public class BasicResourceTest extends JerseyTest {
 
 		TaskIterator dummyMultiTaskIterator = new TaskIterator();
 		ObservableTask dummyMultiTaskA = mock(ObservableTask.class);
+		ObservableTask dummyMultiTaskB = mock(ObservableTask.class);
 		dummyMultiTaskIterator.append(dummyMultiTaskA);
+		dummyMultiTaskIterator.append(dummyMultiTaskB);
+	
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.err.println("Thread interrupt");
+					}
+					multiTaskAComplete = true;
+					return null;
+				}
+			}).when(dummyMultiTaskA).run(any());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		try {
 			doAnswer(new Answer<Void>() {
@@ -454,19 +476,59 @@ public class BasicResourceTest extends JerseyTest {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						System.out.println("Thread interrupt");
+						System.err.println("Thread interrupt");
 					}
-					System.out.println("Heyhey");
+					multiTaskBComplete = true;
 					return null;
 				}
-			}).when(dummyMultiTaskA).run(any());
+			}).when(dummyMultiTaskB).run(any());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		when(dummyMultiTaskA.getResults(String.class)).thenReturn("Dummy string A");
+		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE),  eq(DUMMY_MULTI_TASK_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyMultiTaskIterator);
+
+		final TaskIterator dummyAppendTaskIterator = new TaskIterator();
+		ObservableTask dummyAppendTaskA = mock(ObservableTask.class);
+		ObservableTask dummyAppendTaskB = mock(ObservableTask.class);
+		dummyAppendTaskIterator.append(dummyAppendTaskA);
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.err.println("Thread interrupt");
+					}
+					dummyAppendTaskIterator.insertTasksAfter(dummyAppendTaskA, dummyAppendTaskB);
+					appendTaskAComplete = true;
+					return null;
+				}
+			}).when(dummyAppendTaskA).run(any());
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		when(dummyMultiTaskA.getResults(String.class)).thenReturn("Dummy string A");
-		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE),  eq(DUMMY_MULTI_TASK_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyMultiTaskIterator);
+		
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.err.println("Thread interrupt");
+					}
+					appendTaskBComplete = true;
+					return null;
+				}
+			}).when(dummyAppendTaskB).run(any());
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE),  eq(DUMMY_APPEND_TASK_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyAppendTaskIterator);
 
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 
@@ -477,20 +539,25 @@ public class BasicResourceTest extends JerseyTest {
 					Object[] args = invocation.getArguments();
 
 					TaskIterator taskIterator = (TaskIterator) args[0];
+					TaskObserver observer = (TaskObserver) args[1];
+					// System.out.println("SyncTaskManager.execute");
+					
+			        Task task = null;
+					try {
+						while (taskIterator.hasNext()) {
+							task = taskIterator.next();
+					
+							task.run(mock(TaskMonitor.class));
 
-					while(taskIterator.hasNext())
-					{	
-						Task task = taskIterator.next();
-						try {
-							task.run(null);
-						} catch (Exception e) {
-							e.printStackTrace();
+							if (task instanceof ObservableTask && observer != null) {
+								observer.taskFinished((ObservableTask)task);
+							} 
 						}
-						if (task instanceof ObservableTask)
-							//TODO make this execute closer to how Commands are actually executed.
-							((TaskObserver) args[1]).taskFinished((ObservableTask) task);
+			            if (observer != null) observer.allFinished(FinishStatus.getSucceeded());
+
+					} catch (Exception exception) {
+			            if (observer != null && task != null) observer.allFinished(FinishStatus.newFailed(task, exception));
 					}
-					((TaskObserver) args[1]).allFinished(FinishStatus.getSucceeded());
 				});
 				return null;
 			}

@@ -1,7 +1,9 @@
 package org.cytoscape.rest.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -36,6 +38,9 @@ public class CommandResourceTest extends BasicResourceTest {
 	
 	@Test 
 	public void testMultiTaskCommand() throws Exception {
+		
+		assertFalse(multiTaskAComplete);
+		assertFalse(multiTaskBComplete);
 		Response response = target("/v1/commands/dummyNamespace/dummyMultiTaskCommand").request().get();
 		assertNotNull(response);
 		
@@ -43,5 +48,23 @@ public class CommandResourceTest extends BasicResourceTest {
 		System.out.println(body);
 		
 		assertEquals(200, response.getStatus());
+		assertTrue(multiTaskAComplete);
+		assertTrue(multiTaskBComplete);
+	}
+	
+	@Test 
+	public void testAppendTaskCommand() throws Exception {
+		
+		assertFalse(appendTaskAComplete);
+		assertFalse(appendTaskBComplete);
+		Response response = target("/v1/commands/dummyNamespace/dummyAppendTaskCommand").request().get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+		assertTrue(appendTaskAComplete);
+		assertTrue(appendTaskBComplete);
 	}
 }

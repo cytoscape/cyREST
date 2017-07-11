@@ -31,17 +31,8 @@ import org.cytoscape.rest.internal.commands.handlers.TextHTMLHandler;
 import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.task.LogLocation;
-import org.cytoscape.work.FinishStatus;
-import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.SynchronousTaskManager;
-import org.cytoscape.work.TaskObserver;
-import org.cytoscape.work.TunableValidator;
-import org.cytoscape.work.json.JSONResult;
 import org.glassfish.grizzly.http.util.HttpStatus;
-import org.ops4j.pax.logging.spi.PaxAppender;
-import org.ops4j.pax.logging.spi.PaxLevel;
-import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 
@@ -59,7 +50,7 @@ import io.swagger.annotations.ApiParam;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.COMMANDS_TAG})
 @Singleton
 @Path("/v1/commands")
-public class CommandResource implements PaxAppender, TaskObserver 
+public class CommandResource
 {
 
 	@Inject
@@ -79,9 +70,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 	private SynchronousTaskManager<?> taskManager;
 
 
-	private CustomFailureException taskException;
-	private MessageHandler messageHandler;
-	private boolean processingCommand = false;
+	
 
 	@GET
 	@Path("/")
@@ -190,7 +179,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		final MessageHandler handler = new TextPlainHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
 
-		return handleCommand(namespace, command, queryParameters, handler, this);
+		return handleCommand(namespace, command, queryParameters, handler);
 	}
 
 
@@ -219,7 +208,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 		final MessageHandler handler = new TextHTMLHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
 
-		return handleCommand(namespace, command, queryParameters, handler, this);
+		return handleCommand(namespace, command, queryParameters, handler);
 	}
 
 
@@ -237,7 +226,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
 		}*/
 		
-		JSONTaskObserver jsonTaskObserver = new JSONTaskObserver();
+		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, logLocation);
 		try {
 			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
 			return Response.status(jsonTaskObserver.ciErrors.isEmpty() ? 200 : 500).entity(buildCIResult(namespace, command, jsonTaskObserver, handler)).build();
@@ -250,7 +239,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 
 	// We're getting strings from commands; it would cost us to translate to JSON and back to string, so we're building
 	// our result manually for efficiency.
-	private String buildCIResult(String namespace, String command, JSONTaskObserver jsonTaskObserver, MessageHandler messageHandler) {
+	private String buildCIResult(String namespace, String command, JSONResultTaskObserver jsonTaskObserver, MessageHandler messageHandler) {
 		List<CIError> ciErrorList = new ArrayList<CIError>(jsonTaskObserver.ciErrors);
 		
 		if (jsonTaskObserver.succeeded == false) {
@@ -263,84 +252,17 @@ public class CommandResource implements PaxAppender, TaskObserver
 		return getJSONResponse(jsonTaskObserver.jsonResultStrings, jsonTaskObserver.ciErrors, logLocation);
 	}
 	
-	private class JSONTaskObserver implements TaskObserver
-	{
-		List<CIError> ciErrors = new ArrayList<CIError>();
-		boolean succeeded = false;
-		final List<String> jsonResultStrings = new ArrayList<String>();
-
-		@Override
-		public void taskFinished(ObservableTask task) {
-			JSONResult jsonResult = task.getResults(JSONResult.class);
-			if (jsonResult != null)	{
-				jsonResultStrings.add(jsonResult.getJSON());
-			} else {
-				Gson gson = new Gson();
-				String stringResult = task.getResults(String.class);
-				jsonResultStrings.add(gson.toJson(stringResult, String.class));
-			}
-		}
-
-		@Override
-		public void allFinished(FinishStatus finishStatus) {
-			if (finishStatus.getType() == FinishStatus.Type.CANCELLED) {
-				CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
-				CIError ciError;
-				if (finishStatus.getTask() != null && finishStatus.getTask() instanceof TunableValidator) {
-					StringBuilder stringBuilder = new StringBuilder();
-					if (((TunableValidator)finishStatus.getTask()).getValidationState(stringBuilder) == TunableValidator.ValidationState.INVALID)
-					{
-						ciError = ciErrorFactory.getCIError(
-								HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-								"Task Cancelled. Could not validate Tunable inputs: " + stringBuilder.toString());
-					} else {
-						ciError = ciErrorFactory.getCIError(
-								HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-								"Task Cancelled. All inputs were validated.");
-					}
-				} else {
-					ciError = ciErrorFactory.getCIError(
-							HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-							CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-							"Task Cancelled.");
-				}
-				ciErrors.add(ciError);
-			}
-			else if (finishStatus.getType() == FinishStatus.Type.FAILED) {
-				CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
-				CIError ciError;
-				if (finishStatus.getException() != null) {
-					 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-							CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-							finishStatus.getException().getMessage()
-							);
-				} else {
-					 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-								CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-								"Task Failed with No Exception: " + (finishStatus.getTask() != null ? finishStatus.getTask().getClass().getName() : "no attached class")
-								);
-				}
-				ciErrors.add(ciError);
-			} 
-			else if (finishStatus.getType() == FinishStatus.Type.SUCCEEDED) {
-				succeeded |= true;
-			}
-		}
-	}
-
 	private final String handleCommand(final String namespace, final String command,
 			final MultivaluedMap<String, String> queryParameters,
-			final MessageHandler handler,
-			final TaskObserver taskObserver) throws WebApplicationException {
+			final MessageHandler handler
+			) throws WebApplicationException {
 
 		final List<String> args = available.getArguments(namespace, command);
 
 		if ((queryParameters != null && queryParameters.size() > 0)
 				|| (args == null || args.size() == 0)) {
 			// Execute!
-			return executeCommand(namespace, command, queryParameters, handler, taskObserver);
+			return executeCommand(namespace, command, queryParameters, handler);
 		}
 
 		handler.appendCommand("Available arguments for '" + namespace + " " + command + "':");
@@ -354,8 +276,8 @@ public class CommandResource implements PaxAppender, TaskObserver
 	private final String executeCommand(
 			final String namespace, final String command,
 			final MultivaluedMap<String, String> args,
-			final MessageHandler handler,
-			TaskObserver taskObserver) throws WebApplicationException {
+			final MessageHandler handler
+			) throws WebApplicationException {
 
 		final List<String> commands = available.getCommands(namespace);
 		if (commands == null || commands.size() == 0) {
@@ -392,7 +314,7 @@ public class CommandResource implements PaxAppender, TaskObserver
 						"Error: can't find argument '" + inputArg + "'");
 			}
 		}
-
+		StringResultTaskObserver taskObserver = new StringResultTaskObserver(handler);
 		return executeCommand(namespace, command, modifiedSettings, handler, taskObserver);
 	}
 
@@ -400,66 +322,27 @@ public class CommandResource implements PaxAppender, TaskObserver
 			final String namespace, final String command,
 			final Map<String, Object> args,
 			final MessageHandler handler,
-			TaskObserver taskObserver) throws WebApplicationException {
-		processingCommand = true;
-		messageHandler = handler;
-		taskException = null;
+			CommandResourceTaskObserver taskObserver) throws WebApplicationException {
+		
 	
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);
-		
-		String messages = messageHandler.getMessageString();
-		processingCommand = false;
-		if (taskException != null)
-			throw taskException;
-		return messages;
-	}
+
+		synchronized (taskObserver) {
+            try{
+            	while (!taskObserver.isFinished()) {
+            		System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
+            		taskObserver.wait();
+                }
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+		}
+		String messages = taskObserver.getMessageHandler().getMessageString();
 	
-	public void doAppend(PaxLoggingEvent event) {
-		// System.out.println(event.getLevel().toInt() + ": " + event.getMessage());
-		// Get prefix
-		// Handle levels
-		if (!processingCommand) {
-			return;
-		}
-
-		PaxLevel level = event.getLevel();
-		
-		if (level.toInt() == 40000)
-			messageHandler.appendError(event.getMessage());
-		else if (level.toInt() == 30000)
-			messageHandler.appendWarning(event.getMessage());
-		else
-			messageHandler.appendMessage(event.getMessage());
-	}
-
-	////////////////// For Observable Task //////////////////////////
-
-	@Override
-	public void taskFinished(ObservableTask t) {
-		final Object res = t.getResults(String.class);
-		if (res != null)
-			messageHandler.appendResult(res);
-	}
-
-
-	@Override
-	public void allFinished(FinishStatus status) {
-		if (status.getType().equals(FinishStatus.Type.SUCCEEDED))
-			messageHandler.appendMessage("Finished");
-		else if (status.getType().equals(FinishStatus.Type.CANCELLED))
-			messageHandler.appendWarning("Cancelled by user");
-		else if (status.getType().equals(FinishStatus.Type.FAILED)) {
-			if (status.getException() != null) {
-				messageHandler.appendError("Failed: "
-						+ status.getException().getMessage());
-				taskException = new CustomFailureException("Failed: "
-						+ status.getException().getMessage());
-			} else {
-				messageHandler.appendError("Failed");
-				taskException = new CustomFailureException();
-			}
-		}
+		if (taskObserver.getTaskException() != null)
+			throw taskObserver.getTaskException();
+		return messages;
 	}
 
 	private final String stripQuotes(final String quotedString) {

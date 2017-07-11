@@ -92,7 +92,6 @@ public class TableResourceTest extends BasicResourceTest {
 		
 	}
 	
-	
 	@Test
 	public void testGetColumn() throws Exception {
 		final Long suid = network.getSUID();
@@ -122,6 +121,20 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(root3.get("values").isArray());
 		assertEquals("interaction", root3.get("name").asText());
 		assertEquals(Integer.valueOf(3), Integer.valueOf(root3.get("values").size()));
+		
+		String result_local1 = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/local1").request().get(
+				String.class);
+		assertNotNull(result_local1);
+		final JsonNode root_local1 = mapper.readTree(result_local1);
+		assertTrue(root_local1.isObject());
+		assertTrue(root_local1.get("values").isArray());
+		assertEquals("local1", root_local1.get("name").asText());
+		JsonNode valueNode = root_local1.get("values");
+		assertEquals(Integer.valueOf(4), Integer.valueOf(valueNode.size()));
+		assertEquals(Double.valueOf(1), Double.valueOf(valueNode.get(0).asDouble()));
+		assertTrue(valueNode.get(1).isNull());
+		assertEquals(Double.valueOf(3), Double.valueOf(valueNode.get(2).asDouble()));
+		assertEquals(Double.valueOf(4), Double.valueOf(valueNode.get(3).asDouble()));
 	}
 
 

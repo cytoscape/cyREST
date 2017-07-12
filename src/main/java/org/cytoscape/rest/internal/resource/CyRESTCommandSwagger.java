@@ -1,6 +1,8 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +22,8 @@ import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
-import org.cytoscape.work.ResultDescriptor;
+import org.cytoscape.work.ObservableTask;
+import org.cytoscape.work.json.ExampleJSONString;
 import org.cytoscape.work.json.JSONResult;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -49,6 +52,7 @@ import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.util.Json;
+
 
 @Path("/v1/commands/swagger.json")
 @Singleton
@@ -163,16 +167,47 @@ public class CyRESTCommandSwagger extends AbstractResource
 	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available, Response response) {
 
 		boolean isJSONCapable = false;
-		List<ResultDescriptor> resultDescriptors = available.getResultDescriptors(namespace, command);
+		Map<Class<? extends ObservableTask>, List<Class<?>>> resultClasses = available.getResultClasses(namespace, command);
 		List<String> jsonResultExamples = new ArrayList<String>();
-		for (ResultDescriptor resultDescriptor : resultDescriptors) {
-			List<Class<?>> resultClasses = resultDescriptor.getResultTypes();
-			if (resultClasses!=null) {
-				for (Class<?> resultClass : resultClasses) {
+		for (List<Class<?>> taskResultClasses : resultClasses.values()) {
+			
+			if (taskResultClasses!=null) {
+				for (Class<?> resultClass : taskResultClasses) {
 					if (JSONResult.class.isAssignableFrom(resultClass)){
 						isJSONCapable = true;
-						JSONResult jsonResult = resultDescriptor.getResultExample(JSONResult.class);
-						jsonResultExamples.add(jsonResult.getJSON());
+						
+						for (Method method: resultClass.getDeclaredMethods()) {
+							for (Annotation annotation : method.getDeclaredAnnotations()) {
+								System.out.println(resultClass.getName() + " " + method.getName() + " " + annotation.annotationType().getName());
+							}
+						}
+						
+						Method getJSONMethod;
+						try {
+							getJSONMethod = resultClass.getMethod("getJSON");
+						
+							
+							if (getJSONMethod != null) {
+								System.out.println("getJSON method found for class " + resultClass.getName());
+							}
+							
+							for (Annotation annotation : getJSONMethod.getAnnotations()) {
+								System.out.println("\tgetJSON annotation: " + annotation.annotationType().getName());
+							}
+							
+							ExampleJSONString exampleJSONString = getJSONMethod.getAnnotation(ExampleJSONString.class);
+						
+							if (exampleJSONString != null && exampleJSONString.value() != null) {
+								jsonResultExamples.add(exampleJSONString.value()); 
+						}
+						} catch (NoSuchMethodException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
 					}
 				}
 			} else {

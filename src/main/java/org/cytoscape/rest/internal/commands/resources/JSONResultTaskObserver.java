@@ -36,8 +36,18 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 
 	@Override
 	public void taskFinished(ObservableTask task) {
-		JSONResult jsonResult = task.getResults(JSONResult.class);
-		if (jsonResult != null)	{
+		Class<? extends JSONResult> jsonResultClass = null;
+		List<Class<?>> classList = task.getResultClasses();
+		if (classList != null) {
+			for (Class<?> clazz : classList) {
+				if  (JSONResult.class.isAssignableFrom(clazz)) {
+					jsonResultClass = (Class<? extends JSONResult>) clazz;
+				}
+			}
+		}
+		
+		if (jsonResultClass != null)	{
+			JSONResult jsonResult = task.getResults(jsonResultClass);
 			jsonResultStrings.add(jsonResult.getJSON());
 		} else {
 			Gson gson = new Gson();

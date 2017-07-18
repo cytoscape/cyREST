@@ -226,9 +226,6 @@ public class CyRESTSwagger extends AbstractResource
 			schemes = {SwaggerDefinition.Scheme.HTTP},
 			tags = 
 		{
-
-				@Tag(name = CyRESTSwaggerConfig.APPS_TAG, description="Access to Apps"),
-				@Tag(name = CyRESTSwaggerConfig.APPS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),
@@ -242,9 +239,6 @@ public class CyRESTSwagger extends AbstractResource
 				@Tag(name = CyRESTSwaggerConfig.USER_INTERFACE_TAG),			
 				@Tag(name = CyRESTSwaggerConfig.VISUAL_PROPERTIES_TAG),
 				@Tag(name = CyRESTSwaggerConfig.VISUAL_STYLES_TAG)
-
-
-
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
 			)

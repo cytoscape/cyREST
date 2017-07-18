@@ -323,7 +323,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		@Override
 		public String getDescription() {
 			
-			return "A set of command arguments for ";
+			return "A list of command arguments";
 		}
 
 		@Override

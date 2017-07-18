@@ -89,7 +89,7 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 			if (finishStatus.getException() != null) {
 				 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
 						CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
-						finishStatus.getException().getMessage()
+						finishStatus.getException().getMessage() == null ? finishStatus.getException().toString() : finishStatus.getException().getMessage()
 						);
 			} else {
 				 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 

@@ -44,10 +44,10 @@ public class VisualStyleMapper {
 	private static final String MAPPING_DISCRETE_MAP = "map";
 	private static final String MAPPING_DISCRETE_KEY = "key";
 	private static final String MAPPING_DISCRETE_VALUE = "value";
-	
+
 	public static final String VP_DEPENDENCY = "visualPropertyDependency";
 	public static final String VP_DEPENDENCY_ENABLED = "enabled";
-	
+
 
 	public VisualStyle buildVisualStyle(final MappingFactoryManager factoryManager, final VisualStyleFactory factory,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
@@ -57,11 +57,11 @@ public class VisualStyleMapper {
 
 		final JsonNode defaults = rootNode.get(DEFAULTS);
 		final JsonNode mappings = rootNode.get(MAPPINGS);
-		
+
 		if(defaults != null) {
 			parseDefaults(defaults, style, lexicon);
 		}
-		
+
 		if(mappings != null) {
 			parseMappings(mappings, style, lexicon, factoryManager);
 		}
@@ -72,7 +72,7 @@ public class VisualStyleMapper {
 			final VisualLexicon lexicon, final JsonNode mappings) {
 		parseMappings(mappings, style, lexicon, factoryManager);
 	}
-	
+
 	public void updateStyleName(final VisualStyle style,
 			final VisualLexicon lexicon, final JsonNode rootNode) {
 		final String newTitle = rootNode.get(TITLE).textValue();
@@ -95,7 +95,7 @@ public class VisualStyleMapper {
 			} else {
 				parsedValue = vp.parseSerializableString(value.toString());
 			}
-			
+
 			style.setDefaultValue(vp, parsedValue);
 		}
 	}
@@ -104,7 +104,7 @@ public class VisualStyleMapper {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final void parseMappings(JsonNode mappings, VisualStyle style, VisualLexicon lexicon,
 			MappingFactoryManager factoryManager) {
-		
+
 		for (final JsonNode mapping : mappings) {
 			final String type = mapping.get(MAPPING_TYPE).textValue();
 			final String column = mapping.get(MAPPING_COLUMN).textValue();
@@ -197,14 +197,14 @@ public class VisualStyleMapper {
 			JsonNode lesser = point.get("lesser");
 			JsonNode equal = point.get("equal");
 			JsonNode greater = point.get("greater");
-			
+
 			final BoundaryRangeValues newPoint = 
 					new BoundaryRangeValues(vp.parseSerializableString(lesser.asText()), 
 							vp.parseSerializableString(equal.asText()), 
 							vp.parseSerializableString(greater.asText()));
 			mapping.addPoint(val.asDouble(), newPoint);
 		}
-		
+
 		return mapping;
 	}
 
@@ -214,8 +214,8 @@ public class VisualStyleMapper {
 
 		return (PassthroughMapping) factory.createVisualMappingFunction(columnName, type, vp);
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * Directly update view object.
@@ -239,9 +239,13 @@ public class VisualStyleMapper {
 			} else {
 				parsedValue = vp.parseSerializableString(value.toString());
 			}
-			
+
 			if (bypass){
-				view.setLockedValue(vp, parsedValue);
+				if (parsedValue == null) {
+					view.clearValueLock(vp);
+				} else {
+					view.setLockedValue(vp, parsedValue);
+				}
 			} else {
 				view.setVisualProperty(vp, parsedValue);
 			}
@@ -252,19 +256,19 @@ public class VisualStyleMapper {
 
 	public void updateDependencies(final VisualStyle style, final JsonNode rootNode) {
 		final Set<VisualPropertyDependency<?>> deps = style.getAllVisualPropertyDependencies();
-		
+
 		final Map<String, VisualPropertyDependency<?>> names = new HashMap<>();
 		for(final VisualPropertyDependency<?> dep:deps) {
 			names.put(dep.getIdString(), dep);
 		}
-		
+
 		for (final JsonNode depNode : rootNode) {
 			String depId = depNode.get(VisualStyleMapper.VP_DEPENDENCY).textValue();
 			final VisualPropertyDependency<?> dep = names.get(depId);
 			if(dep == null) {
 				continue;
 			}
-			
+
 			final JsonNode enabled = depNode.get("enabled");
 			if (enabled == null) {
 				continue;

@@ -61,6 +61,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -599,28 +601,23 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update single node/edge view object",
-			notes="By passing a list of key-value pair for each Visual Property, update single node/edge view.\n\n"
-					+ "The body should have the following JSON:\n"
-					+ "```\n"
-					+ "[\n"
-					+ "  {\n"
-					+ "    \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n"
-					+ "    \"value\": \"Serialized form of value, like 'red.'\"\n"
-					+ "  }\n"
-					+ "  ...\n"
-					+ "]\n"
-					+ "```\n\n" 
-					+ "Note that if the Bypass parameter is not present or is false, the API will directly set the "
+			notes="Update a single node/edge view.\n\n"
+					+ "Setting a value to null will reset the VisualProperty. In the case of a bypass property, this "
+					+ "will make the object fall back on the underlying Visual Style.\n\n"
+					+ "If the Bypass parameter is not present or is false, the API will directly set the "
 					+ "value to the view objects, and once a Visual Style is applied, those values will be overridden "
 					+ "by the Visual Style.\n"
 			)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="Array of visualProperties", dataType="[Lorg.cytoscape.rest.internal.model.NetworkViewVisualProperty;", paramType="body", required=true)
+		)
 	public Response updateView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Type of objects", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
 			@ApiParam(value="node/edge SUID (NOT node/edge view SUID)") @PathParam("objectId") Long objectId,
-			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
-			final InputStream is) {
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="true") @QueryParam("bypass") Boolean bypass,
+			@ApiParam(hidden=true) final InputStream is) {
 		
 		final CyNetworkView networkView = getView(networkId, viewId);
 		

@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -561,23 +562,15 @@ public class NetworkViewResource extends AbstractResource {
 					continue;
 				}
 
-				View<? extends CyIdentifiable> view = null;
-				if (objectType.equals("nodes")) {
-					view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-				} else if (objectType.equals("edges")) {
-					view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
-				} 
-				/* This section is never reached due to /{viewId}/network existing as another endpoint.
-				else if(objectType.equals("network")) {
-					view = networkView;
-				}
-				*/
-				else {
+				// This error throw is left over from a previous implementation, and persists to ensure backward compatibility. 
+				if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
 					throw getError("Method not supported.",
 							new IllegalStateException(),
 							Response.Status.INTERNAL_SERVER_ERROR);
 				}
-
+				
+				View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+	
 				if (view == null) {
 					throw getError("Could not find view.",
 							new IllegalArgumentException(),
@@ -602,8 +595,6 @@ public class NetworkViewResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update single node/edge view object",
 			notes="Update a single node/edge view.\n\n"
-					+ "Setting a value to null will reset the VisualProperty. In the case of a bypass property, this "
-					+ "will make the object fall back on the underlying Visual Style.\n\n"
 					+ "If the Bypass parameter is not present or is false, the API will directly set the "
 					+ "value to the view objects, and once a Visual Style is applied, those values will be overridden "
 					+ "by the Visual Style.\n"
@@ -621,12 +612,7 @@ public class NetworkViewResource extends AbstractResource {
 		
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
-		View<? extends CyIdentifiable> view = null;
-		if(objectType.equals("nodes")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-		} else if(objectType.equals("edges")) {
-			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
-		} 
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 		/* This section is never reached due to /{viewId}/network/{visualProperty} existing as another endpoint.
 		else if(objectType.equals("network")) {
 			view = networkView;
@@ -719,19 +705,8 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
-		View<? extends CyIdentifiable> view = null;
-		Collection<VisualProperty<?>> lexicon = null;
-		if(nodeLexicon == null) {
-			initLexicon();
-		}
-		
-		if(objectType.equals("nodes")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-			lexicon = nodeLexicon;
-		} else if(objectType.equals("edges")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-			lexicon = edgeLexicon;
-		}
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+		Collection<VisualProperty<?>> lexicon = getVisualProperties(objectType);
 		
 		if(view == null) {
 			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
@@ -743,8 +718,35 @@ public class NetworkViewResource extends AbstractResource {
 			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-
-
+	
+	private Collection<VisualProperty<?>> getVisualProperties(String objectType) {
+		Collection<VisualProperty<?>> vps = null;
+		
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		if(objectType.equals("nodes")) {
+			vps = nodeLexicon;
+		} else if(objectType.equals("edges")) {
+			vps = edgeLexicon;
+		} else if(objectType.equals("network")) {
+			vps = networkLexicon;
+		}
+		return vps;
+	}
+	
+	private View<? extends CyIdentifiable> getObjectView(CyNetworkView networkView, String objectType, Long objectId) {
+		View<? extends CyIdentifiable> view = null;
+		
+		if(objectType.equals("nodes")) {
+			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+		} else if(objectType.equals("edges")) {
+			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
+		}
+		return view;
+	}
+	
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -753,23 +755,16 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Object SUID") @PathParam("objectId") Long objectId, 
 			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		
-		Collection<VisualProperty<?>> vps = null;
-		View<? extends CyIdentifiable> view = null;
-		if(nodeLexicon == null) {
-			initLexicon();
+		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
+			throw getError("Object type " + objectType + " not recognized", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 		}
 		
-		if(objectType.equals("nodes")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-			vps = nodeLexicon;
-		} else if(objectType.equals("edges")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
-			vps = edgeLexicon;
-		}
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 		
 		if(view == null) {
 			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
@@ -777,7 +772,135 @@ public class NetworkViewResource extends AbstractResource {
 
 		return getSingleVp(visualProperty, view, vps);
 	}
+	
+	@GET
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Get a specific object visual property bypass")
+	public Response getSingleVisualPropertyValueBypass(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="Object SUID") @PathParam("objectId") Long objectId, 
+			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
+			throw getError("Object type " + objectType + " not recognized", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
 
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) {
+				if (view.isDirectlyLocked(vp)) {
+					targetVp = vp;
+					break;
+				} else {
+					return Response.status(Status.NOT_FOUND).build();
+				}
+			}
+		}
+		
+
+		try {
+			return Response.ok(styleSerializer.serializeSingleVisualProp(view, targetVp)).build();
+		} catch (IOException e) {
+			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PUT
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Delete a specific object visual property bypass")
+	public Response putSingleVisualPropertyValueBypass(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty,
+			final InputStream inputStream) {
+		
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) {
+				targetVp = vp;
+				break;
+			}
+		}
+		if(targetVp == null) {
+			 Response.status(Status.NOT_FOUND).build();
+		}
+
+		try {
+			final ObjectMapper objMapper = new ObjectMapper();
+			final JsonNode rootNode = objMapper.readValue(inputStream, JsonNode.class);
+			styleMapper.updateViewVisualProperty(view, rootNode, getLexicon(), true);
+		} catch (Exception e) {
+			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		
+		return Response.noContent().build();
+	}
+	
+	@DELETE
+	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Delete a specific object visual property bypass")
+	public Response deleteSingleVisualPropertyValueBypass(
+			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+		
+		final CyNetworkView networkView = getView(networkId, viewId);
+		
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+		
+		if(view == null) {
+			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+		}
+		
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) {
+				if (view.isDirectlyLocked(vp)) {
+					targetVp = vp;
+					break;
+				} else {
+					return Response.status(Status.NOT_FOUND).build();
+				}
+				
+			}
+		}
+		if(targetVp == null) {
+			throw getError("Could not find such Visual Property: " + visualProperty , new NotFoundException(), Response.Status.NOT_FOUND);
+		}
+
+		view.clearValueLock(targetVp);
+		
+		return Response.noContent().build();
+	}
+	
+	
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -829,18 +952,7 @@ public class NetworkViewResource extends AbstractResource {
 			return Response.ok(result).build();
 		}
 		
-		if(nodeLexicon == null) {
-			initLexicon();
-		}
-		
-		Collection<VisualProperty<?>> vps = null;
-		if(objectType.equals("nodes")) {
-			vps = nodeLexicon;
-		} else if(objectType.equals("edges")) {
-			vps = edgeLexicon;
-		} else if(objectType.equals("network")) {
-			vps = networkLexicon;
-		}
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
 		
 		return Response.ok(getViewForVPList(networkId, viewId, objectType, vps)).build();
 	}

@@ -31,6 +31,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
 import org.cytoscape.view.model.View;
+import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -305,7 +306,145 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals("#000000", vps.get("NODE_BORDER_PAINT"));
 	}
 
-
+	@Test
+	public void testGetViewVisualProperty() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyNode node = network.getNodeList().iterator().next();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		JsonNode n = mapper.readTree(result.readEntity(String.class));
+		assertNotNull(n);
+		System.out.println(n);
+		
+		assertEquals("NODE_BORDER_PAINT", n.get("visualProperty").asText());
+		assertEquals("#000000", n.get("value").asText());
+	
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassGivesNotFound() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyNode node = network.getNodeList().iterator().next();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		
+	
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassReturns() throws Exception {
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NODE_BORDER_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyNode node = network.getNodeList().iterator().next();
+	
+		view.getNodeView(node).setLockedValue(vp, Color.CYAN);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+		
+		JsonNode n = mapper.readTree(result.readEntity(String.class));
+		
+		assertNotNull(n);
+		System.out.println(n);
+		
+		assertEquals("NODE_BORDER_PAINT", n.get("visualProperty").asText());
+		assertEquals("#00FFFF", n.get("value").asText());
+		
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassDeletes() throws Exception {
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NODE_BORDER_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyNode node = network.getNodeList().iterator().next();
+	
+		view.getNodeView(node).setLockedValue(vp, Color.CYAN);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().delete();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(204, result.getStatus());
+		
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
+		
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassPut() throws Exception {
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NODE_BORDER_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyNode node = network.getNodeList().iterator().next();
+		
+		assertFalse(view.getNodeView(node).isDirectlyLocked(vp));
+		assertEquals(view.getNodeView(node).getVisualProperty(vp), Color.black);
+		
+		final String newVal = "{"
+				+ "\"visualProperty\": \"NODE_BORDER_PAINT\","
+				+ "\"value\": \"cyan\" }";
+		
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(204, result.getStatus());
+		assertTrue(view.getNodeView(node).isDirectlyLocked(vp));
+		assertEquals(view.getNodeView(node).getVisualProperty(vp), Color.cyan);
+		
+		
+	}
+	
+	
 	@Test
 	public void testGetNetworkViewVP() throws Exception {
 		final Long suid = network.getSUID();

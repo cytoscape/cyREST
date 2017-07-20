@@ -226,33 +226,32 @@ public class VisualStyleMapper {
 	 */
 	public Response updateView(final View<? extends CyIdentifiable> view, final JsonNode rootNode, final VisualLexicon lexicon, boolean bypass) {
 		for (final JsonNode vpNode : rootNode) {
-			String vpName = vpNode.get(MAPPING_VP).textValue();
-			final VisualProperty<?> vp = getVisualProperty(vpName, lexicon);
-			final JsonNode value = vpNode.get(MAPPING_DISCRETE_VALUE);
-			if (vp == null || value == null ) {
-				continue;
-			}
-
-			Object parsedValue = null;
-			if(value.isTextual()) {
-				parsedValue = vp.parseSerializableString(value.asText());
-			} else {
-				parsedValue = vp.parseSerializableString(value.toString());
-			}
-
-			if (bypass){
-				if (parsedValue == null) {
-					view.clearValueLock(vp);
-				} else {
-					view.setLockedValue(vp, parsedValue);
-				}
-			} else {
-				view.setVisualProperty(vp, parsedValue);
-			}
+			updateViewVisualProperty(view, vpNode, lexicon, bypass);
 		}
 		return Response.ok().build();
 	}
 
+	public void updateViewVisualProperty(final View<? extends CyIdentifiable> view, final JsonNode vpNode, final VisualLexicon lexicon, boolean bypass) {
+		String vpName = vpNode.get(MAPPING_VP).textValue();
+		final VisualProperty<?> vp = getVisualProperty(vpName, lexicon);
+		final JsonNode value = vpNode.get(MAPPING_DISCRETE_VALUE);
+		if (vp == null || value == null ) {
+			return;
+		}
+
+		Object parsedValue = null;
+		if(value.isTextual()) {
+			parsedValue = vp.parseSerializableString(value.asText());
+		} else {
+			parsedValue = vp.parseSerializableString(value.toString());
+		}
+
+		if (bypass){
+			view.setLockedValue(vp, parsedValue);
+		} else {
+			view.setVisualProperty(vp, parsedValue);
+		}
+	}
 
 	public void updateDependencies(final VisualStyle style, final JsonNode rootNode) {
 		final Set<VisualPropertyDependency<?>> deps = style.getAllVisualPropertyDependencies();

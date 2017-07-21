@@ -367,7 +367,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		
 		assertEquals(200, result.getStatus());
 		
-		JsonNode n = mapper.readTree(result.readEntity(String.class));
+		JsonNode n = mapper.readTree(result.readEntity(String.class)).get("data");
 		
 		assertNotNull(n);
 		System.out.println(n);
@@ -398,7 +398,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
 		
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
 		
@@ -437,7 +437,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
 		
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		assertTrue(view.getNodeView(node).isDirectlyLocked(vp));
 		assertEquals(view.getNodeView(node).getVisualProperty(vp), Color.cyan);
 		

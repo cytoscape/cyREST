@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,5 +11,14 @@ import java.util.List;
 public class CIResponse<T> {
 
 	public T data;
-	public List<CIError> errors;
+	public List<CIError> errors; 
+	
+	public CIResponse() {
+		errors = new ArrayList<CIError>();
+	}
+	
+	public CIResponse(T data) {
+		this.data = data;
+		errors = new ArrayList<CIError>();
+	}
 }

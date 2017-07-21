@@ -10,5 +10,5 @@ public class NetworkViewVisualProperty {
 	public String visualProperty;
 	
 	@ApiModelProperty(value = "Serialized form of value, or null", example="red", required=true)
-	public String value;
+	public Object value;
 }

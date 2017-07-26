@@ -7,6 +7,7 @@ import java.util.Set;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -16,6 +17,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 public class GroupSerializer extends JsonSerializer<CyGroup> {
 
+	private final CyNetwork network;
+	
+	public GroupSerializer(CyNetwork network) {
+		this.network = network;
+	}
+	
 	@Override
 	public Class<CyGroup> handledType() {
 		return CyGroup.class;
@@ -35,8 +42,9 @@ public class GroupSerializer extends JsonSerializer<CyGroup> {
 		final Set<CyEdge> externalEdges = group.getExternalEdgeList();
 		jgen.writeNumberField(CyIdentifiable.SUID, groupNode.getSUID());
 
-		// TODO: Bug?  Always false
-//		jgen.writeBooleanField("collapsed", group.isCollapsed(group.getRootNetwork()));
+		if (network != null) {
+			jgen.writeBooleanField("collapsed", group.isCollapsed(network));
+		}
 		
 		jgen.writeArrayFieldStart("nodes");
 		for (final CyNode node : memberNodes) {

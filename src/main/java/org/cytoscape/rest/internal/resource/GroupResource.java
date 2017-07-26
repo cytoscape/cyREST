@@ -94,17 +94,8 @@ public class GroupResource extends AbstractResource {
 			)
 	public String getGroup(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long nodeId) {
-		final CyNetwork network = getCyNetwork(networkId);
-		final CyNode node = network.getNode(nodeId);
-		if (node == null) {
-			throw new NotFoundException("Could not find the node with SUID: " + nodeId);
-		}
-
-		final CyGroup group = groupManager.getGroup(node, network);
-		if (group == null) {
-			throw new NotFoundException("Could not find group.");
-		}
+			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
+		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
@@ -175,19 +166,15 @@ public class GroupResource extends AbstractResource {
 	}
 
 	private final CyGroup getGroupById(final Long networkId, final Long suid) {
+	
 		final CyNetwork network = getCyNetwork(networkId);
-		CyNode node = network.getNode(suid);
-		if (node == null) {
-			node = ((CySubNetwork) network).getRootNetwork().getNode(suid);
-			if (node == null)
-				throw new NotFoundException("Could not find the node with SUID: " + suid);
+	
+		Set<CyGroup> groupSet = groupManager.getGroupSet(network);
+		for (CyGroup group : groupSet) {
+			if (group.getGroupNode().getSUID() == suid)
+				return group;
 		}
-
-		final CyGroup group = groupManager.getGroup(node, network);
-		if (group == null) {
-			throw new NotFoundException("Could not find group.");
-		}
-		return group;
+		throw new NotFoundException("Could not find group.");
 	}
 
 	@POST

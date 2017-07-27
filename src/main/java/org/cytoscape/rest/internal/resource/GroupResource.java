@@ -88,7 +88,7 @@ public class GroupResource extends AbstractResource {
 	@Path("/{groupNodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get a group by SUID",
-		notes="Returns a group the SUID represents."
+		notes="Returns the group the SUID represents."
 			)
 	public String getGroup(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 

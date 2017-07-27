@@ -130,10 +130,13 @@ public class VisualStyleMapper {
 			}
 
 			if (newMapping != null) {
-				if(style.getVisualMappingFunction(vp) != null) {
-					style.removeVisualMappingFunction(vp);
-				}
+				/*
+				 * Note that though the function name here is 'add' the implementation in 
+				 * {@link org.cytoscape.view.vizmap.internal.VisualStyleImpl#addVisualMappingFunction} handles it as 
+				 * a put. Therefore, a delete isn't needed here, and would cause a disconnect between model and UI.
+				 */
 				style.addVisualMappingFunction(newMapping);
+				
 			}
 		}
 	}

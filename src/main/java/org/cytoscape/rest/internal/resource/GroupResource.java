@@ -170,6 +170,8 @@ public class GroupResource extends AbstractResource {
 	
 		final CyNetwork network = getCyNetwork(networkId);
 	
+		//Fun fact: we need to scan the group set to get the group from an SUID, because an un-collapsed group node 
+		//won't be found in the the network. This works whether the group is collapsed or not. 
 		Set<CyGroup> groupSet = groupManager.getGroupSet(network);
 		for (CyGroup group : groupSet) {
 			if (group.getGroupNode().getSUID() == suid)

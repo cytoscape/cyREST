@@ -328,11 +328,16 @@ public class BasicResourceTest extends JerseyTest {
 
 		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		cyGroup = mock(CyGroup.class);
+		when(cyGroup.getNodeList()).thenReturn(Collections.singletonList(network.getNodeList().get(0)));
+		
 		cyGroupNode = mock(CyNode.class);
 		when(cyGroupNode.getSUID()).thenReturn(0l);
 		when(cyGroup.getGroupNode()).thenReturn(cyGroupNode);
 		when(groupFactory.createGroup(any(CyNetwork.class), any(List.class), eq(null), eq(true))).thenReturn(cyGroup);
+		
 		CyGroupManager groupManager = mock(CyGroupManager.class);
+		when(groupManager.getGroupSet(network)).thenReturn(Collections.singleton(cyGroup));
+		
 		loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
 		CyNetworkReader cyNetworkReader = mock(CyNetworkReader.class);
 

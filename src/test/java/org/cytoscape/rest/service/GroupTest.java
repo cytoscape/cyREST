@@ -47,7 +47,7 @@ public class GroupTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isArray());
-		assertEquals(0, root.size());
+		assertEquals(1, root.size());
 	}
 	
 	//TODO Re-implement this test.
@@ -75,10 +75,20 @@ public class GroupTest extends BasicResourceTest {
 		final Long suid = network.getSUID();
 		
 		// This is invalid Group ID
-		final Response result = target("/v1/networks/" + suid + "/groups/11111111").request().get();
+		Response result = target("/v1/networks/" + suid + "/groups/11111111").request().get();
 		assertNotNull(result);
 		assertEquals(404, result.getStatus());
 		// TODO: Create mock
+		result = target("/v1/networks/" + suid + "/groups/" + cyGroupNode.getSUID()).request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		final JsonNode root = mapper.readTree(body);
+	
+		assertEquals(cyGroupNode.getSUID().longValue(), root.get("SUID").asLong());
+		assertEquals(1, root.get("nodes").size());
+		
 	}
 
 
@@ -93,6 +103,6 @@ public class GroupTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isObject());
-		assertEquals(0, root.get("count").asInt());
+		assertEquals(1, root.get("count").asInt());
 	}
 }

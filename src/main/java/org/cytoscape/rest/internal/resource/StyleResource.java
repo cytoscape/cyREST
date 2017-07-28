@@ -458,10 +458,14 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Add a new Visual Mapping", notes="Create a new Visual Mapping function from JSON and add it to the Style.\n\n"
+	@ApiOperation(value="Add a new Visual Mapping", notes="Create a new Visual Mapping function from JSON and add it to "
+				+"the Style.\n\n"
+				+ "will be overidden."
 				+ "#### Discrete Mapping\n"
 				+ "#### Continuous Mapping\n"
-				+ "#### Passthrough Mapping\n"
+				+ "#### Passthrough Mapping\n\n"
+				+ "\n\n Note that if a mapping already exists for the visual property, the previous mapping will be "
+				+ "overidden."
 			)
 	public Response createMappings(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name,
@@ -501,7 +505,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings/{vp}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update an existing Visual Mapping",
-			notes="Currently, this is same as POST; it simply replaces existing mapping. You need to send complete information for the new mappings.")
+			notes="Update an existing mapping.")
 	public Response updateMapping(
 			@ApiParam(value="Name of visual Style") @PathParam("name") String name,  
 			@ApiParam(value="Target Visual Property") @PathParam("vp") String vp, 

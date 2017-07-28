@@ -5,7 +5,9 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.ws.rs.client.Entity;
@@ -105,4 +107,41 @@ public class GroupTest extends BasicResourceTest {
 		assertTrue(root.isObject());
 		assertEquals(1, root.get("count").asInt());
 	}
+	
+	@Test
+	public void testCollapseGroup() throws Exception {
+		final Long suid = network.getSUID();
+		
+		assertNull(cyGroupCollapseCalled);
+		
+		// This is invalid Group ID
+		Response result = target("/v1/networks/" + suid + "/groups/11111111/collapse").request().get();
+		assertNotNull(result);
+		assertEquals(404, result.getStatus());
+		// TODO: Create mock
+		result = target("/v1/networks/" + suid + "/groups/" + cyGroupNode.getSUID() + "/collapse").request().get();
+		assertNotNull(result);
+		assertEquals(204, result.getStatus());
+		
+		assertTrue(cyGroupCollapseCalled);
+	}
+
+	@Test
+	public void testExpandGroup() throws Exception {
+		final Long suid = network.getSUID();
+		
+		assertNull(cyGroupCollapseCalled);
+		
+		// This is invalid Group ID
+		Response result = target("/v1/networks/" + suid + "/groups/11111111/collapse").request().get();
+		assertNotNull(result);
+		assertEquals(404, result.getStatus());
+		// TODO: Create mock
+		result = target("/v1/networks/" + suid + "/groups/" + cyGroupNode.getSUID() + "/expand").request().get();
+		assertNotNull(result);
+		assertEquals(204, result.getStatus());
+		
+		assertFalse(cyGroupCollapseCalled);
+	}
+	
 }

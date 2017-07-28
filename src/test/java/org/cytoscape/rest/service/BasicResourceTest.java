@@ -161,6 +161,9 @@ public class BasicResourceTest extends JerseyTest {
 	protected final CoreServiceModule binder;
 
 	CyGroup cyGroup;
+	
+	protected Boolean cyGroupCollapseCalled = null;
+	
 	CyNode cyGroupNode;
 
 	protected CyRootNetworkManager rootNetworkManager;
@@ -219,7 +222,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected final String cyRESTPort = "1234";
 
 	protected final String logLocation = "dummyLogLocation";
-
+	
 	protected interface DummyCyWriter extends CyWriter
 	{
 		public BoundedDouble getZoom();
@@ -333,6 +336,29 @@ public class BasicResourceTest extends JerseyTest {
 		cyGroupNode = mock(CyNode.class);
 		when(cyGroupNode.getSUID()).thenReturn(0l);
 		when(cyGroup.getGroupNode()).thenReturn(cyGroupNode);
+		
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					cyGroupCollapseCalled = true;
+					return null;
+				}
+			}).when(cyGroup).collapse(network);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					cyGroupCollapseCalled = false;
+					return null;
+				}
+			}).when(cyGroup).expand(network);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		when(groupFactory.createGroup(any(CyNetwork.class), any(List.class), eq(null), eq(true))).thenReturn(cyGroup);
 		
 		CyGroupManager groupManager = mock(CyGroupManager.class);
@@ -646,7 +672,6 @@ public class BasicResourceTest extends JerseyTest {
 		when(serviceRegistrar.getService(CyApplicationManager.class)).thenReturn(applicationMgr);
 
 		VisualStyleFactory vsFactory = new VisualStyleFactoryImpl(serviceRegistrar, ptFactory);
-
 		return vsFactory.createVisualStyle("vs1");
 	}
 

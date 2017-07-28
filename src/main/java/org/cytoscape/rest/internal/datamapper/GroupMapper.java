@@ -28,7 +28,13 @@ public class GroupMapper {
 	public CyGroup createGroup(final JsonNode rootNode, final CyGroupFactory factory, final CyNetwork network) {
 		
 		// Extract required fields: member nodes and name of new node.
-		final String groupName = rootNode.get(CyNetwork.NAME).textValue();
+		final String groupName;
+		final JsonNode groupNameNode = rootNode.get(CyNetwork.NAME);
+		if (groupNameNode != null) {
+			groupName = groupNameNode.textValue();
+		} else {
+			groupName = null;
+		}
 		final JsonNode memberNodes = rootNode.get("nodes");
 		
 		// This is optional.

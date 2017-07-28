@@ -8,25 +8,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.ToDoubleBiFunction;
-import java.util.stream.Collectors;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.view.model.DiscreteRange;
 import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.values.VisualPropertyValue;
+import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.mappings.ContinuousMapping;
 import org.cytoscape.view.vizmap.mappings.ContinuousMappingPoint;
+import org.cytoscape.view.vizmap.mappings.DiscreteMapping;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
@@ -347,6 +343,8 @@ public class StyleResourceTest extends BasicResourceTest {
 				+ "]}"
 				+ "]";
 
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
 		// Test String column
 		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
@@ -354,7 +352,18 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(201, result.getStatus());
 		System.out.println("res: " + result.toString());
-
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(String.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
 	}
 
 
@@ -421,7 +430,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertFalse(result.getStatus() == 500);
 		assertEquals(200, result.getStatus());
 		System.out.println("res: " + result.toString());
-
+		
 		final String nodeTooltipMapping = "[{"
 				+ "\"mappingType\": \"passthrough\","
 				+ "\"mappingColumn\": \"name\","

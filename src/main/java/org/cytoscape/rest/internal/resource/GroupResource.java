@@ -20,8 +20,6 @@ import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
-import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
 import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.serializer.GroupModule;
@@ -40,7 +38,7 @@ import io.swagger.annotations.ApiParam;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.GROUPS_TAG})
 public class GroupResource extends AbstractResource {
 
-	private final ObjectMapper groupMapper;
+
 	private final GroupMapper mapper;
 
 	@Inject
@@ -51,8 +49,6 @@ public class GroupResource extends AbstractResource {
 
 	public GroupResource() {
 		super();
-		this.groupMapper = new ObjectMapper();
-		this.groupMapper.registerModule(new GroupModule());
 		this.mapper = new GroupMapper();
 	}
 
@@ -67,7 +63,9 @@ public class GroupResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
-			return this.groupMapper.writeValueAsString(groups);
+			ObjectMapper groupMapper = new ObjectMapper();
+			groupMapper.registerModule(new GroupModule(network));
+			return groupMapper.writeValueAsString(groups);
 		} catch (JsonProcessingException e) {
 			throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -89,23 +87,17 @@ public class GroupResource extends AbstractResource {
 	@GET
 	@Path("/{groupNodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get group for a node",
-		notes="Returns a group the node belongs to."
+	@ApiOperation(value = "Get a group by SUID",
+		notes="Returns the group the SUID represents."
 			)
 	public String getGroup(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long nodeId) {
+			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		final CyNode node = network.getNode(nodeId);
-		if (node == null) {
-			throw new NotFoundException("Could not find the node with SUID: " + nodeId);
-		}
-
-		final CyGroup group = groupManager.getGroup(node, network);
-		if (group == null) {
-			throw new NotFoundException("Could not find group.");
-		}
+		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
+			ObjectMapper groupMapper = new ObjectMapper();
+			groupMapper.registerModule(new GroupModule(network));
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
 			throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -175,19 +167,17 @@ public class GroupResource extends AbstractResource {
 	}
 
 	private final CyGroup getGroupById(final Long networkId, final Long suid) {
+	
 		final CyNetwork network = getCyNetwork(networkId);
-		CyNode node = network.getNode(suid);
-		if (node == null) {
-			node = ((CySubNetwork) network).getRootNetwork().getNode(suid);
-			if (node == null)
-				throw new NotFoundException("Could not find the node with SUID: " + suid);
+	
+		//Fun fact: we need to scan the group set to get the group from an SUID, because an un-collapsed group node 
+		//won't be found in the the network. This works whether the group is collapsed or not. 
+		Set<CyGroup> groupSet = groupManager.getGroupSet(network);
+		for (CyGroup group : groupSet) {
+			if (group.getGroupNode().getSUID() == suid)
+				return group;
 		}
-
-		final CyGroup group = groupManager.getGroup(node, network);
-		if (group == null) {
-			throw new NotFoundException("Could not find group.");
-		}
-		return group;
+		throw new NotFoundException("Could not find group.");
 	}
 
 	@POST

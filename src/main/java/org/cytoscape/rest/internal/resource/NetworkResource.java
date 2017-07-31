@@ -130,48 +130,6 @@ public class NetworkResource extends AbstractResource {
 		return Response.ok(result).build();
 	}
 
-	private final Collection<Long> getByQuery(final Long id, final String objType, final String column,
-			final String query) {
-		final CyNetwork network = getCyNetwork(id);
-		CyTable table = null;
-
-		List<? extends CyIdentifiable> graphObjects;
-		if (objType.equals("nodes")) {
-			table = network.getDefaultNodeTable();
-			graphObjects = network.getNodeList();
-		} else if (objType.equals("edges")) {
-			table = network.getDefaultEdgeTable();
-			graphObjects = network.getEdgeList();
-		} else {
-			throw getError("Invalid graph object type: " + objType, new IllegalArgumentException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
-		}
-
-		if (query == null && column == null) {
-			// Simply return rows
-			return graphObjects.stream()
-					.map(obj->obj.getSUID())
-					.collect(Collectors.toList());
-		} else if (query == null || column == null) {
-			throw getError("Missing query parameter.", new IllegalArgumentException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
-		} else {
-			Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
-			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
-			final Set<Long> selectedSuid = rows.stream()
-					.map(row->row.get(CyIdentifiable.SUID, Long.class))
-					.collect(Collectors.toSet());
-
-			final Set<Long> allSuid = graphObjects.stream()
-					.map(obj->obj.getSUID())
-					.collect(Collectors.toSet());
-			// Return intersection
-			allSuid.retainAll(selectedSuid);
-			return allSuid;
-		}
-
-	}
-
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

@@ -26,7 +26,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -527,6 +526,128 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 
+	@POST
+	@Path("/{viewId}/{objectType}/query")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Post Visual Properties for objects matching a query", notes="")
+	public Response postViewsByQuery(
+			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId,
+			@ApiParam(value="Network View SUID", required=true) @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
+			@ApiParam(value="Node table column name to be used for search", required=false) @QueryParam("column") String column,
+			@ApiParam(value="Search query string", required=false) @QueryParam("query") String query,
+			final InputStream is
+			)
+	{
+		final CyNetworkView networkView = getView(networkId, viewId);
+
+		final ObjectMapper objMapper = new ObjectMapper();
+
+		if (bypass == null) {
+			bypass = false;
+		}
+
+		Collection<Long> matchingObjects = getByQuery(networkId, "nodes", column, query);
+		try {
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+
+			for (long objectId : matchingObjects) {
+				setVisualProperty(networkView, objectType, objectId, rootNode, bypass);
+			}
+
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR)
+					.entity(CIUtils.getCIErrorResponse(
+							logger, logLocation, Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+							RESOURCE_URN, INVALID_PARAMETER_ERROR, 
+							"Could not parse the input JSON for updating view. Reason: " + e.getMessage(), e))
+					.build();	
+		}
+		return Response.ok().entity(new CIResponse<Object>(new Object())).build();
+	}
+
+	@DELETE
+	@Path("/{viewId}/{objectType}/query")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Delete Visual Properties for objects matching a query", notes="")
+	public Response deleteViewsByQuery(
+			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId,
+			@ApiParam(value="Network View SUID", required=true) @PathParam("viewId") Long viewId,
+			@ApiParam(value="Object Type", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Visual Property", required=true) @QueryParam("visualProperty") String visualProperty,
+			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="true") @QueryParam("bypass") Boolean bypass,
+			@ApiParam(value="Node table column name to be used for search", required=false) @QueryParam("column") String column,
+			@ApiParam(value="Search query string", required=false) @QueryParam("query") String query
+			)
+	{
+		CyNetworkView networkView = null;
+		try {
+			networkView = getView(networkId, viewId);
+		} catch(NotFoundException e) {
+			return Response.status(Status.NOT_FOUND)
+					.entity(CIUtils.getCIErrorResponse(
+							logger, logLocation, Status.NOT_FOUND.getStatusCode(), 
+							RESOURCE_URN, COULD_NOT_FIND_RESOURCE_ERROR, 
+							e.getMessage(), null))
+					.build();
+		}
+		if (bypass == null) {
+			bypass = false;
+		}
+
+		Collection<Long> matchingObjects = getByQuery(networkId, "nodes", column, query);
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) { 
+				targetVp = vp;
+			}
+		}
+		
+		if (targetVp == null) {
+			return Response.status(Status.NOT_FOUND)
+					.entity(CIUtils.getCIErrorResponse(
+							logger, logLocation, Status.NOT_FOUND.getStatusCode(), 
+							RESOURCE_URN, COULD_NOT_FIND_RESOURCE_ERROR, 
+							"Could not find visual property: " + visualProperty, null))
+					.build();	
+		}
+		
+		for (long objectId : matchingObjects) {
+			View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+			if (view.isValueLocked(targetVp) && bypass) {
+			view.clearValueLock(targetVp); }
+			//Not
+		}
+		
+		return Response.ok().entity(new CIResponse<Object>(new Object())).build();
+	}
+	
+	private void setVisualProperty(CyNetworkView networkView, String objectType, long objectId, JsonNode viewNode, boolean bypass) {
+
+		if(viewNode == null) {
+			return;
+		}
+
+		// This error throw is left over from a previous implementation, and persists to ensure backward compatibility. 
+		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
+			throw getError("Method not supported.",
+					new IllegalStateException(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		}
+
+		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
+
+		if (view == null) {
+			throw getError("Could not find view.",
+					new IllegalArgumentException(),
+					Response.Status.NOT_FOUND);
+		}
+		styleMapper.updateView(view, viewNode, getLexicon(), bypass);
+	}
+
 	@PUT
 	@Path("/{viewId}/{objectType}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -575,25 +696,10 @@ public class NetworkViewResource extends AbstractResource {
 			for (JsonNode entry : rootNode) {
 				final Long objectId = entry.get(CyIdentifiable.SUID).asLong();
 				final JsonNode viewNode = entry.get("view");
-				if(objectId == null || viewNode == null) {
+				if(objectId == null) {
 					continue;
 				}
-
-				// This error throw is left over from a previous implementation, and persists to ensure backward compatibility. 
-				if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
-					throw getError("Method not supported.",
-							new IllegalStateException(),
-							Response.Status.INTERNAL_SERVER_ERROR);
-				}
-
-				View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
-
-				if (view == null) {
-					throw getError("Could not find view.",
-							new IllegalArgumentException(),
-							Response.Status.NOT_FOUND);
-				}
-				styleMapper.updateView(view, viewNode, getLexicon(), bypass);
+				setVisualProperty(networkView, objectType, objectId, viewNode, bypass);
 			}
 
 			// Repaint
@@ -925,9 +1031,9 @@ public class NetworkViewResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(inputStream, JsonNode.class);
 			styleMapper.updateViewVisualProperty(view, rootNode, getLexicon(), true);
 		} catch (Exception e) {
-			return Response.status(Status.NOT_FOUND)
+			return Response.status(Status.INTERNAL_SERVER_ERROR)
 					.entity(CIUtils.getCIErrorResponse(
-							logger, logLocation, Status.NOT_FOUND.getStatusCode(), 
+							logger, logLocation, Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 							RESOURCE_URN, INVALID_PARAMETER_ERROR, 
 							"Could not parse the input JSON for updating view. Reason: " + e.getMessage(), e))
 					.build();	
@@ -988,7 +1094,6 @@ public class NetworkViewResource extends AbstractResource {
 									"Could not find bypass visual property: " + visualProperty, null))
 							.build();
 				}
-
 			}
 		}
 		if(targetVp == null) {

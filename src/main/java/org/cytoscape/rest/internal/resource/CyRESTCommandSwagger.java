@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +39,6 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.jaxrs.Reader;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.config.ReaderListener;
-import io.swagger.models.ArrayModel;
-import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Response;
@@ -269,7 +266,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 			parameter.setDescription(longDescription);
 
-			String example = available.getArgDefaultStringValue(namespace, command, argumentName);
+			String example = available.getArgExampleStringValue(namespace, command, argumentName);
 			if (example != null && example.length() > 0) {
 				parameter.setExample(example);
 			}
@@ -311,7 +308,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 				Property property = new StringProperty();
 				property.setName(argument);
 				property.setDescription(available.getArgLongDescription(namespace, command, argument));
-				String defaultString = available.getArgDefaultStringValue(namespace, command, argument);
+				String defaultString = available.getArgExampleStringValue(namespace, command, argument);
 				if (defaultString != null && defaultString.length() > 0) {
 					property.setDefault(defaultString);
 				}

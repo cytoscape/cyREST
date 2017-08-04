@@ -173,24 +173,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 					if (JSONResult.class.isAssignableFrom(resultClass)){
 						isJSONCapable = true;
 						
-						for (Method method: resultClass.getDeclaredMethods()) {
-							for (Annotation annotation : method.getDeclaredAnnotations()) {
-								System.out.println(resultClass.getName() + " " + method.getName() + " " + annotation.annotationType().getName());
-							}
-						}
-						
 						Method getJSONMethod;
 						try {
 							getJSONMethod = resultClass.getMethod("getJSON");
-						
-							
-							if (getJSONMethod != null) {
-								System.out.println("getJSON method found for class " + resultClass.getName());
-							}
-							
-							for (Annotation annotation : getJSONMethod.getAnnotations()) {
-								System.out.println("\tgetJSON annotation: " + annotation.annotationType().getName());
-							}
 							
 							ExampleJSONString exampleJSONString = getJSONMethod.getAnnotation(ExampleJSONString.class);
 						

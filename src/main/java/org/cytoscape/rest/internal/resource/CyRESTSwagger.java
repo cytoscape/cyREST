@@ -113,7 +113,7 @@ public class CyRESTSwagger extends AbstractResource
 		Map<String, io.swagger.models.Path> paths = swagger.getPaths();
 		if (paths != null)
 			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
-
+				try {
 				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
 				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
 
@@ -138,6 +138,10 @@ public class CyRESTSwagger extends AbstractResource
 							}
 						}
 					}
+				}
+				} catch (Exception e)
+				{
+					e.printStackTrace();
 				}
 			}
 	}

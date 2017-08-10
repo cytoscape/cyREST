@@ -1,6 +1,5 @@
 package org.cytoscape.rest.internal;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,72 +13,58 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.json.CyJSONUtil;
+import org.cytoscape.rest.internal.resource.JsonTags;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 public class CyJSONUtilImpl implements CyJSONUtil{
 
 	private final Gson gson;
 
-	private final JsonSerializer<CyRow> cyRowSerializer = new JsonSerializer<CyRow>() {
-		@Override
-		public JsonElement serialize(CyRow arg0, Type arg1, JsonSerializationContext arg2) {
-			JsonObject object = new JsonObject();
-			for (Map.Entry<String, Object> entry : arg0.getAllValues().entrySet()) {
-				if (entry.getValue() instanceof List) {
-					JsonArray listObject = new JsonArray();
-					for (Object value : (List<?>)entry.getValue()) {
-						if (value instanceof Number) {
-							listObject.add(new JsonPrimitive((Number) value));
-						} else if (value instanceof String) {
-							listObject.add(new JsonPrimitive((String) value));
-						} else if (value instanceof Boolean) {
-							listObject.add(new JsonPrimitive((Boolean) value));
-						}
-					}
-					object.add(entry.getKey(), listObject);
-				} else {
-					setProperty(object, entry.getKey(), entry.getValue());
-				}
-			}
-			return object;
+	private JsonObject serialize(CyRow cyRow) {
+		JsonObject object = new JsonObject();
+		for (Map.Entry<String, Object> entry : cyRow.getAllValues().entrySet()) {
+			object.add(entry.getKey(), serializeCell(entry.getValue()));
 		}
-		
-		private void setProperty(JsonObject object, String key, Object value) {
-			if (value instanceof Number) {
-				object.addProperty(key, (Number)value); 
-			} else if (value instanceof String) {
-				object.addProperty(key, (String)value); 
-			} else if (value instanceof Boolean) {
-				object.addProperty(key, (Boolean) value);
-			}
-		}
-	};
+		return object;
+	}
 	
-	private final JsonSerializer<CyTable> cyTableSerializer = new JsonSerializer<CyTable>() {
-		@Override
-		public JsonElement serialize(CyTable arg0, Type arg1, JsonSerializationContext arg2) {
-			JsonObject object = new JsonObject();
+	private JsonElement serializeCell(Object object) {
+		if (object instanceof List) {
 			JsonArray listObject = new JsonArray();
-			for (CyRow row : arg0.getAllRows()) {
-				listObject.add(arg2.serialize(row));
+			for (Object value : (List<?>)object) {
+				listObject.add(getPrimitive(value));
 			}
-			object.add("rows", listObject);
-			return object;
+			return listObject;
+		} else {
+			return getPrimitive(object);
 		}
-	};
+	}
+	
+	private JsonElement getPrimitive(Object object) {
+		if ( object instanceof Number) {
+			return new JsonPrimitive((Number) object);
+		} else if (object instanceof String) {
+			return new JsonPrimitive((String) object);
+		} else if (object instanceof Boolean) {
+			return new JsonPrimitive((Boolean) object);
+		} else if (object == null) {
+			return JsonNull.INSTANCE;
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
 	
 	public CyJSONUtilImpl() {
-		gson = new GsonBuilder().registerTypeAdapter(CyRow.class, cyRowSerializer)
-				.registerTypeAdapter(CyTable.class, cyTableSerializer)
-				.setPrettyPrinting().create();
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.serializeNulls().setPrettyPrinting();
+		gson = gsonBuilder.create();
 	}
 
 	@Override
@@ -88,7 +73,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	}
 
 	@Override
-	public String toJson(Collection<CyIdentifiable> collection) {
+	public String toJson(Collection<? extends CyIdentifiable> collection) {
 		final List<Long> list = collection.stream()
 				.map(obj->obj.getSUID())
 				.collect(Collectors.toList());
@@ -104,29 +89,60 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	@Override
 	public String toJson(CyNetwork cyNetwork, CyEdge cyEdge) {
 		CyRow row = cyNetwork.getRow(cyEdge);
-		return toJson(row);
+		JsonObject object = serialize(row);
+		object.addProperty("source", cyEdge.getSource().getSUID());
+		object.addProperty("target", cyEdge.getSource().getSUID());
+		return gson.toJson(object);
 	}
 
 	@Override
 	public String toJson(CyNetwork cyNetwork) {
-		// TODO Auto-generated method stub
-		return null;
+		CyRow row = cyNetwork.getRow(cyNetwork);
+		return toJson(row);
 	}
 
 	@Override
-	public String toJson(CyTable cyTable) {
-		return gson.toJson(cyTable);
+	public String toJson(CyTable cyTable, boolean includeDefinition, boolean includeRows) {
+		JsonObject object = new JsonObject();
+		if (includeDefinition) {
+			object.addProperty("SUID", cyTable.getSUID());
+			object.addProperty("title", cyTable.getTitle());
+			object.addProperty("public", cyTable.isPublic());
+			object.addProperty("mutable", cyTable.getMutability().name());
+			object.addProperty("primaryKey", cyTable.getPrimaryKey().getName());
+		}
+		if (includeRows) {
+			JsonArray listObject = new JsonArray();
+			for (CyRow row : cyTable.getAllRows()) {
+				listObject.add(serialize(row));
+			}
+			object.add("rows", listObject);
+		}
+		return gson.toJson(object);
 	}
 
 	@Override
-	public String toJson(CyColumn cyColumn) {
-		// TODO Auto-generated method stub
-		return null;
+	public String toJson(CyColumn cyColumn, boolean includeDefinition, boolean includeValues) {
+		JsonObject object = new JsonObject();
+		if (includeDefinition) {
+			object.addProperty(JsonTags.COLUMN_NAME, cyColumn.getName());
+			object.addProperty(JsonTags.COLUMN_TYPE, cyColumn.getType().getSimpleName());
+			object.addProperty(JsonTags.COLUMN_IMMUTABLE,cyColumn.isImmutable());
+			object.addProperty(JsonTags.PRIMARY_KEY, cyColumn.isPrimaryKey());
+		}
+		if (includeValues) {
+			JsonArray listObject = new JsonArray();
+			for (CyRow row : cyColumn.getTable().getAllRows()) {
+				listObject.add(serializeCell(row.get(cyColumn.getName(), cyColumn.getType())));
+			}
+			object.add("values", listObject);
+		}
+		return gson.toJson(object);
 	}
 
 	@Override
 	public String toJson(CyRow cyRow) {
-		return gson.toJson(cyRow, CyRow.class);
+		return gson.toJson(serialize(cyRow));
 	}
 
 }

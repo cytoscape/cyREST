@@ -20,9 +20,9 @@ public class CIResponseFilter implements ContainerResponseFilter {
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
 
 		boolean hasCIWrapperAnnotation = false;
-		
+
 		Annotation[] annotations = response.getEntityAnnotations();
-	
+
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().equals(CIWrapping.class)) {
 				hasCIWrapperAnnotation = true;
@@ -33,19 +33,24 @@ public class CIResponseFilter implements ContainerResponseFilter {
 				|| hasCIWrapperAnnotation
 				)
 		{
-
 			Object object = response.getEntity();
 			if (!(object instanceof CIResponse)) { //If the response isn't a CI response, wrap it.
 				if (response.getStatus() >= 200 && response.getStatus() <= 300) { //Success; wrap any returned data
-					try {
-						CIResponse<Object> ciResponse = CIResponse.class.newInstance();
-						ciResponse.data = object;
-						ciResponse.errors = new ArrayList<CIError>();
-						response.setEntity(ciResponse);
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+
+					if (object instanceof String) {
+						String wrappedObject = "{\n   \"data\":" + object + ",\n   \"errors\":[]\n}";
+						response.setEntity(wrappedObject);
+					} else {
+						try {
+							CIResponse<Object> ciResponse = CIResponse.class.newInstance();
+							ciResponse.data = object;
+							ciResponse.errors = new ArrayList<CIError>();
+							response.setEntity(ciResponse);
+						} catch (InstantiationException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 				else if (response.getStatus() >= 400 && response.getStatus() <= 600) { //Something went wrong; produce an error

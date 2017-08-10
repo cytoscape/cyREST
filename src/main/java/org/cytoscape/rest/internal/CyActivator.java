@@ -34,6 +34,7 @@ import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.json.CyJSONUtil;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
@@ -124,6 +125,8 @@ public class CyActivator extends AbstractCyActivator {
 		}
 		
 		this.registerService(bc, new CIErrorFactoryImpl(this.logLocation), CIErrorFactory.class, new Properties());
+		
+		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
 		
 		serverState = ServerState.STARTING;
 

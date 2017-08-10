@@ -453,7 +453,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 						<Cytoscape-App-Dependencies>CX Support;2.1.0</Cytoscape-App-Dependencies>
 					</instructions>
@@ -600,6 +600,12 @@
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>group-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>model-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>

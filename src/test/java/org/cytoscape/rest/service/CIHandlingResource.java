@@ -50,7 +50,7 @@ public class CIHandlingResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@CIWrapping
 	public Response successFromStringResponse() {
-		return Response.ok("Hello!", MediaType.APPLICATION_JSON).build();
+		return Response.ok("\"Hello!\"", MediaType.APPLICATION_JSON).build();
 	}
 	
 	@Path("/fail")

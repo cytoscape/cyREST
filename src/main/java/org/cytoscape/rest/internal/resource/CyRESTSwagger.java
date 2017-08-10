@@ -108,12 +108,11 @@ public class CyRESTSwagger extends AbstractResource
 		}
 	}
 
-
 	private void wrapCIResponses(Swagger swagger) {
 		Map<String, io.swagger.models.Path> paths = swagger.getPaths();
 		if (paths != null)
 			for (Map.Entry<String, io.swagger.models.Path> pathEntry : paths.entrySet()) {
-
+				try {
 				Map<HttpMethod, Operation> operationMap = pathEntry.getValue().getOperationMap();
 				for (Map.Entry<HttpMethod, Operation> operationEntry : operationMap.entrySet()) {
 
@@ -122,9 +121,10 @@ public class CyRESTSwagger extends AbstractResource
 					if (ciExtension != null && ciExtension instanceof Map) {
 						Map<?,?> map = (Map<?, ?>) ciExtension;
 						if (CISwaggerConstants.TRUE.equals(map.get(CISwaggerConstants.CI_EXTENSION_CI_WRAPPING))) {
-							System.out.println("ci-extension class:"  + ciExtension.getClass());
+						
 							for (Map.Entry<String, Response> responseEntry : operationEntry.getValue().getResponses().entrySet()) {
-								System.out.println("Wrapping Response: " + responseEntry.getKey());
+								
+								//System.out.println("Wrapping " + responseEntry.getKey() + " response for path " + pathEntry.getKey() + " data model:" + responseEntry.getValue().getDescription());
 
 								Map<String, Property> propertyMap = new HashMap<String, Property>();
 								propertyMap.put("data", responseEntry.getValue().getSchema());
@@ -138,6 +138,10 @@ public class CyRESTSwagger extends AbstractResource
 							}
 						}
 					}
+				}
+				} catch (Exception e)
+				{
+					e.printStackTrace();
 				}
 			}
 	}

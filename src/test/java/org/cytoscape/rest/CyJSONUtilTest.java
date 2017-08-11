@@ -50,7 +50,7 @@ public class CyJSONUtilTest {
 		list.add(nodeA);
 		list.add(nodeB);
 		
-		String jsonString = jsonUtil.toJson(list);
+		String jsonString = jsonUtil.cyIdentifiablesToJson(list);
 		JsonElement rootElement = parser.parse(jsonString);
 		assertEquals(13l, rootElement.getAsJsonArray().get(0).getAsLong());
 		assertEquals(14l, rootElement.getAsJsonArray().get(1).getAsLong());

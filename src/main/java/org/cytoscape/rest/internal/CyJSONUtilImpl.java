@@ -34,7 +34,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 		}
 		return object;
 	}
-	
+
 	private JsonElement serializeCell(Object object) {
 		if (object instanceof List) {
 			JsonArray listObject = new JsonArray();
@@ -46,7 +46,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 			return getPrimitive(object);
 		}
 	}
-	
+
 	private JsonElement getPrimitive(Object object) {
 		if ( object instanceof Number) {
 			return new JsonPrimitive((Number) object);
@@ -60,7 +60,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
 	public CyJSONUtilImpl() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.serializeNulls().setPrettyPrinting();
@@ -73,7 +73,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	}
 
 	@Override
-	public String toJson(Collection<? extends CyIdentifiable> collection) {
+	public String cyIdentifiablesToJson(Collection<? extends CyIdentifiable> collection) {
 		final List<Long> list = collection.stream()
 				.map(obj->obj.getSUID())
 				.collect(Collectors.toList());
@@ -143,6 +143,16 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	@Override
 	public String toJson(CyRow cyRow) {
 		return gson.toJson(serialize(cyRow));
+	}
+
+	@Override
+	public String cyColumnsToJson(Collection<CyColumn> collection) {
+		JsonArray listObject = new JsonArray();
+
+		for (CyColumn column : collection) {
+			listObject.add(new JsonPrimitive(column.getName()));
+		}
+		return gson.toJson(listObject);
 	}
 
 }

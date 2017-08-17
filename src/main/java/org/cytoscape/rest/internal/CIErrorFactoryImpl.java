@@ -1,6 +1,5 @@
 package org.cytoscape.rest.internal;
 
-import java.io.File;
 import java.net.URI;
 
 import org.cytoscape.ci.CIErrorFactory;
@@ -26,7 +25,9 @@ public class CIErrorFactoryImpl implements CIErrorFactory {
 
 	@Override
 	public CIError getCIError(Integer status, String type, String message) {
-		System.out.println("CIError source thread:" + Thread.currentThread().getName());
+		// Note: for efficient lookup in the log files, JAX-RS resources are all executed in their own threads. 
+		// The thread name, accessed in the commented code below, could be used to sift through log entries.
+		// System.out.println("CIError source thread:" + Thread.currentThread().getName());
 		CIError error = new CIError();
 		error.status = status;
 		error.type = type;

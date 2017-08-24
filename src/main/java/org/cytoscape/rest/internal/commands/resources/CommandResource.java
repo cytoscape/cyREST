@@ -56,7 +56,7 @@ public class CommandResource
 	@Inject
 	@LogLocation
 	URI logLocation;
-	
+
 	@Inject
 	@NotNull
 	private AvailableCommands available;
@@ -70,14 +70,14 @@ public class CommandResource
 	private SynchronousTaskManager<?> taskManager;
 
 
-	
+
 
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value="List all available command namespaces",
-			notes="Method handling HTTP GET requests to enumerate all namespaces. The"
-	 + " returned list will be sent to the client as \"text/plain\" media type.")
+	notes="Method handling HTTP GET requests to enumerate all namespaces. The"
+			+ " returned list will be sent to the client as \"text/plain\" media type.")
 	public String enumerateNamespaces() {
 		final MessageHandler handler = new TextPlainHandler();
 		final List<String> namespaces = available.getNamespaces();
@@ -119,7 +119,7 @@ public class CommandResource
 	@Path("/{namespace}")
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value="List all available commands in a namespace",
-			notes="Method to enumerate all commands for a given namespace. The"
+	notes="Method to enumerate all commands for a given namespace. The"
 			+ " returned list will be sent to the client as \"text/plain\" media type.")
 	public String enumerateCommands(@PathParam("namespace") String namespace) {
 		final MessageHandler handler = new TextPlainHandler();
@@ -147,7 +147,7 @@ public class CommandResource
 	@Produces(MediaType.TEXT_HTML)
 	@ApiOperation(value="List all available commands in a namespace",
 	notes="Method to enumerate all commands for a given namespace. The"
-	+ " returned list will be sent to the client as \"text/html\" media type.")
+			+ " returned list will be sent to the client as \"text/html\" media type.")
 	public String enumerateHTMLCommands(@PathParam("namespace") String namespace) {
 		final MessageHandler handler = new TextHTMLHandler();
 		final List<String> commands = available.getCommands(namespace);
@@ -167,14 +167,14 @@ public class CommandResource
 	@Path("/{namespace}/{command}")
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value="Execute a command or list its arguments",
-			notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
-					+ "command if query strings are provided.\n\nReturns a list of arguments as text/plain or the "
-					+ "results of executing the command.")
+	notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
+			+ "command if query strings are provided.\n\nReturns a list of arguments as text/plain or the "
+			+ "results of executing the command.")
 	public String handleCommand(
 			@ApiParam(value="Command Namespace") @PathParam("namespace") String namespace,
 			@ApiParam(value="Command Name") @PathParam("command") String command, 
 			@Context UriInfo uriInfo) {
-		
+
 
 		final MessageHandler handler = new TextPlainHandler();
 		final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
@@ -220,12 +220,12 @@ public class CommandResource
 			@PathParam("command") String command, Map<String, Object> queryParameters) {
 		final MessageHandler handler = new TextPlainHandler();
 		//TODO Verify that all query parameters are strings. the command 
-		
+
 		/*
 		for (String key : queryParameters.keySet()) {
 			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
 		}*/
-		
+
 		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, logLocation);
 		try {
 			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
@@ -241,7 +241,7 @@ public class CommandResource
 	// our result manually for efficiency.
 	private String buildCIResult(String namespace, String command, JSONResultTaskObserver jsonTaskObserver, MessageHandler messageHandler) {
 		List<CIError> ciErrorList = new ArrayList<CIError>(jsonTaskObserver.ciErrors);
-		
+
 		if (jsonTaskObserver.succeeded == false) {
 			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			ciErrorList.add(ciErrorFactory.getCIError(
@@ -251,7 +251,7 @@ public class CommandResource
 		}
 		return getJSONResponse(jsonTaskObserver.jsonResultStrings, jsonTaskObserver.ciErrors, logLocation);
 	}
-	
+
 	private final String handleCommand(final String namespace, final String command,
 			final MultivaluedMap<String, String> queryParameters,
 			final MessageHandler handler
@@ -323,23 +323,23 @@ public class CommandResource
 			final Map<String, Object> args,
 			final MessageHandler handler,
 			CommandResourceTaskObserver taskObserver) throws WebApplicationException {
-		
-	
+
+
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);
 
 		synchronized (taskObserver) {
-            try{
-            	while (!taskObserver.isFinished()) {
-            		System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
-            		taskObserver.wait();
-                }
-            }catch(InterruptedException e){
-                e.printStackTrace();
-            }
+			try{
+				while (!taskObserver.isFinished()) {
+					System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
+					taskObserver.wait();
+				}
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
 		}
 		String messages = taskObserver.getMessageHandler().getMessageString();
-	
+
 		if (taskObserver.getTaskException() != null)
 			throw taskObserver.getTaskException();
 		return messages;
@@ -351,23 +351,34 @@ public class CommandResource
 			return tqString.substring(1, tqString.length() - 1);
 		return tqString;
 	}
-	
+
 	public static String getJSONResponse(List<String> jsonResultStrings, List<CIError> errors, URI logLocation) {
-		
+
 		StringBuilder jsonResultBuilder = new StringBuilder();
-		jsonResultBuilder.append("{\n \"data\": { \"results\":[ ");
-		
-		for (int i = 0; i < jsonResultStrings.size(); i++) {
-			String jsonResult = jsonResultStrings.get(i);
+		if (jsonResultStrings.size() == 0) {
+			jsonResultBuilder.append("{\n \"data\": {},\n \"errors\":");
+		} else if (jsonResultStrings.size() == 1) {
+			jsonResultBuilder.append("{\n \"data\": ");
+
+			String jsonResult = jsonResultStrings.get(0);
 			jsonResultBuilder.append(jsonResult);
-			if (i != jsonResultStrings.size() - 1) {
-				jsonResultBuilder.append(",");
+			
+			jsonResultBuilder.append(",\n \"errors\":");
+		} else {
+			jsonResultBuilder.append("{\n \"data\": [ ");
+
+			for (int i = 0; i < jsonResultStrings.size(); i++) {
+				String jsonResult = jsonResultStrings.get(i);
+				jsonResultBuilder.append(jsonResult);
+				if (i != jsonResultStrings.size() - 1) {
+					jsonResultBuilder.append(",");
+				}
 			}
+			jsonResultBuilder.append("],\n \"errors\":");
 		}
-		jsonResultBuilder.append("]},\n \"errors\":");
 		Gson gson = new Gson();
-	
-		
+
+
 		if (!errors.isEmpty()){
 			jsonResultBuilder.append(gson.toJson(errors));
 		} else {

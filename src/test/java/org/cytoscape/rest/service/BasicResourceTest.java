@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -140,6 +141,8 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.json.ExampleJSONString;
+import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -221,6 +224,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected final String DUMMY_MULTI_TASK_COMMAND = "dummyMultiTaskCommand";
 	protected boolean multiTaskAComplete = false;
 	protected boolean multiTaskBComplete = false;
+	protected boolean multiTaskCComplete = false;
 	
 	protected final String DUMMY_APPEND_TASK_COMMAND = "dummyAppendTaskCommand";
 	protected boolean appendTaskAComplete = false;
@@ -480,6 +484,29 @@ public class BasicResourceTest extends JerseyTest {
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(new ArrayList<String>());
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_APPEND_TASK_COMMAND)).thenReturn(new ArrayList<String>());
 		
+		class DummyJSONResultA implements JSONResult {
+
+			final static String JSON = "{\"dummyFieldA\": \"dummyValueA\"}";
+			@Override
+			@ExampleJSONString(value=JSON) 
+			public String getJSON() {
+				return JSON;
+			}
+			
+		}
+		
+		class DummyJSONResultB implements JSONResult {
+
+			final static String JSON = "{\"dummyFieldB\": \"dummyValueB\"}";
+			@Override
+			public String getJSON() {
+				return JSON;
+			}
+			
+		}
+		
+		when(available.getResultClasses(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(Arrays.asList(new AvailableCommands.ObservableTaskResultClasses(ObservableTask.class, Arrays.asList(String.class, DummyJSONResultA.class)), new AvailableCommands.ObservableTaskResultClasses(ObservableTask.class, Arrays.asList(String.class, DummyJSONResultB.class))));
+		
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		TaskIterator dummyTaskIterator = new TaskIterator();
 		ObservableTask dummyTask = mock(ObservableTask.class);
@@ -491,9 +518,15 @@ public class BasicResourceTest extends JerseyTest {
 		TaskIterator dummyMultiTaskIterator = new TaskIterator();
 		ObservableTask dummyMultiTaskA = mock(ObservableTask.class);
 		ObservableTask dummyMultiTaskB = mock(ObservableTask.class);
+		ObservableTask dummyMultiTaskC = mock(ObservableTask.class);
 		dummyMultiTaskIterator.append(dummyMultiTaskA);
 		dummyMultiTaskIterator.append(dummyMultiTaskB);
-	
+		dummyMultiTaskIterator.append(dummyMultiTaskC);
+		
+		when(dummyMultiTaskA.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultA.class));
+		when(dummyMultiTaskB.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultB.class));
+		when(dummyMultiTaskB.getResultClasses()).thenReturn(Arrays.asList(String.class));
+		
 		try {
 			doAnswer(new Answer<Void>() {
 				public Void answer(InvocationOnMock invocation) {
@@ -526,7 +559,27 @@ public class BasicResourceTest extends JerseyTest {
 			e1.printStackTrace();
 		}
 		
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.err.println("Thread interrupt");
+					}
+					multiTaskCComplete = true;
+					return null;
+				}
+			}).when(dummyMultiTaskC).run(any());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		when(dummyMultiTaskA.getResults(String.class)).thenReturn("Dummy string A");
+		when(dummyMultiTaskB.getResults(String.class)).thenReturn("Dummy string B");
+		when(dummyMultiTaskC.getResults(String.class)).thenReturn("Dummy string C");
+		when(dummyMultiTaskA.getResults(DummyJSONResultA.class)).thenReturn(new DummyJSONResultA());
+		when(dummyMultiTaskB.getResults(DummyJSONResultB.class)).thenReturn(new DummyJSONResultB());
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE),  eq(DUMMY_MULTI_TASK_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyMultiTaskIterator);
 
 		final TaskIterator dummyAppendTaskIterator = new TaskIterator();
@@ -547,7 +600,6 @@ public class BasicResourceTest extends JerseyTest {
 				}
 			}).when(dummyAppendTaskA).run(any());
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		

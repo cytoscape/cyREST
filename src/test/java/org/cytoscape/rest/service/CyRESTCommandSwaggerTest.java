@@ -34,7 +34,7 @@ public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 		assertNotNull(result);
 		
 		//System.out.println("CyREST Command Swagger exists at /v1/commands/swagger.json");
-		//System.out.println(result);
+		System.out.println(result);
 		
 		final JsonNode root = mapper.readTree(result);
 	
@@ -42,6 +42,10 @@ public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 		
 		JsonNode pathsNode = root.get("paths");
 		assertTrue(pathsNode.has("/v1/commands/" + DUMMY_NAMESPACE + "/" + DUMMY_COMMAND));
+		assertTrue(pathsNode.has("/v1/commands/" + DUMMY_NAMESPACE + "/" + DUMMY_MULTI_TASK_COMMAND));
+		assertTrue(pathsNode.has("/v1/commands/" + DUMMY_NAMESPACE + "/" + DUMMY_APPEND_TASK_COMMAND));
+	
+	
 	}
 	
 	@Test

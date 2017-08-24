@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.command.AvailableCommands.ObservableTaskResultClasses;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.work.ObservableTask;
@@ -164,12 +165,12 @@ public class CyRESTCommandSwagger extends AbstractResource
 	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available, Response response) {
 
 		boolean isJSONCapable = false;
-		Map<Class<? extends ObservableTask>, List<Class<?>>> resultClasses = available.getResultClasses(namespace, command);
+		List<ObservableTaskResultClasses> resultClasses = available.getResultClasses(namespace, command);
 		List<String> jsonResultExamples = new ArrayList<String>();
-		for (List<Class<?>> taskResultClasses : resultClasses.values()) {
+		for (ObservableTaskResultClasses taskResultClasses : resultClasses) {
 			
 			if (taskResultClasses!=null) {
-				for (Class<?> resultClass : taskResultClasses) {
+				for (Class<?> resultClass : taskResultClasses.getResultClasses()) {
 					if (JSONResult.class.isAssignableFrom(resultClass)){
 						isJSONCapable = true;
 						
@@ -181,12 +182,12 @@ public class CyRESTCommandSwagger extends AbstractResource
 						
 							if (exampleJSONString != null && exampleJSONString.value() != null) {
 								jsonResultExamples.add(exampleJSONString.value()); 
-						}
+							} else {
+								jsonResultExamples.add("{}");
+							}
 						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					

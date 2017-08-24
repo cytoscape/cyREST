@@ -41,6 +41,7 @@ public class CommandResourceTest extends BasicResourceTest {
 		
 		assertFalse(multiTaskAComplete);
 		assertFalse(multiTaskBComplete);
+		assertFalse(multiTaskCComplete);
 		Response response = target("/v1/commands/dummyNamespace/dummyMultiTaskCommand").request().get();
 		assertNotNull(response);
 		
@@ -50,6 +51,25 @@ public class CommandResourceTest extends BasicResourceTest {
 		assertEquals(200, response.getStatus());
 		assertTrue(multiTaskAComplete);
 		assertTrue(multiTaskBComplete);
+		assertTrue(multiTaskCComplete);
+	}
+	
+	@Test
+	public void testMultiTaskCommandJSON() throws Exception {
+		
+		assertFalse(multiTaskAComplete);
+		assertFalse(multiTaskBComplete);
+		assertFalse(multiTaskCComplete);
+		Response response = target("/v1/commands/dummyNamespace/dummyMultiTaskCommand").request().post(null);
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+		assertTrue(multiTaskAComplete);
+		assertTrue(multiTaskBComplete);
+		assertTrue(multiTaskCComplete);
 	}
 	
 	@Test 

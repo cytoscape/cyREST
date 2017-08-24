@@ -49,10 +49,6 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 		if (jsonResultClass != null)	{
 			JSONResult jsonResult = task.getResults(jsonResultClass);
 			jsonResultStrings.add(jsonResult.getJSON());
-		} else {
-			Gson gson = new Gson();
-			String stringResult = task.getResults(String.class);
-			jsonResultStrings.add(gson.toJson(stringResult, String.class));
 		}
 	}
 

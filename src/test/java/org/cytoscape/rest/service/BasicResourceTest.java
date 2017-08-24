@@ -525,7 +525,7 @@ public class BasicResourceTest extends JerseyTest {
 		
 		when(dummyMultiTaskA.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultA.class));
 		when(dummyMultiTaskB.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultB.class));
-		when(dummyMultiTaskB.getResultClasses()).thenReturn(Arrays.asList(String.class));
+		when(dummyMultiTaskC.getResultClasses()).thenReturn(Arrays.asList(String.class));
 		
 		try {
 			doAnswer(new Answer<Void>() {

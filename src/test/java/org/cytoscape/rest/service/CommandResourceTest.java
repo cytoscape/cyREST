@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
+
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -12,6 +15,7 @@ import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommandResourceTest extends BasicResourceTest {
@@ -22,7 +26,6 @@ public class CommandResourceTest extends BasicResourceTest {
 	}
 
 	private ObjectMapper mapper = new ObjectMapper();
-
 
 	@Test
 	public void testCommand() throws Exception {
@@ -52,6 +55,12 @@ public class CommandResourceTest extends BasicResourceTest {
 		assertTrue(multiTaskAComplete);
 		assertTrue(multiTaskBComplete);
 		assertTrue(multiTaskCComplete);
+		
+		BufferedReader reader = new BufferedReader(new StringReader(body));
+		assertTrue(reader.readLine().endsWith("Dummy string A</p>"));
+		assertTrue(reader.readLine().endsWith("Dummy string B</p>"));
+		assertTrue(reader.readLine().endsWith("Dummy string C</p>"));
+		assertTrue(reader.readLine().endsWith("Finished</p>"));
 	}
 	
 	@Test
@@ -70,6 +79,23 @@ public class CommandResourceTest extends BasicResourceTest {
 		assertTrue(multiTaskAComplete);
 		assertTrue(multiTaskBComplete);
 		assertTrue(multiTaskCComplete);
+		
+		final JsonNode root = mapper.readTree(body);
+		JsonNode dataNode = root.get("data");
+		assertNotNull(dataNode);
+		assertEquals(2, dataNode.size());
+		JsonNode dataA = dataNode.get(0);
+		JsonNode dataB = dataNode.get(1);
+		assertNotNull(dataA);
+		assertNotNull(dataB);
+		
+		JsonNode dataValueA = dataA.get("dummyFieldA");
+		assertEquals("dummyValueA", dataValueA.asText());
+		JsonNode dataValueB = dataB.get("dummyFieldB");
+		assertEquals("dummyValueB", dataValueB.asText());
+		
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(0, errorsNode.size());
 	}
 	
 	@Test 

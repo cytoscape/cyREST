@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Singleton;
+import javax.swing.SwingUtilities;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,8 +22,13 @@ import javax.ws.rs.core.MediaType;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.AvailableCommands.ObservableTaskResultClasses;
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkFactory;
+import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.json.ExampleJSONString;
 import org.cytoscape.work.json.JSONResult;
@@ -117,40 +124,63 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		if (available != null)	{
 
-			for (String namespace : available.getNamespaces())
-			{
-				for (String command : available.getCommands(namespace))
-				{
-					io.swagger.models.Path testPath = new io.swagger.models.Path();
-					Operation operation = new Operation();
-					operation.addTag(namespace);
-					operation.setOperationId(namespace + "/" + command);
-					operation.setSummary(available.getDescription(namespace, command));
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
 
-					operation.setDescription(available.getLongDescription(namespace, command));
+						boolean resetNetwork = setCurrentNetwork();
+						boolean resetView = setCurrentNetworkView();
+						try {
+							for (String namespace : available.getNamespaces())
+							{
+								for (String command : available.getCommands(namespace))
+								{
+									io.swagger.models.Path testPath = new io.swagger.models.Path();
+									Operation operation = new Operation();
+									operation.addTag(namespace);
+									operation.setOperationId(namespace + "/" + command);
+									operation.setSummary(available.getDescription(namespace, command));
 
-					//Later, this could be very useful for extracting JSON.
-					//operation.addProduces(MediaType.APPLICATION_JSON);
+									operation.setDescription(available.getLongDescription(namespace, command));
+
+									//Later, this could be very useful for extracting JSON.
+									//operation.addProduces(MediaType.APPLICATION_JSON);
 
 
-					Response response = new Response();
-					response.setDescription("successful operation");
+									Response response = new Response();
+									response.setDescription("successful operation");
 
-					boolean isJSONCapable = setSuccessfulResponse(namespace, command, available, response);
+									boolean isJSONCapable = setSuccessfulResponse(namespace, command, available, response);
 
-					operation.addResponse("200", response);
-					if (isJSONCapable) {
-						setPostParameters(namespace, command, available, operation);
-						operation.addProduces(MediaType.APPLICATION_JSON);
-						testPath.setPost(operation);
-					} else {
-						setGetParameters(namespace, command, available, operation);
-						operation.addProduces(MediaType.TEXT_PLAIN);
-						testPath.setGet(operation);
+									operation.addResponse("200", response);
+									if (isJSONCapable) {
+										setPostParameters(namespace, command, available, operation);
+										operation.addProduces(MediaType.APPLICATION_JSON);
+										testPath.setPost(operation);
+									} else {
+										setGetParameters(namespace, command, available, operation);
+										operation.addProduces(MediaType.TEXT_PLAIN);
+										testPath.setGet(operation);
+									}
+									swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
+								}
+							}
+						}
+						finally
+						{
+							resetCurrentNetworkView(resetView);
+							resetCurrentNetwork(resetNetwork);
+						}
 					}
-					swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
 				}
-			}
+						);
+
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} 
+
 		}
 		else
 		{
@@ -168,18 +198,18 @@ public class CyRESTCommandSwagger extends AbstractResource
 		List<ObservableTaskResultClasses> resultClasses = available.getResultClasses(namespace, command);
 		List<String> jsonResultExamples = new ArrayList<String>();
 		for (ObservableTaskResultClasses taskResultClasses : resultClasses) {
-			
+
 			if (taskResultClasses!=null) {
 				for (Class<?> resultClass : taskResultClasses.getResultClasses()) {
 					if (JSONResult.class.isAssignableFrom(resultClass)){
 						isJSONCapable = true;
-						
+
 						Method getJSONMethod;
 						try {
 							getJSONMethod = resultClass.getMethod("getJSON");
-							
+
 							ExampleJSONString exampleJSONString = getJSONMethod.getAnnotation(ExampleJSONString.class);
-						
+
 							if (exampleJSONString != null && exampleJSONString.value() != null) {
 								jsonResultExamples.add(exampleJSONString.value()); 
 							} else {
@@ -190,7 +220,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 						} catch (SecurityException e) {
 							e.printStackTrace();
 						}
-					
+
 					}
 				}
 			} else {
@@ -276,15 +306,75 @@ public class CyRESTCommandSwagger extends AbstractResource
 		parameter.setSchema(model);
 		operation.addParameter(parameter);
 	}
-	
+
+	CyNetwork emptyNetwork;
+	CyNetworkView emptyView;
+
+	// This is a wrapper around appMgr.getCurrentNetwork() to make sure
+	// we *always* return a network.  If getCurrentNetwork is null, we return
+	// the emptyNetwork.
+	private CyNetwork getNetwork() {
+		if (applicationManager.getCurrentNetwork() != null)
+			return applicationManager.getCurrentNetwork();
+
+		if (emptyNetwork == null) {
+			emptyNetwork = (networkFactory.createNetwork(SavePolicy.DO_NOT_SAVE));
+			emptyNetwork.getRow(emptyNetwork).set(CyNetwork.NAME, "--empty--");
+		}
+		return emptyNetwork;
+	}
+
+	private boolean setCurrentNetwork() {
+		if (applicationManager.getCurrentNetwork() == null) {
+
+			getNetwork();
+			networkManager.addNetwork(emptyNetwork, true);
+			return true;
+		}
+		return false;
+	}
+
+	private void resetCurrentNetwork(boolean reset) {
+		if (!reset) return;
+		applicationManager.setCurrentNetwork(null);
+		networkManager.destroyNetwork(emptyNetwork);
+		emptyNetwork = null;
+	}
+
+	private CyNetworkView getNetworkView() {
+		if (applicationManager.getCurrentNetworkView() != null)
+			return applicationManager.getCurrentNetworkView();
+
+		if (emptyView == null) {
+			emptyView = (networkViewFactory.createNetworkView(getNetwork()));
+		}
+		return emptyView;
+	}
+
+	private boolean setCurrentNetworkView() {
+		if (applicationManager.getCurrentNetworkView() == null) {
+			getNetworkView();
+			networkViewManager.addNetworkView(emptyView, true);
+			return true;
+		}
+		return false;
+	}
+
+	private void resetCurrentNetworkView(boolean reset) {
+		if (!reset) return;
+		applicationManager.setCurrentNetworkView(null);
+		networkViewManager.destroyNetworkView(emptyView);
+		emptyView = null;
+	}
+
 	private final class CommandModel implements Model {
-		
+
 		final String namespace; 
 		final String command;
 		AvailableCommands available;
-		
+
 		private final Map<String, Property> properties;
-		
+
 		public CommandModel(String namespace, String command, AvailableCommands available) {
 			this.namespace = namespace;
 			this.command = command;
@@ -305,7 +395,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		@Override
 		public String getDescription() {
-			
+
 			return "A list of command arguments";
 		}
 
@@ -321,7 +411,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		@Override
 		public Map<String, Property> getProperties() {
-			
+
 			return properties;
 		}
 
@@ -332,46 +422,46 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		@Override
 		public String getTitle() {
-			
+
 			return "Command Arguments";
 		}
 
 		@Override
 		public Map<String, Object> getVendorExtensions() {
-			
+
 			return null;
 		}
 
 		@Override
 		public void setDescription(String arg0) {
-			
+
 		}
 
 		@Override
 		public void setExample(Object arg0) {
-			
+
 		}
 
 		@Override
 		public void setProperties(Map<String, Property> arg0) {
-			
+
 		}
 
 		@Override
 		public void setReference(String arg0) {
-			
+
 		}
 
 		@Override
 		public void setTitle(String arg0) {
-			
+
 		}
-		
+
 		public  Object clone(){
 			return new CommandModel(namespace, command, available) ;	 
-		 }
+		}
 	}
-	
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public String get() throws JsonProcessingException 

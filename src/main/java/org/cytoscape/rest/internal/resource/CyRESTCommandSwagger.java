@@ -1,7 +1,6 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -23,13 +22,10 @@ import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.AvailableCommands.ObservableTaskResultClasses;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.model.CyNetworkViewFactory;
-import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.json.ExampleJSONString;
 import org.cytoscape.work.json.JSONResult;
 
@@ -131,10 +127,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 						boolean resetNetwork = setCurrentNetwork();
 						boolean resetView = setCurrentNetworkView();
 						try {
-							for (String namespace : available.getNamespaces())
-							{
-								for (String command : available.getCommands(namespace))
-								{
+							for (String namespace : available.getNamespaces()) {
+								for (String command : available.getCommands(namespace)) {
 									io.swagger.models.Path testPath = new io.swagger.models.Path();
 									Operation operation = new Operation();
 									operation.addTag(namespace);
@@ -172,9 +166,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 							resetCurrentNetwork(resetNetwork);
 						}
 					}
-				}
-						);
-
+				});
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {

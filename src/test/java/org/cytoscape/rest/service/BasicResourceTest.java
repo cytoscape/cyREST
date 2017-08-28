@@ -178,6 +178,8 @@ public class BasicResourceTest extends JerseyTest {
 	
 	CyNode cyGroupNode;
 
+	protected CyApplicationManager cyApplicationManager;
+	
 	protected CyRootNetworkManager rootNetworkManager;
 
 	protected CyNetwork network;
@@ -197,6 +199,8 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected CyNetworkManager networkManager = nts.getNetworkManager();
 
+	protected CyNetworkViewManager viewManager;
+	
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
 	protected RenderingEngine<?> renderingEngine;
@@ -269,12 +273,12 @@ public class BasicResourceTest extends JerseyTest {
 		networkManager.addNetwork(network2);
 
 		rootNetworkManager = nts.getRootNetworkFactory();
-		CyNetworkViewManager viewManager = mock(CyNetworkViewManager.class);
+		viewManager = mock(CyNetworkViewManager.class);
 		Collection<CyNetworkView> views = new HashSet<>();
 		views.add(view);
 		when(viewManager.getNetworkViews(network)).thenReturn(views);
 
-		CyApplicationManager cyApplicationManager = mock(CyApplicationManager.class);
+		cyApplicationManager = mock(CyApplicationManager.class);
 		CyNetworkViewFactory viewFactory = nvts.getNetworkViewFactory();
 
 		tfManager = mock(TaskFactoryManager.class);

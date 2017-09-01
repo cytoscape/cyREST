@@ -141,7 +141,6 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
-import org.cytoscape.work.json.ExampleJSONString;
 import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
@@ -492,7 +491,7 @@ public class BasicResourceTest extends JerseyTest {
 
 			final static String JSON = "{\"dummyFieldA\": \"dummyValueA\"}";
 			@Override
-			@ExampleJSONString(value=JSON) 
+		
 			public String getJSON() {
 				return JSON;
 			}
@@ -509,7 +508,8 @@ public class BasicResourceTest extends JerseyTest {
 			
 		}
 		
-		when(available.getResultClasses(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(Arrays.asList(new AvailableCommands.ObservableTaskResultClasses(ObservableTask.class, Arrays.asList(String.class, DummyJSONResultA.class)), new AvailableCommands.ObservableTaskResultClasses(ObservableTask.class, Arrays.asList(String.class, DummyJSONResultB.class))));
+		when(available.getSupportsJSON(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(true);
+		when(available.getExampleJSON(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn("{}");
 		
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		TaskIterator dummyTaskIterator = new TaskIterator();

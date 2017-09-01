@@ -3,7 +3,7 @@ package org.cytoscape.rest.service;
 import static org.junit.Assert.assertTrue;
 
 
-import org.cytoscape.work.json.ExampleJSONString;
+
 import org.cytoscape.work.json.JSONResult;
 import org.junit.Test;
 
@@ -18,9 +18,7 @@ public class JSONResultCastTest {
 	public class TestJSONResult implements JSONResult{
 
 		@Override
-		@ExampleJSONString(value="{\"name\":\"Chuck\"}")
 		public String getJSON() {
-
 			return "{\"name\":\"Chuck\"}";
 		}
 

@@ -2,11 +2,10 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,15 +19,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
-import org.cytoscape.command.AvailableCommands.ObservableTaskResultClasses;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.work.json.ExampleJSONString;
-import org.cytoscape.work.json.JSONResult;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -137,10 +132,6 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 									operation.setDescription(available.getLongDescription(namespace, command));
 
-									//Later, this could be very useful for extracting JSON.
-									//operation.addProduces(MediaType.APPLICATION_JSON);
-
-
 									Response response = new Response();
 									response.setDescription("successful operation");
 
@@ -186,48 +177,19 @@ public class CyRESTCommandSwagger extends AbstractResource
 	 */
 	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available, Response response) {
 
-		boolean isJSONCapable = false;
-		List<ObservableTaskResultClasses> resultClasses = available.getResultClasses(namespace, command);
-		List<String> jsonResultExamples = new ArrayList<String>();
-		for (ObservableTaskResultClasses taskResultClasses : resultClasses) {
-
-			if (taskResultClasses!=null) {
-				for (Class<?> resultClass : taskResultClasses.getResultClasses()) {
-					if (JSONResult.class.isAssignableFrom(resultClass)){
-						isJSONCapable = true;
-
-						Method getJSONMethod;
-						try {
-							getJSONMethod = resultClass.getMethod("getJSON");
-
-							ExampleJSONString exampleJSONString = getJSONMethod.getAnnotation(ExampleJSONString.class);
-
-							if (exampleJSONString != null && exampleJSONString.value() != null) {
-								jsonResultExamples.add(exampleJSONString.value()); 
-							} else {
-								jsonResultExamples.add("{}");
-							}
-						} catch (NoSuchMethodException e) {
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							e.printStackTrace();
-						}
-
-					}
-				}
-			} else {
-				System.out.println("Null result type iterator for " + namespace + " " + command);
-			}
-		}
+		boolean isJSONCapable = available.getSupportsJSON(namespace, command);
+		System.out.println(namespace + " " + command + ":" + isJSONCapable);
 		if (isJSONCapable) {
 
+			String jsonExample = available.getExampleJSON(namespace, command);
+			
 			ObjectProperty objectProperty =  new ObjectProperty();
 			objectProperty.setName("newName");
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode jsonNode;
 			try {
-				jsonNode = objectMapper.readValue(CommandResource.getJSONResponse(jsonResultExamples, new ArrayList<CIError>(), null), JsonNode.class);
+				jsonNode = objectMapper.readValue(CommandResource.getJSONResponse(Arrays.asList(jsonExample), new ArrayList<CIError>(), null), JsonNode.class);
 				objectProperty.setExample(jsonNode);
 			} catch (JsonParseException e) {
 				e.printStackTrace();

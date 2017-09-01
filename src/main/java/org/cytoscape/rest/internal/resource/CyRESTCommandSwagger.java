@@ -178,7 +178,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available, Response response) {
 
 		boolean isJSONCapable = available.getSupportsJSON(namespace, command);
-		System.out.println(namespace + " " + command + ":" + isJSONCapable);
+		
 		if (isJSONCapable) {
 
 			String jsonExample = available.getExampleJSON(namespace, command);

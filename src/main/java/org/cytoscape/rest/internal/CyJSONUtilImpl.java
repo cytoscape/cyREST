@@ -91,7 +91,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 		CyRow row = cyNetwork.getRow(cyEdge);
 		JsonObject object = serialize(row);
 		object.addProperty("source", cyEdge.getSource().getSUID());
-		object.addProperty("target", cyEdge.getSource().getSUID());
+		object.addProperty("target", cyEdge.getTarget().getSUID());
 		return gson.toJson(object);
 	}
 

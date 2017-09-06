@@ -1,6 +1,5 @@
 package org.cytoscape.rest.internal.resource;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import javax.ws.rs.WebApplicationException;

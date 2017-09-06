@@ -61,6 +61,14 @@ public class CIHandlingResource {
 		throw new Exception("Kaboom.");
 	}
 	
+	@Path("/fail404")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@CIWrapping
+	public Response fail404() throws Exception {
+		return Response.status(404).entity("String").build();
+	}
+	
 	@Path("/failwithresource")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

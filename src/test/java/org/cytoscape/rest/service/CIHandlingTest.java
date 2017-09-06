@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Application;
 
@@ -173,6 +174,26 @@ public class CIHandlingTest extends BasicResourceTest {
 			
 			}
 	}
+	
+	@Test
+	public void testWrapped404() {
+		try {
+			String response = target("/ciresource/fail404").request().get(String.class);
+		} catch (NotFoundException e) {
+			CIResponse<?> ciResponse = e.getResponse().readEntity(CIResponse.class);
+			Map<String, Object> object = (Map<String, Object>) ciResponse.data;
+			assertEquals(0, object.size());
+			assertEquals(1, ciResponse.errors.size());
+			CIError error = ciResponse.errors.get(0);
+			System.out.println(error.message);
+			assertEquals("Not Found", error.message);
+			assertEquals(new Integer(404), error.status);
+			assertEquals("dummyLogLocation", error.link.toString());
+			assertEquals("urn:cytoscape:ci:cyrest-core:v1:ciresponsefilter:0", error.type);
+		}
+			
+	}
+	
 	
 	@Test
 	public void testExplicitCIError() {

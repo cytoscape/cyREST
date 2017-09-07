@@ -633,6 +633,12 @@
   			<version>${cytoscape.api.version}</version>
   			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>util-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	
 		<!-- Guice -->
 		<dependency>

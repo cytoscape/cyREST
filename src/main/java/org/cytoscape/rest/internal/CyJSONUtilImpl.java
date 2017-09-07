@@ -12,8 +12,8 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.model.json.CyJSONUtil;
 import org.cytoscape.rest.internal.resource.JsonTags;
+import org.cytoscape.util.json.CyJSONUtil;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

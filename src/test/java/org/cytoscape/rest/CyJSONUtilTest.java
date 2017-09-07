@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.cytoscape.rest.internal.CyJSONUtilImpl;
+import org.cytoscape.util.json.CyJSONUtil;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
-import org.cytoscape.model.json.CyJSONUtil;
 
 public class CyJSONUtilTest {
 	

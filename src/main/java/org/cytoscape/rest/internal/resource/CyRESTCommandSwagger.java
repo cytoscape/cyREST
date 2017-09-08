@@ -39,6 +39,7 @@ import io.swagger.jaxrs.Reader;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.config.ReaderListener;
 import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
@@ -256,7 +257,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		parameter.setName("body");
 
 		CommandModel model = new CommandModel(namespace, command, available);
-		parameter.setRequired(!model.properties.isEmpty());
+		//parameter.setRequired(!model.properties.isEmpty());
 		parameter.setSchema(model);
 		operation.addParameter(parameter);
 	}
@@ -321,19 +322,19 @@ public class CyRESTCommandSwagger extends AbstractResource
 		emptyView = null;
 	}
 
-	private final class CommandModel implements Model {
+	private final class CommandModel extends ModelImpl {
 
 		final String namespace; 
 		final String command;
 		AvailableCommands available;
 
-		private final Map<String, Property> properties;
-
+	
 		public CommandModel(String namespace, String command, AvailableCommands available) {
+			super();
 			this.namespace = namespace;
 			this.command = command;
 			this.available = available;
-			this.properties = new HashMap<String, Property>();
+		
 			for (String argument : available.getArguments(namespace, command)) {
 				Property property = new StringProperty();
 				property.setName(argument);
@@ -342,8 +343,13 @@ public class CyRESTCommandSwagger extends AbstractResource
 				if (defaultString != null && defaultString.length() > 0) {
 					property.setDefault(defaultString);
 				}
-				//property.setExample();
-				properties.put(argument, property);
+				boolean required = available.getArgRequired(namespace, command, argument);
+				//property.setRequired(required);
+				
+				this.addProperty(argument, property);
+				if (required) {
+					this.addRequired(argument);
+				} 
 			}
 		}
 
@@ -354,65 +360,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 		}
 
 		@Override
-		public Object getExample() {
-			return null;
-		}
-
-		@Override
-		public io.swagger.models.ExternalDocs getExternalDocs() {
-			return null;
-		}
-
-		@Override
-		public Map<String, Property> getProperties() {
-
-			return properties;
-		}
-
-		@Override
-		public String getReference() {
-			return null;
-		}
-
-		@Override
 		public String getTitle() {
 
 			return "Command Arguments";
-		}
-
-		@Override
-		public Map<String, Object> getVendorExtensions() {
-
-			return null;
-		}
-
-		@Override
-		public void setDescription(String arg0) {
-
-		}
-
-		@Override
-		public void setExample(Object arg0) {
-
-		}
-
-		@Override
-		public void setProperties(Map<String, Property> arg0) {
-
-		}
-
-		@Override
-		public void setReference(String arg0) {
-
-		}
-
-		@Override
-		public void setTitle(String arg0) {
-
-		}
-
-		public  Object clone(){
-			return new CommandModel(namespace, command, available) ;	 
 		}
 	}
 

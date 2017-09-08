@@ -69,9 +69,6 @@ public class CommandResource
 	@NotNull
 	private SynchronousTaskManager<?> taskManager;
 
-
-
-
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)

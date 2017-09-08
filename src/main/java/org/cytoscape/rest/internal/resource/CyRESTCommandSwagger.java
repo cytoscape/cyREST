@@ -344,7 +344,6 @@ public class CyRESTCommandSwagger extends AbstractResource
 					property.setDefault(defaultString);
 				}
 				boolean required = available.getArgRequired(namespace, command, argument);
-				//property.setRequired(required);
 				
 				this.addProperty(argument, property);
 				if (required) {

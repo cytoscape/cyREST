@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,12 +17,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.ci.model.CIError;
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.model.CyNetworkView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -46,8 +50,8 @@ import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ObjectProperty;
-import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.converter.ModelConverters;
 import io.swagger.util.Json;
 
 
@@ -55,6 +59,9 @@ import io.swagger.util.Json;
 @Singleton
 public class CyRESTCommandSwagger extends AbstractResource
 {
+	private static final Logger logger = LoggerFactory.getLogger(CyRESTCommandSwagger.class);
+	
+	
 	@Inject
 	@NotNull
 	private AvailableCommands available;
@@ -76,6 +83,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 		return (swaggerDefinition == null);
 	}	
 
+	private Model ciResponseModel;
+	
 	protected void buildSwagger()
 	{
 		BeanConfig commandBeanConfig = new BeanConfig(){
@@ -93,6 +102,14 @@ public class CyRESTCommandSwagger extends AbstractResource
 		commandBeanConfig.setPrettyPrint(true);
 
 		Swagger swagger = commandBeanConfig.getSwagger();
+		
+		Map<String, Model> ciResponseModels = ModelConverters.getInstance().read(CIResponse.class);
+		ciResponseModel = ciResponseModels.get("CIResponse");
+		
+		Map<String, Model> ciErrorModels = ModelConverters.getInstance().read(CIError.class);
+		Model ciErrorModel = ciErrorModels.get("CIError");
+		swagger.addDefinition("CIError", ciErrorModel);
+		
 		addCommandPaths(swagger);
 		// serialization of the Swagger definition
 		try 
@@ -149,6 +166,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 										testPath.setGet(operation);
 									}
 									swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
+								
 								}
 							}
 						}
@@ -184,22 +202,25 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 			String jsonExample = available.getExampleJSON(namespace, command);
 			
-			ObjectProperty objectProperty =  new ObjectProperty();
-			objectProperty.setName("newName");
-
+			ObjectProperty objectProperty = new ObjectProperty();
+		
 			ObjectMapper objectMapper = new ObjectMapper();
+			objectProperty.setProperties(ciResponseModel.getProperties());
 			JsonNode jsonNode;
 			try {
 				jsonNode = objectMapper.readValue(CommandResource.getJSONResponse(Arrays.asList(jsonExample), new ArrayList<CIError>(), null), JsonNode.class);
-				objectProperty.setExample(jsonNode);
+				if (!containsNull(jsonNode)) {
+					objectProperty.setExample(jsonNode); 
+				} else {
+					reportJSONExampleError(new Exception("Swagger Definition Contained a null value: " + objectMapper.writeValueAsString(jsonNode)), "Invalid for Swagger Exception for JSON (contained null)", objectMapper, objectProperty);
+				}
 			} catch (JsonParseException e) {
-				e.printStackTrace();
+				reportJSONExampleError(e, "JsonParseException", objectMapper, objectProperty);
 			} catch (JsonMappingException e) {			
-				e.printStackTrace();
+				reportJSONExampleError(e, "JsonMappingException", objectMapper, objectProperty);
 			} catch (IOException e) {
-				e.printStackTrace();
+				reportJSONExampleError(e, "IOException", objectMapper, objectProperty);
 			}
-
 			response.setSchema(objectProperty);
 		}
 		else {
@@ -210,10 +231,25 @@ public class CyRESTCommandSwagger extends AbstractResource
 		return isJSONCapable;
 	}
 
+	private void reportJSONExampleError(Throwable e, String string, ObjectMapper objectMapper, ObjectProperty objectProperty) {
+		logger.error("Error creating json example: " + string, e);
+		JsonNode jsonNode;
+		try {
+			jsonNode = objectMapper.readValue("\"ERROR. Example could not be included: " + string + "\"", JsonNode.class);
+			objectProperty.setExample(jsonNode); 
+		} catch (JsonParseException e1) {
+			e1.printStackTrace();
+		} catch (JsonMappingException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	 
+	}
+	
 	private void setGetParameters(String namespace, String command, AvailableCommands available, Operation operation) {
 		for (String argumentName : available.getArguments(namespace, command))
 		{
-
 			QueryParameter parameter = new QueryParameter();
 			parameter.setName(argumentName);
 
@@ -315,6 +351,19 @@ public class CyRESTCommandSwagger extends AbstractResource
 		return false;
 	}
 
+	public static boolean containsNull(JsonNode input) {
+		if (input.isNull()) {
+			return true;
+		} else {
+			for (JsonNode node :input) {
+				if (containsNull(node)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	private void resetCurrentNetworkView(boolean reset) {
 		if (!reset) return;
 		applicationManager.setCurrentNetworkView(null);
@@ -323,22 +372,15 @@ public class CyRESTCommandSwagger extends AbstractResource
 	}
 
 	private final class CommandModel extends ModelImpl {
-
-		final String namespace; 
-		final String command;
-		AvailableCommands available;
-
-	
+		
 		public CommandModel(String namespace, String command, AvailableCommands available) {
 			super();
-			this.namespace = namespace;
-			this.command = command;
-			this.available = available;
-		
 			for (String argument : available.getArguments(namespace, command)) {
-				Property property = new StringProperty();
+				StringProperty property = new StringProperty();
+				
 				property.setName(argument);
 				property.setDescription(available.getArgLongDescription(namespace, command, argument));
+	
 				String defaultString = available.getArgExampleStringValue(namespace, command, argument);
 				if (defaultString != null && defaultString.length() > 0) {
 					property.setDefault(defaultString);
@@ -404,7 +446,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
-			)
+	)
+	
 	public static class CyRESTCommandSwaggerConfig implements ReaderListener
 	{
 

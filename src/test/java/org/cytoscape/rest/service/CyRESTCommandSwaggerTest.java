@@ -6,20 +6,32 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.times;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
+import org.cytoscape.ci.model.CIError;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.view.model.CyNetworkView;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -180,6 +192,26 @@ public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 		QueryParameter parameter = mock(QueryParameter.class);
 		CyRESTCommandSwagger.setParameterTypeAndFormatFromClass(parameter, boolean.class);
 		verify(parameter).setType("boolean");
-
+	}
+	
+	@Test
+	public void detectsNullExampleJSON() throws JsonParseException, JsonMappingException, IOException {
+		String exampleJSON = "{\"value_f\": null}";
+		JsonNode jsonNode = mapper.readValue(CommandResource.getJSONResponse(Arrays.asList(new String[]{exampleJSON}), new ArrayList<CIError>(), null), JsonNode.class);
+		assertTrue(CyRESTCommandSwagger.containsNull(jsonNode));
+	}
+	
+	@Test
+	public void detectsNestedNullExampleJSON() throws JsonParseException, JsonMappingException, IOException {
+		String exampleJSON ="{ \"data\": { \"subnode\" : null } }";
+		JsonNode jsonNode = mapper.readValue(CommandResource.getJSONResponse(Arrays.asList(new String[]{exampleJSON}), new ArrayList<CIError>(), null), JsonNode.class);
+		assertTrue(CyRESTCommandSwagger.containsNull(jsonNode));
+	}
+	
+	@Test
+	public void passesValidExampleJSON() throws JsonParseException, JsonMappingException, IOException {
+		String exampleJSON = "{ \"data\": { \"subnode\" : \"hodor\" } }";
+		JsonNode jsonNode = mapper.readValue(CommandResource.getJSONResponse(Arrays.asList(new String[]{exampleJSON}), new ArrayList<CIError>(), null), JsonNode.class);
+		assertFalse(CyRESTCommandSwagger.containsNull(jsonNode));
 	}
 }

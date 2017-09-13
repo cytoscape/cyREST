@@ -296,13 +296,24 @@ public class BasicResourceTest extends JerseyTest {
 
 		when(cyRootNetwork.getSUID()).thenReturn(1l);
 		when(cySubNetwork.getSUID()).thenReturn(2l);
-		when(cyRootNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
-		when(cySubNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
+		CyTable rootNetworkTable = mock(CyTable.class);
+		when(cyRootNetwork.getDefaultNetworkTable()).thenReturn(rootNetworkTable);
+		
+		CyTable cySubNetworkTable = mock(CyTable.class);
+		when(cySubNetwork.getDefaultNetworkTable()).thenReturn(cySubNetworkTable);
 		when(cySubNetwork.getRootNetwork()).thenReturn(cyRootNetwork);
-		CyRow cyRow = mock(CyRow.class);
-		when(cyRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx network name");
-		when(cyRootNetwork.getRow(cyRootNetwork)).thenReturn(cyRow);
-		when(cySubNetwork.getRow(cySubNetwork)).thenReturn(cyRow);
+		
+		CyRow cyRootNetworkRow = mock(CyRow.class);
+		when(cyRootNetworkRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx root network name");
+		when(cyRootNetworkRow.getTable()).thenReturn(rootNetworkTable);
+		when(cyRootNetwork.getRow(cyRootNetwork)).thenReturn(cyRootNetworkRow);
+		
+		
+		CyRow cySubNetworkRow = mock(CyRow.class);
+		when(cySubNetworkRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx sub network name");
+		when(cySubNetwork.getRow(cySubNetwork)).thenReturn(cySubNetworkRow);
+		when(cySubNetworkRow.getTable()).thenReturn(cySubNetworkTable);
+		
 		CyNetwork[] inputStreamNetworks = new CyNetwork[]{cySubNetwork, cyRootNetwork};
 		when(inputStreamCXNetworkReader.getNetworks()).thenReturn(inputStreamNetworks);
 

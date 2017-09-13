@@ -1,8 +1,11 @@
 package org.cytoscape.rest.internal;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cytoscape.model.CyColumn;
@@ -27,11 +30,17 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 
 	private final Gson gson;
 
-	private JsonObject serialize(CyRow cyRow) {
+	private JsonObject serialize(CyRow cyRow, CyColumn ... columns) {
 		JsonObject object = new JsonObject();
+		
+		Set<CyColumn> columnSet= new HashSet<CyColumn>(Arrays.asList(columns));
+		
 		for (Map.Entry<String, Object> entry : cyRow.getAllValues().entrySet()) {
-			object.add(entry.getKey(), serializeCell(entry.getValue()));
+			if (columnSet.size() == 0 || columnSet.contains(cyRow.getTable().getColumn(entry.getKey()))) {
+				object.add(entry.getKey(), serializeCell(entry.getValue()));
+			}
 		}
+	
 		return object;
 	}
 
@@ -81,15 +90,15 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	}
 
 	@Override
-	public String toJson(CyNetwork cyNetwork, CyNode cyNode) {
+	public String toJson(CyNetwork cyNetwork, CyNode cyNode, CyColumn ... columns) {
 		CyRow row = cyNetwork.getRow(cyNode);
-		return toJson(row);
+		return toJson(row, columns);
 	}
 
 	@Override
-	public String toJson(CyNetwork cyNetwork, CyEdge cyEdge) {
+	public String toJson(CyNetwork cyNetwork, CyEdge cyEdge, CyColumn ... columns) {
 		CyRow row = cyNetwork.getRow(cyEdge);
-		JsonObject object = serialize(row);
+		JsonObject object = serialize(row, columns);
 		object.addProperty("source", cyEdge.getSource().getSUID());
 		object.addProperty("target", cyEdge.getTarget().getSUID());
 		return gson.toJson(object);
@@ -141,8 +150,8 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	}
 
 	@Override
-	public String toJson(CyRow cyRow) {
-		return gson.toJson(serialize(cyRow));
+	public String toJson(CyRow cyRow, CyColumn ... columns) {
+		return gson.toJson(serialize(cyRow, columns));
 	}
 
 	@Override

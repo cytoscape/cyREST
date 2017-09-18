@@ -219,6 +219,7 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
 	protected final String DUMMY_COMMAND = "dummyCommand";
+	protected final String DUMMY_UNPARSABLE_JSON_COMMAND = "dummyUnparsableJsonCommand";
 	protected final String DUMMY_ARGUMENT_NAME = "dummyArgument";
 	protected final String DUMMY_ARGUMENT_DESCRIPTION = "dummyArgumentDescription";
 	protected final Class DUMMY_ARGUMENT_CLASS = int.class;
@@ -480,6 +481,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		final List<String> dummyCommands = new ArrayList<String>();
 		dummyCommands.add(DUMMY_COMMAND);
+		dummyCommands.add(DUMMY_UNPARSABLE_JSON_COMMAND);
 		dummyCommands.add(DUMMY_MULTI_TASK_COMMAND);
 		dummyCommands.add(DUMMY_APPEND_TASK_COMMAND);
 
@@ -494,9 +496,22 @@ public class BasicResourceTest extends JerseyTest {
 		when(available.getArgDescription(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_DESCRIPTION);
 		when(available.getArgRequired(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(false);
 
+		
+		
 		//No arguments for multi-task command and append task command
+		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn(new ArrayList<String>());
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(new ArrayList<String>());
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_APPEND_TASK_COMMAND)).thenReturn(new ArrayList<String>());
+		
+		class DummyUnparsableJSONResult implements JSONResult {
+			final static String JSON = "{";
+			public String getJSON() {
+				return JSON;
+			}
+		}
+		
+		when(available.getSupportsJSON(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn(true);
+		when(available.getExampleJSON(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn("{}");
 		
 		class DummyJSONResultA implements JSONResult {
 
@@ -530,6 +545,16 @@ public class BasicResourceTest extends JerseyTest {
 		when(dummyTask.getResults(String.class)).thenReturn("Dummy string");
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);
 
+		TaskIterator dummyUnparsableJsonTaskIterator = new TaskIterator();
+		ObservableTask dummyUnparsableJsonTask = mock(ObservableTask.class);
+		dummyUnparsableJsonTaskIterator.append(dummyUnparsableJsonTask);
+
+		when(dummyUnparsableJsonTask.getResults(String.class)).thenReturn("Dummy string");
+		when(dummyUnparsableJsonTask.getResults(JSONResult.class)).thenReturn(new DummyUnparsableJSONResult());
+		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_UNPARSABLE_JSON_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyUnparsableJsonTaskIterator);
+		
+		when(dummyUnparsableJsonTask.getResultClasses()).thenReturn(Arrays.asList(String.class, JSONResult.class));
+		
 		TaskIterator dummyMultiTaskIterator = new TaskIterator();
 		ObservableTask dummyMultiTaskA = mock(ObservableTask.class);
 		ObservableTask dummyMultiTaskB = mock(ObservableTask.class);

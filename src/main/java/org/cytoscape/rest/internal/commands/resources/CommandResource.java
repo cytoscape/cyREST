@@ -33,7 +33,11 @@ import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.glassfish.grizzly.http.util.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
@@ -52,7 +56,8 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/commands")
 public class CommandResource
 {
-
+	private static final Logger logger = LoggerFactory.getLogger(CommandResource.class);
+	
 	@Inject
 	@LogLocation
 	URI logLocation;
@@ -223,7 +228,7 @@ public class CommandResource
 			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
 		}*/
 
-		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, logLocation);
+		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, logLocation, logger);
 		try {
 			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
 			return Response.status(jsonTaskObserver.ciErrors.isEmpty() ? 200 : 500).entity(buildCIResult(namespace, command, jsonTaskObserver, handler)).build();
@@ -351,31 +356,55 @@ public class CommandResource
 
 	public static String getJSONResponse(List<String> jsonResultStrings, List<CIError> errors, URI logLocation) {
 
+		final String NO_DATA_RESPONSE = "{\n \"data\": {},\n \"errors\":";
+		
 		StringBuilder jsonResultBuilder = new StringBuilder();
-		if (jsonResultStrings.size() == 0) {
-			jsonResultBuilder.append("{\n \"data\": {},\n \"errors\":");
-		} else if (jsonResultStrings.size() == 1) {
-			jsonResultBuilder.append("{\n \"data\": ");
-
-			String jsonResult = jsonResultStrings.get(0);
-			jsonResultBuilder.append(jsonResult);
-			
-			jsonResultBuilder.append(",\n \"errors\":");
-		} else {
-			jsonResultBuilder.append("{\n \"data\": [ ");
-
-			for (int i = 0; i < jsonResultStrings.size(); i++) {
-				String jsonResult = jsonResultStrings.get(i);
-				jsonResultBuilder.append(jsonResult);
-				if (i != jsonResultStrings.size() - 1) {
-					jsonResultBuilder.append(",");
-				}
-			}
-			jsonResultBuilder.append("],\n \"errors\":");
-		}
 		Gson gson = new Gson();
 
+		boolean jsonValid;
+		try {
+			for (String jsonResultString : jsonResultStrings) {
+				gson.fromJson(jsonResultString, Object.class);
+			}
+			jsonValid = true;
+		} catch (JsonSyntaxException e) {
+			jsonValid = false;
+			logger.error(e.getMessage(), e);
+			
+			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
+			CIError jsonSyntaxError = ciErrorFactory.getCIError(
+					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":3", 
+					"Task returned invalid json.");
+			errors.add(jsonSyntaxError);
+		}
 
+		if (jsonValid) {
+			if (jsonResultStrings.size() == 0) {
+				jsonResultBuilder.append(NO_DATA_RESPONSE);
+			} else if (jsonResultStrings.size() == 1) {
+				jsonResultBuilder.append("{\n \"data\": ");
+
+				String jsonResult = jsonResultStrings.get(0);
+				jsonResultBuilder.append(jsonResult);
+
+				jsonResultBuilder.append(",\n \"errors\":");
+			} else {
+				jsonResultBuilder.append("{\n \"data\": [ ");
+
+				for (int i = 0; i < jsonResultStrings.size(); i++) {
+					String jsonResult = jsonResultStrings.get(i);
+					jsonResultBuilder.append(jsonResult);
+					if (i != jsonResultStrings.size() - 1) {
+						jsonResultBuilder.append(",");
+					}
+				}
+				jsonResultBuilder.append("],\n \"errors\":");
+			}
+		}
+		else {
+			jsonResultBuilder.append(NO_DATA_RESPONSE);
+		}
 		if (!errors.isEmpty()){
 			jsonResultBuilder.append(gson.toJson(errors));
 		} else {

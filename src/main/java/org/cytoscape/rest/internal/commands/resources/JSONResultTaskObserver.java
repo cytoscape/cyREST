@@ -15,18 +15,20 @@ import org.cytoscape.work.TaskObserver;
 import org.cytoscape.work.TunableValidator;
 import org.cytoscape.work.json.JSONResult;
 import org.glassfish.grizzly.http.util.HttpStatus;
-
-import com.google.gson.Gson;
+import org.slf4j.Logger;
 
 class JSONResultTaskObserver extends CommandResourceTaskObserver implements TaskObserver
 {
+	private final Logger logger;
+	
 	URI logLocation;
 	/**
 	 * @param commandResource
 	 */
-	JSONResultTaskObserver(MessageHandler messageHandler, URI logLocation) {
+	JSONResultTaskObserver(MessageHandler messageHandler, URI logLocation, Logger logger) {
 		super(messageHandler);
 		this.logLocation = logLocation;
+		this.logger = logger;
 	}
 
 	List<CIError> ciErrors = new ArrayList<CIError>();

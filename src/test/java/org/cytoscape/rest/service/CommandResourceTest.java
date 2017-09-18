@@ -64,6 +64,32 @@ public class CommandResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
+	public void testUnparsableJsonTaskCommandJSON() throws Exception {
+		
+	
+		Response response = target("/v1/commands/dummyNamespace/dummyUnparsableJsonCommand").request().post(null);
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	
+		
+		final JsonNode root = mapper.readTree(body);
+		JsonNode dataNode = root.get("data");
+		assertNotNull(dataNode);
+		assertEquals(0, dataNode.size());
+		
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		JsonNode statusNode = errorsNode.get(0).get("status");
+		assertEquals(500, statusNode.asInt());
+		JsonNode typeNode = errorsNode.get(0).get("type");
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:handle-json-command:errors:3", typeNode.asText());
+	}
+	
+	@Test
 	public void testMultiTaskCommandJSON() throws Exception {
 		
 		assertFalse(multiTaskAComplete);

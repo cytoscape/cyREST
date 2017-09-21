@@ -13,6 +13,7 @@ import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
+import org.cytoscape.rest.internal.resource.InstrumentationFilter;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkNameResource;
@@ -61,9 +62,12 @@ public class ConfigurationTest
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));
 		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
+		
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, InstrumentationFilter.class));
+		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(20, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(21, CyRESTConstants.coreResourceClasses.length);
 
 	}
 	

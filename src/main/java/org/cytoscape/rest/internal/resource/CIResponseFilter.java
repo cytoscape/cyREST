@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.annotation.Priority;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -16,7 +17,6 @@ import org.cytoscape.ci.CIWrapping;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.rest.internal.CIErrorFactoryImpl;
-import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.slf4j.Logger;
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 @Provider
+@Priority(javax.ws.rs.Priorities.USER)
 public class CIResponseFilter implements ContainerResponseFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(CIResponseFilter.class);
@@ -37,7 +38,6 @@ public class CIResponseFilter implements ContainerResponseFilter {
 	
 	@Override
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
-
 		boolean hasCIWrapperAnnotation = false;
 
 		Annotation[] annotations = response.getEntityAnnotations();
@@ -92,6 +92,5 @@ public class CIResponseFilter implements ContainerResponseFilter {
 				}
 			}
 		}
-
 	}
 }

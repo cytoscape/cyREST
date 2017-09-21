@@ -9,6 +9,7 @@ import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
+import org.cytoscape.rest.internal.resource.InstrumentationFilter;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkNameResource;
@@ -49,6 +50,9 @@ public class CyRESTConstants {
 			
 			//For CI
 			CIResponseFilter.class,
+			
+			//For Instrumentation
+			InstrumentationFilter.class,
 			
 			//For Error Handling
 			CyExceptionMapper.class

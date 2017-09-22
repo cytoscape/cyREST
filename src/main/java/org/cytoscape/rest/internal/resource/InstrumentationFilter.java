@@ -30,6 +30,7 @@ public class InstrumentationFilter implements ContainerResponseFilter {
 	
 	@Override
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
+		
 		try {
 			final String[] values = getValues(request);
 			requestCounter.labels(values).inc();
@@ -38,6 +39,7 @@ public class InstrumentationFilter implements ContainerResponseFilter {
 			e.printStackTrace();
 			logger.debug("Instrumentation filter produced an exception.", e);
 		}
+		
 	}
 	
 	public String[] getValues(ContainerRequestContext request) {

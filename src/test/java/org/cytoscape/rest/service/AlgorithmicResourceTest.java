@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
@@ -40,7 +42,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertEquals(root.size(), 1);
 		assertEquals("grid", root.get(0).asText());
 	}
-
+	
 	@Test
 	public void testGetLayout() throws Exception {
 		final Response result = target("/v1/apply/layouts/grid").request().get();
@@ -57,6 +59,38 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertTrue(root.get("parameters").isArray());
 	}
 
+	@Test
+	public void testFailsYFiles() throws Exception {
+		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout").request().get();
+		assertEquals(404, result.getStatus());
+	}
+	
+	@Test
+	public void testFailsYFilesNetworkId() throws Exception {
+		Long suid = view.getModel().getSUID();
+		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/" + suid).request().get();
+		assertEquals(404, result.getStatus());
+	}
+	
+	@Test
+	public void testFailsYFilesParametersGet() throws Exception {
+		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().get();
+		assertEquals(404, result.getStatus());
+	}
+	
+	@Test
+	public void testFailsYFilesParametersPut() throws Exception {
+		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
+		assertEquals(404, result.getStatus());
+	}
+	
+	
+	@Test
+	public void testFailsYFilesColumnTypes() throws Exception {
+		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columnTypes").request().get();
+		assertEquals(404, result.getStatus());
+	}
+	
 	@Test
 	public void testGetFit() throws Exception {
 		

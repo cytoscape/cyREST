@@ -80,6 +80,9 @@ public class AlgorithmicResource extends AbstractResource {
 			@ApiParam("Name of layout algorithm (\"circular\", \"force-directed\", etc.)") @PathParam("algorithmName") String algorithmName,
 			@ApiParam("Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam("Column name to be used by the layout algorithm") @QueryParam("column") String column) {
+		
+		throw404ifYFiles(algorithmName);
+		
 		final CyNetwork network = getCyNetwork(networkId);
 		final Collection<CyNetworkView> views = 
 				this.networkViewManager.getNetworkViews(network);
@@ -127,6 +130,9 @@ public class AlgorithmicResource extends AbstractResource {
 			)
 	public Response getLayout(
 			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName) {
+		
+		throw404ifYFiles(algorithmName);
+		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
 			throw new NotFoundException("No such layout algorithm: " + algorithmName);
@@ -151,6 +157,9 @@ public class AlgorithmicResource extends AbstractResource {
 			notes="Returns all editable parameters for this algorithm.")
 	public Response getLayoutParameters(
 			@ApiParam(value="Name of layout algorithm") @PathParam("algorithmName") String algorithmName) {
+		
+		throw404ifYFiles(algorithmName);
+		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
 			throw new NotFoundException("No such layout algorithm: " + algorithmName);
@@ -179,6 +188,8 @@ public class AlgorithmicResource extends AbstractResource {
 	public Response getCompatibleColumnDataTypes(
 			@ApiParam(value="Name of layout algorithm") @PathParam("algorithmName") String algorithmName) {
 
+		throw404ifYFiles(algorithmName);
+		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
 			throw new NotFoundException("No such layout algorithm: " + algorithmName);
@@ -230,6 +241,9 @@ public class AlgorithmicResource extends AbstractResource {
 			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName, 
 			final InputStream is
 			) {
+		
+		throw404ifYFiles(algorithmName);
+		
 		final ObjectMapper objMapper = new ObjectMapper();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		final Object context = layout.getDefaultLayoutContext();
@@ -420,7 +434,7 @@ public class AlgorithmicResource extends AbstractResource {
 			)
 	public Collection<String> getLayoutNames() {
 		return layoutManager.getAllLayouts().stream()
-			.map(layout->layout.getName())
+			.map(layout->layout.getName()).filter(name -> !isYFiles(name))
 			.collect(Collectors.toList());
 	}
 
@@ -439,4 +453,17 @@ public class AlgorithmicResource extends AbstractResource {
 				.map(style->style.getTitle())
 				.collect(Collectors.toList());
 	}
+	
+	private static boolean isYFiles(String name) {
+		return name.startsWith("com.yworks.yfiles.layout");
+	}
+	
+	private void throw404ifYFiles(String algorithmName) {
+		if (isYFiles(algorithmName)) {
+			throw getError("No such layout: " + algorithmName,
+					new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
+		}
+	}
+	
+	
 }

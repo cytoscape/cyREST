@@ -253,12 +253,21 @@ public class BasicResourceTest extends JerseyTest {
 		when(def.createLayoutContext()).thenReturn(context);
 		when(def.getDefaultLayoutContext()).thenReturn(context);
 		when(def.getName()).thenReturn("grid");
+		
+		CyLayoutAlgorithm def2 = mock(CyLayoutAlgorithm.class);
+		
+		when(def2.createLayoutContext()).thenReturn(context);
+		when(def2.getDefaultLayoutContext()).thenReturn(context);
+		when(def2.getName()).thenReturn("com.yworks.yfiles.layout.DummyYFilesLayout");
+		
+		
 		TaskIterator gridLayoutTaskIterator = new TaskIterator();
 		gridLayoutTaskIterator.append(mock(Task.class));
 		when(def.createTaskIterator(any(CyNetworkView.class), anyObject(), any(Set.class), any(String.class))).thenReturn(gridLayoutTaskIterator);
 
 		Collection<CyLayoutAlgorithm> algorithms = new ArrayList<>();
 		algorithms.add(def);
+		algorithms.add(def2);
 		CyLayoutAlgorithmManager layouts = mock(CyLayoutAlgorithmManager.class);
 		when(layouts.getDefaultLayout()).thenReturn(def);
 		when(layouts.getAllLayouts()).thenReturn(algorithms);

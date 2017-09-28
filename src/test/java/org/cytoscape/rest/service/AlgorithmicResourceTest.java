@@ -84,7 +84,6 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 	}
 	
-	
 	@Test
 	public void testFailsYFilesColumnTypes() throws Exception {
 		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columnTypes").request().get();

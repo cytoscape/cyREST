@@ -27,7 +27,6 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -310,7 +309,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		if (emptyNetwork == null) {
 			emptyNetwork = (networkFactory.createNetwork(SavePolicy.DO_NOT_SAVE));
-			emptyNetwork.getRow(emptyNetwork).set(CyNetwork.NAME, "--empty--");
+			//Note: DO NOT CHANGE THE NETWORK NAME FROM "cy:command_documentation_generation", it is necessary for a workaround.
+			emptyNetwork.getRow(emptyNetwork).set(CyNetwork.NAME, "cy:command_documentation_generation");
 		}
 		return emptyNetwork;
 	}

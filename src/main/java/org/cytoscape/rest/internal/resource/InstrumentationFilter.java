@@ -37,7 +37,7 @@ private static final Logger logger = LoggerFactory.getLogger(InstrumentationFilt
 		"PATH"
 	};
 	
-	public final static String SUCCESSFUL_REQUESTS = "SUCCESSFUL_REQUESTS";
+	public final static String SUCCESSFUL_REQUESTS = "successful_requests";
 	
 	static Counter requestCounter = Counter.build()
 			.name(SUCCESSFUL_REQUESTS).help("Successful requests to CyREST").labelNames(LABELS).register();

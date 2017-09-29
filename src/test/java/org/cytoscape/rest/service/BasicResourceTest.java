@@ -101,6 +101,7 @@ import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -417,11 +418,11 @@ public class BasicResourceTest extends JerseyTest {
 		when(cytoscapeJsReaderFactoryTracker.getService()).thenReturn(cytoscapeJsReaderFactory);
 
 		CyTableFactory tableFactory = mock(CyTableFactory.class);
-		NetworkTaskFactory fitContentTaskFactory = mock(NetworkTaskFactory.class);
+		NetworkViewTaskFactory fitContentTaskFactory = mock(NetworkViewTaskFactory.class);
 		TaskIterator fitTaskIterator = new TaskIterator();
 		fitTaskIterator.append(mock(Task.class));
 
-		when(fitContentTaskFactory.createTaskIterator(any(CyNetwork.class))).thenReturn(fitTaskIterator);
+		when(fitContentTaskFactory.createTaskIterator(any(CyNetworkView.class))).thenReturn(fitTaskIterator);
 
 		EdgeBundler edgeBundler = mock(EdgeBundler.class);
 		NetworkTaskFactory edgeBundlerTaskFactory = mock(NetworkTaskFactory.class);

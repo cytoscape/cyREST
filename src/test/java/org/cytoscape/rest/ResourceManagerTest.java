@@ -39,6 +39,7 @@ import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -119,7 +120,7 @@ public class ResourceManagerTest
 		final EdgeListReaderFactory edgelistReaderFactory = mock(EdgeListReaderFactory.class);
 		final CyNetworkViewFactory networkViewFactory = mock(CyNetworkViewFactory.class);
 		final CyTableFactory tableFactory = mock(CyTableFactory.class);
-		final NetworkTaskFactory fitContent = mock(NetworkTaskFactory.class);
+		final NetworkViewTaskFactory fitContent = mock(NetworkViewTaskFactory.class);
 		final EdgeBundler edgeBundler = mock(EdgeBundler.class);
 		final RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 		final CySessionManager sessionManager = mock(CySessionManager.class);

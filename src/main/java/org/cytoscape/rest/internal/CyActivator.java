@@ -46,6 +46,7 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -310,7 +311,7 @@ public class CyActivator extends AbstractCyActivator {
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
 
 		// TODO: need ID for these services.
-		final NetworkTaskFactory fitContent = getService(bc, NetworkTaskFactory.class, "(title=Fit Content)");
+		final NetworkViewTaskFactory fitContent = getService(bc, NetworkViewTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
 		final NetworkTaskFactory showDetailsTaskFactory = getService(bc, NetworkTaskFactory.class, 
 				"(title=Show/Hide Graphics Details)");

@@ -25,7 +25,7 @@ import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.session.CySessionManager;
-import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -79,7 +79,7 @@ public class CoreServiceModule extends AbstractModule {
 	private final EdgeListReaderFactory edgelistReaderFactory;
 	private final ServiceTracker cytoscapeJsWriterFactory;
 	private final ServiceTracker cytoscapeJsReaderFactory;
-	private final NetworkTaskFactory fitContent;
+	private final NetworkViewTaskFactory fitContent;
 	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
 	private final RenderingEngineManager renderingEngineManager;
@@ -116,7 +116,7 @@ public class CoreServiceModule extends AbstractModule {
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
-			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
+			final CyTableFactory tableFactory, final NetworkViewTaskFactory fitContent, final EdgeBundler edgeBundler,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
@@ -198,7 +198,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(EdgeListReaderFactory.class).toInstance(edgelistReaderFactory);
 		bind(CyNetworkViewFactory.class).toInstance(networkViewFactory);
 		bind(CyTableFactory.class).toInstance(tableFactory);
-		bind(NetworkTaskFactory.class).toInstance(fitContent);
+		bind(NetworkViewTaskFactory.class).toInstance(fitContent);
 		bind(EdgeBundler.class).toInstance(edgeBundler);
 		bind(RenderingEngineManager.class).toInstance(renderingEngineManager);
 		bind(CySessionManager.class).toInstance(sessionManager);

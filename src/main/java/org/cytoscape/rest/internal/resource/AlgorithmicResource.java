@@ -29,6 +29,7 @@ import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.model.Message;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
@@ -66,7 +67,7 @@ public class AlgorithmicResource extends AbstractResource {
 
 	@Inject
 	@NotNull
-	private NetworkTaskFactory fitContent;
+	private NetworkViewTaskFactory fitContent;
 
 	@Inject
 	@NotNull
@@ -376,12 +377,14 @@ public class AlgorithmicResource extends AbstractResource {
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
+		
 		if (views.isEmpty()) {
 			throw new NotFoundException(
 					"Network view does not exist for the network with SUID: "
 							+ networkId);
 		}
-		TaskIterator fit = fitContent.createTaskIterator(network);
+		CyNetworkView view = views.iterator().next();
+		TaskIterator fit = fitContent.createTaskIterator(view);
 		try {
 			fit.next().run(headlessTaskMonitor);
 		} catch (Exception e) {

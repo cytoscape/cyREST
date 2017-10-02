@@ -1,14 +1,15 @@
 package org.cytoscape.rest.service;
 
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -39,10 +40,7 @@ import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.ding.DVisualLexicon;
-import org.cytoscape.view.presentation.property.values.Justification;
 import org.cytoscape.ding.NetworkViewTestSupport;
-import org.cytoscape.view.presentation.property.values.ObjectPosition;
-import org.cytoscape.view.presentation.property.values.Position;
 import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroup;
@@ -122,7 +120,10 @@ import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.view.presentation.property.NodeShapeVisualProperty;
+import org.cytoscape.view.presentation.property.values.Justification;
 import org.cytoscape.view.presentation.property.values.NodeShape;
+import org.cytoscape.view.presentation.property.values.ObjectPosition;
+import org.cytoscape.view.presentation.property.values.Position;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
@@ -453,7 +454,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
 		CySwingApplication desktop = mock(CySwingApplication.class);
 
-		NetworkTaskFactory lodNetworkTaskFactory = mock(NetworkTaskFactory.class);
+		NetworkViewTaskFactory lodNetworkTaskFactory = mock(NetworkViewTaskFactory.class);
 		TaskIterator lodTaskIterator = new TaskIterator();
 		lodTaskIterator.append(mock(Task.class));
 		when(lodNetworkTaskFactory.createTaskIterator(null)).thenReturn(lodTaskIterator);

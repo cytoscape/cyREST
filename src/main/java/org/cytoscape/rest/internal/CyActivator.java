@@ -38,9 +38,9 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
-import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
+import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
@@ -313,8 +313,8 @@ public class CyActivator extends AbstractCyActivator {
 		// TODO: need ID for these services.
 		final NetworkViewTaskFactory fitContent = getService(bc, NetworkViewTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
-		final NetworkTaskFactory showDetailsTaskFactory = getService(bc, NetworkTaskFactory.class, 
-				"(title=Show/Hide Graphics Details)");
+		final NetworkViewTaskFactory showDetailsTaskFactory = getService(bc, NetworkViewTaskFactory.class, 
+				"(id=showGraphicsDetailsTaskFactory)");
 
 		final RenderingEngineManager renderingEngineManager = getService(bc,RenderingEngineManager.class);
 
@@ -397,13 +397,13 @@ public class CyActivator extends AbstractCyActivator {
 
 	public class LevelOfDetails {
 
-		private final NetworkTaskFactory lod;
+		private final NetworkViewTaskFactory lod;
 
-		public LevelOfDetails(final NetworkTaskFactory tf) {
+		public LevelOfDetails(final NetworkViewTaskFactory tf) {
 			this.lod = tf;
 		}
 
-		public NetworkTaskFactory getLodTF() {
+		public NetworkViewTaskFactory getLodTF() {
 			return lod;
 		}
 

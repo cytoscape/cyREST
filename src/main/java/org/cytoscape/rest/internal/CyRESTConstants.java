@@ -10,6 +10,7 @@ import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.InstrumentationFilter;
+import org.cytoscape.rest.internal.resource.RemoteLoggingFilter;
 import org.cytoscape.rest.internal.resource.MetricsResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkFullResource;
@@ -52,8 +53,9 @@ public class CyRESTConstants {
 			//For CI
 			CIResponseFilter.class,
 			
-			//For Instrumentation
+			//For Instrumentation and Logging
 			InstrumentationFilter.class,
+			RemoteLoggingFilter.class,
 			MetricsResource.class,
 			
 			//For Error Handling

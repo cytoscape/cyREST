@@ -766,8 +766,8 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Instrumentation -->
-
+		<!-- Prometheus Instrumentation -->
+		
 		<dependency>
 		  <groupId>io.prometheus</groupId>
 		  <artifactId>simpleclient</artifactId>
@@ -791,6 +791,14 @@
 		  <artifactId>simpleclient_pushgateway</artifactId>
 		  <version>0.0.26</version>
 		</dependency>
+
+		<!-- Fluentd logging -->
+
+	 	<dependency>
+   		<groupId>org.fluentd</groupId>
+    	<artifactId>fluent-logger</artifactId>
+    	<version>0.3.3</version>
+  		</dependency>
 
 
 		<!-- Testing -->

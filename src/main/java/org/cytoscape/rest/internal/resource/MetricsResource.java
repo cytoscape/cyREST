@@ -36,7 +36,7 @@ public class MetricsResource extends AbstractResource {
 
 
 	public MetricsResource() {
-		this(CollectorRegistry.defaultRegistry);
+	//	this(CollectorRegistry.defaultRegistry);
 	}
 
 
@@ -72,4 +72,5 @@ public class MetricsResource extends AbstractResource {
 			return new HashSet<String>(includedParam);
 		}
 	}
+	
 }

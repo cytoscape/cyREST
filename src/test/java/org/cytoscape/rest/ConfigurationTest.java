@@ -14,6 +14,7 @@ import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.cytoscape.rest.internal.resource.InstrumentationFilter;
+import org.cytoscape.rest.internal.resource.RemoteLoggingFilter;
 import org.cytoscape.rest.internal.resource.MetricsResource;
 import org.cytoscape.rest.internal.resource.MiscResource;
 import org.cytoscape.rest.internal.resource.NetworkFullResource;
@@ -28,7 +29,7 @@ import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
 import org.junit.Test;
 
-import io.prometheus.client.filter.MetricsFilter;
+
 
 public class ConfigurationTest 
 {
@@ -67,11 +68,12 @@ public class ConfigurationTest
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
 		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, InstrumentationFilter.class));
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, RemoteLoggingFilter.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, MetricsResource.class));
 		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(22, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(23, CyRESTConstants.coreResourceClasses.length);
 
 	}
 	

@@ -262,6 +262,11 @@ public class BasicResourceTest extends JerseyTest {
 		when(def2.getDefaultLayoutContext()).thenReturn(context);
 		when(def2.getName()).thenReturn("com.yworks.yfiles.layout.DummyYFilesLayout");
 		
+		CyLayoutAlgorithm def3 = mock(CyLayoutAlgorithm.class);
+		
+		when(def3.createLayoutContext()).thenReturn(context);
+		when(def3.getDefaultLayoutContext()).thenReturn(context);
+		when(def3.getName()).thenReturn("yfiles.DummyYFilesLayout");
 		
 		TaskIterator gridLayoutTaskIterator = new TaskIterator();
 		gridLayoutTaskIterator.append(mock(Task.class));
@@ -270,10 +275,13 @@ public class BasicResourceTest extends JerseyTest {
 		Collection<CyLayoutAlgorithm> algorithms = new ArrayList<>();
 		algorithms.add(def);
 		algorithms.add(def2);
+		algorithms.add(def3);
 		CyLayoutAlgorithmManager layouts = mock(CyLayoutAlgorithmManager.class);
 		when(layouts.getDefaultLayout()).thenReturn(def);
 		when(layouts.getAllLayouts()).thenReturn(algorithms);
 		when(layouts.getLayout("grid")).thenReturn(def);
+		when(layouts.getLayout("com.yworks.yfiles.layout.DummyYFilesLayout")).thenReturn(def2);
+		when(layouts.getLayout("yfiles.DummyYFilesLayout")).thenReturn(def3);
 
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
 		this.network = createNetwork("network1");

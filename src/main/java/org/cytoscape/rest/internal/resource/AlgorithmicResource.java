@@ -458,7 +458,7 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 	
 	private static boolean isYFiles(String name) {
-		return name.startsWith("com.yworks.yfiles.layout");
+		return name.startsWith("com.yworks.yfiles.layout") || name.startsWith("yfiles.");
 	}
 	
 	private void throw404ifYFiles(String algorithmName) {

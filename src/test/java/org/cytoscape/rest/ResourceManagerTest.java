@@ -16,6 +16,9 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -136,6 +139,9 @@ public class ResourceManagerTest
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 		final CyNetworkViewWriterFactoryManager viewFactoryManager = mock(CyNetworkViewWriterFactoryManager.class);
+		final CIResponseFactory ciResponseFactory = mock(CIResponseFactory.class);
+		final CIErrorFactory ciErrorFactory = mock(CIErrorFactory.class);
+		final CIExceptionFactory ciExceptionFactory = mock(CIExceptionFactory.class);
 		
 		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
 
@@ -144,7 +150,10 @@ public class ResourceManagerTest
 
 		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
-				cyRESTPort, logLocation);
+				cyRESTPort, logLocation,
+				ciResponseFactory,
+				ciErrorFactory,
+				ciExceptionFactory);
 
 		final Map<Class<?>, Module> shimMap = new HashMap<Class<?>, Module>();
 		shimMap.put(TestShimClass.class, new TestModule(coreServiceModule));

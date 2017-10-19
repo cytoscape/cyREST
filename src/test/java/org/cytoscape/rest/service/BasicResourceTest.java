@@ -66,6 +66,9 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.BundleResourceProvider;
+import org.cytoscape.rest.internal.CIErrorFactoryImpl;
+import org.cytoscape.rest.internal.CIExceptionFactoryImpl;
+import org.cytoscape.rest.internal.CIResponseFactoryImpl;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -726,6 +729,8 @@ public class BasicResourceTest extends JerseyTest {
 		
 		final URI logLocation = this.logLocation;
 
+		
+		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
 				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
@@ -739,7 +744,10 @@ public class BasicResourceTest extends JerseyTest {
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
 				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, 
 				bundleResourceProvider,
-				cyRESTPort, logLocation);
+				cyRESTPort, logLocation,
+				new CIResponseFactoryImpl(),
+				new CIErrorFactoryImpl(logLocation),
+				new CIExceptionFactoryImpl());
 	}
 
 

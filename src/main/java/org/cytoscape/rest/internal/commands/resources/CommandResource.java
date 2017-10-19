@@ -85,6 +85,8 @@ public class CommandResource
 	@Inject
 	protected CIExceptionFactory ciExceptionFactory;
 	
+	public static final String JSON_COMMAND_RESOURCE_URI = "handle-json-command";
+	
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -258,7 +260,7 @@ public class CommandResource
 		if (jsonTaskObserver.succeeded == false) {
 			ciErrorList.add(ciErrorFactory.getCIError(
 					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-					CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 
+					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI, 2), 
 					"Successful response was not returned."));
 		}
 		return getJSONResponse(jsonTaskObserver.jsonResultStrings, jsonTaskObserver.ciErrors, logLocation);

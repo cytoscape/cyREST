@@ -43,7 +43,7 @@ public class CyExceptionMapper implements ExceptionMapper<Throwable> {
 			//System.out.println("Error report from thread: " + Thread.currentThread());
 			
 			error.link = logLocation;
-			error.type = CyRESTConstants.cyRESTCIRoot + ":error-handling" + CyRESTConstants.cyRESTCIErrorRoot + ":0";
+			error.type = CyRESTConstants.getErrorURI("error-handling", 0);
 			error.status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
 			error.message = "Uncaught exception while processing resource [" +Thread.currentThread().getName()+"]: " + ex.getMessage();
 			ciResponse.errors.add(error);

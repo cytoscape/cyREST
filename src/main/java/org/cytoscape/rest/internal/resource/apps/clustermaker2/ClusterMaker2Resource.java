@@ -80,12 +80,12 @@ public class ClusterMaker2Resource
 	class MCODETaskObserver implements TaskObserver {
 		
 		private CIResponse ciResponse;
-		private String resourceName;
-		private String errorCode;
+		private String resourceURI;
+		private int errorCode;
 		
-		public MCODETaskObserver(String resourceName, String errorCode){
+		public MCODETaskObserver(String resourceName, int errorCode){
 			ciResponse = null;
-			this.resourceName = resourceName;
+			this.resourceURI = resourceName;
 			this.errorCode = errorCode;
 		}
 		
@@ -99,7 +99,7 @@ public class ClusterMaker2Resource
 			}
 			else
 			{
-				ciResponse = buildCIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), resourceName, errorCode, arg0.getException().getMessage(), arg0.getException());
+				ciResponse = buildCIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), resourceURI, errorCode, arg0.getException().getMessage(), arg0.getException());
 			}
 		}
 
@@ -110,14 +110,14 @@ public class ClusterMaker2Resource
 		}
 	}
 	
-	private CIResponse<Object> buildCIErrorResponse(int status, String resourcePath, String code, String message, Exception e)
+	private CIResponse<Object> buildCIErrorResponse(int status, String resourcePath, int code, String message, Exception e)
 	{
 		CIResponse<Object> ciResponse = new CIResponse<Object>();
 		ciResponse.data = new Object();
 		List<CIError> errors = new ArrayList<CIError>();
 		CIError error= new CIError();
-		error.type = CyRESTConstants.cyRESTCIRoot + ":" + resourcePath + CyRESTConstants.cyRESTCIErrorRoot + ":"+ code;
-		
+		error.type = CyRESTConstants.getErrorURI(resourcePath, code);
+			
 		System.out.println("Current Thread: " + Thread.currentThread().getName());
 	
 		if (e != null)
@@ -212,7 +212,7 @@ public class ClusterMaker2Resource
 			String messageString = "clusterMaker2 MCODE command is unavailable";
 			throw new ServiceUnavailableException(messageString, Response.status(Response.Status.SERVICE_UNAVAILABLE)
 					.type(MediaType.APPLICATION_JSON)
-					.entity(buildCIErrorResponse(503, MCODE_ERROR_NAME, "1", messageString, null)).build());
+					.entity(buildCIErrorResponse(503, MCODE_ERROR_NAME, 1, messageString, null)).build());
 		}
 		
 		if (!networkManager.networkExists(suid))
@@ -220,7 +220,7 @@ public class ClusterMaker2Resource
 			String messageString = "Network " + suid + " does not exist";
 			throw new NotFoundException(messageString, Response.status(Response.Status.NOT_FOUND)
 					.type(MediaType.APPLICATION_JSON)
-					.entity(buildCIErrorResponse(404, MCODE_ERROR_NAME, "2", messageString, null)).build());
+					.entity(buildCIErrorResponse(404, MCODE_ERROR_NAME, 2, messageString, null)).build());
 		}
 		
 		if (parameters == null)
@@ -229,10 +229,10 @@ public class ClusterMaker2Resource
 			throw new BadRequestException(messageString, Response.status(Response.Status.BAD_REQUEST).
 					type(MediaType.APPLICATION_JSON)
 
-					.entity(buildCIErrorResponse(400, MCODE_ERROR_NAME, "3", messageString, null)).build());
+					.entity(buildCIErrorResponse(400, MCODE_ERROR_NAME, 3, messageString, null)).build());
 		}
 		
-		MCODETaskObserver taskObserver = new MCODETaskObserver(MCODE_ERROR_NAME, "4");
+		MCODETaskObserver taskObserver = new MCODETaskObserver(MCODE_ERROR_NAME, 4);
 		
 		Map<String, Object> tunableMap = new HashMap<String, Object>();
 		

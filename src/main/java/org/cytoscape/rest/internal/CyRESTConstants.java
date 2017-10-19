@@ -55,7 +55,11 @@ public class CyRESTConstants {
 	};
 	
 	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
-	public final static String cyRESTCIErrorRoot = ":errors";
+	public final static String cyRESTCIErrorRoot = "errors";
 	
 	public final static String cyRESTHelpMenu = "Help.Automation[1.9999999]"; //That's enough 9's right? Yeah. Probably.
+
+	public final static String getErrorURI(String resourceURI, int code) {
+		return cyRESTCIRoot + ":" + resourceURI + ":"+ cyRESTCIErrorRoot + ":"+ code;
+	}
 }

@@ -21,6 +21,7 @@ import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.ci.CIErrorFactory;
 import org.cytoscape.ci.CIExceptionFactory;
 import org.cytoscape.ci.CIResponseFactory;
+import org.cytoscape.ci.model.CIError;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyIdentifiable;
@@ -35,7 +36,9 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
+import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.serializer.ExceptionSerializer;
@@ -52,6 +55,8 @@ import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -182,7 +187,22 @@ public abstract class AbstractResource {
 		this.serializer = new GraphObjectSerializer();
 	}
 
-	
+	protected final WebApplicationException getCIWebApplicationException(int status, String resourceURI, int code, String message, Logger logger, Exception e) {
+		String errorURI = CyRESTConstants.cyRESTCIRoot + ":" + resourceURI + ":" + CyRESTConstants.cyRESTCIErrorRoot + ":"+ code;
+		CIError ciError = ciErrorFactory.getCIError(status, errorURI, message);
+		
+		if (logger != null) {
+			if (e != null)
+			{
+				logger.error(message, e);
+			}
+			else
+			{
+				logger.error(message);
+			}
+		}
+		return ciExceptionFactory.getCIException(status, new CIError[]{ciError});
+	}
 	
 	protected final CyNetwork getCyNetwork(final Long id) {
 		if (id == null) {

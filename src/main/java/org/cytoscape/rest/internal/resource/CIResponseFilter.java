@@ -12,11 +12,12 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.ci.CIWrapping;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.ci.model.CIResponse;
-import org.cytoscape.rest.internal.CIErrorFactoryImpl;
-import org.cytoscape.rest.internal.CyActivator;
+
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.slf4j.Logger;
@@ -32,6 +33,15 @@ public class CIResponseFilter implements ContainerResponseFilter {
 	@Inject
 	@LogLocation
 	private URI logLocation;
+	
+	@Inject
+	protected CIResponseFactory ciResponseFactory;
+	
+	@Inject
+	protected CIErrorFactory ciErrorFactory;
+	
+	@Inject
+	protected CIExceptionFactory ciExceptionFactory;
 	
 	public static final String INTERCEPTED_ERROR_URN = CyRESTConstants.cyRESTCIRoot + ":ciresponsefilter:0";
 	
@@ -78,7 +88,6 @@ public class CIResponseFilter implements ContainerResponseFilter {
 					CIResponse<Object> ciResponse;
 					try {
 						ciResponse = CIResponse.class.newInstance();
-						CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 						ciResponse.data = new Object();
 						ciResponse.errors = Arrays.asList(ciErrorFactory.getCIError(response.getStatus(), INTERCEPTED_ERROR_URN, response.getStatusInfo().getReasonPhrase()));
 						response.setEntity(ciResponse);

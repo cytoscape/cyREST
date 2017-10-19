@@ -4,8 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.InternalServerErrorException;
@@ -16,6 +18,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.io.write.CyNetworkViewWriterFactory;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyIdentifiable;
@@ -162,6 +167,15 @@ public abstract class AbstractResource {
 	@CyRESTPort
 	protected String cyRESTPort;
 	
+	@Inject
+	protected CIResponseFactory ciResponseFactory;
+	
+	@Inject
+	protected CIErrorFactory ciErrorFactory;
+	
+	@Inject
+	protected CIExceptionFactory ciExceptionFactory;
+	
 	protected final GraphObjectSerializer serializer;
 
 	public AbstractResource() {
@@ -209,6 +223,48 @@ public abstract class AbstractResource {
 		}
 	}
 
+	protected final Collection<Long> getByQuery(final Long id, final String objType, final String column,
+			final String query) {
+		final CyNetwork network = getCyNetwork(id);
+		CyTable table = null;
+
+		List<? extends CyIdentifiable> graphObjects;
+		if (objType.equals("nodes")) {
+			table = network.getDefaultNodeTable();
+			graphObjects = network.getNodeList();
+		} else if (objType.equals("edges")) {
+			table = network.getDefaultEdgeTable();
+			graphObjects = network.getEdgeList();
+		} else {
+			throw getError("Invalid graph object type: " + objType, new IllegalArgumentException(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		}
+
+		if (query == null && column == null) {
+			// Simply return rows
+			return graphObjects.stream()
+					.map(obj->obj.getSUID())
+					.collect(Collectors.toList());
+		} else if (query == null || column == null) {
+			throw getError("Missing query parameter.", new IllegalArgumentException(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} else {
+			Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
+			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);
+			final Set<Long> selectedSuid = rows.stream()
+					.map(row->row.get(CyIdentifiable.SUID, Long.class))
+					.collect(Collectors.toSet());
+
+			final Set<Long> allSuid = graphObjects.stream()
+					.map(obj->obj.getSUID())
+					.collect(Collectors.toSet());
+			// Return intersection
+			allSuid.retainAll(selectedSuid);
+			return allSuid;
+		}
+
+	}
+	
 	protected final String getNames(final Collection<String> names) throws IOException {
 		final JsonFactory factory = new JsonFactory();
 

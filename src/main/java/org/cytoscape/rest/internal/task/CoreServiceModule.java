@@ -5,6 +5,9 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -104,6 +107,10 @@ public class CoreServiceModule extends AbstractModule {
 	private final URI logLocation;
 	private final String cyRESTPort;
 	
+	private final CIResponseFactory ciResponseFactory;
+	private final CIErrorFactory ciErrorFactory;
+	private final CIExceptionFactory ciExceptionFactory;
+	
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
@@ -125,7 +132,10 @@ public class CoreServiceModule extends AbstractModule {
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
 			final BundleResourceProvider bundleResourceProvider,
-			final String cyRESTPort, final URI logLocation) {
+			final String cyRESTPort, final URI logLocation,
+			final CIResponseFactory ciResponseFactory,
+			final CIErrorFactory ciErrorFactory,
+			final CIExceptionFactory ciExceptionFactory) {
 	
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -169,6 +179,9 @@ public class CoreServiceModule extends AbstractModule {
 		this.bundleResourceProvider = bundleResourceProvider;
 		this.cyRESTPort = cyRESTPort;
 		this.logLocation = logLocation;
+		this.ciResponseFactory = ciResponseFactory;
+		this.ciErrorFactory = ciErrorFactory;
+		this.ciExceptionFactory = ciExceptionFactory;
 	}
 
 
@@ -221,5 +234,9 @@ public class CoreServiceModule extends AbstractModule {
 		
 		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
 		bind(URI.class).annotatedWith(LogLocation.class).toInstance(logLocation);
+		
+		bind(CIResponseFactory.class).toInstance(ciResponseFactory);
+		bind(CIErrorFactory.class).toInstance(ciErrorFactory);
+		bind(CIExceptionFactory.class).toInstance(ciExceptionFactory);
 	}
 }

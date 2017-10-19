@@ -114,19 +114,12 @@ public class CyActivator extends AbstractCyActivator {
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
 
-		this.registerService(bc, new CIResponseFactoryImpl(), CIResponseFactory.class, new Properties());
-		this.registerService(bc, new CIExceptionFactoryImpl(), CIExceptionFactory.class, new Properties());
-		
 		try {
 			this.logLocation = this.getLogLocation(bc);
 		} catch (IOException e1) {
 			this.logLocation = null;
 			logger.warn("CyREST is unable to find the Karaf log");
 		}
-		
-		this.registerService(bc, new CIErrorFactoryImpl(this.logLocation), CIErrorFactory.class, new Properties());
-		
-		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
 		
 		serverState = ServerState.STARTING;
 
@@ -219,6 +212,16 @@ public class CyActivator extends AbstractCyActivator {
 	}
 	
 	private final void initDependencies(final BundleContext bc) throws Exception {
+		
+		CIResponseFactory ciResponseFactory = new CIResponseFactoryImpl();
+		CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(this.logLocation);
+		CIExceptionFactory ciExceptionFactory = new CIExceptionFactoryImpl();
+		
+		this.registerService(bc, ciResponseFactory, CIResponseFactory.class, new Properties());
+		this.registerService(bc, ciExceptionFactory, CIExceptionFactory.class, new Properties());
+	
+		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
+		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
 		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
@@ -355,7 +358,8 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation, 
+				ciResponseFactory, ciErrorFactory, ciExceptionFactory);
 
 		this.resourceManager = new ResourceManager(bc, CyRESTConstants.coreResourceClasses, coreServiceModule, shimResources);
 	}

@@ -1,12 +1,10 @@
 package org.cytoscape.rest.internal.commands.resources;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.cytoscape.ci.CIErrorFactory;
 import org.cytoscape.ci.model.CIError;
-import org.cytoscape.rest.internal.CIErrorFactoryImpl;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.commands.handlers.MessageHandler;
 import org.cytoscape.work.FinishStatus;
@@ -21,13 +19,13 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 {
 	private final Logger logger;
 	
-	URI logLocation;
+	CIErrorFactory ciErrorFactory;
 	/**
 	 * @param commandResource
 	 */
-	JSONResultTaskObserver(MessageHandler messageHandler, URI logLocation, Logger logger) {
+	JSONResultTaskObserver(MessageHandler messageHandler, CIErrorFactory ciErrorFactory, Logger logger) {
 		super(messageHandler);
-		this.logLocation = logLocation;
+		this.ciErrorFactory = ciErrorFactory;
 		this.logger = logger;
 	}
 
@@ -57,7 +55,6 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 	@Override
 	public void allFinished(FinishStatus finishStatus) {
 		if (finishStatus.getType() == FinishStatus.Type.CANCELLED) {
-			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			CIError ciError;
 			if (finishStatus.getTask() != null && finishStatus.getTask() instanceof TunableValidator) {
 				StringBuilder stringBuilder = new StringBuilder();
@@ -82,7 +79,6 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 			ciErrors.add(ciError);
 		}
 		else if (finishStatus.getType() == FinishStatus.Type.FAILED) {
-			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			CIError ciError;
 			if (finishStatus.getException() != null) {
 				 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 

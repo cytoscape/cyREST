@@ -21,6 +21,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
@@ -60,7 +62,7 @@ public class CommandResource
 	
 	@Inject
 	@LogLocation
-	URI logLocation;
+	protected URI logLocation;
 
 	@Inject
 	@NotNull
@@ -74,6 +76,15 @@ public class CommandResource
 	@NotNull
 	private SynchronousTaskManager<?> taskManager;
 
+	@Inject
+	protected CIResponseFactory ciResponseFactory;
+	
+	@Inject
+	protected CIErrorFactory ciErrorFactory;
+	
+	@Inject
+	protected CIExceptionFactory ciExceptionFactory;
+	
 	@GET
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -228,7 +239,7 @@ public class CommandResource
 			System.out.println("Parameter: " + key + " " + queryParameters.get(key));
 		}*/
 
-		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, logLocation, logger);
+		JSONResultTaskObserver jsonTaskObserver = new JSONResultTaskObserver(handler, ciErrorFactory, logger);
 		try {
 			executeCommand(namespace, command, queryParameters, handler, jsonTaskObserver);
 			return Response.status(jsonTaskObserver.ciErrors.isEmpty() ? 200 : 500).entity(buildCIResult(namespace, command, jsonTaskObserver, handler)).build();
@@ -245,7 +256,6 @@ public class CommandResource
 		List<CIError> ciErrorList = new ArrayList<CIError>(jsonTaskObserver.ciErrors);
 
 		if (jsonTaskObserver.succeeded == false) {
-			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			ciErrorList.add(ciErrorFactory.getCIError(
 					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
 					CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":2", 

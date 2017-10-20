@@ -386,7 +386,7 @@ public class CommandResource
 			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			CIError jsonSyntaxError = ciErrorFactory.getCIError(
 					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
-					CyRESTConstants.cyRESTCIRoot + ":handle-json-command" + CyRESTConstants.cyRESTCIErrorRoot +":3", 
+					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI,3), 
 					"Task returned invalid json.");
 			errors.add(jsonSyntaxError);
 		}

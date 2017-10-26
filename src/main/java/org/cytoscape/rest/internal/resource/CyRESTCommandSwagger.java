@@ -120,6 +120,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		{
 			Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
 			this.swaggerDefinition = Json.mapper().writeValueAsString(swagger);
+		
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
@@ -451,6 +452,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 	@GET
 	public String get() throws JsonProcessingException 
 	{
+		updateSwagger();
 		if (swaggerDefinition == null)
 		{
 			buildSwagger();
@@ -490,7 +492,6 @@ public class CyRESTCommandSwagger extends AbstractResource
 	
 	public static class CyRESTCommandSwaggerConfig implements ReaderListener
 	{
-
 		@Override
 		public void beforeScan(Reader arg0, Swagger swagger) 
 		{

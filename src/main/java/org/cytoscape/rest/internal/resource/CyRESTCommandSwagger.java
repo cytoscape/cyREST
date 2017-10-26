@@ -5,8 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.inject.Singleton;
 import javax.swing.SwingUtilities;
@@ -20,10 +22,13 @@ import org.cytoscape.ci.model.CIError;
 import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.work.util.ListMultipleSelection;
+import org.cytoscape.work.util.ListSingleSelection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -379,12 +384,47 @@ public class CyRESTCommandSwagger extends AbstractResource
 				StringProperty property = new StringProperty();
 				
 				property.setName(argument);
-				property.setDescription(available.getArgLongDescription(namespace, command, argument));
-	
+				String description = available.getArgLongDescription(namespace, command, argument);
+				
 				String defaultString = available.getArgExampleStringValue(namespace, command, argument);
 				if (defaultString != null && defaultString.length() > 0) {
-					property.setDefault(defaultString);
+					property.setExample(defaultString);
 				}
+				
+				try {
+					Class<?> type = available.getArgType(namespace, command, argument);
+		
+					//FIXME This calls a deprecated method because any other way of getting the value of a tunable is 
+					// extremely complicated.
+					Object value = available.getArgValue(namespace, command, argument);
+						
+					if (type.equals(ListSingleSelection.class) && value != null) {
+						List<String> values = new ArrayList<String>();
+						for (Object entry : ((ListSingleSelection)value).getPossibleValues()) {
+							values.add(entry.toString());
+						}
+						/*
+						if (values.contains(defaultString)) {
+							Collections.swap(values, 0, values.indexOf(defaultString));
+						}*/
+						property.setEnum(values);
+					} else if (type.equals(ListMultipleSelection.class) && value != null) {
+						StringJoiner joiner = new StringJoiner(", ", " = [", "]");
+						for (Object entry : ((ListMultipleSelection)value).getPossibleValues()) {
+							joiner.add("'" + entry.toString() + "'");
+						}
+						description += joiner.toString();
+					} else if (type.equals(CyTable.class) ){
+						description += " [NodeTable -> Node:NetworkName , EdgeTable -> Edge:NetworkName , NetworkTable -> Network:NetworkName , " +
+								"UnassignedTable -> TableFileName]";
+					}
+					
+				} catch (Exception e) {
+					logger.error("Error handling command enum", e);
+				}
+			
+				property.setDescription(description);
+				
 				boolean required = available.getArgRequired(namespace, command, argument);
 				
 				this.addProperty(argument, property);

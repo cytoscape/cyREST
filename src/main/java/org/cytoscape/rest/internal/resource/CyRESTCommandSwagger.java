@@ -1,7 +1,9 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -71,7 +73,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 	private AvailableCommands available;
 
 	private String swaggerDefinition;
-
+	
 	public CyRESTCommandSwagger()
 	{
 		updateSwagger();
@@ -217,14 +219,14 @@ public class CyRESTCommandSwagger extends AbstractResource
 				if (!containsNull(jsonNode)) {
 					objectProperty.setExample(jsonNode); 
 				} else {
-					reportJSONExampleError(new Exception("Swagger Definition Contained a null value: " + objectMapper.writeValueAsString(jsonNode)), "Invalid for Swagger Exception for JSON (contained null)", objectMapper, objectProperty);
+					reportJSONExampleError(new Exception("Swagger Definition Contained a null value: " + objectMapper.writeValueAsString(jsonNode)), namespace, command, "Invalid for Swagger (JSON contained null)", objectMapper, objectProperty);
 				}
 			} catch (JsonParseException e) {
-				reportJSONExampleError(e, "JsonParseException", objectMapper, objectProperty);
+				reportJSONExampleError(e, namespace, command, "JsonParseException", objectMapper, objectProperty);
 			} catch (JsonMappingException e) {			
-				reportJSONExampleError(e, "JsonMappingException", objectMapper, objectProperty);
+				reportJSONExampleError(e, namespace, command, "JsonMappingException", objectMapper, objectProperty);
 			} catch (IOException e) {
-				reportJSONExampleError(e, "IOException", objectMapper, objectProperty);
+				reportJSONExampleError(e, namespace, command, "IOException", objectMapper, objectProperty);
 			}
 			response.setSchema(objectProperty);
 		}
@@ -236,8 +238,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 		return isJSONCapable;
 	}
 
-	private void reportJSONExampleError(Throwable e, String string, ObjectMapper objectMapper, ObjectProperty objectProperty) {
-		logger.error("Error creating json example: " + string, e);
+	private void reportJSONExampleError(Throwable e, String namespace, String command, String string, ObjectMapper objectMapper, ObjectProperty objectProperty) {
+		logger.error("Error creating json example for " + namespace + " " + command + " : " + string, e);
 		JsonNode jsonNode;
 		try {
 			jsonNode = objectMapper.readValue("\"ERROR. Example could not be included: " + string + "\"", JsonNode.class);
@@ -462,7 +464,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 	@SwaggerDefinition(
 			info = @Info(
-					description = "An API to offer access to Cytoscape command line commands through a REST-like service.",
+					description = "An API to offer access to Cytoscape command line commands through a REST-like service."
+							+ "\n\nIn Cytoscape 3.6, this section is upgraded with support for POST access to Cytoscape commands, offering enhanced documentation as well as JSON output for some commands. The JSON currently provided by commands in this release may be expanded or revised in future releases."
+							+ "\n\nAll commands are still available via GET requests, the syntax of which is described in the [Command resources](#!/Commands)",
 					version = "V2.0.0",
 					title = "CyREST Command API"
 					//termsOfService = "http://theweatherapi.io/terms.html",

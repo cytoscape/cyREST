@@ -214,8 +214,23 @@ public class CommandResource
 	@Produces(MediaType.TEXT_HTML)
 	@ApiOperation(value="Execute a command or list its arguments",
 	notes="Method to enumerate all arguments for a given namespace and command or execute a namespace and "
-			+ "command if query strings are provided.\n\nReturns a list of arguments as text/html or the "
-			+ "results of executing the command.")
+			+ "command if query strings are provided."
+			+ "\n\n###No Query String Execution"
+			+ "\n\n```\n/v1/commands/edge/list\n```"
+			+ "\n\nReturns a list of arguments as text/html or the results of executing the command if no arguments are "
+			+ "available."
+			+ "\n\n###Execution with Query Strings"
+			+ "\n\n```\n/v1/commands/edge/list?network=%22current%22\n```"
+			+ "\n\nReturns the results of executing the command."
+			+ "\n\nCommands without JSON compatibility will only be accessible through this style of endpoint, and will "
+			+ "also have an explicit GET resource in the Swagger documentation."
+			+ "\n\nCommands with JSON compatibility are primarily available as POST requests and will have an explicit "
+			+ "POST resource in the Swagger documentation. These commands can also be accessed via GET, and any "
+			+ "parameters in the POST body can be entered in the request path."
+			+ "\n\nA command accessed via a POST request with a message body like the following:"
+			+ "\n\n```\n{\"network\": \"current\"}\n```"
+			+ "\n\nCan be also accessed via a GET request with the same parameters passed in the path: "
+			+ "\n\n```\n/v1/commands/edge/list?network=%22current%22\n```")
 	public String handleHTMLCommand(
 			@ApiParam(value="Command Namespace") @PathParam("namespace") String namespace,
 			@ApiParam(value="Command Name") @PathParam("command") String command, 

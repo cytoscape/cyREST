@@ -1,7 +1,9 @@
 package org.cytoscape.rest.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -13,6 +15,9 @@ import javax.swing.JOptionPane;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -33,14 +38,15 @@ import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
-import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
+import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -48,6 +54,7 @@ import org.cytoscape.task.read.OpenSessionTaskFactory;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.task.write.ExportNetworkViewTaskFactory;
 import org.cytoscape.task.write.SaveSessionAsTaskFactory;
+import org.cytoscape.util.json.CyJSONUtil;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -96,15 +103,26 @@ public class CyActivator extends AbstractCyActivator {
 	}
 
 	private String cyRESTPort = null;
+	private URI logLocation = null;
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
 
+	
 	public CyActivator() {
 		super();
 	}
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
+
+		try {
+			this.logLocation = this.getLogLocation(bc);
+		} catch (IOException e1) {
+			this.logLocation = null;
+			logger.warn("CyREST is unable to find the Karaf log");
+		}
+		
 		serverState = ServerState.STARTING;
+
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
 
@@ -139,6 +157,30 @@ public class CyActivator extends AbstractCyActivator {
 		});
 	}
 
+	private final URI getLogLocation(BundleContext bc) throws IOException {
+		final String logLocation;
+
+		// Extract Karaf's log file location
+		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
+		
+		if (configurationAdmin != null) {
+			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
+
+			Dictionary<?,?> dictionary = config.getProperties();
+			Object logObject = dictionary.get("log4j.appender.file.File");
+			if (logObject != null && logObject instanceof String) {
+				logLocation = (String) logObject;
+			}
+			else {
+				logLocation = null;
+			}
+		}
+		else {
+			logLocation = null;
+		}
+		return (new File(logLocation)).toURI();
+	}
+	
 	private ServerState serverState = ServerState.STOPPED;
 	
 	public ServerState getServerState() {
@@ -171,17 +213,27 @@ public class CyActivator extends AbstractCyActivator {
 	
 	private final void initDependencies(final BundleContext bc) throws Exception {
 		
+		CIResponseFactory ciResponseFactory = new CIResponseFactoryImpl();
+		CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(this.logLocation);
+		CIExceptionFactory ciExceptionFactory = new CIExceptionFactoryImpl();
+		
+		this.registerService(bc, ciResponseFactory, CIResponseFactory.class, new Properties());
+		this.registerService(bc, ciExceptionFactory, CIExceptionFactory.class, new Properties());
+	
+		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
+		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
+		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
-		registerServiceListener(bc, mappingFactoryManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, mappingFactoryManager::addFactory, mappingFactoryManager::removeFactory,
 				VisualMappingFunctionFactory.class);
 
 		final GraphicsWriterManager graphicsWriterManager = new GraphicsWriterManager();
-		registerServiceListener(bc, graphicsWriterManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, graphicsWriterManager::addFactory, graphicsWriterManager::removeFactory,
 				PresentationWriterFactory.class);
 
 		final CyNetworkViewWriterFactoryManager viewWriterManager = new CyNetworkViewWriterFactoryManager();
-		registerServiceListener(bc, viewWriterManager, "addFactory", "removeFactory",
+		registerServiceListener(bc, viewWriterManager::addFactory, viewWriterManager::removeFactory,
 				CyNetworkViewWriterFactory.class);
 
 		@SuppressWarnings("unchecked")
@@ -262,15 +314,15 @@ public class CyActivator extends AbstractCyActivator {
 		final SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory = getService(bc, SelectFirstNeighborsTaskFactory.class);
 
 		// TODO: need ID for these services.
-		final NetworkTaskFactory fitContent = getService(bc, NetworkTaskFactory.class, "(title=Fit Content)");
+		final NetworkViewTaskFactory fitContent = getService(bc, NetworkViewTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
-		final NetworkTaskFactory showDetailsTaskFactory = getService(bc, NetworkTaskFactory.class, 
-				"(title=Show/Hide Graphics Details)");
+		final NetworkViewTaskFactory showDetailsTaskFactory = getService(bc, NetworkViewTaskFactory.class, 
+				"(id=showGraphicsDetailsTaskFactory)");
 
 		final RenderingEngineManager renderingEngineManager = getService(bc,RenderingEngineManager.class);
 
 		final WriterListener writerListener = new WriterListener();
-		registerServiceListener(bc, writerListener, "registerFactory", "unregisterFactory", VizmapWriterFactory.class);
+		registerServiceListener(bc, writerListener::registerFactory, writerListener::unregisterFactory, VizmapWriterFactory.class);
 
 		final TaskFactoryManager taskFactoryManagerManager = new TaskFactoryManagerImpl();
 
@@ -293,27 +345,6 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(bc, edgeListReaderFactory, InputStreamTaskFactory.class, edgeListReaderFactoryProps);
 
 		BundleResourceProvider bundleResourceProvider = new BundleResourceProvider(bc);
-		
-		final String logLocation;
-
-		// Extract Karaf's log file location
-		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
-		
-		if (configurationAdmin != null) {
-			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
-
-			Dictionary<?,?> dictionary = config.getProperties();
-			Object logObject = dictionary.get("log4j.appender.file.File");
-			if (logObject != null && logObject instanceof String) {
-				logLocation = (String) logObject;
-			}
-			else {
-				logLocation = null;
-			}
-		}
-		else {
-			logLocation = null;
-		}
 
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
@@ -327,7 +358,8 @@ public class CyActivator extends AbstractCyActivator {
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
-				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation);
+				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation, 
+				ciResponseFactory, ciErrorFactory, ciExceptionFactory);
 
 		this.resourceManager = new ResourceManager(bc, CyRESTConstants.coreResourceClasses, coreServiceModule, shimResources);
 	}
@@ -369,13 +401,13 @@ public class CyActivator extends AbstractCyActivator {
 
 	public class LevelOfDetails {
 
-		private final NetworkTaskFactory lod;
+		private final NetworkViewTaskFactory lod;
 
-		public LevelOfDetails(final NetworkTaskFactory tf) {
+		public LevelOfDetails(final NetworkViewTaskFactory tf) {
 			this.lod = tf;
 		}
 
-		public NetworkTaskFactory getLodTF() {
+		public NetworkViewTaskFactory getLodTF() {
 			return lod;
 		}
 

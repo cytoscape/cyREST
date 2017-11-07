@@ -32,40 +32,13 @@
  */
 package org.cytoscape.rest.internal.commands.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
+public class TextPlainHandler extends AbstractMessageHandler {
 
-public class TextPlainHandler implements MessageHandler {
-	List<String> messages;
 
-	public TextPlainHandler() {
-		messages = new ArrayList<String>();
-	}
-
-	public void appendCommand(String s) {
-		messages.add(s);
-	}
-
-	public void appendError(String s) {
-		messages.add(s);
-	}
-
-	public void appendWarning(String s) {
-		messages.add(s);
-	}
-
-	public void appendResult(Object s) {
-		messages.add(s.toString());
-	}
-
-	public void appendMessage(String s) {
-		messages.add(s);
-	}
-
-	public String getMessages() {
+	public String getMessageString() {
 		String str = "";
-		for (String s : messages) {
-			str += s + "\n";
+		for (Message s : messages) {
+			str += s.message + "\n";
 		}
 		return str;
 	}

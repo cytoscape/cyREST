@@ -61,33 +61,42 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 
 	@Test
 	public void testFailsYFiles() throws Exception {
-		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout").request().get();
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout").request().get();
+		assertEquals(404, result.getStatus());
+		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout").request().get();
 		assertEquals(404, result.getStatus());
 	}
 	
 	@Test
 	public void testFailsYFilesNetworkId() throws Exception {
 		Long suid = view.getModel().getSUID();
-		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/" + suid).request().get();
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/" + suid).request().get();
+		assertEquals(404, result.getStatus());
+		result = target("yfiles.DummyYFilesLayout/" + suid).request().get();
 		assertEquals(404, result.getStatus());
 	}
 	
 	@Test
 	public void testFailsYFilesParametersGet() throws Exception {
-		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().get();
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().get();
+		assertEquals(404, result.getStatus());
+		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/parameters").request().get();
 		assertEquals(404, result.getStatus());
 	}
 	
 	@Test
 	public void testFailsYFilesParametersPut() throws Exception {
-		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
+		assertEquals(404, result.getStatus());
+		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
 		assertEquals(404, result.getStatus());
 	}
 	
-	
 	@Test
 	public void testFailsYFilesColumnTypes() throws Exception {
-		final Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columnTypes").request().get();
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columnTypes").request().get();
+		assertEquals(404, result.getStatus());
+		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/columnTypes").request().get();
 		assertEquals(404, result.getStatus());
 	}
 	

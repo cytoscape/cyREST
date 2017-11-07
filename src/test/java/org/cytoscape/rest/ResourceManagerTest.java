@@ -4,11 +4,11 @@ package org.cytoscape.rest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyObject;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +16,9 @@ import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -39,6 +42,7 @@ import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -119,7 +123,7 @@ public class ResourceManagerTest
 		final EdgeListReaderFactory edgelistReaderFactory = mock(EdgeListReaderFactory.class);
 		final CyNetworkViewFactory networkViewFactory = mock(CyNetworkViewFactory.class);
 		final CyTableFactory tableFactory = mock(CyTableFactory.class);
-		final NetworkTaskFactory fitContent = mock(NetworkTaskFactory.class);
+		final NetworkViewTaskFactory fitContent = mock(NetworkViewTaskFactory.class);
 		final EdgeBundler edgeBundler = mock(EdgeBundler.class);
 		final RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 		final CySessionManager sessionManager = mock(CySessionManager.class);
@@ -135,15 +139,21 @@ public class ResourceManagerTest
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = mock(SynchronousTaskManager.class);
 		final CyNetworkViewWriterFactoryManager viewFactoryManager = mock(CyNetworkViewWriterFactoryManager.class);
+		final CIResponseFactory ciResponseFactory = mock(CIResponseFactory.class);
+		final CIErrorFactory ciErrorFactory = mock(CIErrorFactory.class);
+		final CIExceptionFactory ciExceptionFactory = mock(CIExceptionFactory.class);
 		
 		BundleResourceProvider bundleResourceProvider = mock(BundleResourceProvider.class);
 
 		final String cyRESTPort = "1234"; 
-		final String logLocation = "nowhere";
+		final URI logLocation = URI.create("nowhere");
 
 		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
-				cyRESTPort, logLocation);
+				cyRESTPort, logLocation,
+				ciResponseFactory,
+				ciErrorFactory,
+				ciExceptionFactory);
 
 		final Map<Class<?>, Module> shimMap = new HashMap<Class<?>, Module>();
 		shimMap.put(TestShimClass.class, new TestModule(coreServiceModule));

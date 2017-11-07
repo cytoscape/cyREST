@@ -27,6 +27,7 @@ import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
@@ -77,7 +78,10 @@ public class UIResource extends AbstractResource {
 	@ApiOperation(value="Toggle level of graphics details (LoD)", 
 		notes="Switch between full graphics details <---> fast rendering mode.\n\nReturns a success message.")
 	public Message updateLodState() {
-		final TaskIterator lod = detailsTF.getLodTF().createTaskIterator(null);
+		
+		CyNetworkView view = applicationManager.getCurrentNetworkView();
+		
+		final TaskIterator lod = detailsTF.getLodTF().createTaskIterator(view);
 		
 		try {
 			lod.next().run(headlessTaskMonitor);

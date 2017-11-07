@@ -564,7 +564,7 @@ public class StyleResource extends AbstractResource {
 					+ "\n```\n"
 					+ "[\n"
 	+ "  {\n"
-	+ "    \"visualPropertyDependnecy\" : \"DEPENDENCY_ID\",\n"
+	+ "    \"visualPropertyDependency\" : \"DEPENDENCY_ID\",\n"
 	+ "    \"enabled\" : true or false\n"
 	+ "  }, ... {}\n"
 	+ "]\n"

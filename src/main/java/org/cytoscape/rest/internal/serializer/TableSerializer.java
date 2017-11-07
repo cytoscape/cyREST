@@ -26,7 +26,7 @@ public class TableSerializer extends JsonSerializer<CyTable> {
 		generator.useDefaultPrettyPrinter();
 
 		generator.writeStartObject();
-
+		
 		generator.writeNumberField(CyIdentifiable.SUID, table.getSUID());
 		generator.writeStringField(JsonTags.TITLE, table.getTitle());
 		generator.writeBooleanField(JsonTags.PUBLIC, table.isPublic());

@@ -32,6 +32,8 @@
  */
 package org.cytoscape.rest.internal.commands.handlers;
 
+import java.util.List;
+
 public interface MessageHandler {
 
 	public void appendCommand(final String s);
@@ -44,5 +46,8 @@ public interface MessageHandler {
 
 	public void appendMessage(final String s);
 
-	public String getMessages();
+	public String getMessageString();
+	
+	public List<Message> getMessages();
+
 }

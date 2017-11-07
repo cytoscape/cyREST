@@ -40,42 +40,25 @@ import java.util.List;
  * could do to style the messages and make them clear, but I don't really
  * anticipate anyone will use this from a web browser except for debugging.
  */
-public class TextHTMLHandler implements MessageHandler {
-	List<String> messages;
+public class TextHTMLHandler extends AbstractMessageHandler {
+	
 
-	public TextHTMLHandler() {
-		messages = new ArrayList<String>();
+	public String getPStyle(Message.Type type) {
+		switch (type) {
+		case COMMAND: return "color:blue;margin-top:0px;margin-bottom:5px;";
+		case ERROR: return "color:red;margin-top:0px;margin-bottom:5px;";
+		case WARNING: return "color:yellow;margin-top:0px;margin-bottom:5px;";
+		case RESULT: return "color:green;margin-left:10px;margin-top:0px;margin-bottom:5px;";
+		case MESSAGE: return "color:black;margin-left:10px;margin-top:0px;margin-bottom:5px;";
+		default: throw new IllegalArgumentException();
+		}
+
 	}
-
-	public void appendCommand(String s) {
-		messages.add("<p style=\"color:blue;margin-top:0px;margin-bottom:5px;\">"
-				+ s + "</p>");
-	}
-
-	public void appendError(String s) {
-		messages.add("<p style=\"color:red;margin-top:0px;margin-bottom:5px;\">"
-				+ s + "</p>");
-	}
-
-	public void appendWarning(String s) {
-		messages.add("<p style=\"color:yellow;margin-top:0px;margin-bottom:5px;\">"
-				+ s + "</p>");
-	}
-
-	public void appendResult(Object s) {
-		messages.add("<p style=\"color:green;margin-left:10px;margin-top:0px;margin-bottom:5px;\">"
-				+ s + "</p>");
-	}
-
-	public void appendMessage(String s) {
-		messages.add("<p style=\"color:black;margin-left:10px;margin-top:0px;margin-bottom:5px;\">"
-				+ s + "</p>");
-	}
-
-	public String getMessages() {
+	
+	public String getMessageString() {
 		String str = "";
-		for (String s : messages) {
-			str += s + "\n";
+		for (Message s : messages) {
+			str += "<p style=\""+ getPStyle(s.type)+"\">" +s.message + "</p>\n";
 		}
 		return str;
 	}

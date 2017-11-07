@@ -21,11 +21,11 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyActivator.ServerState;
 import org.cytoscape.rest.internal.task.ResourceManager;
+import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -76,7 +76,8 @@ public class CyActivatorTest {
 		when(bc.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(configAdminServiceReference);
 		when(bc.getService(configAdminServiceReference)).thenReturn(configAdmin);
 
-
+		VisualMappingFunctionFactory visualMappingFunctionFactory = mock(VisualMappingFunctionFactory.class);
+		
 		bundle = mock(Bundle.class);
 		when(bundle.getSymbolicName()).thenReturn("dummyCyRESTBundleName");
 		when(bundle.getVersion()).thenReturn(new Version(1,2,3));
@@ -120,10 +121,11 @@ public class CyActivatorTest {
 		when(bc.createFilter(anyString())).thenReturn(mock(Filter.class));
 
 		ServiceReference cyPropertyServiceReference = mock(ServiceReference.class);
-
+		when(cyPropertyServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		ServiceReference cyCommandPropertyServiceReference = mock(ServiceReference.class);
+		when(cyCommandPropertyServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		
-		ServiceReference configAdminServiceReference = mock(ServiceReference.class);
+		when(configAdminServiceReference.getPropertyKeys()).thenReturn(new String[]{});
 		
 		doAnswer( new Answer<ServiceReference[]>() {
 			public ServiceReference[] answer(InvocationOnMock invocation) {
@@ -135,17 +137,26 @@ public class CyActivatorTest {
 					}
 				}
 				ServiceReference serviceReference = mock(ServiceReference.class);
+				if (invocation.getArguments()[0] == null) {
+					when(serviceReference.getPropertyKeys()).thenReturn(new String[]{});
+					return new ServiceReference[] {};//{serviceReference};
+				}
+			
+				when(serviceReference.getPropertyKeys()).thenReturn(new String[]{"castClass"});
 				when(serviceReference.getProperty(eq("castClass"))).thenReturn(invocation.getArguments()[0]);
 				return new ServiceReference[] {serviceReference};
 			}
 		}).when(bc).getServiceReferences(anyString(), anyString());
 
+		when(bc.getAllServiceReferences(anyString(), anyString())).thenReturn(new ServiceReference[]{});
+		
 		doAnswer( new Answer<ServiceReference>() {
 			public ServiceReference answer(InvocationOnMock invocation) {
 				if (ConfigurationAdmin.class.getName().equals((String)invocation.getArguments()[0])) {
 					return configAdminServiceReference;
 				} 
 				ServiceReference serviceReference = mock(ServiceReference.class);
+				when(serviceReference.getPropertyKeys()).thenReturn(new String[]{"castClass"});
 				when(serviceReference.getProperty(eq("castClass"))).thenReturn(invocation.getArguments()[0]);
 				return serviceReference;
 			}
@@ -164,6 +175,7 @@ public class CyActivatorTest {
 				if (classCast != null) {
 					return mock(Class.forName((String) classCast));
 				} else {
+					System.out.print(invocation.getArguments()[0]);
 					return new Object();
 				}
 			}

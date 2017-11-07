@@ -581,6 +581,7 @@ public class NetworkViewResource extends AbstractResource {
 							new IllegalArgumentException(),
 							Response.Status.NOT_FOUND);
 				}
+
 				styleMapper.updateView(view, viewNode, getLexicon(), bypass);
 			}
 			
@@ -691,6 +692,7 @@ public class NetworkViewResource extends AbstractResource {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			styleMapper.updateView(networkView, rootNode, getLexicon(), bypass);
+
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

@@ -69,8 +69,9 @@ public class NetworkResourceTest extends BasicResourceTest {
 	public void testGetNetworksQueryNullProducesError() throws Exception {
 		Response result = target("/v1/networks").queryParam("column", "dummy").request().get();
 		assertNotNull(result);
-		
 		assertEquals(500, result.getStatus());
+	
+		errorReverseCompatibility(result, "Query parameter is missing.");
 	}
 	
 	@Test
@@ -78,6 +79,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		Response result = target("/v1/networks").queryParam("query", "dummy").request().get();
 		assertNotNull(result);
 		assertEquals(500, result.getStatus());
+	
 	}
 	
 

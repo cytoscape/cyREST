@@ -1,10 +1,15 @@
 package org.cytoscape.rest.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -16,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,18 +32,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.ws.rs.core.Response;
+
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.ding.DVisualLexicon;
-import org.cytoscape.ding.Justification;
 import org.cytoscape.ding.NetworkViewTestSupport;
-import org.cytoscape.ding.ObjectPosition;
-import org.cytoscape.ding.Position;
 import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
-import org.cytoscape.ding.impl.ObjectPositionImpl;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
@@ -62,6 +66,9 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.BundleResourceProvider;
+import org.cytoscape.rest.internal.CIErrorFactoryImpl;
+import org.cytoscape.rest.internal.CIExceptionFactoryImpl;
+import org.cytoscape.rest.internal.CIResponseFactoryImpl;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -72,7 +79,9 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
@@ -93,6 +102,7 @@ import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -113,7 +123,10 @@ import org.cytoscape.view.presentation.property.ArrowShapeVisualProperty;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.LineTypeVisualProperty;
 import org.cytoscape.view.presentation.property.NodeShapeVisualProperty;
+import org.cytoscape.view.presentation.property.values.Justification;
 import org.cytoscape.view.presentation.property.values.NodeShape;
+import org.cytoscape.view.presentation.property.values.ObjectPosition;
+import org.cytoscape.view.presentation.property.values.Position;
 import org.cytoscape.view.vizmap.VisualMappingFunction;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
@@ -133,6 +146,7 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -150,6 +164,8 @@ import org.mockito.stubbing.Answer;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -166,6 +182,8 @@ public class BasicResourceTest extends JerseyTest {
 	
 	CyNode cyGroupNode;
 
+	protected CyApplicationManager cyApplicationManager;
+	
 	protected CyRootNetworkManager rootNetworkManager;
 
 	protected CyNetwork network;
@@ -185,6 +203,8 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected CyNetworkManager networkManager = nts.getNetworkManager();
 
+	protected CyNetworkViewManager viewManager;
+	
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
 	protected RenderingEngine<?> renderingEngine;
@@ -204,6 +224,7 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
 	protected final String DUMMY_COMMAND = "dummyCommand";
+	protected final String DUMMY_UNPARSABLE_JSON_COMMAND = "dummyUnparsableJsonCommand";
 	protected final String DUMMY_ARGUMENT_NAME = "dummyArgument";
 	protected final String DUMMY_ARGUMENT_DESCRIPTION = "dummyArgumentDescription";
 	protected final Class DUMMY_ARGUMENT_CLASS = int.class;
@@ -212,6 +233,7 @@ public class BasicResourceTest extends JerseyTest {
 	protected final String DUMMY_MULTI_TASK_COMMAND = "dummyMultiTaskCommand";
 	protected boolean multiTaskAComplete = false;
 	protected boolean multiTaskBComplete = false;
+	protected boolean multiTaskCComplete = false;
 	
 	protected final String DUMMY_APPEND_TASK_COMMAND = "dummyAppendTaskCommand";
 	protected boolean appendTaskAComplete = false;
@@ -221,8 +243,8 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected final String cyRESTPort = "1234";
 
-	protected final String logLocation = "dummyLogLocation";
-	
+	protected final URI logLocation = URI.create("dummyLogLocation");
+
 	protected interface DummyCyWriter extends CyWriter
 	{
 		public BoundedDouble getZoom();
@@ -243,6 +265,11 @@ public class BasicResourceTest extends JerseyTest {
 		when(def2.getDefaultLayoutContext()).thenReturn(context);
 		when(def2.getName()).thenReturn("com.yworks.yfiles.layout.DummyYFilesLayout");
 		
+		CyLayoutAlgorithm def3 = mock(CyLayoutAlgorithm.class);
+		
+		when(def3.createLayoutContext()).thenReturn(context);
+		when(def3.getDefaultLayoutContext()).thenReturn(context);
+		when(def3.getName()).thenReturn("yfiles.DummyYFilesLayout");
 		
 		TaskIterator gridLayoutTaskIterator = new TaskIterator();
 		gridLayoutTaskIterator.append(mock(Task.class));
@@ -251,10 +278,13 @@ public class BasicResourceTest extends JerseyTest {
 		Collection<CyLayoutAlgorithm> algorithms = new ArrayList<>();
 		algorithms.add(def);
 		algorithms.add(def2);
+		algorithms.add(def3);
 		CyLayoutAlgorithmManager layouts = mock(CyLayoutAlgorithmManager.class);
 		when(layouts.getDefaultLayout()).thenReturn(def);
 		when(layouts.getAllLayouts()).thenReturn(algorithms);
 		when(layouts.getLayout("grid")).thenReturn(def);
+		when(layouts.getLayout("com.yworks.yfiles.layout.DummyYFilesLayout")).thenReturn(def2);
+		when(layouts.getLayout("yfiles.DummyYFilesLayout")).thenReturn(def3);
 
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
 		this.network = createNetwork("network1");
@@ -265,12 +295,12 @@ public class BasicResourceTest extends JerseyTest {
 		networkManager.addNetwork(network2);
 
 		rootNetworkManager = nts.getRootNetworkFactory();
-		CyNetworkViewManager viewManager = mock(CyNetworkViewManager.class);
+		viewManager = mock(CyNetworkViewManager.class);
 		Collection<CyNetworkView> views = new HashSet<>();
 		views.add(view);
 		when(viewManager.getNetworkViews(network)).thenReturn(views);
 
-		CyApplicationManager cyApplicationManager = mock(CyApplicationManager.class);
+		cyApplicationManager = mock(CyApplicationManager.class);
 		CyNetworkViewFactory viewFactory = nvts.getNetworkViewFactory();
 
 		tfManager = mock(TaskFactoryManager.class);
@@ -289,13 +319,24 @@ public class BasicResourceTest extends JerseyTest {
 
 		when(cyRootNetwork.getSUID()).thenReturn(1l);
 		when(cySubNetwork.getSUID()).thenReturn(2l);
-		when(cyRootNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
-		when(cySubNetwork.getDefaultNetworkTable()).thenReturn(mock(CyTable.class));
+		CyTable rootNetworkTable = mock(CyTable.class);
+		when(cyRootNetwork.getDefaultNetworkTable()).thenReturn(rootNetworkTable);
+		
+		CyTable cySubNetworkTable = mock(CyTable.class);
+		when(cySubNetwork.getDefaultNetworkTable()).thenReturn(cySubNetworkTable);
 		when(cySubNetwork.getRootNetwork()).thenReturn(cyRootNetwork);
-		CyRow cyRow = mock(CyRow.class);
-		when(cyRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx network name");
-		when(cyRootNetwork.getRow(cyRootNetwork)).thenReturn(cyRow);
-		when(cySubNetwork.getRow(cySubNetwork)).thenReturn(cyRow);
+		
+		CyRow cyRootNetworkRow = mock(CyRow.class);
+		when(cyRootNetworkRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx root network name");
+		when(cyRootNetworkRow.getTable()).thenReturn(rootNetworkTable);
+		when(cyRootNetwork.getRow(cyRootNetwork)).thenReturn(cyRootNetworkRow);
+		
+		
+		CyRow cySubNetworkRow = mock(CyRow.class);
+		when(cySubNetworkRow.get(CyNetwork.NAME, String.class)).thenReturn("dummy cx sub network name");
+		when(cySubNetwork.getRow(cySubNetwork)).thenReturn(cySubNetworkRow);
+		when(cySubNetworkRow.getTable()).thenReturn(cySubNetworkTable);
+		
 		CyNetwork[] inputStreamNetworks = new CyNetwork[]{cySubNetwork, cyRootNetwork};
 		when(inputStreamCXNetworkReader.getNetworks()).thenReturn(inputStreamNetworks);
 
@@ -389,11 +430,11 @@ public class BasicResourceTest extends JerseyTest {
 		when(cytoscapeJsReaderFactoryTracker.getService()).thenReturn(cytoscapeJsReaderFactory);
 
 		CyTableFactory tableFactory = mock(CyTableFactory.class);
-		NetworkTaskFactory fitContentTaskFactory = mock(NetworkTaskFactory.class);
+		NetworkViewTaskFactory fitContentTaskFactory = mock(NetworkViewTaskFactory.class);
 		TaskIterator fitTaskIterator = new TaskIterator();
 		fitTaskIterator.append(mock(Task.class));
 
-		when(fitContentTaskFactory.createTaskIterator(any(CyNetwork.class))).thenReturn(fitTaskIterator);
+		when(fitContentTaskFactory.createTaskIterator(any(CyNetworkView.class))).thenReturn(fitTaskIterator);
 
 		EdgeBundler edgeBundler = mock(EdgeBundler.class);
 		NetworkTaskFactory edgeBundlerTaskFactory = mock(NetworkTaskFactory.class);
@@ -424,7 +465,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(newSessionTaskFactory.createTaskIterator(true)).thenReturn(new TaskIterator(mockTask));
 		CySwingApplication desktop = mock(CySwingApplication.class);
 
-		NetworkTaskFactory lodNetworkTaskFactory = mock(NetworkTaskFactory.class);
+		NetworkViewTaskFactory lodNetworkTaskFactory = mock(NetworkViewTaskFactory.class);
 		TaskIterator lodTaskIterator = new TaskIterator();
 		lodTaskIterator.append(mock(Task.class));
 		when(lodNetworkTaskFactory.createTaskIterator(null)).thenReturn(lodTaskIterator);
@@ -462,6 +503,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		final List<String> dummyCommands = new ArrayList<String>();
 		dummyCommands.add(DUMMY_COMMAND);
+		dummyCommands.add(DUMMY_UNPARSABLE_JSON_COMMAND);
 		dummyCommands.add(DUMMY_MULTI_TASK_COMMAND);
 		dummyCommands.add(DUMMY_APPEND_TASK_COMMAND);
 
@@ -476,9 +518,46 @@ public class BasicResourceTest extends JerseyTest {
 		when(available.getArgDescription(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(DUMMY_ARGUMENT_DESCRIPTION);
 		when(available.getArgRequired(DUMMY_NAMESPACE, DUMMY_COMMAND, DUMMY_ARGUMENT_NAME)).thenReturn(false);
 
+		
+		
 		//No arguments for multi-task command and append task command
+		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn(new ArrayList<String>());
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(new ArrayList<String>());
 		when(available.getArguments(DUMMY_NAMESPACE, DUMMY_APPEND_TASK_COMMAND)).thenReturn(new ArrayList<String>());
+		
+		class DummyUnparsableJSONResult implements JSONResult {
+			final static String JSON = "{";
+			public String getJSON() {
+				return JSON;
+			}
+		}
+		
+		when(available.getSupportsJSON(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn(true);
+		when(available.getExampleJSON(DUMMY_NAMESPACE, DUMMY_UNPARSABLE_JSON_COMMAND)).thenReturn("{}");
+		
+		class DummyJSONResultA implements JSONResult {
+
+			final static String JSON = "{\"dummyFieldA\": \"dummyValueA\"}";
+			@Override
+		
+			public String getJSON() {
+				return JSON;
+			}
+			
+		}
+		
+		class DummyJSONResultB implements JSONResult {
+
+			final static String JSON = "{\"dummyFieldB\": \"dummyValueB\"}";
+			@Override
+			public String getJSON() {
+				return JSON;
+			}
+			
+		}
+		
+		when(available.getSupportsJSON(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn(true);
+		when(available.getExampleJSON(DUMMY_NAMESPACE, DUMMY_MULTI_TASK_COMMAND)).thenReturn("{}");
 		
 		final CommandExecutorTaskFactory ceTaskFactory = mock(CommandExecutorTaskFactory.class);
 		TaskIterator dummyTaskIterator = new TaskIterator();
@@ -488,12 +567,28 @@ public class BasicResourceTest extends JerseyTest {
 		when(dummyTask.getResults(String.class)).thenReturn("Dummy string");
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyTaskIterator);
 
+		TaskIterator dummyUnparsableJsonTaskIterator = new TaskIterator();
+		ObservableTask dummyUnparsableJsonTask = mock(ObservableTask.class);
+		dummyUnparsableJsonTaskIterator.append(dummyUnparsableJsonTask);
+
+		when(dummyUnparsableJsonTask.getResults(String.class)).thenReturn("Dummy string");
+		when(dummyUnparsableJsonTask.getResults(JSONResult.class)).thenReturn(new DummyUnparsableJSONResult());
+		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE), eq(DUMMY_UNPARSABLE_JSON_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyUnparsableJsonTaskIterator);
+		
+		when(dummyUnparsableJsonTask.getResultClasses()).thenReturn(Arrays.asList(String.class, JSONResult.class));
+		
 		TaskIterator dummyMultiTaskIterator = new TaskIterator();
 		ObservableTask dummyMultiTaskA = mock(ObservableTask.class);
 		ObservableTask dummyMultiTaskB = mock(ObservableTask.class);
+		ObservableTask dummyMultiTaskC = mock(ObservableTask.class);
 		dummyMultiTaskIterator.append(dummyMultiTaskA);
 		dummyMultiTaskIterator.append(dummyMultiTaskB);
-	
+		dummyMultiTaskIterator.append(dummyMultiTaskC);
+		
+		when(dummyMultiTaskA.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultA.class));
+		when(dummyMultiTaskB.getResultClasses()).thenReturn(Arrays.asList(String.class, DummyJSONResultB.class));
+		when(dummyMultiTaskC.getResultClasses()).thenReturn(Arrays.asList(String.class));
+		
 		try {
 			doAnswer(new Answer<Void>() {
 				public Void answer(InvocationOnMock invocation) {
@@ -526,7 +621,27 @@ public class BasicResourceTest extends JerseyTest {
 			e1.printStackTrace();
 		}
 		
+		try {
+			doAnswer(new Answer<Void>() {
+				public Void answer(InvocationOnMock invocation) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						System.err.println("Thread interrupt");
+					}
+					multiTaskCComplete = true;
+					return null;
+				}
+			}).when(dummyMultiTaskC).run(any());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		when(dummyMultiTaskA.getResults(String.class)).thenReturn("Dummy string A");
+		when(dummyMultiTaskB.getResults(String.class)).thenReturn("Dummy string B");
+		when(dummyMultiTaskC.getResults(String.class)).thenReturn("Dummy string C");
+		when(dummyMultiTaskA.getResults(DummyJSONResultA.class)).thenReturn(new DummyJSONResultA());
+		when(dummyMultiTaskB.getResults(DummyJSONResultB.class)).thenReturn(new DummyJSONResultB());
 		when(ceTaskFactory.createTaskIterator(eq(DUMMY_NAMESPACE),  eq(DUMMY_MULTI_TASK_COMMAND), any(Map.class), any(TaskObserver.class))).thenReturn(dummyMultiTaskIterator);
 
 		final TaskIterator dummyAppendTaskIterator = new TaskIterator();
@@ -547,7 +662,6 @@ public class BasicResourceTest extends JerseyTest {
 				}
 			}).when(dummyAppendTaskA).run(any());
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -612,9 +726,11 @@ public class BasicResourceTest extends JerseyTest {
 		}
 
 		final String cyRESTPort = this.cyRESTPort;
+		
+		final URI logLocation = this.logLocation;
 
-		final String logLocation = this.logLocation;
-
+		
+		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
 				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
@@ -628,7 +744,10 @@ public class BasicResourceTest extends JerseyTest {
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
 				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, 
 				bundleResourceProvider,
-				cyRESTPort, logLocation);
+				cyRESTPort, logLocation,
+				new CIResponseFactoryImpl(),
+				new CIErrorFactoryImpl(logLocation),
+				new CIExceptionFactoryImpl());
 	}
 
 
@@ -704,7 +823,7 @@ public class BasicResourceTest extends JerseyTest {
 		style.setDefaultValue(BasicVisualLexicon.NODE_LABEL_FONT_FACE, new Font("Helvetica", Font.PLAIN, 12));
 		style.setDefaultValue(BasicVisualLexicon.NODE_LABEL_TRANSPARENCY, 122);
 		style.setDefaultValue(DVisualLexicon.NODE_LABEL_POSITION,
-				new ObjectPositionImpl(Position.NORTH_EAST, Position.CENTER, Justification.JUSTIFY_CENTER, 0,0));
+				new ObjectPosition(Position.NORTH_EAST, Position.CENTER, Justification.JUSTIFY_CENTER, 0,0));
 
 		// For Selected
 		style.setDefaultValue(BasicVisualLexicon.NODE_SELECTED_PAINT, Color.RED);
@@ -807,8 +926,8 @@ public class BasicResourceTest extends JerseyTest {
 
 		final DiscreteMapping<String, ObjectPosition> nodeLabelPosMapping = (DiscreteMapping<String, ObjectPosition>) discreteFactory
 				.createVisualMappingFunction("Node Type", String.class, DVisualLexicon.NODE_LABEL_POSITION);
-		nodeLabelPosMapping.putMapValue("gene", new ObjectPositionImpl(Position.SOUTH, Position.NORTH_WEST, Justification.JUSTIFY_CENTER, 0,0));
-		nodeLabelPosMapping.putMapValue("protein", new ObjectPositionImpl(Position.EAST, Position.WEST, Justification.JUSTIFY_CENTER, 0,0));
+		nodeLabelPosMapping.putMapValue("gene", new ObjectPosition(Position.SOUTH, Position.NORTH_WEST, Justification.JUSTIFY_CENTER, 0,0));
+		nodeLabelPosMapping.putMapValue("protein", new ObjectPosition(Position.EAST, Position.WEST, Justification.JUSTIFY_CENTER, 0,0));
 
 		style.addVisualMappingFunction(nodeLabelPosMapping);
 
@@ -912,6 +1031,9 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(SwaggerUIResource.class);
 
 							resourceClasses.add(CyRESTCommandSwagger.class);
+							
+							resourceClasses.add(CIResponseFilter.class);
+							resourceClasses.add(CyExceptionMapper.class);
 							final ResourceConfig rc = new ResourceConfig();
 
 							Injector injector = Guice.createInjector(binder);
@@ -941,5 +1063,23 @@ public class BasicResourceTest extends JerseyTest {
 
 			}
 		};
+	}
+	
+	protected void errorReverseCompatibility(Response response, String message) {
+		ObjectMapper mapper = new ObjectMapper();
+		final String body = response.readEntity(String.class);
+		//System.out.println("BODY: " + body);
+		try {
+			final JsonNode root = mapper.readTree(body);
+			assertNotNull(root.get("cause"));
+			assertNotNull(root.get("stackTrace"));
+			assertNotNull(root.get("classContext"));
+			assertNotNull(root.get("suppressed"));
+			assertEquals(message, root.get("message").asText());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new AssertionError("Result is invalid JSON");
+		}
+		
 	}
 }

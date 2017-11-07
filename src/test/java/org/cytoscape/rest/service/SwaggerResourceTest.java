@@ -24,4 +24,5 @@ public class SwaggerResourceTest extends BasicResourceTest
 		final JsonNode hostNode = root.get("host");
 		assertEquals("localhost:" + cyRESTPort , hostNode.asText());
 	}
+
 }

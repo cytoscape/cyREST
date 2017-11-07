@@ -1,9 +1,13 @@
 package org.cytoscape.rest.internal.task;
 
+import java.net.URI;
 import java.util.Properties;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.ci.CIErrorFactory;
+import org.cytoscape.ci.CIExceptionFactory;
+import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.group.CyGroupFactory;
@@ -24,7 +28,7 @@ import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.session.CySessionManager;
-import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
 import org.cytoscape.task.read.LoadNetworkURLTaskFactory;
@@ -40,7 +44,6 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskMonitor;
-import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.google.inject.AbstractModule;
@@ -79,7 +82,7 @@ public class CoreServiceModule extends AbstractModule {
 	private final EdgeListReaderFactory edgelistReaderFactory;
 	private final ServiceTracker cytoscapeJsWriterFactory;
 	private final ServiceTracker cytoscapeJsReaderFactory;
-	private final NetworkTaskFactory fitContent;
+	private final NetworkViewTaskFactory fitContent;
 	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
 	private final RenderingEngineManager renderingEngineManager;
@@ -101,8 +104,12 @@ public class CoreServiceModule extends AbstractModule {
 	
 	private final BundleResourceProvider bundleResourceProvider;
 	
+	private final URI logLocation;
 	private final String cyRESTPort;
-	private final String logLocation;
+	
+	private final CIResponseFactory ciResponseFactory;
+	private final CIErrorFactory ciErrorFactory;
+	private final CIExceptionFactory ciExceptionFactory;
 	
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
@@ -116,7 +123,7 @@ public class CoreServiceModule extends AbstractModule {
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
-			final CyTableFactory tableFactory, final NetworkTaskFactory fitContent, final EdgeBundler edgeBundler,
+			final CyTableFactory tableFactory, final NetworkViewTaskFactory fitContent, final EdgeBundler edgeBundler,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
@@ -125,7 +132,10 @@ public class CoreServiceModule extends AbstractModule {
 			final AvailableCommands available, final CommandExecutorTaskFactory ceTaskFactory, 
 			final SynchronousTaskManager<?> synchronousTaskManager, final CyNetworkViewWriterFactoryManager viewFactoryManager,
 			final BundleResourceProvider bundleResourceProvider,
-			final String cyRESTPort, final String logLocation) {
+			final String cyRESTPort, final URI logLocation,
+			final CIResponseFactory ciResponseFactory,
+			final CIErrorFactory ciErrorFactory,
+			final CIExceptionFactory ciExceptionFactory) {
 	
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
@@ -169,6 +179,9 @@ public class CoreServiceModule extends AbstractModule {
 		this.bundleResourceProvider = bundleResourceProvider;
 		this.cyRESTPort = cyRESTPort;
 		this.logLocation = logLocation;
+		this.ciResponseFactory = ciResponseFactory;
+		this.ciErrorFactory = ciErrorFactory;
+		this.ciExceptionFactory = ciExceptionFactory;
 	}
 
 
@@ -198,7 +211,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(EdgeListReaderFactory.class).toInstance(edgelistReaderFactory);
 		bind(CyNetworkViewFactory.class).toInstance(networkViewFactory);
 		bind(CyTableFactory.class).toInstance(tableFactory);
-		bind(NetworkTaskFactory.class).toInstance(fitContent);
+		bind(NetworkViewTaskFactory.class).toInstance(fitContent);
 		bind(EdgeBundler.class).toInstance(edgeBundler);
 		bind(RenderingEngineManager.class).toInstance(renderingEngineManager);
 		bind(CySessionManager.class).toInstance(sessionManager);
@@ -220,6 +233,10 @@ public class CoreServiceModule extends AbstractModule {
 		bind(BundleResourceProvider.class).toInstance(bundleResourceProvider);
 		
 		bind(String.class).annotatedWith(CyRESTPort.class).toInstance(cyRESTPort);
-		bind(String.class).annotatedWith(LogLocation.class).toInstance(logLocation);
+		bind(URI.class).annotatedWith(LogLocation.class).toInstance(logLocation);
+		
+		bind(CIResponseFactory.class).toInstance(ciResponseFactory);
+		bind(CIErrorFactory.class).toInstance(ciErrorFactory);
+		bind(CIExceptionFactory.class).toInstance(ciExceptionFactory);
 	}
 }

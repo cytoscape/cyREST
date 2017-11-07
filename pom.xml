@@ -17,12 +17,14 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>[3.5.0,3.5.1]</cytoscape.api.version>
+		<cytoscape.api.version>[3.6.0,3.7.0)</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
-	<version>3.5.3</version>
+
+	<version>3.6.0</version>
+
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 
@@ -453,7 +455,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 						<Cytoscape-App-Dependencies>CX Support;2.1.0</Cytoscape-App-Dependencies>
 					</instructions>
@@ -605,6 +607,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
+			<artifactId>model-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
 			<artifactId>vizmap-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
@@ -621,7 +629,19 @@
 			<version>${cytoscape.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+		 	<groupId>org.cytoscape</groupId>
+  			<artifactId>ci-api</artifactId>
+  			<version>${cytoscape.api.version}</version>
+  			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>util-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	
 		<!-- Guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>

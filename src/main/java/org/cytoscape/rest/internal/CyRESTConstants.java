@@ -2,8 +2,10 @@ package org.cytoscape.rest.internal;
 
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
+import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
@@ -43,11 +45,21 @@ public class CyRESTConstants {
 			SwaggerUIResource.class,
 
 			//For CORS
-			CORSFilter.class
+			CORSFilter.class,
+			
+			//For CI
+			CIResponseFilter.class,
+			
+			//For Error Handling
+			CyExceptionMapper.class
 	};
 	
 	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
-	public final static String cyRESTCIErrorRoot = ":errors";
+	public final static String cyRESTCIErrorRoot = "errors";
 	
 	public final static String cyRESTHelpMenu = "Help.Automation[1.9999999]"; //That's enough 9's right? Yeah. Probably.
+
+	public final static String getErrorURI(String resourceURI, int code) {
+		return cyRESTCIRoot + ":" + resourceURI + ":"+ cyRESTCIErrorRoot + ":"+ code;
+	}
 }

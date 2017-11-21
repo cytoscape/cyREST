@@ -11,7 +11,8 @@
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 		<maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
-		<osgi.api.version>4.2.0</osgi.api.version>
+		<osgi.api.version>6.0.0</osgi.api.version>
+		<osgi.compendium.version>5.0.0</osgi.compendium.version>
 		<junit.version>4.12</junit.version>
 		<jersey.version>2.23</jersey.version>
 
@@ -209,19 +210,10 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.metatype</artifactId>
-									<version>1.0.10</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.scr</artifactId>
-									<version>1.8.2</version>
+									<version>2.0.12</version>
 								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.karaf.scr</groupId>
-									<artifactId>org.apache.karaf.scr.command</artifactId>
-									<version>3.0.3</version>
-								</artifactItem>
+								
 							</artifactItems>
 							<outputDirectory>src/main/resources/karaf-scr</outputDirectory>
 							<stripVersion>false</stripVersion>
@@ -238,12 +230,7 @@
 								<artifactItem>
 									<groupId>org.apache.karaf.http</groupId>
 									<artifactId>org.apache.karaf.http.core</artifactId>
-									<version>3.0.3</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.karaf.http</groupId>
-									<artifactId>org.apache.karaf.http.command</artifactId>
-									<version>3.0.3</version>
+									<version>4.2.0-SNAPSHOT</version>
 								</artifactItem>
 							</artifactItems>
 							<outputDirectory>src/main/resources/karaf-http</outputDirectory>
@@ -674,7 +661,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>${osgi.api.version}</version>
+			<version>${osgi.compendium.version}</version>
 			<scope>provided</scope>
 		</dependency>
 

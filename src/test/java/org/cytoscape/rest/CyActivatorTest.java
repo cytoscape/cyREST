@@ -114,7 +114,7 @@ public class CyActivatorTest {
 		when(configAdmin.getConfiguration("org.ops4j.pax.logging")).thenReturn(configuration);
 		when(configAdmin.getConfiguration("org.ops4j.pax.web", null)).thenReturn(configuration);
 		when(configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null)).thenReturn(configuration);
-		Dictionary<String,String> dictionary = new Hashtable<String, String>();
+		Dictionary<String,Object> dictionary = new Hashtable<String, Object>();
 		dictionary.put("log4j.appender.file.File", "dummyLogLocation");
 		when(configuration.getProperties()).thenReturn(dictionary);
 		

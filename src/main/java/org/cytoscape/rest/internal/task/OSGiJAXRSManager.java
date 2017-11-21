@@ -56,16 +56,14 @@ public class OSGiJAXRSManager
 	private static final String KARAF_SCR_PATH = "karaf-scr/";
 
 	private static final String[] KARAF_SCR_BUNDLES = {
-			KARAF_SCR_PATH + "org.apache.felix.metatype-1.0.10.jar",
-			KARAF_SCR_PATH + "org.apache.felix.scr-1.8.2.jar",
-			KARAF_SCR_PATH + "org.apache.karaf.scr.command-3.0.3.jar"
+			KARAF_SCR_PATH + "org.apache.felix.scr-2.0.12.jar"
 	};
 
 	private static final String KARAF_HTTP_PATH = "karaf-http/";
 
 	private static final String[] KARAF_HTTP_BUNDLES = {
-			KARAF_HTTP_PATH + "org.apache.karaf.http.core-3.0.3.jar",
-			KARAF_HTTP_PATH + "org.apache.karaf.http.command-3.0.3.jar"
+			KARAF_HTTP_PATH + "org.apache.karaf.http.core-4.2.0-SNAPSHOT.jar",
+			KARAF_HTTP_PATH + "org.apache.karaf.http.command-4.2.0-SNAPSHOT.jar"
 	};
 
 	private static final String HK2_PATH = "hk2/";
@@ -98,7 +96,7 @@ public class OSGiJAXRSManager
 	private static final String JERSEY_MISC_PATH = "jersey-misc/";
 
 	private static final String[] JERSEY_MISC_BUNDLES = {
-			JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
+			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
 			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
 			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
 			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
@@ -123,10 +121,10 @@ public class OSGiJAXRSManager
 		this.port = port;
 		setPortConfig(context);
 
-		installBundlesFromResources(bundleContext, PAX_JETTY_BUNDLES);
-		installBundlesFromResources(bundleContext, PAX_HTTP_BUNDLES);
-		installBundlesFromResources(bundleContext, KARAF_SCR_BUNDLES);
-		installBundlesFromResources(bundleContext, KARAF_HTTP_BUNDLES);
+		//installBundlesFromResources(bundleContext, PAX_JETTY_BUNDLES);
+		//installBundlesFromResources(bundleContext, PAX_HTTP_BUNDLES);
+		//installBundlesFromResources(bundleContext, KARAF_SCR_BUNDLES);
+		//installBundlesFromResources(bundleContext, KARAF_HTTP_BUNDLES);
 
 		setRootResourceConfig(context);
 

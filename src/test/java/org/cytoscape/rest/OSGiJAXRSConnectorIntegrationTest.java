@@ -77,12 +77,12 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String HK2_PATH = "hk2/";
 
 	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0-b34.jar",
-			HK2_PATH + "hk2-locator-2.4.0-b34.jar",
-			HK2_PATH + "hk2-utils-2.4.0-b34.jar",
+			HK2_PATH + "hk2-api-2.4.0.jar",
+			HK2_PATH + "hk2-locator-2.4.0.jar",
+			HK2_PATH + "hk2-utils-2.4.0.jar",
 			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0-b34.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0-b34.jar",
+			HK2_PATH + "javax.inject-2.4.0.jar",
+			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
 
 	};
 
@@ -115,9 +115,9 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String[] OSGI_JAX_RS_CONNECTOR_BUNDLES = {
 			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "javax.servlet-api-3.1.0.jar",
 			
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
+			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
 	private static final String[][] allBundles = {

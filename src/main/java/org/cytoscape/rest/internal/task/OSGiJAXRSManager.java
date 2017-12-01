@@ -23,58 +23,16 @@ public class OSGiJAXRSManager
 
 	private String port;
 
-	private static final String PAX_JETTY_PATH = "pax-jetty/";
-
-	//Bundles should stay in this order.
-	private static final String[] PAX_JETTY_BUNDLES = {
-			PAX_JETTY_PATH + "org.apache.servicemix.specs.activation-api-1.1-2.2.0.jar",
-			PAX_JETTY_PATH + "geronimo-servlet_3.0_spec-1.0.jar",
-			PAX_JETTY_PATH + "mail-1.4.4.jar",
-			PAX_JETTY_PATH + "geronimo-jta_1.1_spec-1.1.1.jar",
-			PAX_JETTY_PATH + "geronimo-annotation_1.1_spec-1.0.1.jar",
-			PAX_JETTY_PATH + "geronimo-jaspic_1.0_spec-1.1.jar",
-			PAX_JETTY_PATH + "asm-all-5.0.2.jar",
-			PAX_JETTY_PATH + "jetty-all-server-8.1.15.v20140411.jar"
-	};
-
-	private static final String PAX_HTTP_PATH = "pax-http/";
-
-	private static final String[] PAX_HTTP_BUNDLES = {
-			PAX_HTTP_PATH + "ops4j-base-lang-1.4.0.jar",
-			PAX_HTTP_PATH + "pax-swissbox-core-1.7.0.jar",
-			// Already included in pax-jetty
-			// PAX_HTTP_PATH + "asm-all-5.0.2.jar",
-			PAX_HTTP_PATH + "xbean-bundleutils-3.18.jar",
-			PAX_HTTP_PATH + "xbean-reflect-3.18.jar",
-			PAX_HTTP_PATH + "xbean-finder-3.18.jar",
-			PAX_HTTP_PATH + "pax-web-api-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-spi-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-runtime-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-jetty-3.1.4.jar"
-	};
-
-	private static final String KARAF_SCR_PATH = "karaf-scr/";
-
-	private static final String[] KARAF_SCR_BUNDLES = {
-			KARAF_SCR_PATH + "org.apache.felix.scr-2.0.12.jar"
-	};
-
-	private static final String KARAF_HTTP_PATH = "karaf-http/";
-
-	private static final String[] KARAF_HTTP_BUNDLES = {
-			KARAF_HTTP_PATH + "org.apache.karaf.http.core-4.2.0-SNAPSHOT.jar",
-			KARAF_HTTP_PATH + "org.apache.karaf.http.command-4.2.0-SNAPSHOT.jar"
-	};
-
+	
 	private static final String HK2_PATH = "hk2/";
 
 	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0-b34.jar",
-			HK2_PATH + "hk2-locator-2.4.0-b34.jar",
-			HK2_PATH + "hk2-utils-2.4.0-b34.jar",
+			HK2_PATH + "hk2-api-2.4.0.jar",
+			HK2_PATH + "hk2-locator-2.4.0.jar",
+			HK2_PATH + "hk2-utils-2.4.0.jar",
 			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0-b34.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0-b34.jar",
+			HK2_PATH + "javax.inject-2.4.0.jar",
+			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
 
 	};
 
@@ -107,10 +65,10 @@ public class OSGiJAXRSManager
 	private static final String[] OSGI_JAX_RS_CONNECTOR_BUNDLES = {
 			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "javax.servlet-api-3.1.0.jar",
 			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "jersey-min-2.22.1.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
 			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "gson-2.3.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
+			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
 	public void installOSGiJAXRSBundles(BundleContext bundleContext, String port) throws Exception 

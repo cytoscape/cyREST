@@ -65,27 +65,24 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String KARAF_SCR_PATH = "karaf-scr/";
 
 	private static final String[] KARAF_SCR_BUNDLES = {
-			KARAF_SCR_PATH + "org.apache.felix.metatype-1.0.10.jar",
-			KARAF_SCR_PATH + "org.apache.felix.scr-1.8.2.jar",
-			KARAF_SCR_PATH + "org.apache.karaf.scr.command-3.0.3.jar"
+			KARAF_SCR_PATH + "org.apache.felix.scr-2.0.12.jar"
 	};
 
 	private static final String KARAF_HTTP_PATH = "karaf-http/";
 
 	private static final String[] KARAF_HTTP_BUNDLES = {
-			KARAF_HTTP_PATH + "org.apache.karaf.http.core-3.0.3.jar",
-			KARAF_HTTP_PATH + "org.apache.karaf.http.command-3.0.3.jar"
+			KARAF_HTTP_PATH + "org.apache.karaf.http.core-4.2.0-SNAPSHOT.jar"
 	};
 
 	private static final String HK2_PATH = "hk2/";
 
 	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0-b34.jar",
-			HK2_PATH + "hk2-locator-2.4.0-b34.jar",
-			HK2_PATH + "hk2-utils-2.4.0-b34.jar",
+			HK2_PATH + "hk2-api-2.4.0.jar",
+			HK2_PATH + "hk2-locator-2.4.0.jar",
+			HK2_PATH + "hk2-utils-2.4.0.jar",
 			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0-b34.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0-b34.jar",
+			HK2_PATH + "javax.inject-2.4.0.jar",
+			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
 
 	};
 
@@ -107,7 +104,7 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String JERSEY_MISC_PATH = "jersey-misc/";
 
 	private static final String[] JERSEY_MISC_BUNDLES = {
-			JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
+			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
 			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
 			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
 			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
@@ -116,16 +113,18 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH = "osgi-jax-rs-connector/";
 
 	private static final String[] OSGI_JAX_RS_CONNECTOR_BUNDLES = {
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "javax.servlet-api-3.1.0.jar",
+			
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
+			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
 	private static final String[][] allBundles = {
-			PAX_JETTY_BUNDLES,
-			PAX_HTTP_BUNDLES,
-			KARAF_SCR_BUNDLES,
-			KARAF_HTTP_BUNDLES,
+			//PAX_JETTY_BUNDLES,
+			//PAX_HTTP_BUNDLES,
+			//KARAF_SCR_BUNDLES,
+			//KARAF_HTTP_BUNDLES,
 			JERSEY_MISC_BUNDLES,
 			HK2_BUNDLES,
 			GLASSFISH_JERSEY_BUNDLES,
@@ -198,7 +197,7 @@ public class OSGiJAXRSConnectorIntegrationTest
 		for (String[] resourceGroup : allBundles) {
 			for (String resource : resourceGroup) {
 				File f = new File("./src/main/resources/" + resource);
-				assertTrue(f.exists());
+				assertTrue("File does not exist: " + f.getAbsolutePath(), f.exists());
 			}
 		}
 	}

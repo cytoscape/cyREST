@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.task;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -68,7 +69,7 @@ public final class ResourceManager {
 
 		for (Class<?> clazz : coreResourceClasses){
 			Object instance = injector.getInstance(clazz);
-			serviceRegistrations.add(bundleContext.registerService(clazz.getName(), instance, new Properties()));
+			serviceRegistrations.add(bundleContext.registerService(clazz.getName(), instance, new Hashtable<String, Object>()));
 		}
 
 		for (Map.Entry<Class<?>, Module> entry : shimResources.entrySet()){
@@ -80,7 +81,7 @@ public final class ResourceManager {
 					Injector appInjector = Guice.createInjector(entry.getValue());
 					appInjector.injectMembers(instance);
 				}
-				serviceRegistrations.add(bundleContext.registerService(entry.getKey().getName(), instance, new Properties()));
+				serviceRegistrations.add(bundleContext.registerService(entry.getKey().getName(), instance, new Hashtable<String, Object>()));
 			}
 			else
 			{
@@ -97,7 +98,7 @@ public final class ResourceManager {
 		swaggerResourceTracker = new SwaggerResourceTracker(bundleContext,bundleContext.createFilter(ANY_SERVICE_FILTER), swagger);
 		swaggerResourceTracker.open();
 
-		serviceRegistrations.add(bundleContext.registerService(CyRESTSwagger.class.getName(), swagger, new Properties()));
+		serviceRegistrations.add(bundleContext.registerService(CyRESTSwagger.class.getName(), swagger, new Hashtable<String, Object>()));
 
 		loadTime = System.currentTimeMillis() - loadTime;
 

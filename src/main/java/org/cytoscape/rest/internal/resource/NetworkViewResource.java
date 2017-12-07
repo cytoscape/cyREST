@@ -449,9 +449,19 @@ public class NetworkViewResource extends AbstractResource {
 
 	private final Response imageGenerator(final String fileType, PresentationWriterFactory factory, 
 			final CyNetworkView view, int width, int height) {
-		final Collection<RenderingEngine<?>> re = renderingEngineManager.getRenderingEngines(view);
+		Collection<RenderingEngine<?>> re = renderingEngineManager.getRenderingEngines(view);
+		try {
+		for (int retry = 0; re.isEmpty() && retry < 20; retry++) {
+			System.out.println("No renderer available. Retry count: " + retry);
+			Thread.sleep(100);
+			re = renderingEngineManager.getRenderingEngines(view);
+		}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (re.isEmpty()) {
-			throw new IllegalArgumentException("No rendering engine.");
+			throw new IllegalArgumentException("No rendering engine for {\"network\":" + view.getModel().getSUID() +", \"view\":" + view.getSUID() + "}");
 		}
 		try {
 			RenderingEngine<?> engine = null;

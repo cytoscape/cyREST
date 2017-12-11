@@ -3,6 +3,8 @@ package org.cytoscape.rest.internal.resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -519,7 +521,7 @@ public class NetworkResource extends AbstractResource {
 			)
 	public Response createEdge(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, final InputStream is
-		) {
+			) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -699,7 +701,7 @@ public class NetworkResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Create a new network from Cytoscape.js JSON or Edgelist")
+	@ApiOperation(value="Create a new network from Cytoscape.js JSON or Edgelist", response=NetworkSUID.class)
 	public String createNetwork(
 			@ApiParam(value="Name of new network collection") @QueryParam("collection") String collection,
 			@ApiParam(value="\"url\"", required=false) @QueryParam("source") String source, 
@@ -787,8 +789,9 @@ public class NetworkResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a subnetwork from selected nodes and edges",
-			notes="If body is empty, it simply creates new network from current selection. Otherwise, select from the "
-					+ "list of SUID.\n\nReturns the SUID of the new Network."
+	notes="If body is empty, it simply creates new network from current selection. Otherwise, select from the "
+			+ "list of SUID.\n\nReturns the SUID of the new Network.",
+			response=NetworkSUID.class
 			)
 	public String createNetworkFromSelected(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
@@ -807,7 +810,7 @@ public class NetworkResource extends AbstractResource {
 			final Task task = itr.next();
 			try {
 				task.run(new HeadlessTaskMonitor());
-				if (task instanceof AbstractNetworkCollectionTask && task instanceof ObservableTask) {
+				if (task instanceof AbstractNetworkCollectionTask) {
 					viewTask = (AbstractNetworkCollectionTask) task;
 				} else {
 				}
@@ -822,15 +825,33 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		if (viewTask != null) {
-			final Collection<?> result = ((ObservableTask) viewTask).getResults(Collection.class);
-			if (result.size() == 1) {
-				final CyNetwork newSubNetwork = ((CyNetworkView) result.iterator().next()).getModel();
-				final Long suid = newSubNetwork.getSUID();
-				if(title != null) {
-					newSubNetwork.getRow(newSubNetwork).set(CyNetwork.NAME, title);
+			try {
+				Method method = viewTask.getClass().getMethod("getResults", new Class[]{Class.class});
+				
+				final Collection<?> result = (Collection<?>) method.invoke(viewTask, Collection.class);
+				if (result.size() == 1) {
+					final CyNetwork newSubNetwork = ((CyNetworkView) result.iterator().next()).getModel();
+					final Long suid = newSubNetwork.getSUID();
+					if(title != null) {
+						newSubNetwork.getRow(newSubNetwork).set(CyNetwork.NAME, title);
+					}
+					return getNumberObjectString(JsonTags.NETWORK_SUID, suid);
+				} else {
+					throw getError("viewTask returned no networks.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
 				}
-				return getNumberObjectString(JsonTags.NETWORK_SUID, suid);
+			} catch (NoSuchMethodException e) {
+				throw getError("no method 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			} catch (SecurityException e) {
+				throw getError("security exeception accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			} catch (IllegalAccessException e) {
+				throw getError("IllegalAccessException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			} catch (IllegalArgumentException e) {
+				throw getError("IllegalArgumentException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			} catch (InvocationTargetException e) {
+				throw getError("InvocationTargetException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
 			}
+		} else {
+			System.err.println("viewTask was null");
 		}
 
 		throw getError("Could not get new network SUID.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);

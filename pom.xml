@@ -23,7 +23,7 @@
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
 
-	<version>3.6.0</version>
+	<version>3.6.1</version>
 
 	<packaging>bundle</packaging>
 	<name>cyREST</name>

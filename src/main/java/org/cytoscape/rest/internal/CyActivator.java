@@ -3,6 +3,7 @@ package org.cytoscape.rest.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -164,21 +165,36 @@ public class CyActivator extends AbstractCyActivator {
 		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
 		
 		if (configurationAdmin != null) {
-			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
-
+			Configuration config = configurationAdmin.getConfiguration("org.cytoscape");
+			if (config != null) {
+				
 			Dictionary<?,?> dictionary = config.getProperties();
-			Object logObject = dictionary.get("log4j.appender.file.File");
+			Object logObject = dictionary.get("org.cytoscape.logging.file");
 			if (logObject != null && logObject instanceof String) {
 				logLocation = (String) logObject;
 			}
 			else {
 				logLocation = null;
 			}
+			}
+			else
+			{
+				logLocation = null;
+			}
 		}
 		else {
 			logLocation = null;
 		}
-		return (new File(logLocation)).toURI();
+		if (logLocation != null) {
+			return (new File(logLocation)).toURI();
+		} else {
+			try {
+				return new URI("");
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
 	}
 	
 	private ServerState serverState = ServerState.STOPPED;

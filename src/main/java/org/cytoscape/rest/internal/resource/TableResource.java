@@ -26,6 +26,11 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
+import org.cytoscape.rest.internal.model.CyColumnModel;
+import org.cytoscape.rest.internal.model.CyColumnValuesModel;
+import org.cytoscape.rest.internal.model.CyRowModel;
+import org.cytoscape.rest.internal.model.CyTableModel;
+import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
 import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.TableModule;
 import org.slf4j.Logger;
@@ -53,7 +58,31 @@ import io.swagger.annotations.ApiResponses;
 public class TableResource extends AbstractResource {
 
 	private final static Logger logger = LoggerFactory.getLogger(TableResource.class);
-
+	
+	
+	public final static String ROW_EXAMPLE="A row contains one or more entries of column names to values.\n\n"
+			+ "```json\n{\n" 
+			+ "  \"SUID\": 101,\n"  
+			+ "  \"gene_name\": \"brca1\",\n" 
+			+ "  \"exp\": 0.1\n" 
+			+ "}\n```";
+			
+	
+	public final static String ROW_ARRAY_EXAMPLE="```\n[\n" 
+			+ "  {\n" 
+			+ "    \"SUID\": 101,\n"  
+			+ "    \"gene_name\": \"brca1\",\n" 
+			+ "    \"exp\": 0.1\n" 
+			+ "  },\n"
+			+ "  {\n" 
+			+ "    \"SUID\": 102,\n"  
+			+ "    \"gene_name\": \"brca2\",\n" 
+			+ "    \"exp\": 0.2\n" 
+			+ "  }\n"
+			+ "]\n"
+			+ "```";
+	
+	
 	private static enum TableType {
 		DEFAULT_NODE("defaultnode"), DEFAULT_EDGE("defaultedge"), DEFAULT_NETWORK("defaultnetwork");
 
@@ -123,7 +152,7 @@ public class TableResource extends AbstractResource {
 
 	@DELETE
 	@Path("/{tableType}/columns/{columnName}")
-	@ApiOperation(value="Delete a column in a table")
+	@ApiOperation(value="Delete a column in a table", notes="Deletes the column specified by the `columnName` parameter from the table speficied by the `tableType` parameter from the network specified by the `networkId` parameter.")
 	public Response deleteColumn(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
@@ -143,7 +172,7 @@ public class TableResource extends AbstractResource {
 	@PUT
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update a column name")
+	@ApiOperation(value="Update a column name", notes="Renames an existing column.")
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="Old and new column name", dataType="org.cytoscape.rest.internal.model.Rename", paramType="body", required=true)
 			)
@@ -206,32 +235,18 @@ public class TableResource extends AbstractResource {
 			notes="This API is for updating default node/edge/network data table.  New columns will be created if they "
 			+ "do not exist in the target table.\n"
 			+ "\n"
-	 + "The BODY of the data should be in the following format:\n"
-	 + "\n```\n"
-	 + "{\n"
-	 + "  \"key\":\"SUID\",// This is the unique key column in the existing table\n"
-	 + "  \"dataKey\": \"id\",// Mapping key for the new values\n"
-	 + "  \"data\": [\n"
-	 + "    {\n"
-	 + "      \"id\": 12345,// Required. Field name should be same as \"dataKey.\"\n"
-	 + "                  // In this case, it is \"id\", but can be anything.\n"
-	 + "      \"gene_name\": \"brca1\",\n"
-	 + "      \"exp1\": 0.11,\n"
-	 + "      \"exp2\": 0.2\n"
-	 + "    }, ...\n"
-	 + "  ]\n"
-	 + "}\n"
-	+ "```\n\n"
 	+ "Current limitations:\n"
-	+ "* If key is not specified, SUID will be used for mapping\n"
 	+ "* Numbers are handled as Double\n"
 	+ "* List column is not supported in this version\n"
 	)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTable", paramType="body", required=true)
+			)
 	public Response updateTable(
 			@ApiParam() @PathParam("networkId") Long networkId, 
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(allowableValues="local", required=false) @QueryParam("class") String tableClass,
-			final InputStream is
+			@ApiParam(hidden=true) final InputStream is
 			) {
 		
 		final CyNetwork network = getCyNetwork(networkId);
@@ -255,11 +270,11 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a row in the table")
+	@ApiOperation(value="Get a row in the table", notes="Gets a row from the table specified by the `tableType` and `networkId` parameters where the value of the SUID of the row matches the specified `primaryKey` parameter.\n\nThe returned data is is a JSON representation of a row.\n\n```\n" + ROW_EXAMPLE + "```", response=org.cytoscape.rest.internal.model.CyRowModel.class)
 	public String getRow(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
-			@ApiParam(value="Name of primary key column") @PathParam("primaryKey") Long primaryKey) {
+			@ApiParam(value="Primary key") @PathParam("primaryKey") Long primaryKey) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
@@ -280,7 +295,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a value from a cell", notes="Returns the value in the cell. String, Boolean, Number, or List.")
+	@ApiOperation(value="Get a value from a cell", notes="Return the value of a cell from the column specified with the `columnName` parameter in the table specified by the `tableType` and `networkId` parameters where the value of the SUID of the row matches the specified `primaryKey` parameter.\n\nReturns a JSON representation of a String, Boolean, Number, or List.")
 	public Object getCell(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
@@ -324,7 +339,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all rows in a table")
+	@ApiOperation(value="Get all rows in a table", notes="Returns all rows from the table speciefied using the `networkId` and `tableType` parameters. Returns a JSON representation of an array of rows.\n\n" + ROW_ARRAY_EXAMPLE, response=CyRowModel.class, responseContainer="List")
 	public String getRows(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
@@ -340,7 +355,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/columns")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all columns in a table")
+	@ApiOperation(value="Get all columns in a table", notes="Returns all the columns in the table specified by the `networkId` and `tableType` parameters.", response=CyColumnModel.class, responseContainer="List")
 	public String getColumnNames(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
@@ -356,7 +371,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/columns/{columnName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all values in a column")
+	@ApiOperation(value="Get all values in a column", notes="Returns all the values for the column specified by the `columnType` parameter, in the table specified by the `networkId` and `tableType` parameters.", response=CyColumnValuesModel.class)
 	public String getColumnValues(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
@@ -376,7 +391,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all tables assigned to the network", notes="Returns all tables in JSON")
+	@ApiOperation(value="Get all tables assigned to the network", notes="Returns every table in the network specified by the `networkId` parameter.", response=CyTableWithRowsModel.class, responseContainer="List")
 	public String getTables(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
 		final Set<CyTable> tables = this.tableManager.getAllTables(true);
@@ -429,7 +444,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a default table", notes="Table output as JSON")
+	@ApiOperation(value="Get a default table", notes="Returns the table specified by the `networkId` and 'tableType' parameters.", response=CyTableWithRowsModel.class)
 	public String getTable(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
@@ -446,7 +461,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}.csv")
 	@Produces(MediaType.TEXT_PLAIN)
-	@ApiOperation(value="Get a table as CSV")
+	@ApiOperation(value="Get a table as CSV", notes="Returns a CSV representation of the table specified by the `networkId` and `tableType` parameters. All column names are included in the first row.")
 	public String getTableAsCsv(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
@@ -456,7 +471,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}.tsv")
 	@Produces(MediaType.TEXT_PLAIN)
-	@ApiOperation(value="Get a table as TSV (tab delimited text)")
+	@ApiOperation(value="Get a table as TSV (tab delimited text)", notes="Returns a TSV (tab delimited text) representation of the table specified by the `networkId` and `tableType` parameters. All column names are included in the first row.")
 	public String getTableAsTsv(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {

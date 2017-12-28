@@ -17,6 +17,7 @@ public class JsonTags {
 	public static final String COLUMN_NAME_OLD = "oldName";
 	public static final String COLUMN_NAME_NEW = "newName";
 	public static final String COLUMN_TYPE = "type";
+	public static final String COLUMN_LIST_TYPE = "listType";
 	public static final String COLUMN_VALUES = "values";
 	public static final String COLUMN_IMMUTABLE = "immutable";
 	public static final String COLUMN_IS_LIST = "list";

@@ -62,4 +62,6 @@ public class CyRESTConstants {
 	public final static String getErrorURI(String resourceURI, int code) {
 		return cyRESTCIRoot + ":" + resourceURI + ":"+ cyRESTCIErrorRoot + ":"+ code;
 	}
+	
+	public final static String cxLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
 }

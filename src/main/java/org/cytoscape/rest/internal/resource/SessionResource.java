@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.model.Message;
 import org.cytoscape.rest.internal.model.SessionFile;
+import org.cytoscape.rest.internal.model.SessionName;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.create.NewSessionTaskFactory;
@@ -64,16 +65,16 @@ public class SessionResource extends AbstractResource {
 	@GET
 	@Path("/name")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get current session name",
-    notes = "",
-    response = String.class)
-	public String getSessionName() 
+	@ApiOperation(value = "Get current session file name",
+    notes = "Returns the file name for the current Cytoscape session.",
+    response = SessionName.class)
+	public SessionName getSessionName() 
 	{
 		String sessionName = sessionManager.getCurrentSessionFileName();
 		if(sessionName == null || sessionName.isEmpty()) {
 			sessionName = "";
 		}
-		return "{\"name\": \"" + sessionName +"\"}";
+		return new SessionName(sessionName);
 	}
 
 
@@ -81,8 +82,8 @@ public class SessionResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete current Session and start a new one",
-    notes = "",
+	@ApiOperation(value = "Delete current Session",
+    notes = "This deletes the current session and initializes a new one. A message is returned to indicate the success of the deletion.",
     response = Message.class)
 	public Message deleteSession() {
 
@@ -103,7 +104,7 @@ public class SessionResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Load a Session from a local file",
-    notes = "Returns the session file name",
+    notes = "Loads a session from a local file and returns the session file name",
     response = SessionFile.class)
 	public SessionFile getSessionFromFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) throws IOException
 	{
@@ -126,7 +127,7 @@ public class SessionResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Save current Session to a file",
-    notes = "",
+    notes = "Saves the current session to a file. If successful, the session file location will be returned.",
     response = SessionFile.class)
 	public SessionFile createSessionFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) {
 		File sessionFile = null;

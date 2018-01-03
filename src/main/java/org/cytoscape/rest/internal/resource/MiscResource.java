@@ -16,6 +16,8 @@ import org.cytoscape.rest.internal.model.ServerStatus;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
 
 /**
  * Resource to provide general status of the Cytoscape REST server. 
@@ -33,7 +35,11 @@ public class MiscResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Cytoscape RESTful API server status",
-			notes="500 If REST API Module is not working")
+	notes="Returns the status of the server if operational, including version information and available memory and processor resources.")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 500, message = "CyREST service is unavailable"),
+			@ApiResponse(code = 200, message = "Server Status", response = ServerStatus.class),
+	})
 	public ServerStatus getStatus() {
 		return new ServerStatus();
 	}
@@ -42,16 +48,19 @@ public class MiscResource extends AbstractResource {
 	@Path("/gc")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Run Java garbage collection",
-			notes="Call System.gc() to free up memory. In general, this is not necessary.")
+	notes="Manually call Java's System.gc() to free up unused memory. This process happens automatically, but may be useful to call explicitly for testing or evaluation purposes.")
+	 @ApiResponses(value = { 
+	            @ApiResponse(code = 204, message = "successful operation")
+	    })
 	public void runGarbageCollection() {
 		Runtime.getRuntime().gc();
 	}
-	
+
 	@GET
 	@Path("/version")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get Cytoscape and REST API version"
-	)
+	@ApiOperation(value="Get Cytoscape and REST API version", notes="Returns the version of the current Cytoscape REST API."
+			)
 	public CytoscapeVersion getCytoscapeVersion() {
 
 		if (props == null) {
@@ -66,7 +75,7 @@ public class MiscResource extends AbstractResource {
 			throw new NotFoundException("Could not find Cytoscape version number property.");
 		}
 	}
-	
+
 	//TODO Why is this here? It doesn't change anything, and appears to be the same as GET.
 	@PUT
 	@Path("/ui/show-details")

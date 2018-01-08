@@ -16,6 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.model.SUIDNameModel;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -33,10 +35,11 @@ public class NetworkNameResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(value = "Returns a list of network names with corresponding SUIDs",
-		    response = List.class)
+		notes="Returns a list of all networks as names and their corresponding SUIDs.\n\n" + NETWORK_QUERY_DESCRIPTION,
+		    response = SUIDNameModel.class, responseContainer="List")
 	public List<Map<String,?>> getNetworksNames(
-			@ApiParam(value="Column Name for Matching") @QueryParam("column") String column,
-			@ApiParam(value="Value to Match") @QueryParam("query") String query) {
+			@ApiParam(value=COLUMN_DESCRIPTION) @QueryParam("column") String column,
+			@ApiParam(value=QUERY_STRING_DESCRIPTION) @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 
 		if (column == null && query == null) {

@@ -64,4 +64,6 @@ public class CyRESTConstants {
 	}
 	
 	public final static String cxLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
+	public final static String sifLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
+	public final static String cytoscapeJsLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
 }

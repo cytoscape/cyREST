@@ -30,13 +30,11 @@ public class NetworkFullResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(
 			value=" Get networks in Cytoscape.js JSON format",
-			notes="Returns full list of network data as an array of "
-					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) entries. If no query parameter is "
-					+ "given, returns all networks in current session."
-	)
+			notes="Returns a list of all networks as an array of "
+					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) entries.\n\n" + NETWORK_QUERY_DESCRIPTION)
 	public String getNetworks(
-			@ApiParam(value="Network table column name to be used for search", required=false) @QueryParam("column") String column, 
-			@ApiParam(value="Search query string", required=false) @QueryParam("query") String query) {
+			@ApiParam(value=COLUMN_DESCRIPTION, required=false) @QueryParam("column") String column, 
+			@ApiParam(value=QUERY_STRING_DESCRIPTION, required=false) @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
 		
 		if (column == null && query == null) {

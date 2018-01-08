@@ -29,8 +29,8 @@ import org.cytoscape.rest.internal.datamapper.TableMapper;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyColumnValuesModel;
 import org.cytoscape.rest.internal.model.CyRowModel;
-import org.cytoscape.rest.internal.model.CyTableModel;
 import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
+import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.serializer.CyTableSerializer;
 import org.cytoscape.rest.internal.serializer.TableModule;
 import org.slf4j.Logger;
@@ -270,7 +270,7 @@ public class TableResource extends AbstractResource {
 	@GET
 	@Path("/{tableType}/rows/{primaryKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a row in the table", notes="Gets a row from the table specified by the `tableType` and `networkId` parameters where the value of the SUID of the row matches the specified `primaryKey` parameter.\n\nThe returned data is is a JSON representation of a row.\n\n```\n" + ROW_EXAMPLE + "```", response=org.cytoscape.rest.internal.model.CyRowModel.class)
+	@ApiOperation(value="Get a row in the table", notes="Gets a row from the table specified by the `tableType` and `networkId` parameters where the value of the SUID of the row matches the specified `primaryKey` parameter.\n\n" + ModelConstants.ROW_DESCRIPTION, response=org.cytoscape.rest.internal.model.CyRowModel.class)
 	public String getRow(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,

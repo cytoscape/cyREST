@@ -75,6 +75,12 @@ public abstract class AbstractResource {
 	protected static final String API_VERSION = "v1";
 	protected static final String ERROR_TAG = "\"error\":";
 
+	protected static final String NETWORK_QUERY_DESCRIPTION = "If the `column` and `query` parameters are specified, the results will be limited to rows in the network table where the value in the column specified by the `column` parameter matches the value specified by the `query` parameter.";
+	protected static final String NODE_QUERY_DESCRIPTION = "If the `column` and `query` parameters are specified, the results will be limited to rows in the node table where the value in the column specified by the `column` parameter matches the value specified by the `query` parameter.";
+	protected static final String EDGE_QUERY_DESCRIPTION = "If the `column` and `query` parameters are specified, the results will be limited to rows in the edge table where the value in the column specified by the `column` parameter matches the value specified by the `query` parameter.";
+	
+	protected static final String COLUMN_DESCRIPTION = "The name of the column that will be queried for matches.";
+	protected static final String QUERY_STRING_DESCRIPTION = "The value to be matched.";
 
 	/**
 	 * Create a informative error message instead of plain 500.

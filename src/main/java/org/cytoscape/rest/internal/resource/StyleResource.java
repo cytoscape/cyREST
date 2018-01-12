@@ -28,6 +28,9 @@ import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.ModelConstants;
+import org.cytoscape.rest.internal.model.VisualStyleDefaultsModel;
+import org.cytoscape.rest.internal.model.VisualStyleMappingModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -47,6 +50,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -73,6 +78,8 @@ public class StyleResource extends AbstractResource {
 	private final VisualStyleMapper visualStyleMapper;
 	private final VisualStyleSerializer visualStyleSerializer;
 
+	private static final String MAPPING_DESCRIPTION =  "The types of mapping available in Cytoscape are explained in depth [here](http://manual.cytoscape.org/en/stable/Styles.html#how-mappings-work). An example of the data format for each is included below:\n\n" +  ModelConstants.MAPPING_EXAMPLES;
+	
 	public StyleResource() {
 		super();
 		this.styleMapper = new ObjectMapper();
@@ -85,7 +92,10 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get list of Visual Style titles", notes="Returns a list of Visual Style titles")
+	@ApiOperation(value="Get list of Visual Style names", 
+		notes="Returns a list of all the Visual Style names in the current session.", 
+		response=String.class, 
+		responseContainer="List")
 	public String getStyleNames() {
 		final Collection<VisualStyle> styles = vmm.getAllVisualStyles();
 		final List<String> styleNames = new ArrayList<String>();
@@ -104,8 +114,8 @@ public class StyleResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get number of Visual Styles",
-    notes = "Returns the number of Visual Styles available in current session",
-    response = Count.class)
+		notes = "Returns the number of Visual Styles available in the current session",
+		response = Count.class)
 	public Count getStyleCount() {
 		return new Count((long)vmm.getAllVisualStyles().size());
 	}
@@ -113,7 +123,8 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete a Visual Style")
+	@ApiOperation(value="Delete a Visual Style",
+			notes="Deletes the Visual Style specified by the `name` parameter.")
 	public Response deleteStyle(
 			@ApiParam(value="Visual Style Name")@PathParam("name") String name) {
 		vmm.removeVisualStyle(getStyleByName(name));
@@ -123,7 +134,8 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete all Visual Styles except default style")
+	@ApiOperation(value="Delete all Visual Styles", 
+		notes="Deletes all vision styles except for default style")
 	public Response deleteAllStyles() {
 		Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		Set<VisualStyle> toBeDeleted = new HashSet<VisualStyle>();
@@ -140,10 +152,11 @@ public class StyleResource extends AbstractResource {
 	@DELETE
 	@Path("/{name}/mappings/{vpName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete a Visual Mapping from a Visual Style")
+	@ApiOperation(value="Delete a Visual Mapping from a Visual Style",
+			notes="Deletes the Visual Property mapping specified by the `vpName` and `name` parameters.")
 	public Response deleteMapping(
-			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name, 
-			@ApiParam(value="Visual Property name associated with the mapping") @PathParam("vpName") String vpName) {
+			@ApiParam(value="Name of the Visual Style containing the Visual Mapping", example="default") @PathParam("name") String name, 
+			@ApiParam(value="Name of the Visual Property that the Visual Mapping controls", example="NODE_SIZE") @PathParam("vpName") String vpName) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualProperty<?> vp = getVisualProperty(vpName);
 		if(vp == null) {
@@ -161,7 +174,9 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all default values for the Visual Style", notes="Returns a list of all default values.")
+	@ApiOperation(value="Get all default values for the Visual Style", 
+		notes="Returns a list of all the default values for the Visual Style specified by the `name` parameter.",
+		response=VisualStyleDefaultsModel.class)
 	public String getDefaults(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		return serializeDefaultValues(name);
@@ -172,8 +187,8 @@ public class StyleResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a default value for the Visual Property")
 	public String getDefaultValue(
-			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name, 
-			@ApiParam(value="Visual Property ID") @PathParam("vp") String vp) {
+			@ApiParam(value="Name of the Visual Style containing the Visual Property") @PathParam("name") String name, 
+			@ApiParam(value="Name of the Visual Property") @PathParam("vp") String vp) {
 		return serializeDefaultValue(name, vp);
 	}
 
@@ -214,7 +229,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all Visual Mappings for the Visual Style",
-	notes="Returns a list of all Visual Mappings.")
+	notes="Returns a list of all Visual Mappings used in the Visual Style specified by the `name` parameter.\n\n" + MAPPING_DESCRIPTION, response=VisualStyleMappingModel.class, responseContainer="List")
 	public String getMappings(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
@@ -238,10 +253,10 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a Visual Mapping associated with the Visual Property",
-	notes="Returns the Visual Mapping assigned to the Visual Property")
+	notes="Returns the Visual Mapping assigned to the Visual Property specified by the `name` and `vp` parameters.\n\n" + MAPPING_DESCRIPTION, response=VisualStyleMappingModel.class)
 	public String getMapping(
-			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name, 
-			@ApiParam(value="Visual Property ID") @PathParam("vp") String vp) {
+			@ApiParam(value="Name of the Visual Style containing the Visual Property mapping") @PathParam("name") String name, 
+			@ApiParam(value="Name of the Visual Property that the Visual Mapping controls") @PathParam("vp") String vp) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualMappingFunction<?, ?> mapping = getMappingFunction(vp, style);
 		
@@ -458,18 +473,15 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Add a new Visual Mapping", notes="Create a new Visual Mapping function from JSON and add it to "
-				+"the Style.\n\n"
-				+ "will be overidden."
-				+ "#### Discrete Mapping\n"
-				+ "#### Continuous Mapping\n"
-				+ "#### Passthrough Mapping\n\n"
-				+ "\n\n Note that if a mapping already exists for the visual property, the previous mapping will be "
-				+ "overidden."
+	@ApiOperation(value="Add a new Visual Mapping", notes="Create a new Visual Mapping function and add it to the Visual Style specified by the `name` parameter. Existing mappings in the Visual Style will be overidden by the new mappings created.\n\n"
+			+ MAPPING_DESCRIPTION
+			)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of new mappings.", dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", paramType="body", required=true)
 			)
 	public Response createMappings(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name,
-			InputStream is) {
+			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
@@ -487,9 +499,13 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update name of a Visual Style")
+	@ApiOperation(value="Update name of a Visual Style", notes="Updates the name of the Visual Style specified by the `name` parameter.")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A new name for the Visual Style.", dataType="org.cytoscape.rest.internal.model.TitleModel", paramType="body", required=true)
+	)
 	public void updateStyleName(
-			@ApiParam(value="Original name of the Visual Style") @PathParam("name") String name, InputStream is) {
+			@ApiParam(value="Original name of the Visual Style") @PathParam("name") String name,
+			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
@@ -505,11 +521,15 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/mappings/{vp}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update an existing Visual Mapping",
-			notes="Update an existing mapping.")
+			notes="Update the visual mapping specified by the `name` and `vp` parameters.\n\n"
+				+ MAPPING_DESCRIPTION)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of new mappings.", dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", paramType="body", required=true)
+			)
 	public Response updateMapping(
-			@ApiParam(value="Name of visual Style") @PathParam("name") String name,  
-			@ApiParam(value="Target Visual Property") @PathParam("vp") String vp, 
-			InputStream is) {
+			@ApiParam(value="Name of the Visual Style containing the Visual Mapping") @PathParam("name") String name,  
+			@ApiParam(value="Name of the Visual Property that the Visual Mapping controls") @PathParam("vp") String vp, 
+			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		final VisualMappingFunction<?, ?> currentMapping = getMappingFunction(vp, style);
 	

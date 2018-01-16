@@ -29,8 +29,14 @@ import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.model.ModelConstants;
+import org.cytoscape.rest.internal.model.TitleModel;
+import org.cytoscape.rest.internal.model.VisualPropertyDependencyModel;
+import org.cytoscape.rest.internal.model.VisualPropertyModel;
 import org.cytoscape.rest.internal.model.VisualStyleDefaultsModel;
 import org.cytoscape.rest.internal.model.VisualStyleMappingModel;
+import org.cytoscape.rest.internal.model.VisualStyleModel;
+import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
+import org.cytoscape.rest.internal.model.VisualPropertyValuesModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -54,6 +60,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
 @Singleton
@@ -185,7 +193,9 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/{name}/defaults/{vp}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a default value for the Visual Property")
+	@ApiOperation(value="Get a default value for the Visual Property",
+			notes="Returns the default value for the Visual Property specified by the `name` and `vp` parameters.",
+			response=VisualPropertyValueModel.class)
 	public String getDefaultValue(
 			@ApiParam(value="Name of the Visual Style containing the Visual Property") @PathParam("name") String name, 
 			@ApiParam(value="Name of the Visual Property") @PathParam("vp") String vp) {
@@ -195,28 +205,31 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/visualproperties/{vp}/values")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all available range values for the Visual Property",
-			notes="Returns a list of all available values for the visual property. This method is only for Visual Properties with DiscreteRange, such as NODE_SHAPE or EDGE_LINE_TYPE.")
+	@ApiOperation(value="Get all available values for a Visual Property",
+			notes="Returns a list of all available values for the Visual Property specified by the `vp` parameter.\n\nThis method is only for Visual Properties with a Discrete Range, such as NODE_SHAPE or EDGE_LINE_TYPE.",
+			response=VisualPropertyValuesModel.class)
 	public String getRangeValues(
-			@ApiParam(value="Visual Property ID") @PathParam("vp") String vp) {
+			@ApiParam(value="ID of the Visual Property", example="NODE_SHAPE") @PathParam("vp") String vp) {
 		return serializeRangeValue(vp);
 	}
 
 	@GET
 	@Path("/visualproperties")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all available Visual Properties")
-	public Collection<org.cytoscape.rest.internal.model.VisualProperty> getVisualProperties() {
+	@ApiOperation(value="Get all available Visual Properties", 
+		notes="Get all available Visual Properties.")
+	public Collection<VisualPropertyModel> getVisualProperties() {
 		Set<VisualProperty<?>> vps = getAllVisualProperties();	
-		return vps.stream().map(cyVp -> new org.cytoscape.rest.internal.model.VisualProperty((VisualProperty<Object>) cyVp)).collect(Collectors.toList());
+		return vps.stream().map(cyVp -> new org.cytoscape.rest.internal.model.VisualPropertyModel((VisualProperty<Object>) cyVp)).collect(Collectors.toList());
 	}
 
 	@GET
 	@Path("/visualproperties/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a Visual Property", notes="Return a Visual Property as an object")
+	@ApiOperation(value="Get a Visual Property", notes="Return the Visual Property specified by the `visualProperty` parameter", 
+		response=VisualPropertyModel.class)
 	public String getSingleVisualProperty(
-			@ApiParam(value="Visual Property ID") @PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="ID of the Visual Property", example="NODE_SHAPE") @PathParam("visualProperty") String visualProperty) {
 		final VisualProperty<?> vp = getVisualProperty(visualProperty);
 		try {
 			return styleSerializer.serializeVisualProperty(vp);
@@ -350,21 +363,15 @@ public class StyleResource extends AbstractResource {
 	@PUT
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update a default value for the Visual Property",
-			notes="The body of the request should be a list of key-value pair:\n"
-			 +"\n```\n"
-	 
-	+ "[\n"
-	+ "  {\n"
-	+ "    \"visualProperty\": VISUAL_PROPERTY_ID\n"
-	+ "    \"value\": value\n"
-	+ "  }, ...\n"
-	+ "]\n"
-			
-	+"```\n")
+	@ApiOperation(value="Update the default values for Visual Properties",
+			notes="Updates the default values for the Visual Properties in the Visual Style specified by the ```name``` parameter.")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of Visual Property values to update.", 
+				dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", paramType="body", required=true)
+			)
 	public Response updateDefaults(
 			@ApiParam(value="Name of the Visual Style")@PathParam("name") String name, 
-			InputStream is) {
+			@ApiParam(hidden=true) InputStream is) {
 			
 		final VisualStyle style = getStyleByName(name);
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -426,15 +433,8 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a Visual Style with full details",
-			notes="This returns JSON version of Visual Style object with full details.  Format is simple:\n"
-		+ "\n```\n"
-	 + "{\n"
-	 + 	"  \"title\": (name of this Visual Style),\n"
-	 + 	"  \"defaults\": [ default values ],\n"
-	+ 	"  \"mappings\": [ Mappings ]\n"
-	 + "}\n"
-	 + "```\n"
-	 + "Essentially, this is a JSON version of the Visual Style XML file\n"
+			notes="Returns the Visual Style specified by the `name` parameter.",
+			response=VisualStyleModel.class
 			)
 	public String getStyleFull(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
@@ -450,8 +450,13 @@ public class StyleResource extends AbstractResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Create a new Visual Style from JSON.", notes="Returns the title of the new Visual Style.")
-	public Response createStyle(InputStream is) {
+	@ApiOperation(value="Create a new Visual Style from JSON.", 
+		notes="Creates a new Visual Style using the message body.\n\nReturns the title of the new Visual Style. If the title of the Visual Style already existed in the session, a new one will be automatically generated and returned.",
+		response=TitleModel.class)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="The details of the new Visual Style to be created.", dataType="org.cytoscape.rest.internal.model.VisualStyleModel", paramType="body", required=true)
+			)
+	public Response createStyle(@ApiParam(hidden=true)InputStream is) {
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {
@@ -477,8 +482,34 @@ public class StyleResource extends AbstractResource {
 			+ MAPPING_DESCRIPTION
 			)
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="A list of new mappings.", dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", paramType="body", required=true)
+		@ApiImplicitParam(value="A list of new mappings.", dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", 
+		paramType="body", 
+		required=true, 
+		examples = //The following is for some reason not included in the generated swagger. This needs repair.
+			@Example(value = {
+					@ExampleProperty(mediaType="default", value="[{\n" + 
+							"      \"mappingType\": \"continuous\",\n" + 
+							"      \"mappingColumn\": \"degree.layout\",\n" + 
+							"      \"mappingColumnType\": \"Integer\",\n" + 
+							"      \"visualProperty\": \"NODE_SIZE\",\n" + 
+							"      \"points\": [\n" + 
+							"        {\n" + 
+							"          \"value\": 1,\n" + 
+							"          \"lesser\": \"1.0\",\n" + 
+							"          \"equal\": \"40.0\",\n" + 
+							"          \"greater\": \"40.0\"\n" + 
+							"        },\n" + 
+							"        {\n" + 
+							"          \"value\": 18,\n" + 
+							"          \"lesser\": \"150.0\",\n" + 
+							"          \"equal\": \"150.0\",\n" + 
+							"          \"greater\": \"1.0\"\n" + 
+							"        }\n" + 
+							"      ]\n" + 
+							"    }")}
 			)
+		)
+	)
 	public Response createMappings(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name,
 			@ApiParam(hidden=true) InputStream is) {
@@ -561,8 +592,9 @@ public class StyleResource extends AbstractResource {
 	@GET
 	@Path("/{name}/dependencies")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get all Visual Property Dependency status",
-			notes="Check status of Visual Property Dependencies.  If a dependency is enabled, it has true for \"enabled.\"\n\nReturns a list of the status of all Visual Property dependencies.")
+	@ApiOperation(value="Get all Visual Property Dependency statuses",
+			notes="Returns the status of all the Visual Property Dependencies.",
+			response=VisualPropertyDependencyModel.class, responseContainer="List")
 	public String getAllDependencies(
 			@ApiParam("Name of the Visual Style") @PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
@@ -579,20 +611,15 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}/dependencies")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Set Visual Property Dependency flags",
-			notes="The body should be the following format:\n\n"
-					+ "\n```\n"
-					+ "[\n"
-	+ "  {\n"
-	+ "    \"visualPropertyDependency\" : \"DEPENDENCY_ID\",\n"
-	+ "    \"enabled\" : true or false\n"
-	+ "  }, ... {}\n"
-	+ "]\n"
-	+ "```\n"
+	@ApiOperation(value="Set Visual Property Dependencies",
+			notes="Sets the value of Visual Property dependencies to the values in the message body."
 	 )
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of dependencies.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyDependencyModel;", paramType="body", required=true)
+	)
 	public void updateDependencies(
-			@ApiParam(value="Name of Visual Style") @PathParam("name") String name, 
-			InputStream is) {
+			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name, 
+			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
 		
 		final ObjectMapper objMapper = new ObjectMapper();

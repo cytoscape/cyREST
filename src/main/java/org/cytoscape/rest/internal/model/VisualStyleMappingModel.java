@@ -19,10 +19,10 @@ public class VisualStyleMappingModel {
 	@ApiModelProperty(required = true)
 	public String visualProperty;
 	
-	@ApiModelProperty(required = false, value="Map for `discreet` mappings.")
+	@ApiModelProperty(required = false, value="Map for `discreet` mappings.", example="")
 	public List<KeyValue> map;
 	
-	@ApiModelProperty(required = false, value="Points for `continuous` mappings.")
+	@ApiModelProperty(required = false, value="Points for `continuous` mappings.", example="")
 	public List<PointModel> points;
 	
 }

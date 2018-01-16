@@ -151,8 +151,8 @@ public class StyleResourceTest extends BasicResourceTest {
 
 		//assertEquals(root1, root);
 
-		List<org.cytoscape.rest.internal.model.VisualProperty> list1;
-		TypeReference<List<org.cytoscape.rest.internal.model.VisualProperty>> tRef = new TypeReference<List<org.cytoscape.rest.internal.model.VisualProperty>>() {};
+		List<org.cytoscape.rest.internal.model.VisualPropertyModel> list1;
+		TypeReference<List<org.cytoscape.rest.internal.model.VisualPropertyModel>> tRef = new TypeReference<List<org.cytoscape.rest.internal.model.VisualPropertyModel>>() {};
 		list1 = mapper.readValue(body1, tRef);
 
 
@@ -164,9 +164,9 @@ public class StyleResourceTest extends BasicResourceTest {
 		}
 	}
 
-	private boolean containsVisualProperty(List<org.cytoscape.rest.internal.model.VisualProperty> list, VisualProperty<Object> vp)
+	private boolean containsVisualProperty(List<org.cytoscape.rest.internal.model.VisualPropertyModel> list, VisualProperty<Object> vp)
 	{
-		for (org.cytoscape.rest.internal.model.VisualProperty entry : list)
+		for (org.cytoscape.rest.internal.model.VisualPropertyModel entry : list)
 		{
 			if ( entry.visualProperty.equals(vp.getIdString())
 					&& entry.name.equals(vp.getDisplayName())

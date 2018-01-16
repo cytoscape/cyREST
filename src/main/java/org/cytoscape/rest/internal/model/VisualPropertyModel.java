@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
 
 @ApiModel
-public class VisualProperty {
+public class VisualPropertyModel {
 	public String visualProperty;
 	public String name;
 	public String targetDataType;
@@ -15,11 +15,11 @@ public class VisualProperty {
 	@JsonProperty("default")
 	public String _default;
 	
-	public VisualProperty()	{
+	public VisualPropertyModel()	{
 		
 	}
 	
-	public VisualProperty(org.cytoscape.view.model.VisualProperty<Object> vp){
+	public VisualPropertyModel(org.cytoscape.view.model.VisualProperty<Object> vp){
 		this.visualProperty = vp.getIdString();
 		this.name = vp.getDisplayName();
 		this.targetDataType = vp.getTargetDataType().getSimpleName();

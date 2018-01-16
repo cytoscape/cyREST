@@ -116,7 +116,7 @@ public class TableResource extends AbstractResource {
 	@ApiOperation(value="Create new column(s) in the table", notes="Creates a new, empty column in the table specified by the `tableType` parameter.\n\n"
 	 + "This resource can also accept an array of NewColumn objects to create multiple columns.")
 	@ApiImplicitParams( value= {
-			@ApiImplicitParam(value="New Column Info", dataType="org.cytoscape.rest.internal.model.NewColumn", paramType="body", required=true),
+			@ApiImplicitParam(value="New Column Info", dataType="org.cytoscape.rest.internal.model.NewColumnParameterModel", paramType="body", required=true),
 	})
 	@ApiResponses ( value = {
 			@ApiResponse(code=201, message="Column(s) createed"),

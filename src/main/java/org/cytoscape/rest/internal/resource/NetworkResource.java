@@ -49,7 +49,6 @@ import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.CyRESTConstants;
-import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.model.Count;
 import org.cytoscape.rest.internal.model.Edge;
 import org.cytoscape.rest.internal.model.NetworkSUID;
@@ -62,7 +61,6 @@ import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.vizmap.VisualStyle;
-import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 

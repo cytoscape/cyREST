@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
-public class NewColumn {
+public class NewColumnParameterModel {
 	@ApiModelProperty(value = "New Column Name", required=true)
 	public String name;
 	@ApiModelProperty(value = "New Column Data Type", allowableValues="Double,String,Boolean,Long,Integer", required=true)

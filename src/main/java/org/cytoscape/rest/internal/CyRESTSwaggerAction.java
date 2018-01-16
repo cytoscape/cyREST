@@ -17,7 +17,7 @@ public abstract class CyRESTSwaggerAction extends AbstractCyAction{
 	
 	public CyRESTSwaggerAction(String name, CyServiceRegistrar serviceRegistrar, String cyRESTPort) {
 		super(name);
-		this.setPreferredMenu(CyRESTConstants.cyRESTHelpMenu);
+		this.setPreferredMenu(CyRESTConstants.CY_REST_HELP_MENU_ANCHOR);
 		this.serviceRegistrar = serviceRegistrar;
 		this.cyRESTPort = cyRESTPort;
 	}

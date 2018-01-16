@@ -177,7 +177,7 @@ public class NetworkResource extends AbstractResource {
 	@ApiOperation(
 			value="Get a network in Cytoscape.js format",
 			notes="Returns Network with all associated tables in "
-					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) format"
+					+ "[Cytoscape.js]("+ CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK +") format"
 			)
 	public String getNetwork(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
@@ -709,9 +709,9 @@ public class NetworkResource extends AbstractResource {
 			+ "Depending on the setting of the `format` parameter the source can be in one of several formats:\n\n"
 			+ "| format   | Details    |\n"
 			+ "| -------- | -------    |\n"
-			+ "| edgeList | [SIF]("+CyRESTConstants.sifLink+") format |\n"
-			+ "| cx       | [CX]("+CyRESTConstants.cxLink+") format |\n"
-			+ "| json     | [Cytoscape.js]("+CyRESTConstants.cytoscapeJsLink+") format |\n"
+			+ "| edgeList | [SIF]("+CyRESTConstants.SIF_FILE_FORMAT_LINK+") format |\n"
+			+ "| cx       | [CX]("+CyRESTConstants.CX_FILE_FORMAT_LINK+") format |\n"
+			+ "| json     | [Cytoscape.js]("+CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK+") format |\n"
 			+ "If the `source` parameter is left unspecified, the message body should contain data in the format specified by the `format` parameter.\n\n"
 			+ "\n"
 			+ "If the `source` parameter is specified as \"url\", the message body should be a list of URLs, formatted as below:\n\n"

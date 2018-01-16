@@ -22,6 +22,8 @@ import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
 import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.GroupModel;
+import org.cytoscape.rest.internal.model.GroupSUID;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -56,7 +60,8 @@ public class GroupResource extends AbstractResource {
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all groups in the network",
-			notes="Returns a list of all groups in the network"
+			notes="Returns a list of all the groups in the network specified by the `networkId` parameter.",
+			response=GroupModel.class, responseContainer="List"
 			)
 	public String getAllGroups(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
@@ -88,11 +93,12 @@ public class GroupResource extends AbstractResource {
 	@Path("/{groupNodeId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get a group by SUID",
-		notes="Returns the group the SUID represents."
-			)
+		notes="Returns the group specified by the `groupNodeId` and `networkId` parameters.",
+		response=GroupModel.class
+	)
 	public String getGroup(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
@@ -106,9 +112,10 @@ public class GroupResource extends AbstractResource {
 
 	@DELETE
 	@Path("/")
-	@ApiOperation(value="Delete all groups in the network")
+	@ApiOperation(value="Delete all groups in the network",
+			notes="Deletes all groups in the network specified by `networkId` parameter. The nodes and edges that the groups contained will remain present in the network, however the nodes used to identify the Groups will be deleted.")
 	public void deleteAllGroups(
-			@ApiParam(value = "Network SUID") @PathParam("networkId") Long networkId) {
+			@ApiParam(value = "SUID of the Network") @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
@@ -122,10 +129,11 @@ public class GroupResource extends AbstractResource {
 
 	@DELETE
 	@Path("/{groupNodeId}")
-	@ApiOperation(value="Delete a group")
+	@ApiOperation(value="Delete a group", 
+			notes="Deletes the group specified by the `groupNodeId` and `networkId` parameters. The nodes and edges that the group contained will remain present in the network, however the node used to identify the Group will be deleted.")
 	public void deleteGroup(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID")@PathParam("groupNodeId") Long groupNodeId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Node representing the Group")@PathParam("groupNodeId") Long groupNodeId) {
 		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
 			groupManager.destroyGroup(group);
@@ -136,19 +144,21 @@ public class GroupResource extends AbstractResource {
 
 	@GET
 	@Path("/{groupNodeId}/expand")
-	@ApiOperation(value="Expand group nodes")
+	@ApiOperation(value="Expand group",
+			notes="Expands the group specified by the `groupNodeId` and `networkId` parameters.")
 	public void expandGroup(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
 		toggle(networkId, groupNodeId, false);
 	}
 
 	@GET
 	@Path("/{groupNodeId}/collapse")
-	@ApiOperation(value="Collapse group nodes")
+	@ApiOperation(value="Collapse group",
+			notes="Collapses the group specified by the `groupNodeId` and `networkId` parameters.")
 	public void collapseGroup(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Group Node SUID") @PathParam("groupNodeId") Long groupNodeId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
 		toggle(networkId, groupNodeId, true);
 	}
 
@@ -173,9 +183,11 @@ public class GroupResource extends AbstractResource {
 		//Fun fact: we need to scan the group set to get the group from an SUID, because an un-collapsed group node 
 		//won't be found in the the network. This works whether the group is collapsed or not. 
 		Set<CyGroup> groupSet = groupManager.getGroupSet(network);
+		
 		for (CyGroup group : groupSet) {
-			if (group.getGroupNode().getSUID() == suid)
+			if (group.getGroupNode().getSUID().longValue() == suid.longValue()) {
 				return group;
+			}
 		}
 		throw new NotFoundException("Could not find group.");
 	}
@@ -185,19 +197,14 @@ public class GroupResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new group",
-		notes="Create a new group from a list of nodes.  The Body should be in the following format:\n"
-		+ "\n"
-		+ "```\n"
-		+ "{\n"
-		+ "  \"name\": (New group node name),\n"
-		+ "  \"nodes\": [\n"
-		+ "    nodeSUID1, nodeSUID2, ...\n"
-		+ "  ]\n"
-		+ "}\n"
-		+ "```"
-			)
+		notes="Create a new group in the network specified by the parameter `networkId`. The contents are specified the message body.",
+		response=GroupSUID.class)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="New Group name and contents", dataType="org.cytoscape.rest.internal.model.NewGroupParameterModel", paramType="body", required=true)
+	)
 	public String createGroup(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, final InputStream is) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 

@@ -194,7 +194,7 @@ public abstract class AbstractResource {
 	}
 
 	protected final WebApplicationException getCIWebApplicationException(int status, String resourceURI, int code, String message, Logger logger, Exception e) {
-		String errorURI = CyRESTConstants.cyRESTCIRoot + ":" + resourceURI + ":" + CyRESTConstants.cyRESTCIErrorRoot + ":"+ code;
+		String errorURI = CyRESTConstants.CY_REST_CI_ROOT + ":" + resourceURI + ":" + CyRESTConstants.CY_REST_CI_ERROR_ROOT + ":"+ code;
 		CIError ciError = ciErrorFactory.getCIError(status, errorURI, message);
 		
 		if (logger != null) {

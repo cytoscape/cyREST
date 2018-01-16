@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.CyRESTConstants;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,7 +32,7 @@ public class NetworkFullResource extends AbstractResource {
 	@ApiOperation(
 			value=" Get networks in Cytoscape.js JSON format",
 			notes="Returns a list of all networks as an array of "
-					+ "[Cytoscape.js](http://cytoscape.github.io/cytoscape.js/) entries.\n\n" + NETWORK_QUERY_DESCRIPTION)
+					+ "[Cytoscape.js]("+CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK+") format entries.\n\n" + NETWORK_QUERY_DESCRIPTION)
 	public String getNetworks(
 			@ApiParam(value=COLUMN_DESCRIPTION, required=false) @QueryParam("column") String column, 
 			@ApiParam(value=QUERY_STRING_DESCRIPTION, required=false) @QueryParam("query") String query) {

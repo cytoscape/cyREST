@@ -54,16 +54,18 @@ public class CyRESTConstants {
 			CyExceptionMapper.class
 	};
 	
-	public final static String cyRESTCIRoot = "urn:cytoscape:ci:cyrest-core:v1";
-	public final static String cyRESTCIErrorRoot = "errors";
+	public final static String CY_REST_CI_ROOT = "urn:cytoscape:ci:cyrest-core:v1";
+	public final static String CY_REST_CI_ERROR_ROOT = "errors";
 	
-	public final static String cyRESTHelpMenu = "Help.Automation[1.9999999]"; //That's enough 9's right? Yeah. Probably.
+	public final static String CY_REST_HELP_MENU_ANCHOR = "Help.Automation[1.9999999]"; //That's enough 9's right? Yeah. Probably.
 
 	public final static String getErrorURI(String resourceURI, int code) {
-		return cyRESTCIRoot + ":" + resourceURI + ":"+ cyRESTCIErrorRoot + ":"+ code;
+		return CY_REST_CI_ROOT + ":" + resourceURI + ":"+ CY_REST_CI_ERROR_ROOT + ":"+ code;
 	}
 	
-	public final static String cxLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
-	public final static String sifLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
-	public final static String cytoscapeJsLink = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
+	public final static String CX_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
+	public final static String SIF_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
+	public final static String CYTOSCAPE_JS_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
+
+	public final static String CYTOSCAPE_JS_LINK = "http://cytoscape.github.io/cytoscape.js/";
 }

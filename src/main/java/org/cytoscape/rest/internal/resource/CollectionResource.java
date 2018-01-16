@@ -142,7 +142,7 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a collection as CX", notes="Returns a Root Network or Sub-Network in [CX format]("+CyRESTConstants.cxLink+").\n\nIf the `networkId` parameter is a Root Network, this returns that Root Network.\n\nIf the `networkId` parameter is a Sub-Network, this returns the Root Retwork that contains that Sub-Network.")
+	@ApiOperation(value="Get a collection as CX", notes="Returns a Root Network or Sub-Network in [CX format]("+CyRESTConstants.CX_FILE_FORMAT_LINK+").\n\nIf the `networkId` parameter is a Root Network, this returns that Root Network.\n\nIf the `networkId` parameter is a Sub-Network, this returns the Root Retwork that contains that Sub-Network.")
 	public Response getCollectionAsCx(
 			@ApiParam(value="Root Network or Sub-Network SUID. \n\n" + COLLECTION_ASCII_ART) @PathParam("networkId") Long networkId) {
 		return getCX(networkId);

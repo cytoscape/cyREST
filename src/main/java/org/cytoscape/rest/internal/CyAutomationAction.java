@@ -11,7 +11,7 @@ public class CyAutomationAction extends AbstractCyAction{
 	
 	public CyAutomationAction(CyServiceRegistrar serviceRegistrar) {
 		super("Automation Examples");
-		this.setPreferredMenu(CyRESTConstants.cyRESTHelpMenu);
+		this.setPreferredMenu(CyRESTConstants.CY_REST_HELP_MENU_ANCHOR);
 		this.serviceRegistrar = serviceRegistrar;
 	
 	}

@@ -43,7 +43,7 @@ public class CIResponseFilter implements ContainerResponseFilter {
 	@Inject
 	protected CIExceptionFactory ciExceptionFactory;
 	
-	public static final String INTERCEPTED_ERROR_URN = CyRESTConstants.cyRESTCIRoot + ":ciresponsefilter:0";
+	public static final String INTERCEPTED_ERROR_URN = CyRESTConstants.CY_REST_CI_ROOT + ":ciresponsefilter:0";
 	
 	@Override
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {

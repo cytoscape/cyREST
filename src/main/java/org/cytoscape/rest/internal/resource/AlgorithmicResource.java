@@ -325,10 +325,12 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/styles/{styleName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Apply Visual Style to a network", tags={CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
+	@ApiOperation(value="Apply Visual Style to a network", 
+		notes="Applies the Visual Style specified by the `styleName` parameter to the network specified by the `networkId` parameter.",
+		tags={CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
 	public Message applyStyle(
-			@ApiParam(value="Style Name") @PathParam("styleName") String styleName,
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId
+			@ApiParam(value="Name of the Visual Style") @PathParam("styleName") String styleName,
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId
 			) {
 
 		final CyNetwork network = getCyNetwork(networkId);
@@ -448,7 +450,7 @@ public class AlgorithmicResource extends AbstractResource {
 	@ApiOperation(
 			value="Get list of all Visual Style names", 
 			tags={CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG},
-			notes="Style names may not be unique."
+			notes="Returns a list of all Visual Style names. Style names may not be unique."
 			)
 	public Collection<String> getStyleNames() {
 		return vmm.getAllVisualStyles().stream()

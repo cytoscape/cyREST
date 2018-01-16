@@ -406,7 +406,7 @@ public class StyleResource extends AbstractResource {
 	@Path("/{name}.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a Visual Style in Cytoscape.js CSS format.",
-			notes="Visual Style in Cytoscape.js CSS format. This is always in an array.")
+			notes="Visual Style in [Cytoscape.js CSS](http://js.cytoscape.org/#style) format.")
 	public String getStyle(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		if(networkViewManager.getNetworkViewSet().isEmpty()) {

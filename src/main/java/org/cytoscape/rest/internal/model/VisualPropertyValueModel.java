@@ -7,6 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class VisualPropertyValueModel {
 	@ApiModelProperty(value="Name of the Visual Property", example="NODE_SHAPE")
 	public String visualProperty;
-	@ApiModelProperty(value="Value of the Visual Property", example="ELLIPSE")
+	@ApiModelProperty(value="Serialized value of the Visual Property, or null.", example="ELLIPSE")
 	public Object value;
 }

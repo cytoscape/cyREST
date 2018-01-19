@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.model.Message;
-import org.cytoscape.rest.internal.model.SessionFile;
+import org.cytoscape.rest.internal.model.FileModel;
 import org.cytoscape.rest.internal.model.SessionName;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.session.CySessionManager;
@@ -105,8 +105,8 @@ public class SessionResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Load a Session from a local file",
     notes = "Loads a session from a local file and returns the session file name",
-    response = SessionFile.class)
-	public SessionFile getSessionFromFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) throws IOException
+    response = FileModel.class)
+	public FileModel getSessionFromFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) throws IOException
 	{
 		File sessionFile = null;
 		try {
@@ -120,7 +120,7 @@ public class SessionResource extends AbstractResource {
 			e.printStackTrace();
 			throw getError("Could not open session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return new SessionFile(sessionFile.getAbsolutePath());
+		return new FileModel(sessionFile.getAbsolutePath());
 	}
 
 	@POST
@@ -128,8 +128,8 @@ public class SessionResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Save current Session to a file",
     notes = "Saves the current session to a file. If successful, the session file location will be returned.",
-    response = SessionFile.class)
-	public SessionFile createSessionFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) {
+    response = FileModel.class)
+	public FileModel createSessionFile(@ApiParam(value = "Session file location as an absolute path", required = true) @QueryParam("file") String file) {
 		File sessionFile = null;
 		try {
 			sessionFile = new File(file);
@@ -143,6 +143,6 @@ public class SessionResource extends AbstractResource {
 			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	
-		return new SessionFile(sessionFile.getAbsolutePath());
+		return new FileModel(sessionFile.getAbsolutePath());
 	}
 }

@@ -174,11 +174,11 @@ public class NetworkResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(
 			value="Get a network in Cytoscape.js format",
-			notes="Returns Network with all associated tables in "
+			notes="Returns the Network specified by the `networkId` parameter with all associated tables in "
 					+ "[Cytoscape.js]("+ CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK +") format"
 			)
 	public String getNetwork(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		return getNetworkString(getCyNetwork(networkId));
 	}
 
@@ -705,7 +705,7 @@ public class NetworkResource extends AbstractResource {
 	@ApiOperation(value="Create a new network from a file or URL",
 		notes="Creates a new network in the current session from a file or URL source.\n\n"
 			+ "Depending on the setting of the `format` parameter the source can be in one of several formats:\n\n"
-			+ "| format   | Details    |\n"
+			+ "| Format   | Details    |\n"
 			+ "| -------- | -------    |\n"
 			+ "| edgeList | [SIF]("+CyRESTConstants.SIF_FILE_FORMAT_LINK+") format |\n"
 			+ "| cx       | [CX]("+CyRESTConstants.CX_FILE_FORMAT_LINK+") format |\n"

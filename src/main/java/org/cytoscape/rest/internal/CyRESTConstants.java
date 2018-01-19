@@ -64,7 +64,10 @@ public class CyRESTConstants {
 	}
 	
 	public final static String CX_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
+	
+	public final static String NNF_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#nnf";
 	public final static String SIF_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
+	public final static String XGMML_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html?highlight=xgmml#xgmml-format";
 	public final static String CYTOSCAPE_JS_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
 
 	public final static String CYTOSCAPE_JS_LINK = "http://cytoscape.github.io/cytoscape.js/";

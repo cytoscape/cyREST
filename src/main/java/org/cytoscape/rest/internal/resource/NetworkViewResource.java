@@ -39,11 +39,14 @@ import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.NetworkViewSUID;
-import org.cytoscape.rest.internal.model.NetworkViewVisualProperty;
+import org.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;
+import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.write.ExportNetworkViewTaskFactory;
@@ -94,8 +97,31 @@ public class NetworkViewResource extends AbstractResource {
 
 	private static final int INVALID_PARAMETER_ERROR = 2;
 
+	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
+	
 	private final static Logger logger = LoggerFactory.getLogger(NetworkViewResource.class);
 
+	private static final String VIEW_FILE_PARAMETER_NOTES = "The format of the file written is defined by the file extension.\n\n"  
+			+ "| Extension   | Details    |\n"
+			+ "| ----------- | -----------|\n"
+			+ "| .cys        | Cytoscape Style format |\n"
+			+ "| .xml/.xgmml | [XGMML]("+CyRESTConstants.XGMML_FILE_FORMAT_LINK+") format |\n"
+			+ "| .nnf        | [NNF]("+CyRESTConstants.NNF_FILE_FORMAT_LINK+") format |\n"
+			+ "| .sif        | [SIF]("+CyRESTConstants.SIF_FILE_FORMAT_LINK+") format |\n"
+			+ "| .cyjs       | [Cytoscape.js]("+CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK+") format |\n";
+	
+	private static final String VIEW_FILE_OPERATION_NOTES = "If the `file` parameter is left unspecified, the response will contain data in [Cytoscape.js]("+ CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK +") format.\n\n"
+			+ "If the `file` parameter is specified, the Network View will be written to a file, and the response will contain the location of the file in the following format:\n\n"
+			+ "```\n\n"
+			+ "{\n" 
+			+ "  \"file\": \"/media/HD1/myFiles/networkView.sif\"\n" 
+			+ "}\n"
+			+ "```\n\n"
+			+ "The format of the output file is defined by the extension of the `file` parameter.";
+	
+	private static final String BYPASS_NOTES = "Note that this sets the Visual Properties temporarily unless the `bypass` parameter is set to `true`. If the `bypass` parameter is set to `true`, the Visual Style will be overridden by these Visual Property values. If the `bypass` parameter is not used or is set to `false`, any Visual Properties set will return "
+			+ "to those defined in the Visual Style if the Network View is updated.\n";
+	
 	@Inject
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
@@ -137,11 +163,12 @@ public class NetworkViewResource extends AbstractResource {
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Create view for the network")
+	@ApiOperation(value="Create a new Network View",
+			notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Network View SUID", response = NetworkViewSUID.class),
 	})
-	public Response createNetworkView(@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId) {
+	public Response createNetworkView(@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNetworkView view = networkViewFactory.createNetworkView(network);
 		networkViewManager.addNetworkView(view);
@@ -152,11 +179,10 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get number of views for the given network model",
-	notes = "Cytoscape can have multiple views per network model. This feature is not exposed to end-users, but"
-			+ " you can access it from this API.",
+	notes = "Returns a count of the Network Views available for the Network specified by the `networkId` parameter.\n\n" + FIRST_VIEWS_NOTE,
 			response = Count.class)
 	public String getNetworkViewCount(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		return getNumberObjectString(JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(networkId)).size());
 	}
 
@@ -164,9 +190,9 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete all Network Views", notes="In general, a network has one view. But if there are multiple views, this deletes all of them.")
+	@ApiOperation(value="Delete all Network Views", notes="Deletes all Network Views available in the Network specified by the `networkId` parameter. " + FIRST_VIEWS_NOTE + "\n\n")
 	public Response deleteAllNetworkViews(
-			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		try {
 			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(networkId));
 			final Set<CyNetworkView> toBeDestroyed = new HashSet<CyNetworkView>(views);
@@ -184,12 +210,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Convenience method to get the first view model.",
-	notes="This returns the first view of the network.  As of Cytoscape 3.2.x, this is the only view accessible "
-			+ "through the Cytoscape GUI.\n\nReturns Network view in JSON or location of the file")
+	@ApiOperation(value="Get the first Network View (as JSON or a file)",
+	notes="This returns the first view of the network. " + FIRST_VIEWS_NOTE + "\n\n"
+			+ VIEW_FILE_OPERATION_NOTES)
 	public Response getFirstNetworkView(
-			@ApiParam(value="Network SUID" )@PathParam("networkId") Long networkId, 
-			@ApiParam(value="If you want to get the view as a file, you can specify output file name with extension. For example, file=test.sif creates new SIF file in the current directory", required=false)@QueryParam("file") String file) {
+			@ApiParam(value="SUID of the Network" )@PathParam("networkId") Long networkId, 
+			@ApiParam(value="A path to a file relative to the current directory. " + VIEW_FILE_PARAMETER_NOTES, required=false)@QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
 			throw new NotFoundException("Could not find view for the network: " + networkId);
@@ -201,9 +227,10 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete the first available view")
+	@ApiOperation(value="Delete the first available view",
+			notes="Deletes the first available Network View for the Network specified by the `networkId` parameter. "  + FIRST_VIEWS_NOTE)
 	public Response deleteFirstNetworkView(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty() == false) {
 			networkViewManager.destroyNetworkView(views.iterator().next());
@@ -216,11 +243,14 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a network view (as JSON or a file)", notes="View in Cytoscape.js JSON. Currently, view information is (x, y) location only.  If you specify <strong>file</strong> option, this returns absolute path to the file. ")
+	@ApiOperation(value="Get a Network View (as JSON or a file)", 
+			notes="Gets the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+					+ VIEW_FILE_OPERATION_NOTES
+			)
 	public Response getNetworkView(
-			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID", required=true) @PathParam("viewId") Long viewId,
-			@ApiParam(value="Output File. If you want to get the view as a file, you can specify output file name with extension. <br>For example, file=test.sif creates new SIF file in the current directory", required=false) @QueryParam("file") String file) {
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View", required=true) @PathParam("viewId") Long viewId,
+			@ApiParam(value="A path to a file relative to the current directory. " + VIEW_FILE_PARAMETER_NOTES, required=false) @QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 
 		CyNetworkView targetView = null;
@@ -246,11 +276,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get a Network View in CX format")
+	@ApiOperation(value = "Get a Network View in CX format", 
+		notes="Returns the Network View specified by the `viewId` and `networkId` parameters "
+				+ "in [CX format]("+CyRESTConstants.CX_FILE_FORMAT_LINK+")")
 	public Response getNetworkViewAsCx(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="File (unused)") @QueryParam("file") String file) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 
 		CyNetworkView targetView = null;
@@ -295,18 +327,17 @@ public class NetworkViewResource extends AbstractResource {
 		message.put("file", networkFile.getAbsolutePath());
 		return message;
 	}
-
+	
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get an array of all Network Views", notes="Returns an array of all network view SUIDs")
+	@ApiOperation(value="Get all Network Views", notes="Returns an array of all network views belonging to the network specified by the `networkId` paramter. The response is a list of Network SUIDs.")
 	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "An array of SUIDs", response=Long.class, responseContainer="List"),
+			@ApiResponse(code = 200, message = "An array of Network View SUIDs", response=Long.class, responseContainer="List"),
 	})
 	public Collection<Long> getAllNetworkViews(
-			@ApiParam(value="A Network SUID", required=true) @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
-
 		final Collection<Long> suids = new HashSet<Long>();
 
 		for (final CyNetworkView view : views) {
@@ -351,12 +382,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first.png")
 	@Produces("image/png")
-	@ApiOperation(value="Get PNG image of the first available network view", notes="Default size is 600 px")
+	@ApiOperation(value="Get PNG image of the first available network view", notes="Returns a PNG image of the first available Network View for the Network specified by the `networkId` parameter.\n\nDefault size is 600 px")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PNG image stream."),
 	})
 	public Response getFirstImageAsPng(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImage("png", networkId, height);
@@ -365,12 +396,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first.svg")
 	@Produces("image/svg+xml")
-	@ApiOperation(value="Get SVG image of the first available network view", notes="Default size is 600 px")
+	@ApiOperation(value="Get SVG image of the first available network view", notes="Returns an SVG image of the first available Network View for the Network specified by the `networkId` parameter.\n\nDefault size is 600 px")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "SVG image stream."),
 	})
 	public Response getFirstImageAsSvg(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 
@@ -380,12 +411,12 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/first.pdf")
 	@Produces("image/pdf")
-	@ApiOperation(value="Get PDF image of the first available network view", notes="Default size is 600 px")
+	@ApiOperation(value="Get PDF image of the first available network view", notes="Returns a PDF of the first available Network View for the Network specified by the `networkId` parameter.\n\nDefault size is 600 px")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PDF image stream."),
 	})
 	public Response getFirstImageAsPdf(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImage("pdf", networkId, height);
@@ -407,13 +438,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.png")
 	@Produces("image/png")
-	@ApiOperation(value="Get PNG image of a network view", notes="Generate a PNG network image as stream. Default size is 600 px.")
+	@ApiOperation(value="Get PNG image of a network view", notes="Returns a PNG image of the Network View specified by the `viewId` and `networkId` parameters.\n\nDefault size is 600 px.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PNG image stream."),
 	})
 	public Response getImageAsPng(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
-			@ApiParam(required=true, value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImageForView("png", networkId, viewId, height);
@@ -422,13 +453,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.svg")
 	@Produces("image/svg+xml")
-	@ApiOperation(value="Get SVG image of a network view", notes="Default size is 600 px")
+	@ApiOperation(value="Get SVG image of a network view",  notes="Returns an SVG image of the Network View specified by the `viewId` and `networkId` parameters.\n\nDefault size is 600 px.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "SVG image stream."),
 	})
 	public Response getImageAsSvg(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
-			@ApiParam(required=true, value="Network View SUID") @PathParam("viewId") Long viewId,
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImageForView("svg", networkId, viewId, height);
@@ -437,13 +468,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.pdf")
 	@Produces("image/pdf")
-	@ApiOperation(value="Get PDF image of a network view", notes="Size is set to 500 px")
+	@ApiOperation(value="Get PDF image of a network view", notes="Returns a PDF of the Network View specified by the `viewId` and `networkId` parameters.\n\nDefault size is 500 px.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PDF image stream."),
 	})
 	public Response getImageAsPdf(
-			@ApiParam(required=true, value="Network SUID") @PathParam("networkId") Long networkId,
-			@ApiParam(required=true, value="Network View SUID") @PathParam("viewId") Long viewId
+			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
+			@ApiParam(required=true, value="SUID of the Network View") @PathParam("viewId") Long viewId
 			) {
 		return getImageForView("pdf", networkId, viewId, 500);
 	}
@@ -556,34 +587,24 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update node/edge view objects at once",
-	notes="By passing list of key-value pair for each Visual Property, update node/edge view.\n\n"
-			+ "The body should have the following JSON:\n"			
-			+ "```\n"
-			+ "[\n"
-			+ "  {\n"
-			+ "    \"SUID\": SUID of node/edge,\n"
-			+ "    \"view\": [\n"
-			+ "      {\n"
-			+ "        \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n"
-			+ "        \"value\": \"Serialized form of value, like 'red.'\",\n"
-			+ "      },\n"
-			+ "      ...\n"
-			+ "      {}\n"
-			+ "    ]\n"
-			+ "  },\n"
-			+ "  ...\n"
-			+ "  {}\n"
-			+ "]\n"
-			+ "```\n"
-			+ "Note that if the Bypass parameter is not present or is false, the API will directly set the value to the view "
-			+ "objects, and once a Visual Style applied, those values will be overridden by the Visual Style.\n")
+	@ApiOperation(value="Update multiple node/edge Visual Properties at once",
+	notes="Updates multiple node or edge Visual Properties as defined by the `objectType` "
+			+ "parameter, in the Network View specified by the `viewId` and `networkId` "
+			+ "parameters.\n\nExamples of Visual Properties:\n\n" 
+			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLES + "\n" 
+			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLES + "\n\n"
+			 + BYPASS_NOTES
+			)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of Objects with Visual Properties.", 
+				dataType="[Lorg.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;", paramType="body", required=true)
+			)
 	public Response updateViews(
-			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId,
-			@ApiParam(value="Network View SUID", required=true) @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
-			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
-			final InputStream is
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId,
+			@ApiParam(value="SUID of the Network View", required=true) @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Bypass the Visual Style with these Visual Properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
+			@ApiParam(hidden=true) final InputStream is
 			) {
 
 		final CyNetworkView networkView = getView(networkId, viewId);
@@ -621,31 +642,24 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update single node/edge view object",
-	notes="By passing a list of key-value pair for each Visual Property, update single node/edge view.\n\n"
-			+ "The body should have the following JSON:\n"
-			+ "```\n"
-			+ "[\n"
-			+ "  {\n"
-			+ "    \"visualProperty\": \"Visual Property Name, like NODE_FILL_COLOR\",\n"
-			+ "    \"value\": \"Serialized form of value, like 'red.'\"\n"
-			+ "  }\n"
-			+ "  ...\n"
-			+ "]\n"
-			+ "```\n\n" 
-			+ "Note that if the Bypass parameter is not present or is false, the API will directly set the "
-			+ "value to the view objects, and once a Visual Style is applied, those values will be overridden "
-			+ "by the Visual Style.\n"
-			)
+	@ApiOperation(value="Update the Visual Properties of an Object",
+	notes="Updates the Visual Properties in the object specified by the `objectId` and "
+			+ "`objectType` parameters in the Network View specified by the `viewId` and "
+			+ "`networkId` parameters.\n\nExamples of Visual Properties:\n\n" 
+			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n"
+			+ BYPASS_NOTES
+		)
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="Array of visualProperties", dataType="[Lorg.cytoscape.rest.internal.model.NetworkViewVisualProperty;", paramType="body", required=true)
-			)
+			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
+		)
 	public Response updateView(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Type of objects", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
-			@ApiParam(value="node/edge SUID (NOT node/edge view SUID)") @PathParam("objectId") Long objectId,
-			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="true") @QueryParam("bypass") Boolean bypass,
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
+			@ApiParam(value="SUID of the Object") @PathParam("objectId") Long objectId,
+			@ApiParam(value="Bypass the Visual Style with these Visual Properties", defaultValue="true") @QueryParam("bypass") Boolean bypass,
 			@ApiParam(hidden=true) final InputStream is) {
 
 		final CyNetworkView networkView = getView(networkId, viewId);
@@ -681,26 +695,17 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/network")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update single network view value, such as background color or zoom level.",
-	notes="By passing a list of key-value pairs for each Visual Property, update network view.\n\n"
-			+ "The body should have the following JSON:\n"
-			+ "```\n"
-			+ "[\n"
-			+ "  {\n"
-			+ "    \"visualProperty\": \"Visual Property Name, like NETWORK_BACKGROUND_PAINT\",\n"
-			+ "    \"value\": \"Serialized form of value, like 'red.'\"\n"
-			+ "  },\n"
-			+ "  ...\n"
-			+ "  {}\n"
-			+ "]\n"
-			+ "```\n"
-			+ "Note that if the Bypass parameter is not present or is false, the API will directly set the value to the view, "
-			+ "and once a Visual Style is applied, that value will be overridden by the Visual Style.\n")
+	@ApiOperation(value="Update the Visual Properties for a Network View",
+	notes="Updates the Visual Properties in the Network View specified by the `viewId` and `networkId` parameters.\n\nExample Visual Properties:\n" + ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLES + "\n\n"
+			+ BYPASS_NOTES)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
+		)
 	public Response updateNetworkView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass, 
-			final InputStream is) {
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -725,22 +730,28 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "List the Visual Properties for a Network View")
+	@ApiOperation(value = "Get the Visual Properties for a Network View", 
+			notes="Returns a list of the Visual Properties for the Network View specified by the `viewId` and `networkId` parameters.",
+			response=VisualPropertyValueModel.class, responseContainer="List")
 	public Response getNetworkVisualProps(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId) {
 		return this.getViews(networkId, viewId, "network", null);
 	}
 
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get view object for the specified type (node or edge)")
+	@ApiOperation(value="Get the Visual Properties for a Node or Edge Object",
+			notes="Gets a list of Visual Properties for the Object specified by the `objectId` "
+					+ "and `objectType` parameters in the Network View specified by the "
+					+ "`viewId` and `networkId` parameters.",
+			response=VisualPropertyValueModel.class, responseContainer="List")
 	public String getView(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="SUID of the Object")@PathParam("objectId") Long objectId) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
@@ -788,13 +799,17 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific object visual property")
+	@ApiOperation(value="Get a Visual Property for an Object",
+			notes="Gets the Visual Property specificed by the `visualProperty` parameter for the"
+				+ " node or edge specified by the `objectId` parameter in the Network View "
+				+ "specified by the `viewId` and `networkId` parameters.",
+			response=VisualPropertyValueModel.class)
 	public String getSingleVisualPropertyValue(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of the Object")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property", example="NODE_SHAPE")@PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
@@ -811,20 +826,25 @@ public class NetworkViewResource extends AbstractResource {
 		return getSingleVp(visualProperty, view, vps);
 	}
 
-	private static class SingleVisualPropertyResponse extends CIResponse<NetworkViewVisualProperty> {};
+	private static class SingleVisualPropertyResponse extends CIResponse<VisualPropertyValueModel> {};
 
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific object visual property bypass",
+	@ApiOperation(value="Get the Visual Properties a Visual Style is bypassed with",
+			notes = "Gets the bypass Visual Property specified by the `visualProperty` parameter from "
+					+ "the object specified by the `objectId` and `objectType` parameters in the Network "
+					+ "View Specified by the `viewId` and `networkId` parameters. The response is the "
+					+ "Visual Property that is used in place of the definition provided by the Visual "
+					+ "Style.",
 	response=SingleVisualPropertyResponse.class
 			)
 	public Response getSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID") @PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of the Object") @PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = null;
 		try {
@@ -872,7 +892,7 @@ public class NetworkViewResource extends AbstractResource {
 			}
 		}
 
-		NetworkViewVisualProperty entity = new NetworkViewVisualProperty();
+		VisualPropertyValueModel entity = new VisualPropertyValueModel();
 		entity.visualProperty = targetVp.getIdString();
 		Object value = view.getVisualProperty(targetVp);
 		if  (targetVp.getRange().getType().equals(Boolean.class)
@@ -889,14 +909,25 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Set a specific object visual property bypass")
+	@ApiOperation(value="Bypass a Visual Style with a set Visual Property",
+			notes="Bypasses the Visual Style of the object specified by the `objectId` and "
+				+ "`objectType` parameters, in the Network View specified by the `viewId` and "
+				+ "`networkId` parameters. The Visual Property included in the message body "
+				+ "will be used instead of the definition provided by the Visual Style.\n\n"
+				+ "Examples of Visual Properties:\n\n" 
+				+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+				+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+				+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
+		)
 	public Response putSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty,
-			final InputStream inputStream) {
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of the Object")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty,
+			@ApiParam(hidden= true)final InputStream inputStream) {
 
 		CyNetworkView networkView = null;
 		try {
@@ -951,17 +982,19 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete a specific object visual property bypass",
-	notes="Deleting a bypass property will turn off this objects style bypass and delete any associated property"
-			+ "data (color, size, etc.).",
+	@ApiOperation(value="Delete the Visual Property a Visual Style is bypassed with",
+	notes="Deletes the bypass Visual Property specified by the `visualProperty` parameter from "
+			+ "the object specified by the `objectId` and `objectType` parameters in the Network "
+			+ "View Specified by the `viewId` and `networkId` parameters. When this is done, the "
+			+ "Visual Property will be defined by the Visual Style",
 			response=CIResponse.class
 			)
 	public Response deleteSingleVisualPropertyValueBypass(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of Object")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = null;
 		try {
@@ -1053,12 +1086,16 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get current values for a specific Visual Property")
+	@ApiOperation(value="Get all set values for a specific Visual Property",
+		notes="Returns a list of all Visual Property values for the Visual Property specified by "
+				+ "the `visualProperty` and `objectType` parameters, in the Network View specified by the "
+				+ "`viewId` and `networkId` parameters.",
+		response=ObjectVisualPropertyValueModel.class, responseContainer="List")
 	public Response getViews(
-			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
-			@ApiParam(value="Unique name of a Visual Property") @QueryParam("visualProperty") String visualProperty) {
+			@ApiParam(value="SUID of the Network")@PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges,network") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Name of the Visual Property", example="NODE_SHAPE") @QueryParam("visualProperty") String visualProperty) {
 
 		if(visualProperty != null) {
 			final String result = getSingleVisualPropertyOfViews(networkId, viewId, objectType, visualProperty);

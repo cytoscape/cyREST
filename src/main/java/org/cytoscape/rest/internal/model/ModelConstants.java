@@ -54,4 +54,47 @@ public final class ModelConstants {
 			+ "  \"visualProperty\": \"EDGE_LABEL\" \n" 
 			+ "}"
 			+ "```\n";
+	
+	public static final String NODE_VISUAL_PROPERTY_EXAMPLE = "```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"NODE_BORDER_WIDTH\",\n" 
+			+ "  \"value\": 2\n" 
+			+ "}\n"
+			+ "```\n";
+	public static final String NODE_VISUAL_PROPERTY_EXAMPLES = NODE_VISUAL_PROPERTY_EXAMPLE
+			+ "```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"NODE_BORDER_PAINT\",\n" 
+			+ "  \"value\": \"#CCCCCC\"\n" 
+			+ "}\n"
+			+ "```\n";
+	
+	public static final String EDGE_VISUAL_PROPERTY_EXAMPLE = "```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"EDGE_TRANSPARENCY\",\n" 
+			+ "  \"value\": 170\n" 
+			+ "}"
+			+ "```\n";
+	public static final String EDGE_VISUAL_PROPERTY_EXAMPLES = EDGE_VISUAL_PROPERTY_EXAMPLE  
+			+ "```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"EDGE_PAINT\",\n" 
+			+ "  \"value\": \"#808080\"\n" 
+			+ " }"
+			+ "```\n";
+	
+	public static final String NETWORK_VISUAL_PROPERTY_EXAMPLE = "```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"NETWORK_BACKGROUND_PAINT\",\n" 
+			+ "  \"value\": \"#000000\"\n" 
+			+ "}"
+			+ "```\n" ;
+	
+	public static final String NETWORK_VISUAL_PROPERTY_EXAMPLES = NETWORK_VISUAL_PROPERTY_EXAMPLE
+			+"```\n"
+			+ "{\n" 
+			+ "  \"visualProperty\": \"NETWORK_CENTER_X_LOCATION\",\n" 
+			+ "  \"value\": 250\n"
+			+ "}"
+			+ "```\n";
 }

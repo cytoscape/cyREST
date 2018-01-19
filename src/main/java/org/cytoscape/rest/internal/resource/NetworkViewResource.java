@@ -43,6 +43,7 @@ import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.NetworkViewSUID;
 import org.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;
 import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
@@ -587,16 +588,21 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update multiple node/edge Visual Properties at once",
-	notes="Updates multiple node or edge Visual Properties as defined by the `objectType` parameter, in the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+	notes="Updates multiple node or edge Visual Properties as defined by the `objectType` "
+			+ "parameter, in the Network View specified by the `viewId` and `networkId` "
+			+ "parameters.\n\nExamples of Visual Properties:\n\n" 
+			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLES + "\n" 
+			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLES + "\n\n"
 			 + BYPASS_NOTES
 			)
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="A list of Objects with Visual Properties", dataType="[Lorg.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;", paramType="body", required=true)
+			@ApiImplicitParam(value="A list of Objects with Visual Properties.", 
+				dataType="[Lorg.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;", paramType="body", required=true)
 			)
 	public Response updateViews(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId,
 			@ApiParam(value="SUID of the Network View", required=true) @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
+			@ApiParam(value="Type of Object", required=true, allowableValues="nodes,edges") @PathParam("objectType") String objectType, 
 			@ApiParam(value="Bypass the Visual Style with these Visual Properties", defaultValue="false") @QueryParam("bypass") Boolean bypass,
 			@ApiParam(hidden=true) final InputStream is
 			) {
@@ -636,12 +642,17 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update single node/edge view object",
-	notes="Updates the Visual Properties in the object specified by the `objectId` and `objectType` parameters in the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+	@ApiOperation(value="Update the Visual Properties of an Object",
+	notes="Updates the Visual Properties in the object specified by the `objectId` and "
+			+ "`objectType` parameters in the Network View specified by the `viewId` and "
+			+ "`networkId` parameters.\n\nExamples of Visual Properties:\n\n" 
+			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n"
 			+ BYPASS_NOTES
 		)
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="A list of Visual Properties and their values", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
+			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
 		)
 	public Response updateView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -684,25 +695,17 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/network")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update single network view value, such as background color or zoom level.",
-	notes="Updates the Visual Properties in the Network View specified by the `viewId` and `networkId` parameters.\n\n"
-			+ "The body should have the following JSON:\n"
-			+ "```\n"
-			+ "[\n"
-			+ "  {\n"
-			+ "    \"visualProperty\": \"Visual Property Name, like NETWORK_BACKGROUND_PAINT\",\n"
-			+ "    \"value\": \"Serialized form of value, like 'red.'\"\n"
-			+ "  },\n"
-			+ "  ...\n"
-			+ "  {}\n"
-			+ "]\n"
-			+ "```\n"
+	@ApiOperation(value="Update the Visual Properties for a Network View",
+	notes="Updates the Visual Properties in the Network View specified by the `viewId` and `networkId` parameters.\n\nExample Visual Properties:\n" + ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLES + "\n\n"
 			+ BYPASS_NOTES)
-		public Response updateNetworkView(
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
+		)
+	public Response updateNetworkView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Bypass the Visual Style with these properties", defaultValue="false") @QueryParam("bypass") Boolean bypass, 
-			final InputStream is) {
+			@ApiParam(hidden=true) final InputStream is) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
@@ -740,7 +743,9 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get the Visual Properties for a Node or Edge Object",
-			notes="Gets a list of Visual Properties for the Object specified by the `objectId` and `objectType` parameters in the Network View specified by the `viewId` and `networkId` parameters.",
+			notes="Gets a list of Visual Properties for the Object specified by the `objectId` "
+					+ "and `objectType` parameters in the Network View specified by the "
+					+ "`viewId` and `networkId` parameters.",
 			response=VisualPropertyValueModel.class, responseContainer="List")
 	public String getView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -794,7 +799,7 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific object visual property",
+	@ApiOperation(value="Get a Visual Property for an Object",
 			notes="Gets the Visual Property specificed by the `visualProperty` parameter for the"
 				+ " node or edge specified by the `objectId` parameter in the Network View "
 				+ "specified by the `viewId` and `networkId` parameters.",
@@ -826,15 +831,20 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific object visual property bypass",
+	@ApiOperation(value="Get the Visual Properties a Visual Style is bypassed with",
+			notes = "Gets the bypass Visual Property specified by the `visualProperty` parameter from "
+					+ "the object specified by the `objectId` and `objectType` parameters in the Network "
+					+ "View Specified by the `viewId` and `networkId` parameters. The response is the "
+					+ "Visual Property that is used in place of the definition provided by the Visual "
+					+ "Style.",
 	response=SingleVisualPropertyResponse.class
 			)
 	public Response getSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID") @PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of the Object") @PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = null;
 		try {
@@ -899,14 +909,25 @@ public class NetworkViewResource extends AbstractResource {
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Set a specific object visual property bypass")
+	@ApiOperation(value="Bypass a Visual Style with a set Visual Property",
+			notes="Bypasses the Visual Style of the object specified by the `objectId` and "
+				+ "`objectType` parameters, in the Network View specified by the `viewId` and "
+				+ "`networkId` parameters. The Visual Property included in the message body "
+				+ "will be used instead of the definition provided by the Visual Style.\n\n"
+				+ "Examples of Visual Properties:\n\n" 
+				+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+				+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+				+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
+		)
 	public Response putSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty,
-			final InputStream inputStream) {
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of the Object")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty,
+			@ApiParam(hidden= true)final InputStream inputStream) {
 
 		CyNetworkView networkView = null;
 		try {
@@ -961,17 +982,19 @@ public class NetworkViewResource extends AbstractResource {
 	@DELETE
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Delete a specific object visual property bypass",
-	notes="Deleting a bypass property will turn off this objects style bypass and delete any associated property"
-			+ "data (color, size, etc.).",
+	@ApiOperation(value="Delete the Visual Property a Visual Style is bypassed with",
+	notes="Deletes the bypass Visual Property specified by the `visualProperty` parameter from "
+			+ "the object specified by the `objectId` and `objectType` parameters in the Network "
+			+ "View Specified by the `viewId` and `networkId` parameters. When this is done, the "
+			+ "Visual Property will be defined by the Visual Style",
 			response=CIResponse.class
 			)
 	public Response deleteSingleVisualPropertyValueBypass(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Object Type", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
-			@ApiParam(value="Object SUID")@PathParam("objectId") Long objectId, 
-			@ApiParam(value="Unique name of a Visual Property")@PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Type of Object", allowableValues="nodes,edges")@PathParam("objectType") String objectType,
+			@ApiParam(value="SUID of Object")@PathParam("objectId") Long objectId, 
+			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = null;
 		try {

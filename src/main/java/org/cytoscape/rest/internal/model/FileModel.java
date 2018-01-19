@@ -10,11 +10,11 @@ import io.swagger.annotations.ApiModel;
  *
  */
 @ApiModel
-public class SessionFile 
+public class FileModel 
 {
 	public String file;
 	
-	public SessionFile(String file)
+	public FileModel(String file)
 	{
 		this.file = file;
 	}

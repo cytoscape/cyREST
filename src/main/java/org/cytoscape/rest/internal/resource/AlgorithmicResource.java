@@ -27,6 +27,9 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
+import org.cytoscape.rest.internal.model.LayoutColumnTypesModel;
+import org.cytoscape.rest.internal.model.LayoutModel;
+import org.cytoscape.rest.internal.model.LayoutParameterModel;
 import org.cytoscape.rest.internal.model.Message;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
@@ -42,6 +45,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -75,11 +80,15 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Apply layout to a network", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG})
+	@ApiOperation(value="Apply a Layout to a Network", 
+		notes="Applies the Layout specified by the `algorithmName` parameter to the Network "
+				+ "specified by the `networkId` parameter. If the Layout is has an option to "
+				+ "use a Column, it can be specified by the `column` parameter.",
+		tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG})
 	public Message applyLayout(
-			@ApiParam("Name of layout algorithm (\"circular\", \"force-directed\", etc.)") @PathParam("algorithmName") String algorithmName,
-			@ApiParam("Network SUID") @PathParam("networkId") Long networkId,
-			@ApiParam("Column name to be used by the layout algorithm") @QueryParam("column") String column) {
+			@ApiParam(value="Name of layout algorithm", example="circular") @PathParam("algorithmName") String algorithmName,
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId,
+			@ApiParam(value="Name of the Column to be used by the Layout", required=false) @QueryParam("column") String column) {
 		
 		throw404ifYFiles(algorithmName);
 		
@@ -119,17 +128,13 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/layouts/{algorithmName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get layout parameters for the algorithm", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-	 notes = "The return value is an map of all layout details, and each parameter entry includes:\n\n"
-			 + "* name: Unique name (ID) of the parameter\n"
-			 + "* description: Description for the parameter\n"
-			 + "* type: Java data type of the parameter\n"
-			 + "* value: current value for the parameter field\n" 
-			 + "\n"
-			 + "Returns editable layout parameters\n"
+	@ApiOperation(value="Get all details of a Layout algorithm", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
+	 notes = "Returns all the details, including names, parameters, and compatible column types for the Layout algorithm "
+	 		+ "specified by the `algorithmName` parameter.",
+	 		response=LayoutModel.class
 			)
 	public Response getLayout(
-			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName) {
+			@ApiParam(value="Name of the Layout algorithm") @PathParam("algorithmName") String algorithmName) {
 		
 		throw404ifYFiles(algorithmName);
 		
@@ -153,10 +158,12 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/layouts/{algorithmName}/parameters")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get layout parameter list", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-			notes="Returns all editable parameters for this algorithm.")
+	@ApiOperation(value="Get Layout parameters", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
+			notes="Returns all editable parameters for the Layout algorithm specified by the "
+					+ "`algorithmName` parameter.",
+					response=LayoutParameterModel.class, responseContainer="List")
 	public Response getLayoutParameters(
-			@ApiParam(value="Name of layout algorithm") @PathParam("algorithmName") String algorithmName) {
+			@ApiParam(value="Name of the Layout algorithm") @PathParam("algorithmName") String algorithmName) {
 		
 		throw404ifYFiles(algorithmName);
 		
@@ -182,9 +189,11 @@ public class AlgorithmicResource extends AbstractResource {
 	@GET
 	@Path("/layouts/{algorithmName}/columntypes")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Column data types compatible with this algorithm", 
+	@ApiOperation(value="Get column data types compatible a Layout algorithm", 
 		tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-		notes="Returns a list ist of all compatible column data types")
+		notes="Returns a list of all compatible column data types for the Layout algorithm "
+				+ "specified by the `algorithmName` parameter.",
+		response=LayoutColumnTypesModel.class)
 	public Response getCompatibleColumnDataTypes(
 			@ApiParam(value="Name of layout algorithm") @PathParam("algorithmName") String algorithmName) {
 
@@ -223,23 +232,16 @@ public class AlgorithmicResource extends AbstractResource {
 	@PUT
 	@Path("/layouts/{algorithmName}/parameters")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update layout parameters for the algorithm", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-	notes="The body of your request should contain an array of new parameters. The data should look like the following:\n"
-	+ "\n"
-	+ "```\n"
-	+ "[\n"
-	+ " {\n"
-	+ "  \"name\": \"nodeHorizontalSpacing\",\n"
-	+ "  \"value\": 40.0\n"
-	+ " }, ...\n"
-	+ "]\n"
-	+ "```\n"
-	+ "where: \n"
-	+ "* name: Unique name (ID) of the parameter\n"
-	+ "* value: New value for the parameter field\n")
+	@ApiOperation(value="Update Layout parameters for a Layout algorithm", tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
+	notes="Updates the Layout parameters for the Layout algorithm specified by the `algorithmName` parameter."
+	)
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of Layout Parameters with Values.", 
+				dataType="[Lorg.cytoscape.rest.internal.model.LayoutParameterValueModel;", paramType="body", required=true)
+			)
 	public Response updateLayoutParameters(
 			@ApiParam(value="Name of the layout algorithm") @PathParam("algorithmName") String algorithmName, 
-			final InputStream is
+			@ApiParam(hidden=true) final InputStream is
 			) {
 		
 		throw404ifYFiles(algorithmName);
@@ -370,10 +372,10 @@ public class AlgorithmicResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(
 		value="Fit network to the window", 
-		tags={CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_PROPERTIES_TAG},
-		notes="Fit an existing network view to current window.")
+		tags={CyRESTSwagger.CyRESTSwaggerConfig.NETWORK_VIEWS_TAG},
+		notes="Fit the first available Network View for the Network specified by the `networkId` parameter to the current window.")
 	public Message fitContent(
-			@ApiParam(value="Network SUID", required=true) @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
@@ -401,10 +403,10 @@ public class AlgorithmicResource extends AbstractResource {
 	@ApiOperation(
 			value="Apply Edge Bundling to a network", 
 			tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-			notes="Apply edge bundling with default parameters. At present, optional parameters are not supported."
+			notes="Apply edge bundling to the Network specified by the `networkId` parameter. Edge bundling is executed with default parameters; at present, optional parameters are not supported."
 			)
 	public Message bundleEdge(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
@@ -431,10 +433,11 @@ public class AlgorithmicResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(
 			nickname="layoutList",
-			value="Get list of available layout algorithm names", 
+			value="Get all available Layout names", 
 			tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
-			notes="<h3>Important Note</h3>" 
-			+" This <strong>does not include yFiles layout algorithms</strong>, due to license issues."
+			notes="Returns all available layouts as a list of layout names.\n\n"
+					+ "<h3>Important Note</h3>\n\n" 
+					+"This <strong>does not include yFiles layout algorithms</strong>, due to license issues."
 			)
 	public Collection<String> getLayoutNames() {
 		return layoutManager.getAllLayouts().stream()

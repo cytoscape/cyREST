@@ -26,6 +26,8 @@ import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
+import org.cytoscape.rest.internal.model.CytoPanelModel;
+import org.cytoscape.rest.internal.model.DesktopAvailableModel;
 import org.cytoscape.rest.internal.model.Message;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskIterator;
@@ -36,6 +38,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -59,9 +63,9 @@ public class UIResource extends AbstractResource {
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@ApiOperation(value="Get status of Desktop", notes="An object with isDesktopAvailable field.\n"  
-	+ "This value is true if Cytoscape Desktop is available."
-	+ "And it is false if Cytoscape is running in headless mode (not available yet). ")
+	@ApiOperation(value="Get status of Desktop", notes="Returns the status of the Desktop",
+		response=DesktopAvailableModel.class
+	)
 	public Map<String, Boolean> getDesktop() {
 		final Map<String, Boolean> status = new HashMap<>();
 		boolean desktopAvailable = false;
@@ -97,17 +101,9 @@ public class UIResource extends AbstractResource {
 	@Path("/panels")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Get status of all CytoPanels", 
-		notes="Returns panel status as an array. The return value will include the status of all CytoPanels.\n\n"
-	 + "Each entry includes:\n"
-	+ "* name: Official name of the CytoPanel:\n"
-	+ "    * SOUTH\n"
-	+ "    * EAST\n"
-	+ "    * WEST\n"
-	+ "    * SOUTH_WEST\n"
-	+ "* state: State of the CytoPanel:\n"
-	+ "    * FLOAT\n"
-	+ "    * DOCK\n"
-	+ "    * HIDE\n"
+		notes="Returns all CytoPanels and their statuses."
+	,
+	response=CytoPanelModel.class, responseContainer="List"
 	)
 	public List<Map<String, String>> getAllPanelStatus() {
 		try {
@@ -131,9 +127,10 @@ public class UIResource extends AbstractResource {
 	@GET
 	@Path("/panels/{panelName}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@ApiOperation(value="Get status of a CytoPanel", notes="Returns the status of the CytoPanel (name-state pair)")
+	@ApiOperation(value="Get status of a CytoPanel", notes="Returns the status of the CytoPanel specified by the `panelName` parameter.",
+			response=CytoPanelModel.class)
 	public Response getPanelStatus(
-			@ApiParam(value="Official name of the CytroPanel") @PathParam("panelName") String panelName) {
+			@ApiParam(value="Name of the CytoPanel") @PathParam("panelName") String panelName) {
 		final CytoPanelName panel = CytoPanelName.valueOf(panelName);
 		if(panel == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -145,8 +142,14 @@ public class UIResource extends AbstractResource {
 	@PUT
 	@Path("/panels")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update CytoPanel states", notes="You can update multiple panel states at once. The body of your request should have same format as the return value of GET method.")
-	public Response updatePanelStatus(final InputStream is) {
+	@ApiOperation(value="Update CytoPanel states", 
+		notes="Updates the status(es) of available CytoPanels.")
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A list of CytoPanels with states.", 
+				dataType="[Lorg.cytoscape.rest.internal.model.CytoPanelModel;", paramType="body", required=true)
+			)
+	public Response updatePanelStatus(
+			@ApiParam(hidden=true) final InputStream is) {
 		
 		final ObjectMapper objMapper = new ObjectMapper();
 

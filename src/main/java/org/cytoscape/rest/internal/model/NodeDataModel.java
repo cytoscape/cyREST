@@ -4,14 +4,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value="Node Data", description=ModelConstants.ROW_DESCRIPTION)
-public class NodeData {
+public class NodeDataModel {
 
 	private String id;
 
 	/**
 	 * @return the id
 	 */
-	@ApiModelProperty
+	@ApiModelProperty(value="Primary Key value of the Node. This is normally the SUID.")
 	public String getId() {
 		return id;
 	}

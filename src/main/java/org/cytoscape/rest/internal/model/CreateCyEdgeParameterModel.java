@@ -9,7 +9,7 @@ public class CreateCyEdgeParameterModel {
 	public long source;
 	@ApiModelProperty(required=true, value="The SUID of the target node for the new edge")
 	public long target;
-	@ApiModelProperty(required=false, value="Sets the `directed` property of the edge.")
+	@ApiModelProperty(required=false, value="The `directed` property of the edge. This is `true` if the edge is directed.")
 	public boolean directed;
 	@ApiModelProperty(required=false, value="The value to include in the new edge's `interaction` column.")
 	public String interaction;

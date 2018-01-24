@@ -3,10 +3,11 @@ package org.cytoscape.rest.internal.model;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
 @XmlRootElement
-public class MemoryStatus {
+public class MemoryStatusModel {
 
 	private static final Integer MB = 1024 * 1024;
 	private static Runtime runtime = Runtime.getRuntime();
@@ -15,7 +16,7 @@ public class MemoryStatus {
 	private Long totalMemory = runtime.totalMemory() / MB;
 	private Long maxMemory = runtime.maxMemory() / MB;
 
-	public MemoryStatus()
+	public MemoryStatusModel()
 	{
 		
 	}
@@ -23,6 +24,7 @@ public class MemoryStatus {
 	/**
 	 * @return the usedMemory
 	 */
+	@ApiModelProperty(value="Memory used by the JVM, in MB")
 	public Long getUsedMemory() {
 		return usedMemory;
 	}
@@ -36,6 +38,7 @@ public class MemoryStatus {
 	/**
 	 * @return the freeMemory
 	 */
+	@ApiModelProperty(value="Free Memory available to the JVM, in MB")
 	public Long getFreeMemory() {
 		return freeMemory;
 	}
@@ -48,6 +51,7 @@ public class MemoryStatus {
 	/**
 	 * @return the totalMemory
 	 */
+	@ApiModelProperty(value="Total Memory available to the JVM, in MB")
 	public Long getTotalMemory() {
 		return totalMemory;
 	}
@@ -60,6 +64,7 @@ public class MemoryStatus {
 	/**
 	 * @return the maxMemory
 	 */
+	@ApiModelProperty(value="Maximum Memory that the JVM will use, in MB")
 	public Long getMaxMemory() {
 		return maxMemory;
 	}

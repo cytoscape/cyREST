@@ -32,7 +32,7 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
@@ -106,8 +106,8 @@ public class CollectionResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a count of all root networks.", notes="Returns a count of all root networks.")
-	public Count getCollectionCount() {
-		return new Count((long) getRootNetworks().size());
+	public CountModel getCollectionCount() {
+		return new CountModel((long) getRootNetworks().size());
 	}
 
 	@GET

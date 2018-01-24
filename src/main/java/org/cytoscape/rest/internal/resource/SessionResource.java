@@ -14,7 +14,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.rest.internal.model.FileModel;
 import org.cytoscape.rest.internal.model.SessionName;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -84,8 +84,8 @@ public class SessionResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Delete current Session",
     notes = "This deletes the current session and initializes a new one. A message is returned to indicate the success of the deletion.",
-    response = Message.class)
-	public Message deleteSession() {
+    response = MessageModel.class)
+	public MessageModel deleteSession() {
 
 		try {
 			TaskIterator itr = newSessionTaskFactory.createTaskIterator(true);
@@ -97,7 +97,7 @@ public class SessionResource extends AbstractResource {
 			e.printStackTrace();
 			throw getError("Could not delete current session.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return new Message("New session created.");
+		return new MessageModel("New session created.");
 	}
 
 	@GET

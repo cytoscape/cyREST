@@ -13,7 +13,7 @@ import org.cytoscape.ci.CIWrapping;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.rest.internal.CIErrorFactoryImpl;
 import org.cytoscape.rest.internal.CIExceptionFactoryImpl;
-import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.rest.internal.model.MessageModel;
 
 
 @Path("/ciresource")
@@ -25,8 +25,8 @@ public class CIHandlingResource {
 	@GET    
 	@Produces(MediaType.APPLICATION_JSON)
 	@CIWrapping
-	public Message success() {
-		return new Message("Hello!");
+	public MessageModel success() {
+		return new MessageModel("Hello!");
 	}
 	
 	@Path("/successFromEmptyResponse")
@@ -42,7 +42,7 @@ public class CIHandlingResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@CIWrapping
 	public Response successFromEntityResponse() {
-		return Response.ok(new Message("Hello!")).build();
+		return Response.ok(new MessageModel("Hello!")).build();
 	}
 	
 	@Path("/successFromStringResponse")

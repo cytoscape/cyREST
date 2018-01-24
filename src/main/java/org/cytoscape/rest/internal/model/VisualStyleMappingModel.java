@@ -20,7 +20,7 @@ public class VisualStyleMappingModel {
 	public String visualProperty;
 	
 	@ApiModelProperty(required = false, value="Map for `discreet` mappings.", example="")
-	public List<KeyValue> map;
+	public List<DiscreteMappingKeyValueModel> map;
 	
 	@ApiModelProperty(required = false, value="Points for `continuous` mappings.", example="")
 	public List<PointModel> points;

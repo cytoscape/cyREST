@@ -21,9 +21,9 @@ import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.datamapper.GroupMapper;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.GroupModel;
-import org.cytoscape.rest.internal.model.GroupSUID;
+import org.cytoscape.rest.internal.model.GroupSUIDModel;
 import org.cytoscape.rest.internal.serializer.GroupModule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -83,10 +83,10 @@ public class GroupResource extends AbstractResource {
 	@ApiOperation(value="Get number of groups in the network",
 		notes="Returns the number of groups in the network"
 			)
-	public Count getGroupCount(
+	public CountModel getGroupCount(
 			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
-		return new Count(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
+		return new CountModel(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
 	}
 
 	@GET
@@ -198,7 +198,7 @@ public class GroupResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new group",
 		notes="Create a new group in the network specified by the parameter `networkId`. The contents are specified the message body.",
-		response=GroupSUID.class)
+		response=GroupSUIDModel.class)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="New Group name and contents", dataType="org.cytoscape.rest.internal.model.NewGroupParameterModel", paramType="body", required=true)
 	)

@@ -8,13 +8,13 @@ public class ServerStatus {
 	private String apiVersion;
 	private Integer numberOfCores;
 	
-	private MemoryStatus memoryStatus;
+	private MemoryStatusModel memoryStatus;
 
 	
 	public ServerStatus() {
 		this.setApiVersion("v1");
 		this.setNumberOfCores(Runtime.getRuntime().availableProcessors());
-		this.setMemoryStatus(new MemoryStatus());
+		this.setMemoryStatus(new MemoryStatusModel());
 	}
 	
 	/**
@@ -50,14 +50,14 @@ public class ServerStatus {
 	/**
 	 * @return the memoryStatus
 	 */
-	public MemoryStatus getMemoryStatus() {
+	public MemoryStatusModel getMemoryStatus() {
 		return memoryStatus;
 	}
 
 	/**
 	 * @param memoryStatus the memoryStatus to set
 	 */
-	public void setMemoryStatus(MemoryStatus memoryStatus) {
+	public void setMemoryStatus(MemoryStatusModel memoryStatus) {
 		this.memoryStatus = memoryStatus;
 	}
 

@@ -1,6 +1,26 @@
 package org.cytoscape.rest.internal.model;
 
 public final class ModelConstants {
+	
+	//public static final String COLUMN_TYPES="Double,String,Boolean,Long,Integer,List";
+	
+	public static enum ColumnTypePrimitive {
+		Double,
+		String,
+		Boolean,
+		Long,
+		Integer
+	}
+	
+	public static enum ColumnTypeAll {
+		Double,
+		String,
+		Boolean,
+		Long,
+		Integer,
+		List
+	}
+	
 	public static final String ROW_DESCRIPTION = "Data is represented by column names and their values.\n\n"
 			+ "```json\n"
 			+ "{\n" 

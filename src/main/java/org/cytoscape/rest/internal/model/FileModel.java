@@ -1,17 +1,13 @@
 package org.cytoscape.rest.internal.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-/**
- * 
- * Session file data for changes to Session file location or save status.
- * 
- * @author David Otasek (dotasek.dev@gmail.com)
- *
- */
+
 @ApiModel
 public class FileModel 
 {
+	@ApiModelProperty(value="Full name of the file.", required=true)
 	public String file;
 	
 	public FileModel(String file)

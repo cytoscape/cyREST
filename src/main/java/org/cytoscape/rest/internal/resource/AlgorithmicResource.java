@@ -30,7 +30,7 @@ import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.model.LayoutColumnTypesModel;
 import org.cytoscape.rest.internal.model.LayoutModel;
 import org.cytoscape.rest.internal.model.LayoutParameterModel;
-import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
@@ -85,7 +85,7 @@ public class AlgorithmicResource extends AbstractResource {
 				+ "specified by the `networkId` parameter. If the Layout is has an option to "
 				+ "use a Column, it can be specified by the `column` parameter.",
 		tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG})
-	public Message applyLayout(
+	public MessageModel applyLayout(
 			@ApiParam(value="Name of layout algorithm", example="circular") @PathParam("algorithmName") String algorithmName,
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Name of the Column to be used by the Layout", required=false) @QueryParam("column") String column) {
@@ -122,7 +122,7 @@ public class AlgorithmicResource extends AbstractResource {
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	
-		return new Message("Layout finished.");		
+		return new MessageModel("Layout finished.");		
 	}
 	
 	@GET
@@ -330,7 +330,7 @@ public class AlgorithmicResource extends AbstractResource {
 	@ApiOperation(value="Apply Visual Style to a network", 
 		notes="Applies the Visual Style specified by the `styleName` parameter to the network specified by the `networkId` parameter.",
 		tags={CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
-	public Message applyStyle(
+	public MessageModel applyStyle(
 			@ApiParam(value="Name of the Visual Style") @PathParam("styleName") String styleName,
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId
 			) {
@@ -364,7 +364,7 @@ public class AlgorithmicResource extends AbstractResource {
 		vmm.setCurrentVisualStyle(targetStyle);
 		targetStyle.apply(view);
 
-		return new Message("Visual Style applied.");
+		return new MessageModel("Visual Style applied.");
 	}
 
 	@GET
@@ -374,7 +374,7 @@ public class AlgorithmicResource extends AbstractResource {
 		value="Fit network to the window", 
 		tags={CyRESTSwagger.CyRESTSwaggerConfig.NETWORK_VIEWS_TAG},
 		notes="Fit the first available Network View for the Network specified by the `networkId` parameter to the current window.")
-	public Message fitContent(
+	public MessageModel fitContent(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
@@ -394,7 +394,7 @@ public class AlgorithmicResource extends AbstractResource {
 			throw getError("Could not fit content.", e,
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return new Message("Fit content success.");
+		return new MessageModel("Fit content success.");
 	}
 
 	@GET
@@ -405,7 +405,7 @@ public class AlgorithmicResource extends AbstractResource {
 			tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
 			notes="Apply edge bundling to the Network specified by the `networkId` parameter. Edge bundling is executed with default parameters; at present, optional parameters are not supported."
 			)
-	public Message bundleEdge(
+	public MessageModel bundleEdge(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 
@@ -425,7 +425,7 @@ public class AlgorithmicResource extends AbstractResource {
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
-		return new Message("Edge bundling success.");
+		return new MessageModel("Edge bundling success.");
 	}
 
 	@GET

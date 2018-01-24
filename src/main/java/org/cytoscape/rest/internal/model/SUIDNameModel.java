@@ -5,8 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
 public class SUIDNameModel {
-	@ApiModelProperty
+	@ApiModelProperty(value="SUID of the Object")
 	public long SUID;
-	@ApiModelProperty
+	@ApiModelProperty(value="Name of the Object. This is the content of the Objects `name` column in its default table.")
 	public String name;
 }

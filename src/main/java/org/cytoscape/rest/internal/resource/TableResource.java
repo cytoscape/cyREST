@@ -174,7 +174,7 @@ public class TableResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update a column name", notes="Renames an existing column in the table specified by the `tableType` and `networkId` parameters.")
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="Old and new column name", dataType="org.cytoscape.rest.internal.model.Rename", paramType="body", required=true)
+			@ApiImplicitParam(value="Old and new column name", dataType="org.cytoscape.rest.internal.model.RenameModel", paramType="body", required=true)
 			)
 	public Response updateColumnName(
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
@@ -240,7 +240,7 @@ public class TableResource extends AbstractResource {
 	+ "* List column is not supported in this version\n"
 	)
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTable", paramType="body", required=true)
+			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTableModel", paramType="body", required=true)
 			)
 	public Response updateTable(
 			@ApiParam(value="SUID containing the table") @PathParam("networkId") Long networkId, 

@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
-import org.cytoscape.rest.internal.model.ServerStatus;
+import org.cytoscape.rest.internal.model.ServerStatusModel;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,10 +38,10 @@ public class MiscResource extends AbstractResource {
 	notes="Returns the status of the server if operational, including version information and available memory and processor resources.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 500, message = "CyREST service is unavailable"),
-			@ApiResponse(code = 200, message = "Server Status", response = ServerStatus.class),
+			@ApiResponse(code = 200, message = "Server Status", response = ServerStatusModel.class),
 	})
-	public ServerStatus getStatus() {
-		return new ServerStatus();
+	public ServerStatusModel getStatus() {
+		return new ServerStatusModel();
 	}
 
 	@GET

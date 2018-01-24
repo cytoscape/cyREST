@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.rest.internal.model.FileModel;
-import org.cytoscape.rest.internal.model.SessionName;
+import org.cytoscape.rest.internal.model.SessionNameModel;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.create.NewSessionTaskFactory;
@@ -67,14 +67,14 @@ public class SessionResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get current session file name",
     notes = "Returns the file name for the current Cytoscape session.",
-    response = SessionName.class)
-	public SessionName getSessionName() 
+    response = SessionNameModel.class)
+	public SessionNameModel getSessionName() 
 	{
 		String sessionName = sessionManager.getCurrentSessionFileName();
 		if(sessionName == null || sessionName.isEmpty()) {
 			sessionName = "";
 		}
-		return new SessionName(sessionName);
+		return new SessionNameModel(sessionName);
 	}
 
 

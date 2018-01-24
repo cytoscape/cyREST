@@ -5,8 +5,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel
 @XmlRootElement
+@ApiModel(value="Memory Status", description="Details on memory use and availability.")
 public class MemoryStatusModel {
 
 	private static final Integer MB = 1024 * 1024;

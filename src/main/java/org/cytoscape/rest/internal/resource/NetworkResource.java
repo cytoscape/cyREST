@@ -54,7 +54,7 @@ import org.cytoscape.rest.internal.model.EdgeModel;
 import org.cytoscape.rest.internal.model.NetworkSUIDModel;
 import org.cytoscape.rest.internal.model.CreatedCyEdgeModel;
 import org.cytoscape.rest.internal.model.NodeModel;
-import org.cytoscape.rest.internal.model.NodeNameSUIDModel;
+import org.cytoscape.rest.internal.model.SUIDNameModel;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.select.SelectFirstNeighborsTaskFactory;
@@ -458,7 +458,7 @@ public class NetworkResource extends AbstractResource {
 			@ApiImplicitParam(value="Array of new node names", dataType="[Ljava.lang.String;", paramType="body", required=true)
 			)
 	@ApiResponses ( value= {
-			@ApiResponse(code=201, message="", response=NodeNameSUIDModel.class, responseContainer="List") ,
+			@ApiResponse(code=201, message="", response=SUIDNameModel.class, responseContainer="List") ,
 			@ApiResponse(code=412, message="") }
 			)
 	public Response createNode(

@@ -11,8 +11,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cytoscape.rest.internal.model.CytoscapeVersion;
-import org.cytoscape.rest.internal.model.ServerStatus;
+import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
+import org.cytoscape.rest.internal.model.ServerStatusModel;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,10 +38,10 @@ public class MiscResource extends AbstractResource {
 	notes="Returns the status of the server if operational, including version information and available memory and processor resources.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 500, message = "CyREST service is unavailable"),
-			@ApiResponse(code = 200, message = "Server Status", response = ServerStatus.class),
+			@ApiResponse(code = 200, message = "Server Status", response = ServerStatusModel.class),
 	})
-	public ServerStatus getStatus() {
-		return new ServerStatus();
+	public ServerStatusModel getStatus() {
+		return new ServerStatusModel();
 	}
 
 	@GET
@@ -61,7 +61,7 @@ public class MiscResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get Cytoscape and REST API version", notes="Returns the version of the current Cytoscape REST API."
 			)
-	public CytoscapeVersion getCytoscapeVersion() {
+	public CytoscapeVersionModel getCytoscapeVersion() {
 
 		if (props == null) {
 			throw new InternalServerErrorException("Could not find CyProperty object.");
@@ -70,7 +70,7 @@ public class MiscResource extends AbstractResource {
 		final Properties property = (Properties) this.props.getProperties();
 		final Object versionNumber = property.get("cytoscape.version.number");
 		if (versionNumber != null) {
-			return new CytoscapeVersion(API_VERSION, versionNumber.toString());
+			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
 			throw new NotFoundException("Could not find Cytoscape version number property.");
 		}
@@ -82,7 +82,7 @@ public class MiscResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Show Level of Graphics Details", hidden=true,
 	notes="### Unimplemented\n\nDo not rely on this function.")
-	public CytoscapeVersion updateShowGraphicsDetailsOption() {
+	public CytoscapeVersionModel updateShowGraphicsDetailsOption() {
 
 		if (props == null) {
 			throw new InternalServerErrorException("Could not find CyProperty object.");
@@ -91,7 +91,7 @@ public class MiscResource extends AbstractResource {
 		final Properties property = (Properties) this.props.getProperties();
 		final Object versionNumber = property.get("cytoscape.version.number");
 		if (versionNumber != null) {
-			return new CytoscapeVersion(API_VERSION, versionNumber.toString());
+			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
 			throw new NotFoundException("Could not find Cytoscape version number property.");
 		}

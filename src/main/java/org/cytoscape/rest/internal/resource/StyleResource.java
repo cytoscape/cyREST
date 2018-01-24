@@ -27,7 +27,7 @@ import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.TitleModel;
 import org.cytoscape.rest.internal.model.VisualPropertyDependencyModel;
@@ -123,9 +123,9 @@ public class StyleResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get number of Visual Styles",
 		notes = "Returns the number of Visual Styles available in the current session",
-		response = Count.class)
-	public Count getStyleCount() {
-		return new Count((long)vmm.getAllVisualStyles().size());
+		response = CountModel.class)
+	public CountModel getStyleCount() {
+		return new CountModel((long)vmm.getAllVisualStyles().size());
 	}
 
 	@DELETE

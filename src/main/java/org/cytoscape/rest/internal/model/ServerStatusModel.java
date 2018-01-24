@@ -2,24 +2,27 @@ package org.cytoscape.rest.internal.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement
-public class ServerStatus {
+public class ServerStatusModel {
 	
 	private String apiVersion;
 	private Integer numberOfCores;
 	
-	private MemoryStatus memoryStatus;
+	private MemoryStatusModel memoryStatus;
 
 	
-	public ServerStatus() {
+	public ServerStatusModel() {
 		this.setApiVersion("v1");
 		this.setNumberOfCores(Runtime.getRuntime().availableProcessors());
-		this.setMemoryStatus(new MemoryStatus());
+		this.setMemoryStatus(new MemoryStatusModel());
 	}
 	
 	/**
 	 * @return the apiVersion
 	 */
+	@ApiModelProperty(value="CyREST API Version")
 	public String getApiVersion() {
 		return apiVersion;
 	}
@@ -35,6 +38,7 @@ public class ServerStatus {
 	/**
 	 * @return the numberOfCores
 	 */
+	@ApiModelProperty(value="Number of Processor Cores Available")
 	public Integer getNumberOfCores() {
 		return numberOfCores;
 	}
@@ -50,14 +54,15 @@ public class ServerStatus {
 	/**
 	 * @return the memoryStatus
 	 */
-	public MemoryStatus getMemoryStatus() {
+	@ApiModelProperty(value="Details on memory use and availability.")
+	public MemoryStatusModel getMemoryStatus() {
 		return memoryStatus;
 	}
 
 	/**
 	 * @param memoryStatus the memoryStatus to set
 	 */
-	public void setMemoryStatus(MemoryStatus memoryStatus) {
+	public void setMemoryStatus(MemoryStatusModel memoryStatus) {
 		this.memoryStatus = memoryStatus;
 	}
 

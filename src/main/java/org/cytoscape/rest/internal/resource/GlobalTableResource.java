@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,8 +42,8 @@ public class GlobalTableResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get number of global tables", 
 			notes="Returns the number of global tables.")
-	public Count getTableCount() {
+	public CountModel getTableCount() {
 		final Set<CyTable> globals = tableManager.getGlobalTables();
-		return new Count(Integer.valueOf(globals.size()).longValue());
+		return new CountModel(Integer.valueOf(globals.size()).longValue());
 	}
 }

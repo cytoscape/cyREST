@@ -7,8 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 public class CyColumnModel {
 	@ApiModelProperty(value = "Column Name", required=true)
 	public String name;
-	@ApiModelProperty(value = "Column Data Type", allowableValues="Double,String,Boolean,Long,Integer,List", required=true)
-	public String type; //"data type, Double, String, Boolean, Long, Integer",
+	@ApiModelProperty(value = "Column Data Type", required=true)
+	public ModelConstants.ColumnTypeAll type; //"data type, Double, String, Boolean, Long, Integer",
 	@ApiModelProperty(value="If the type of this column is list, this specifies the type of data in the list.", required=false)
 	public Boolean listType;
 	@ApiModelProperty(value="If true, this column is immutable.", required=true)

@@ -9,6 +9,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class CyColumnValuesModel {
 	@ApiModelProperty(value = "Column Name", required=true)
 	public String name;
-	@ApiModelProperty(value = "Column Values", required=true)
+	@ApiModelProperty(value = "Column Values. These are formatted as JSON primitives.", required=true)
 	public List<?> values;
 }

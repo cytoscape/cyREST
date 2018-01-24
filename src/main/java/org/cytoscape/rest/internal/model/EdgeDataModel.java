@@ -1,6 +1,10 @@
 package org.cytoscape.rest.internal.model;
 
-public class EdgeData {
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value="Row data associated with the Edge" + ModelConstants.ROW_DESCRIPTION)
+public class EdgeDataModel {
 
 	private String source;
 	private String target;
@@ -8,6 +12,7 @@ public class EdgeData {
 	/**
 	 * @return the source
 	 */
+	@ApiModelProperty(value="SUID of the Edge's Source Node", required=true)
 	public String getSource() {
 		return source;
 	}
@@ -23,6 +28,7 @@ public class EdgeData {
 	/**
 	 * @return the target
 	 */
+	@ApiModelProperty(value="SUID of the Edge's Target Node", required=true)
 	public String getTarget() {
 		return target;
 	}

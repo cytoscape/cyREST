@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
-public class NetworkViewVisualProperty {
+public class NetworkViewVisualPropertyModel {
 	
 	@ApiModelProperty(value = "Visual Property Name", example="NODE_FILL_COLOR", required=true)
 	public String visualProperty;

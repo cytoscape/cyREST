@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 
@@ -8,11 +9,12 @@ import io.swagger.annotations.ApiModel;
  *
  */
 @ApiModel
-public class NetworkViewSUID 
+public class NetworkViewSUIDModel 
 {
+	@ApiModelProperty(value="SUID of the Network View")
 	public Long networkViewSUID;
 	
-	public NetworkViewSUID(Long networkViewSUID) {
+	public NetworkViewSUIDModel(Long networkViewSUID) {
 		this.networkViewSUID=networkViewSUID;
 	}
 }

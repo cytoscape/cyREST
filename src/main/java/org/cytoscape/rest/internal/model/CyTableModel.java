@@ -8,13 +8,13 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value="Cytoscape Table", description="A Cytoscape table definition", subTypes= {CyTableWithRowsModel.class})
 public class CyTableModel {
-	@ApiModelProperty(value = "Table SUID", required=true)
+	@ApiModelProperty(value = "SUID of the Table", required=true)
 	public Long SUID;
 	
 	@ApiModelProperty(value = "Title", required=true)
 	public String title;
 	
-	@ApiModelProperty(value = "Public", required=true)
+	@ApiModelProperty(value = "Public. This is true if this table is visible by default in the Cytoscape GUI", required=true)
 	@SerializedName("public")
 	@JsonProperty("public")
 	public boolean _public;

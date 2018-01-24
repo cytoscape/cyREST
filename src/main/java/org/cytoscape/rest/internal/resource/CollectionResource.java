@@ -32,7 +32,7 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
@@ -106,8 +106,8 @@ public class CollectionResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a count of all root networks.", notes="Returns a count of all root networks.")
-	public Count getCollectionCount() {
-		return new Count((long) getRootNetworks().size());
+	public CountModel getCollectionCount() {
+		return new CountModel((long) getRootNetworks().size());
 	}
 
 	@GET
@@ -258,7 +258,7 @@ public class CollectionResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update table values", notes="Updates the values in a table. New columns will be created if they do not exist in the target table.")
 	@ApiImplicitParams(
-			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTable", paramType="body", required=true)
+			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTableModel", paramType="body", required=true)
 			)
 	public Response updateTable(
 			@ApiParam(value="Root Network SUID\n\n" + COLLECTION_ASCII_ART) @PathParam("networkId") Long networkId, 

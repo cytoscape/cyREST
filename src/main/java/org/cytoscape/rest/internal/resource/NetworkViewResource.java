@@ -42,9 +42,9 @@ import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
-import org.cytoscape.rest.internal.model.Count;
+import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.ModelConstants;
-import org.cytoscape.rest.internal.model.NetworkViewSUID;
+import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
 import org.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;
 import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
@@ -166,13 +166,13 @@ public class NetworkViewResource extends AbstractResource {
 	@ApiOperation(value="Create a new Network View",
 			notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
 	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Network View SUID", response = NetworkViewSUID.class),
+			@ApiResponse(code = 201, message = "Network View SUID", response = NetworkViewSUIDModel.class),
 	})
 	public Response createNetworkView(@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final CyNetwork network = getCyNetwork(networkId);
 		final CyNetworkView view = networkViewFactory.createNetworkView(network);
 		networkViewManager.addNetworkView(view);
-		return Response.status(Response.Status.CREATED).entity(new NetworkViewSUID(view.getSUID())).build();
+		return Response.status(Response.Status.CREATED).entity(new NetworkViewSUIDModel(view.getSUID())).build();
 	}
 
 	@GET
@@ -180,7 +180,7 @@ public class NetworkViewResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get number of views for the given network model",
 	notes = "Returns a count of the Network Views available for the Network specified by the `networkId` parameter.\n\n" + FIRST_VIEWS_NOTE,
-			response = Count.class)
+			response = CountModel.class)
 	public String getNetworkViewCount(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		return getNumberObjectString(JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(networkId)).size());

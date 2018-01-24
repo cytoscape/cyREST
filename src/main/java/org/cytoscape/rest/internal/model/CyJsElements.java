@@ -2,31 +2,31 @@ package org.cytoscape.rest.internal.model;
 
 import java.util.Collection;
 
-public class Elements {
-	private Collection<Node> nodes;
-	private Collection<Edge> edges;
+public class CyJsElements {
+	private Collection<NodeModel> nodes;
+	private Collection<EdgeModel> edges;
 	/**
 	 * @return the nodes
 	 */
-	public Collection<Node> getNodes() {
+	public Collection<NodeModel> getNodes() {
 		return nodes;
 	}
 	/**
 	 * @param nodes the nodes to set
 	 */
-	public void setNodes(Collection<Node> nodes) {
+	public void setNodes(Collection<NodeModel> nodes) {
 		this.nodes = nodes;
 	}
 	/**
 	 * @return the edges
 	 */
-	public Collection<Edge> getEdges() {
+	public Collection<EdgeModel> getEdges() {
 		return edges;
 	}
 	/**
 	 * @param edges the edges to set
 	 */
-	public void setEdges(Collection<Edge> edges) {
+	public void setEdges(Collection<EdgeModel> edges) {
 		this.edges = edges;
 	}
 }

@@ -28,7 +28,7 @@ import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.model.CytoPanelModel;
 import org.cytoscape.rest.internal.model.DesktopAvailableModel;
-import org.cytoscape.rest.internal.model.Message;
+import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
@@ -80,8 +80,9 @@ public class UIResource extends AbstractResource {
 	@Path("/lod")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Toggle level of graphics details (LoD)", 
-		notes="Switch between full graphics details <---> fast rendering mode.\n\nReturns a success message.")
-	public Message updateLodState() {
+		notes="Switch between full graphics details <---> fast rendering mode.\n\n"
+				+ "Returns a success message.")
+	public MessageModel updateLodState() {
 		
 		CyNetworkView view = applicationManager.getCurrentNetworkView();
 		
@@ -94,16 +95,15 @@ public class UIResource extends AbstractResource {
 					Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
-		return new Message("Toggled Graphics level of details.");
+		return new MessageModel("Toggled Graphics level of details.");
 	}
 
 	@GET
 	@Path("/panels")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Get status of all CytoPanels", 
-		notes="Returns all CytoPanels and their statuses."
-	,
-	response=CytoPanelModel.class, responseContainer="List"
+		notes="Returns all CytoPanels and their statuses.",
+		response=CytoPanelModel.class, responseContainer="List"
 	)
 	public List<Map<String, String>> getAllPanelStatus() {
 		try {
@@ -127,8 +127,9 @@ public class UIResource extends AbstractResource {
 	@GET
 	@Path("/panels/{panelName}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@ApiOperation(value="Get status of a CytoPanel", notes="Returns the status of the CytoPanel specified by the `panelName` parameter.",
-			response=CytoPanelModel.class)
+	@ApiOperation(value="Get status of a CytoPanel", 
+		notes="Returns the status of the CytoPanel specified by the `panelName` parameter.",
+		response=CytoPanelModel.class)
 	public Response getPanelStatus(
 			@ApiParam(value="Name of the CytoPanel") @PathParam("panelName") String panelName) {
 		final CytoPanelName panel = CytoPanelName.valueOf(panelName);
@@ -146,7 +147,9 @@ public class UIResource extends AbstractResource {
 		notes="Updates the status(es) of available CytoPanels.")
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of CytoPanels with states.", 
-				dataType="[Lorg.cytoscape.rest.internal.model.CytoPanelModel;", paramType="body", required=true)
+				dataType="[Lorg.cytoscape.rest.internal.model.CytoPanelModel;", 
+				paramType="body", 
+				required=true)
 			)
 	public Response updatePanelStatus(
 			@ApiParam(hidden=true) final InputStream is) {

@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value="Table Update Data")
-public class UpdateTable {
+public class UpdateTableModel {
 	@ApiModelProperty(value = "The column in the target table to use as a key. If not specified, SUID will be used.", example="SUID")
 	public String key;
 	@ApiModelProperty(value = "The field in the row data to use as a key. If not specified, SUID will be used.", example="id")

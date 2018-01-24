@@ -6,7 +6,7 @@ package org.cytoscape.rest.internal.model;
 public class CyJsNetwork {
 
 	private NetworkData data;
-	private Elements elements;
+	private CyJsElements elements;
 
 	/**
 	 * @return the data
@@ -26,7 +26,7 @@ public class CyJsNetwork {
 	/**
 	 * @return the elements
 	 */
-	public Elements getElements() {
+	public CyJsElements getElements() {
 		return elements;
 	}
 }

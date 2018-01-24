@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Message model for returning messages from REST calls.
@@ -9,11 +10,12 @@ import io.swagger.annotations.ApiModel;
  *
  */
 @ApiModel
-public class Message 
+public class MessageModel 
 {
+	@ApiModelProperty(value="Message text")
 	public String message;
 	
-	public Message(String string) {
+	public MessageModel(String string) {
 		message = string;
 	}
 }

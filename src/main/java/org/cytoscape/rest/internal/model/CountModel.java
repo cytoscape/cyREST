@@ -8,11 +8,11 @@ import io.swagger.annotations.ApiModel;
  *
  */
 @ApiModel
-public class NetworkSUID 
+public class CountModel 
 {
-	public Long networkSUID;
+	public Long count;
 	
-	public NetworkSUID(Long networkSUID) {
-		this.networkSUID=networkSUID;
+	public CountModel(Long count) {
+		this.count=count;
 	}
 }

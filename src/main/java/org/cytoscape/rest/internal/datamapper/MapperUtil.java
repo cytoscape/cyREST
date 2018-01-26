@@ -4,7 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class MapperUtil {
 
-	public static final Class<?> getColumnClass(final String type) {
+	/**
+	 * 
+	 * @param type The simple name of a Java class
+	 * @param treatNumberAsDouble In some cases, a Number class may have to be treated as a 
+	 * Double. An example of this is Column generation, which requires that the data type of 
+	 * the column be one of Java's primitive number types or a List. In this case, this 
+	 * parameter for the should be set to true, and the for Number type, the class returned 
+	 * will be Double. For other implementations that require a Number type be returned as 
+	 * the Number class, this parameter should be false
+	 * @return
+	 */
+	public static final Class<?> getColumnClass(final String type, final boolean treatNumberAsDouble) {
 		if (type.equals(Double.class.getSimpleName())) {
 			return Double.class;
 		} else if (type.equals(Long.class.getSimpleName())) {
@@ -18,7 +29,7 @@ public class MapperUtil {
 		} else if (type.equals(String.class.getSimpleName())) {
 			return String.class;
 		} else if (type.equals(Number.class.getSimpleName())) {
-			return Double.class;
+			return treatNumberAsDouble ? Double.class : Number.class;
 		} else {
 			return null;
 		}

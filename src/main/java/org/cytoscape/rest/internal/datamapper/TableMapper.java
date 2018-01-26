@@ -52,7 +52,7 @@ public class TableMapper {
 			final CyTable table, final CyTable localTable) {
 		// Extract required fields
 		final String columnName = rootNode.get(JsonTags.COLUMN_NAME).textValue();
-		final Class<?> type = MapperUtil.getColumnClass(rootNode.get(JsonTags.COLUMN_TYPE).textValue());
+		final Class<?> type = MapperUtil.getColumnClass(rootNode.get(JsonTags.COLUMN_TYPE).textValue(), true);
 		
 		if(table.getColumn(columnName) !=null) {
 			throw new IllegalArgumentException("Column already exists: " + columnName);

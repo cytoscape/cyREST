@@ -112,7 +112,7 @@ public class VisualStyleMapper {
 			final String vpName = mapping.get(MAPPING_VP).textValue();
 
 			final VisualProperty vp = getVisualProperty(vpName, lexicon);
-			final Class<?> columnType = MapperUtil.getColumnClass(colType);
+			final Class<?> columnType = MapperUtil.getColumnClass(colType, false);
 			if (vp == null || columnType == null) {
 				continue;
 			}

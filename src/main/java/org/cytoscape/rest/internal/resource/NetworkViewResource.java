@@ -593,6 +593,7 @@ public class NetworkViewResource extends AbstractResource {
 			+ "parameters.\n\nExamples of Visual Properties:\n\n" 
 			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLES + "\n" 
 			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLES + "\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
 			 + BYPASS_NOTES
 			)
 	@ApiImplicitParams(
@@ -648,7 +649,8 @@ public class NetworkViewResource extends AbstractResource {
 			+ "`networkId` parameters.\n\nExamples of Visual Properties:\n\n" 
 			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
 			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
-			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n"
+			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
 			+ BYPASS_NOTES
 		)
 	@ApiImplicitParams(
@@ -697,6 +699,7 @@ public class NetworkViewResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update the Visual Properties for a Network View",
 	notes="Updates the Visual Properties in the Network View specified by the `viewId` and `networkId` parameters.\n\nExample Visual Properties:\n" + ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLES + "\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
 			+ BYPASS_NOTES)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
@@ -731,7 +734,8 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/network")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the Visual Properties for a Network View", 
-			notes="Returns a list of the Visual Properties for the Network View specified by the `viewId` and `networkId` parameters.",
+			notes="Returns a list of the Visual Properties for the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
 			response=VisualPropertyValueModel.class, responseContainer="List")
 	public Response getNetworkVisualProps(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -745,7 +749,8 @@ public class NetworkViewResource extends AbstractResource {
 	@ApiOperation(value="Get the Visual Properties for a Node or Edge Object",
 			notes="Gets a list of Visual Properties for the Object specified by the `objectId` "
 					+ "and `objectType` parameters in the Network View specified by the "
-					+ "`viewId` and `networkId` parameters.",
+					+ "`viewId` and `networkId` parameters.\n\n"
+					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
 			response=VisualPropertyValueModel.class, responseContainer="List")
 	public String getView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -802,7 +807,9 @@ public class NetworkViewResource extends AbstractResource {
 	@ApiOperation(value="Get a Visual Property for an Object",
 			notes="Gets the Visual Property specificed by the `visualProperty` parameter for the"
 				+ " node or edge specified by the `objectId` parameter in the Network View "
-				+ "specified by the `viewId` and `networkId` parameters.",
+				+ "specified by the `viewId` and `networkId` parameters.\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
+				,
 			response=VisualPropertyValueModel.class)
 	public String getSingleVisualPropertyValue(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -836,7 +843,8 @@ public class NetworkViewResource extends AbstractResource {
 					+ "the object specified by the `objectId` and `objectType` parameters in the Network "
 					+ "View Specified by the `viewId` and `networkId` parameters. The response is the "
 					+ "Visual Property that is used in place of the definition provided by the Visual "
-					+ "Style.",
+					+ "Style.\n\n"
+					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
 	response=SingleVisualPropertyResponse.class
 			)
 	public Response getSingleVisualPropertyValueBypass(
@@ -917,7 +925,8 @@ public class NetworkViewResource extends AbstractResource {
 				+ "Examples of Visual Properties:\n\n" 
 				+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
 				+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
-				+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE)
+				+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
 		)
@@ -986,7 +995,8 @@ public class NetworkViewResource extends AbstractResource {
 	notes="Deletes the bypass Visual Property specified by the `visualProperty` parameter from "
 			+ "the object specified by the `objectId` and `objectType` parameters in the Network "
 			+ "View Specified by the `viewId` and `networkId` parameters. When this is done, the "
-			+ "Visual Property will be defined by the Visual Style",
+			+ "Visual Property will be defined by the Visual Style\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
 			response=CIResponse.class
 			)
 	public Response deleteSingleVisualPropertyValueBypass(
@@ -1050,11 +1060,13 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific network visual property")
+	@ApiOperation(value="Get a specific network visual property",
+			notes="Gets the Network Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	public String getNetworkVisualProp(
-			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
-			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
-			@ApiParam(value="Unique name of a Visual Property") @PathParam("visualProperty") String visualProperty) {
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty) {
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		if(nodeLexicon == null) {
@@ -1089,7 +1101,8 @@ public class NetworkViewResource extends AbstractResource {
 	@ApiOperation(value="Get all set values for a specific Visual Property",
 		notes="Returns a list of all Visual Property values for the Visual Property specified by "
 				+ "the `visualProperty` and `objectType` parameters, in the Network View specified by the "
-				+ "`viewId` and `networkId` parameters.",
+				+ "`viewId` and `networkId` parameters.\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
 		response=ObjectVisualPropertyValueModel.class, responseContainer="List")
 	public Response getViews(
 			@ApiParam(value="SUID of the Network")@PathParam("networkId") Long networkId, 

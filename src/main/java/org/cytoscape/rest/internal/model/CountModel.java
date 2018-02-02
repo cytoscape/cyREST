@@ -1,6 +1,7 @@
 package org.cytoscape.rest.internal.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 
@@ -10,6 +11,7 @@ import io.swagger.annotations.ApiModel;
 @ApiModel
 public class CountModel 
 {
+	@ApiModelProperty(value="Count value.", example="1")
 	public Long count;
 	
 	public CountModel(Long count) {

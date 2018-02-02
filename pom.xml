@@ -734,13 +734,13 @@
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.17</version>
+			<version>1.5.18</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
-			<version>1.5.17</version>
+			<version>1.5.18</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

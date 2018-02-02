@@ -7,8 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value="Cytoscape Column Values")
 public class CyColumnValuesModel {
-	@ApiModelProperty(value = "Column Name", required=true)
+	@ApiModelProperty(value = "Column Name", required=true, example="Weight")
 	public String name;
-	@ApiModelProperty(value = "Column Values. These are formatted as JSON primitives.", required=true)
+	@ApiModelProperty(value = "Column Values. These are formatted as JSON primitives.", required=true, example="9")
 	public List<?> values;
 }

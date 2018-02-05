@@ -12,7 +12,8 @@
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 		<maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
 		<osgi.api.version>6.0.0</osgi.api.version>
-		<osgi.compendium.version>5.0.0</osgi.compendium.version>
+    	<osgi.compendium.version>5.0.0</osgi.compendium.version>
+ 
 		<junit.version>4.12</junit.version>
 		<jersey.version>2.23</jersey.version>
 
@@ -81,162 +82,6 @@
 					are all necessary for the OSGi JAX RS connector to function. -->
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>install-pax-jetty</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<!-- PAX Web Features -->
-								<!-- pax-jetty -->
-								<artifactItem>
-									<groupId>org.apache.servicemix.specs</groupId>
-									<artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-									<version>2.2.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-servlet_3.0_spec</artifactId>
-									<version>1.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.mail</groupId>
-									<artifactId>mail</artifactId>
-									<version>1.4.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-jta_1.1_spec</artifactId>
-									<version>1.1.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-annotation_1.1_spec</artifactId>
-									<version>1.0.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-jaspic_1.0_spec</artifactId>
-									<version>1.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ow2.asm</groupId>
-									<artifactId>asm-all</artifactId>
-									<version>5.0.2</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.eclipse.jetty.aggregate</groupId>
-									<artifactId>jetty-all-server</artifactId>
-									<version>8.1.15.v20140411</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>src/main/resources/pax-jetty</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-pax-http</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<!-- pax-http -->
-								<artifactItem>
-									<groupId>org.ops4j.base</groupId>
-									<artifactId>ops4j-base-lang</artifactId>
-									<version>1.4.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.swissbox</groupId>
-									<artifactId>pax-swissbox-core</artifactId>
-									<version>1.7.0</version>
-								</artifactItem>
-								<!-- This is repeated in pax-http for some reason. Likely not necessary 
-									<artifactItem> <groupId>org.ow2.asm</groupId> <artifactId>asm-all</artifactId> 
-									<version>5.0.2</version> </artifactItem> -->
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-bundleutils</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-reflect</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-finder</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-api</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-spi</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-runtime</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-jetty</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-
-							</artifactItems>
-							<outputDirectory>src/main/resources/pax-http</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-karaf-scr</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.scr</artifactId>
-									<version>2.0.12</version>
-								</artifactItem>
-								
-							</artifactItems>
-							<outputDirectory>src/main/resources/karaf-scr</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-karaf-http</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.apache.karaf.http</groupId>
-									<artifactId>org.apache.karaf.http.core</artifactId>
-									<version>4.2.0-SNAPSHOT</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>src/main/resources/karaf-http</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
 					<execution>
 						<id>install-hk2</id>
 						<phase>process-resources</phase>
@@ -661,7 +506,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>${osgi.compendium.version}</version>
+		 	<version>${osgi.compendium.version}</version>
 			<scope>provided</scope>
 		</dependency>
 

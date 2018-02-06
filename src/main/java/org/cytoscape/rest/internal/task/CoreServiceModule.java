@@ -98,7 +98,7 @@ public class CoreServiceModule extends AbstractModule {
 	// For Command API
 	private final AvailableCommands available;
 	private final CommandExecutorTaskFactory ceTaskFactory;
-	private final SynchronousTaskManager<?> synchronousTaskManager;
+	private final SynchronousTaskManager<Object> synchronousTaskManager;
 	
 	private final CyNetworkViewWriterFactoryManager viewFactoryManager;
 	
@@ -111,6 +111,7 @@ public class CoreServiceModule extends AbstractModule {
 	private final CIErrorFactory ciErrorFactory;
 	private final CIExceptionFactory ciExceptionFactory;
 	
+
 	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
@@ -174,7 +175,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.exportNetworkViewTaskFactory = exportNetworkViewTaskFactory;
 		this.available = available;
 		this.ceTaskFactory = ceTaskFactory;
-		this.synchronousTaskManager = synchronousTaskManager;
+		this.synchronousTaskManager = (SynchronousTaskManager<Object>) synchronousTaskManager;
 		this.viewFactoryManager = viewFactoryManager;
 		this.bundleResourceProvider = bundleResourceProvider;
 		this.cyRESTPort = cyRESTPort;
@@ -228,7 +229,7 @@ public class CoreServiceModule extends AbstractModule {
 		// For Command API
 		bind(AvailableCommands.class).toInstance(available);
 		bind(CommandExecutorTaskFactory.class).toInstance(ceTaskFactory);
-		bind(new TypeLiteral<SynchronousTaskManager<?>>(){}).toInstance(synchronousTaskManager);
+		bind(new TypeLiteral<SynchronousTaskManager<Object>>(){}).toInstance(synchronousTaskManager);
 		
 		bind(BundleResourceProvider.class).toInstance(bundleResourceProvider);
 		

@@ -92,15 +92,15 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String GLASSFISH_JERSEY_PATH = "glassfish-jersey/";
 
 	private static final String[] GLASSFISH_JERSEY_BUNDLES = {
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-sse-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-common-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-guava-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-server-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-client-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-2.22.2.jar"
+			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-sse-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-common-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-guava-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-server-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-client-2.23.jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-2.23.jar"
 
 	};
 

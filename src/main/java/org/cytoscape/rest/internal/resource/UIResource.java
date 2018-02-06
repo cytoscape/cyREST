@@ -61,7 +61,6 @@ public class UIResource extends AbstractResource {
 	private TaskMonitor headlessTaskMonitor;
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Get status of Desktop", notes="Returns the status of the Desktop",
 		response=DesktopAvailableModel.class

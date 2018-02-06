@@ -59,7 +59,7 @@ public class ClusterMaker2Resource
 	protected CyNetworkManager networkManager;
 	
 	@Inject
-	protected SynchronousTaskManager<?> taskManager;
+	protected SynchronousTaskManager<Object> taskManager;
 	
 	@Inject
 	@NotNull

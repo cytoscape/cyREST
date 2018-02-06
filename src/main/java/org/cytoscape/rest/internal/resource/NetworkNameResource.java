@@ -32,12 +32,11 @@ public class NetworkNameResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(value = "Returns a list of network names with corresponding SUIDs",
 		notes="Returns a list of all networks as names and their corresponding SUIDs.\n\n" + NETWORK_QUERY_DESCRIPTION,
 		    response = SUIDNameModel.class, responseContainer="List")
-	public List<Map<String,?>> getNetworksNames(
+	public List<Map<String,Object>> getNetworksNames(
 			@ApiParam(value=COLUMN_DESCRIPTION) @QueryParam("column") String column,
 			@ApiParam(value=QUERY_STRING_DESCRIPTION) @QueryParam("query") String query) {
 		Set<CyNetwork> networks;
@@ -62,12 +61,12 @@ public class NetworkNameResource extends AbstractResource {
 	}
 
 	@SuppressWarnings("unchecked")
-	private final List<Map<String, ?>> getNetworksAsSimpleList(final Set<CyNetwork> networks) {
+	private final List<Map<String, Object>> getNetworksAsSimpleList(final Set<CyNetwork> networks) {
 		if (networks.isEmpty()) {
 			return Collections.EMPTY_LIST;
 		}
 		
-		final List<Map<String, ?>> networksList = new ArrayList<>();
+		final List<Map<String, Object>> networksList = new ArrayList<>();
 		for(final CyNetwork network: networks) {
 			final Map<String, Object> values = new HashMap<>();
 			values.put("SUID", network.getSUID());

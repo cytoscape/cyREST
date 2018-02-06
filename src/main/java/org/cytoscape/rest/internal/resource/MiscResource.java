@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
@@ -32,7 +33,6 @@ import io.swagger.annotations.ApiResponse;
 public class MiscResource extends AbstractResource {
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Cytoscape RESTful API server status",
 	notes="Returns the status of the server if operational, including version information and available memory and processor resources.")
@@ -50,10 +50,11 @@ public class MiscResource extends AbstractResource {
 	@ApiOperation(value="Run Java garbage collection",
 	notes="Manually call Java's System.gc() to free up unused memory. This process happens automatically, but may be useful to call explicitly for testing or evaluation purposes.")
 	 @ApiResponses(value = { 
-	            @ApiResponse(code = 204, message = "successful operation")
+	            @ApiResponse(code = 204, message = "Successful Garbage Collection")
 	    })
-	public void runGarbageCollection() {
+	public Response runGarbageCollection() {
 		Runtime.getRuntime().gc();
+		return Response.noContent().build();
 	}
 
 	@GET

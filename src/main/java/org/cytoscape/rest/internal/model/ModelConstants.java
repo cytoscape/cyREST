@@ -1,5 +1,7 @@
 package org.cytoscape.rest.internal.model;
 
+import org.cytoscape.rest.internal.CyRESTConstants;
+
 public final class ModelConstants {
 	
 	//public static final String COLUMN_TYPES="Double,String,Boolean,Long,Integer,List";
@@ -75,10 +77,12 @@ public final class ModelConstants {
 			+ "}"
 			+ "```\n";
 	
-	public static final String VISUAL_PROPERTY_JAVADOC_LINK = "http://chianti.ucsd.edu/cytoscape-3.6.0/API/org/cytoscape/view/presentation/property/BasicVisualLexicon.html";
-	public static final String PASSTHROUGH_MAPPING_JAVADOC_LINK = "http://chianti.ucsd.edu/cytoscape-3.6.0/API/org/cytoscape/view/vizmap/mappings/PassthroughMapping.html"; 
-	public static final String DISCREET_MAPPING_JAVADOC_LINK = "http://chianti.ucsd.edu/cytoscape-3.6.0/API/org/cytoscape/view/vizmap/mappings/DiscreteMapping.html"; 
-	public static final String CONTINUOUS_MAPPING_JAVADOC_LINK = "http://chianti.ucsd.edu/cytoscape-3.6.0/API/org/cytoscape/view/vizmap/mappings/ContinuousMapping.html"; 
+	public static final String JAVADOC_BASE_LINK = "http://chianti.ucsd.edu/cytoscape-" + CyRESTConstants.CYTOSCAPE_API_VERSION + "/API/";
+	
+	public static final String VISUAL_PROPERTY_JAVADOC_LINK = JAVADOC_BASE_LINK + "org/cytoscape/view/presentation/property/BasicVisualLexicon.html";
+	public static final String PASSTHROUGH_MAPPING_JAVADOC_LINK = JAVADOC_BASE_LINK + "org/cytoscape/view/vizmap/mappings/PassthroughMapping.html"; 
+	public static final String DISCREET_MAPPING_JAVADOC_LINK = JAVADOC_BASE_LINK +"org/cytoscape/view/vizmap/mappings/DiscreteMapping.html"; 
+	public static final String CONTINUOUS_MAPPING_JAVADOC_LINK = JAVADOC_BASE_LINK +"org/cytoscape/view/vizmap/mappings/ContinuousMapping.html"; 
 
 	public static final String MAPPING_EXAMPLES = "#### Discrete Mapping\n[JavaDoc API](" + ModelConstants.DISCREET_MAPPING_JAVADOC_LINK+")\n"
 			+ "```\n"

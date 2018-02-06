@@ -54,7 +54,7 @@ public class CyRESTConstants {
 			CyExceptionMapper.class
 	};
 	
-	public final static String CYTOSCAPE_API_VERSION = "3.6.1";
+	public final static String CYTOSCAPE_API_VERSION = "3.7.0";
 	
 	public final static String CY_REST_CI_ROOT = "urn:cytoscape:ci:cyrest-core:v1";
 	public final static String CY_REST_CI_ERROR_ROOT = "errors";

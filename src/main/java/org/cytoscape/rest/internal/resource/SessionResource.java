@@ -80,7 +80,6 @@ public class SessionResource extends AbstractResource {
 
 	
 	@DELETE
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Delete current Session",
     notes = "This deletes the current session and initializes a new one. A message is returned to indicate the success of the deletion.",
@@ -101,7 +100,6 @@ public class SessionResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Load a Session from a local file",
     notes = "Loads a session from a local file and returns the session file name",
@@ -124,7 +122,6 @@ public class SessionResource extends AbstractResource {
 	}
 
 	@POST
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Save current Session to a file",
     notes = "Saves the current session to a file. If successful, the session file location will be returned.",

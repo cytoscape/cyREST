@@ -161,7 +161,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	@POST
-	@Path("/")
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new Network View",
 			notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
@@ -188,7 +188,7 @@ public class NetworkViewResource extends AbstractResource {
 
 
 	@DELETE
-	@Path("/")
+	
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Delete all Network Views", notes="Deletes all Network Views available in the Network specified by the `networkId` parameter. " + FIRST_VIEWS_NOTE + "\n\n")
 	public Response deleteAllNetworkViews(
@@ -329,7 +329,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 	
 	@GET
-	@Path("/")
+	
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all Network Views", notes="Returns an array of all network views belonging to the network specified by the `networkId` paramter. The response is a list of Network SUIDs.")
 	@ApiResponses(value = { 

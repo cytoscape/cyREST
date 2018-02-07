@@ -24,6 +24,7 @@ public class OSGiJAXRSManager
 	private String port;
 
 	
+	private static final String JERSEY_VERSION = "2.23";
 	private static final String HK2_PATH = "hk2/";
 
 	private static final String[] HK2_BUNDLES = {
@@ -39,15 +40,15 @@ public class OSGiJAXRSManager
 	private static final String GLASSFISH_JERSEY_PATH = "glassfish-jersey/";
 
 	private static final String[] GLASSFISH_JERSEY_BUNDLES = {
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-sse-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-common-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-guava-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-server-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-client-2.22.2.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-2.22.2.jar"
+			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-" + JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-sse-" + JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-" + JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-" + JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-common-"+ JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-guava-"+ JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-server-"+ JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-client-"+ JERSEY_VERSION +".jar",
+			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-"+ JERSEY_VERSION +".jar"
 
 	};
 

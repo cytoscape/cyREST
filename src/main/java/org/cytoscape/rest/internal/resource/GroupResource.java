@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
@@ -36,6 +37,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Singleton
 @Path("/v1/networks/{networkId}/groups")
@@ -57,7 +60,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
+	
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all groups in the network",
 			notes="Returns a list of all the groups in the network specified by the `networkId` parameter.",
@@ -111,7 +114,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	@DELETE
-	@Path("/")
+	
 	@ApiOperation(value="Delete all groups in the network",
 			notes="Deletes all groups in the network specified by `networkId` parameter. The nodes and edges that the groups contained will remain present in the network, however the nodes used to identify the Groups will be deleted.")
 	public void deleteAllGroups(
@@ -146,23 +149,31 @@ public class GroupResource extends AbstractResource {
 	@Path("/{groupNodeId}/expand")
 	@ApiOperation(value="Expand group",
 			notes="Expands the group specified by the `groupNodeId` and `networkId` parameters.")
-	public void expandGroup(
+	@ApiResponses(value = { 
+			  @ApiResponse(code = 204, message = "Group expanded"),
+			  @ApiResponse(code = 500, message=  "Failed to expand group")
+	}) 
+	public Response expandGroup(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
-		toggle(networkId, groupNodeId, false);
+		return toggle(networkId, groupNodeId, false);
 	}
 
 	@GET
 	@Path("/{groupNodeId}/collapse")
 	@ApiOperation(value="Collapse group",
 			notes="Collapses the group specified by the `groupNodeId` and `networkId` parameters.")
-	public void collapseGroup(
+	@ApiResponses(value = { 
+			  @ApiResponse(code = 204, message = "Group collapsed"),
+			  @ApiResponse(code = 500, message=  "Failed to collapse group")
+	}) 
+	public Response collapseGroup(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
-		toggle(networkId, groupNodeId, true);
+		return toggle(networkId, groupNodeId, true);
 	}
 
-	private final void toggle(final Long networkId, final Long suid, boolean collapse) {
+	private final Response toggle(final Long networkId, final Long suid, boolean collapse) {
 		final CyGroup group = getGroupById(networkId, suid);
 		final CyNetwork network = getCyNetwork(networkId);
 		try {
@@ -174,6 +185,7 @@ public class GroupResource extends AbstractResource {
 		} catch (Exception e) {
 			throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		return Response.noContent().build();
 	}
 
 	private final CyGroup getGroupById(final Long networkId, final Long suid) {
@@ -193,7 +205,6 @@ public class GroupResource extends AbstractResource {
 	}
 
 	@POST
-	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new group",

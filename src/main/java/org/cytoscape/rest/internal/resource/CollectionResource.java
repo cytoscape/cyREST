@@ -111,7 +111,7 @@ public class CollectionResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
+	
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(value="Get one or all root networks.", notes="Returns all Root Networks as an array of SUIDs.\n\n"
 			+ "If a valid Sub-Network SUID is specified in the `subsuid` parameter, the list will contain only the SUID of that Sub-Network's Root Network.")

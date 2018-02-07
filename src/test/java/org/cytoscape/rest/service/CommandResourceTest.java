@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.net.MediaType;
 
 public class CommandResourceTest extends BasicResourceTest {
 
@@ -27,6 +28,54 @@ public class CommandResourceTest extends BasicResourceTest {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
+	@Test
+	public void testNamespaceEnumeration() throws Exception {
+		
+		Response response = target("/v1/commands/").request().get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	}
+	
+	@Test
+	public void testNamespaceEnumerationText() throws Exception {
+		
+		Response response = target("/v1/commands/").request(MediaType.PLAIN_TEXT_UTF_8.toString()).get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	}
+	
+	@Test
+	public void testCommandEnumeration() throws Exception {
+		
+		Response response = target("/v1/commands/dummyNamespace").request().get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	}
+	
+	@Test
+	public void testCommandEnumerationText() throws Exception {
+		
+		Response response = target("/v1/commands/dummyNamespace").request(MediaType.PLAIN_TEXT_UTF_8.toString()).get();
+		assertNotNull(response);
+		
+		final String body = response.readEntity(String.class);
+		System.out.println(body);
+		
+		assertEquals(200, response.getStatus());
+	}
+	
 	@Test
 	public void testCommand() throws Exception {
 		

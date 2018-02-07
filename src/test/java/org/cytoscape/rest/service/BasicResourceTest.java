@@ -205,6 +205,8 @@ public class BasicResourceTest extends JerseyTest {
 
 	protected CyNetworkViewManager viewManager;
 	
+	protected CyGroupFactory groupFactory;
+	
 	protected LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
 	protected RenderingEngine<?> renderingEngine;
@@ -379,12 +381,13 @@ public class BasicResourceTest extends JerseyTest {
 		VisualStyle emptyStyle = mock(VisualStyle.class);
 		when(vsFactory.createVisualStyle(anyString())).thenReturn(emptyStyle);
 
-		CyGroupFactory groupFactory = mock(CyGroupFactory.class);
+		groupFactory = mock(CyGroupFactory.class);
 		cyGroup = mock(CyGroup.class);
 		when(cyGroup.getNodeList()).thenReturn(Collections.singletonList(network.getNodeList().get(0)));
 		
 		cyGroupNode = mock(CyNode.class);
 		when(cyGroupNode.getSUID()).thenReturn(0l);
+		//when(cyGroupNode.equals(cyGroupNode)).thenReturn(true);
 		when(cyGroup.getGroupNode()).thenReturn(cyGroupNode);
 		
 		try {

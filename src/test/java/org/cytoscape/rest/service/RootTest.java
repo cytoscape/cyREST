@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -28,4 +29,5 @@ public class RootTest extends JerseyTest {
 		assertEquals(vers.size(), 1);
 		assertEquals(vers.get(0), "v1");
 	}
+	
 }

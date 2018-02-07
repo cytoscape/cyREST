@@ -35,7 +35,6 @@ public class RootResource extends AbstractResource {
 	 * 
 	 */
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get available REST API versions", notes="Returns a list of available REST API versions. Currently, v1 is the only available version")
 	public Map<String, String[]> getVersions() {

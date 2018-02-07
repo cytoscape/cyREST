@@ -48,6 +48,21 @@ public class TableResourceTest extends BasicResourceTest {
 		assertEquals(true, root.get("public").asBoolean());
 	}
 
+
+	@Test
+	public void testGetAllTables() throws Exception {
+		final Long suid = network.getSUID();
+		String result = target("/v1/networks/" + suid.toString() + "/tables").request().get(
+				String.class);
+		System.out.println(result);
+		assertNotNull(result);
+		final JsonNode root = mapper.readTree(result);
+	
+		
+		assertTrue(root.isArray());
+		assertEquals(0, root.size());
+	}
+	
 	@Test
 	public void testGetTableAsCSV() throws Exception {
 		final Long suid = network.getSUID();

@@ -51,14 +51,26 @@ public class GroupTest extends BasicResourceTest {
 		assertEquals(1, root.size());
 	}
 	
-	//TODO Re-implement this test.
+	@Test
+	public void testDeleteGroups() throws Exception {
+		final Long suid = network.getSUID();
+		final Response result = target("/v1/networks/" + suid + "/groups").request().delete();
+		assertNotNull(result);
+		assertEquals(204, result.getStatus());
+		System.out.println("res: " + result.toString());
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+	}
+	
+	@Test
 	public void testCreateGroup() throws Exception {
 		
 		final Long suid = network.getSUID();
 		final CyNode node = network.getNodeList().get(0);
 		String newVal = "{ \"name\":\"dummyname\", \"nodes\": ["+node.getSUID()+"]}";
+		// TODO: Create mock
 		//when(network.containsNode(cyGroupNode)).thenReturn(true);
-		when(network.getRow(cyGroupNode, CyRootNetwork.SHARED_ATTRS)).thenReturn(mock(CyRow.class));
+		//when(network.getRow(cyGroupNode, CyRootNetwork.SHARED_ATTRS)).thenReturn(mock(CyRow.class));
 		
 		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
 		
@@ -68,7 +80,7 @@ public class GroupTest extends BasicResourceTest {
 		final String body = result.readEntity(String.class);
 		System.out.println(body);
 		assertEquals(500, result.getStatus());
-		// TODO: Create mock
+		
 	}
 	
 	@Test

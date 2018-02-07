@@ -61,6 +61,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		String result = target("/v1/networks").request().get(
 				String.class);
 		assertNotNull(result);
+		System.out.println(result);
 		final JsonNode root = mapper.readTree(result);
 		assertEquals(2, root.size());
 	}

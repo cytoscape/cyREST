@@ -135,7 +135,6 @@ public class NetworkResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(value="Get SUID list of networks", 
 	notes="Returns a list of all networks as SUIDs.\n\n" + NETWORK_QUERY_DESCRIPTION)
@@ -603,7 +602,6 @@ public class NetworkResource extends AbstractResource {
 	// //////////////// Delete //////////////////////////////////
 
 	@DELETE
-	@Path("/")
 	@ApiOperation(value="Delete all networks in current session", notes="Delete all networks in the current session.")
 	public Response deleteAllNetworks() {
 		this.networkManager.getNetworkSet().stream()
@@ -699,7 +697,6 @@ public class NetworkResource extends AbstractResource {
 	// ///////////////////// Object Creation ////////////////////
 
 	@POST
-	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new network from a file or URL",

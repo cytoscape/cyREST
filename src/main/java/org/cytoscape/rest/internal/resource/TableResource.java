@@ -389,7 +389,6 @@ public class TableResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all Tables assigned to the Network", notes="Returns every table in the network specified by the `networkId` parameter.", response=CyTableWithRowsModel.class, responseContainer="List")
 	public String getTables(

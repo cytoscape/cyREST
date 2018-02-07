@@ -74,7 +74,7 @@ public class CommandResource
 
 	@Inject
 	@NotNull
-	private SynchronousTaskManager<?> taskManager;
+	private SynchronousTaskManager<Object> taskManager;
 
 	@Inject
 	protected CIResponseFactory ciResponseFactory;
@@ -88,7 +88,6 @@ public class CommandResource
 	public static final String JSON_COMMAND_RESOURCE_URI = "handle-json-command";
 	
 	@GET
-	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value="List all available command namespaces",
 	notes="Method handling HTTP GET requests to enumerate all namespaces. The"
@@ -106,7 +105,6 @@ public class CommandResource
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.TEXT_HTML)
 	@ApiOperation(value="List all available command namespaces",
 	notes="Method handling HTTP GET requests to enumerate all namespaces. The"
@@ -352,7 +350,6 @@ public class CommandResource
 			final Map<String, Object> args,
 			final MessageHandler handler,
 			CommandResourceTaskObserver taskObserver) throws WebApplicationException {
-
 
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);

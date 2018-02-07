@@ -27,7 +27,6 @@ public class NetworkFullResource extends AbstractResource {
 	}
 	
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@ApiOperation(
 			value=" Get networks in Cytoscape.js JSON format",

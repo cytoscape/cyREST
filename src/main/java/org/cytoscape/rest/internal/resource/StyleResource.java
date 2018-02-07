@@ -98,7 +98,6 @@ public class StyleResource extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get list of Visual Style names", 
 		notes="Returns a list of all the Visual Style names in the current session.", 
@@ -140,7 +139,6 @@ public class StyleResource extends AbstractResource {
 	}
 	
 	@DELETE
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Delete all Visual Styles", 
 		notes="Deletes all vision styles except for default style")
@@ -456,7 +454,6 @@ public class StyleResource extends AbstractResource {
 	}
 
 	@POST
-	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new Visual Style from JSON.", 

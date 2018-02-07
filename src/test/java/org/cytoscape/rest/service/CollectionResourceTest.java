@@ -41,10 +41,11 @@ public class CollectionResourceTest extends BasicResourceTest {
 		Response result = target("/v1/collections").request().get();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
-		final JsonNode root = mapper.readTree(result.readEntity(String.class));
+		String entity = result.readEntity(String.class);
+		System.out.println(entity);
+		final JsonNode root = mapper.readTree(entity);
 		final JsonNodeType dataType = root.getNodeType();
 		assertEquals(JsonNodeType.ARRAY, dataType);
-		
 		assertEquals(2, root.size());
 		final Set<Long> collections = new HashSet<>();
 		for(final JsonNode node: root) {
@@ -54,6 +55,26 @@ public class CollectionResourceTest extends BasicResourceTest {
 		assertTrue( collections.contains(((CySubNetwork)this.network).getRootNetwork().getSUID()));
 	}
 
+	@Test
+	public void testGetRootOfSubNetwork() throws Exception {
+		Response result = target("/v1/collections").queryParam("subsuid", this.network.getSUID()).request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		String entity = result.readEntity(String.class);
+		System.out.println(entity);
+		final JsonNode root = mapper.readTree(entity);
+		final JsonNodeType dataType = root.getNodeType();
+		assertEquals(JsonNodeType.ARRAY, dataType);
+		
+		assertEquals(1, root.size());
+		final Set<Long> collections = new HashSet<>();
+		for(final JsonNode node: root) {
+			collections.add(node.asLong());
+		}
+		
+		assertTrue( collections.contains(((CySubNetwork)this.network).getRootNetwork().getSUID()));
+	}
+	
 	@Test
 	public void testGetSubnetworks() throws Exception {
 		final Long rootSUID = ((CySubNetwork)this.network).getRootNetwork().getSUID();

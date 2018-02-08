@@ -262,6 +262,33 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(network.getRow(edge3).get(CyNetwork.SELECTED, Boolean.class));
 	}
 
+	@Test
+	public void testUpdateColumnListValues() throws Exception {
+		
+		network.getDefaultNodeTable().createListColumn("integerListColumn", Integer.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [1,2] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [3,4] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [5.6] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/integerListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+	}
 
 	@Test
 	public void testUpdateTable() throws Exception {

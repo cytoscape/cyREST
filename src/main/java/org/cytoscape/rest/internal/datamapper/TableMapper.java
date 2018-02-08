@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal.datamapper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +27,7 @@ public class TableMapper {
 		if(currentNameTag == null) {
 			throw new IllegalArgumentException("Original column name is missing.");
 		}
-		
+
 		final JsonNode newNameTag = rootNode.get(JsonTags.COLUMN_NAME_NEW);
 		if(newNameTag == null) {
 			throw new IllegalArgumentException("New column name is missing.");
@@ -40,7 +41,7 @@ public class TableMapper {
 		if(newName == null || newName.isEmpty()) {
 			throw new IllegalArgumentException("New column name is missing.");
 		}
-		
+
 		final CyColumn column = table.getColumn(currentName);
 		if (column == null) {
 			throw new NotFoundException("Column does not exist.");
@@ -53,11 +54,11 @@ public class TableMapper {
 		// Extract required fields
 		final String columnName = rootNode.get(JsonTags.COLUMN_NAME).textValue();
 		final Class<?> type = MapperUtil.getColumnClass(rootNode.get(JsonTags.COLUMN_TYPE).textValue(), true);
-		
+
 		if(table.getColumn(columnName) !=null) {
 			throw new IllegalArgumentException("Column already exists: " + columnName);
 		}
-		
+
 		// Optional: fields
 		boolean isImmutable = false;
 		boolean isList = false;
@@ -74,7 +75,7 @@ public class TableMapper {
 		if(local != null) {
 			isLocal = local.asBoolean();
 		}
-	
+
 		if(isList) {	
 			if(isLocal) {
 				localTable.createListColumn(columnName, type, isImmutable);
@@ -98,7 +99,7 @@ public class TableMapper {
 			if(row == null) {
 				continue;
 			}
-			
+
 			JsonNode value = entry.get("value");
 			setValue(table.getColumn(columnName).getType(), value, row, columnName);
 		}
@@ -112,7 +113,7 @@ public class TableMapper {
 			assignValue(defaultValue, dataType, row, columnName);
 		}
 	}
-	
+
 
 	/**
 	 * This is for PUT method for default tables.
@@ -121,11 +122,11 @@ public class TableMapper {
 	 * @param table CyTable to be updated.
 	 * 
 	 */
-	
+
 	private static final String KEY = "key";
 	private static final String DATA_KEY = "dataKey";
 	private static final String DATA = "data";
-	
+
 	public void updateTableValues(final JsonNode rootNode, final CyTable table) {
 		// Validate body
 		final JsonNode data = rootNode.get(DATA);
@@ -135,7 +136,7 @@ public class TableMapper {
 		if(!data.isArray()) {
 			throw new IllegalArgumentException("Data should be an array.");
 		}
-		
+
 		final JsonNode keyCol = rootNode.get(KEY);
 		final String keyColName;
 		if(keyCol == null) {
@@ -150,7 +151,7 @@ public class TableMapper {
 		if(col == null) {
 			throw new NotFoundException("No such column in the table: " + keyColName);
 		}
-		
+
 		final JsonNode dataKeyCol = rootNode.get(DATA_KEY);
 		final String dataKeyColName;
 		if(dataKeyCol == null) {
@@ -173,11 +174,11 @@ public class TableMapper {
 				continue;
 			}
 			final Collection<CyRow> machingRows = table.getMatchingRows(keyColName, key);
-			
+
 			if(machingRows.isEmpty()) {
 				continue;
 			}
-			
+
 			for (final CyRow row : machingRows) {
 				final Iterator<String> fields = entry.fieldNames();
 				while (fields.hasNext()) {
@@ -186,7 +187,7 @@ public class TableMapper {
 					if(value == null) {
 						continue;
 					}
-				
+
 					CyColumn column = null;
 					synchronized (this) {
 						column = table.getColumn(field);
@@ -201,7 +202,7 @@ public class TableMapper {
 							column = table.getColumn(field);
 						}
 					}
-					
+
 					try {
 						setValue(column.getType(), value, row, field);
 					} catch (Exception e) {
@@ -230,6 +231,34 @@ public class TableMapper {
 			row.set(columnName, value.asLong());
 		} else if (type == Float.class) {
 			row.set(columnName, value.asDouble());
+		} else if (type == List.class) {
+			Class<?> listType = row.getTable().getColumn(columnName).getListElementType();
+			updateList(listType, value, row, columnName);
+		}
+	}
+
+	private final <K> void updateList(Class<K> listType, JsonNode values, final CyRow row, final String columnName ) {
+		List<K> list = row.getList(columnName, listType);
+		if (list == null) {
+			row.set(columnName, new ArrayList<K>());
+			list = row.getList(columnName, listType);
+		}
+		list.clear();
+		for (Iterator<JsonNode> i = values.iterator(); i.hasNext(); ) {
+			JsonNode value= i.next();
+			if (listType == String.class) {
+				list.add((K) value.asText());
+			} else if (listType == Boolean.class) {
+				list.add((K)new Boolean(value.asBoolean()));
+			} else if (listType == Double.class) {
+				list.add((K)new Double(value.asDouble()));
+			} else if (listType == Integer.class) {
+				list.add((K)new Integer(value.asInt()));
+			} else if (listType == Long.class) {
+				list.add((K)new Long(value.asLong()));
+			} else if (listType == Float.class) {
+				list.add((K)new Float(value.asDouble()));
+			}
 		}
 	}
 

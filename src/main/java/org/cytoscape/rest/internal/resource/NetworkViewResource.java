@@ -1026,7 +1026,7 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific network visual property",
+	@ApiOperation(value="Get a network Visual Property",
 			notes="Gets the Network Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
 				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	public String getNetworkVisualProp(

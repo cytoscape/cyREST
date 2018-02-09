@@ -262,7 +262,172 @@ public class TableResourceTest extends BasicResourceTest {
 		assertTrue(network.getRow(edge3).get(CyNetwork.SELECTED, Boolean.class));
 	}
 
+	@Test
+	public void testUpdateColumnIntegerListValues() throws Exception {
+		
+		network.getDefaultNodeTable().createListColumn("integerListColumn", Integer.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [1,2] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [3,4] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [5.6] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/integerListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		List<Integer> listA = network.getDefaultNodeTable().getRow(node1.getSUID()).getList("integerListColumn", Integer.class);
+				assertEquals(2, listA.size());
+		assertTrue(listA.contains(1));
+		assertTrue(listA.contains(2));
+	}
 
+	@Test
+	public void testUpdateColumnDoubleListValues() throws Exception {
+		assertNull(network.getDefaultNodeTable().getColumn("integerListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("doubleListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("stringListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("longListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("booleanListColumn"));
+		network.getDefaultNodeTable().createListColumn("doubleListColumn", Double.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [0.1,0.2] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [0.3,0.4] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [0.5,0.6] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/doubleListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		List<Double> listA = network.getDefaultNodeTable().getRow(node1.getSUID()).getList("doubleListColumn", Double.class);
+		assertEquals(2, listA.size());
+		assertTrue(listA.contains(.1));
+		assertTrue(listA.contains(.2));
+	}
+	
+	@Test
+	public void testUpdateColumnStringListValues() throws Exception {
+		assertNull(network.getDefaultNodeTable().getColumn("integerListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("doubleListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("stringListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("longListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("booleanListColumn"));
+		network.getDefaultNodeTable().createListColumn("stringListColumn", String.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [\"A\",\"B\"] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [\"C\",\"D\"] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [\"E\",\"F\"] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/stringListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		List<String> listA = network.getDefaultNodeTable().getRow(node1.getSUID()).getList("stringListColumn", String.class);
+		assertEquals(2, listA.size());
+		assertTrue(listA.contains("A"));
+		assertTrue(listA.contains("B"));
+	}
+	
+	@Test
+	public void testUpdateColumnLongListValues() throws Exception {
+		assertNull(network.getDefaultNodeTable().getColumn("integerListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("doubleListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("stringListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("longListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("booleanListColumn"));
+		network.getDefaultNodeTable().createListColumn("longListColumn", Long.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [1,2] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [3,4] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [5,6] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/longListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		List<Long> listA = network.getDefaultNodeTable().getRow(node1.getSUID()).getList("longListColumn", Long.class);
+		assertEquals(2, listA.size());
+		assertTrue(listA.contains(1l));
+		assertTrue(listA.contains(2l));
+	}
+	
+	@Test
+	public void testUpdateColumnBooleanListValues() throws Exception {
+		assertNull(network.getDefaultNodeTable().getColumn("integerListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("doubleListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("stringListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("longListColumn"));
+		assertNull(network.getDefaultNodeTable().getColumn("booleanListColumn"));
+		network.getDefaultNodeTable().createListColumn("booleanListColumn", Boolean.class, false);
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		CyNode node2= network.getNodeList().get(1);
+		CyNode node3 = network.getNodeList().get(2);
+		
+		final String newValues = "["
+				+ "{\"SUID\":" + node1.getSUID() + ", \"value\": [false, false] },"
+				+ "{\"SUID\":" + node2.getSUID() + ", \"value\": [false, true] },"
+				+ "{\"SUID\":" + node3.getSUID() + ", \"value\": [true, true] }"
+				+ "]";
+		
+		Entity<String> entity = Entity.entity(newValues, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/tables/defaultnode/columns/booleanListColumn")
+				.request().put(entity);
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		System.out.println("res: " + result.toString());
+		List<Boolean> listA = network.getDefaultNodeTable().getRow(node1.getSUID()).getList("booleanListColumn", Boolean.class);
+		assertEquals(2, listA.size());
+		assertTrue(listA.contains(false));
+		assertTrue(listA.contains(false));
+	}
+	
 	@Test
 	public void testUpdateTable() throws Exception {
 		

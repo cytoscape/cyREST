@@ -345,6 +345,38 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
+	public void testGetNetworkViewVisualPropertyBypassReturns() throws Exception {
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NETWORK_BACKGROUND_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		view.setLockedValue(vp, Color.CYAN);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network/NETWORK_BACKGROUND_PAINT/bypass").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+		
+		JsonNode n = mapper.readTree(result.readEntity(String.class)).get("data");
+		
+		assertNotNull(n);
+		System.out.println(n);
+		
+		assertEquals("NETWORK_BACKGROUND_PAINT", n.get("visualProperty").asText());
+		assertEquals("#00FFFF", n.get("value").asText());
+		
+	}
+	
+	@Test
 	public void testGetViewVisualPropertyBypassReturns() throws Exception {
 		
 		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
@@ -378,7 +410,38 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
-	public void testGetViewVisualPropertyBypassDeletes() throws Exception {
+	public void testDeleteNetworkViewVisualPropertyBypass() throws Exception {
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NETWORK_BACKGROUND_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		view.setLockedValue(vp, Color.CYAN);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network/NETWORK_BACKGROUND_PAINT/bypass").request().delete();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+		
+		result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network/NETWORK_BACKGROUND_PAINT/bypass").request().get();
+		
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		
+	}
+	
+	@Test
+	public void testDeleteViewVisualPropertyBypass() throws Exception {
 		
 		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		VisualProperty<?> vp = null;
@@ -406,6 +469,41 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		System.out.println("res: " + result.toString());
 		
 		assertEquals(404, result.getStatus());
+		
+	}
+	
+	@Test
+	public void testGetNetworkViewVisualPropertyBypassPut() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
+		VisualProperty<?> vp = null;
+		for (VisualProperty<?> vpi : vps) {
+			if (vpi.getIdString().equals("NETWORK_BACKGROUND_PAINT")) {
+				vp = vpi;
+			}
+		}
+		
+		
+		assertFalse(view.isDirectlyLocked(vp));
+		assertEquals(view.getVisualProperty(vp), Color.WHITE);
+		
+		final String newVal = "{"
+				+ "\"visualProperty\": \"NETWORK_BACKGROUND_PAINT\","
+				+ "\"value\": \"cyan\" }";
+		
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/network/NETWORK_BACKGROUND_PAINT/bypass").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+		assertTrue(view.isDirectlyLocked(vp));
+		assertEquals(view.getVisualProperty(vp), Color.cyan);
+		
 		
 	}
 	

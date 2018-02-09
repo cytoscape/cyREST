@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -797,6 +798,8 @@ public class NetworkViewResource extends AbstractResource {
 			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
 		} else if(objectType.equals("edges")) {
 			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
+		} else if (objectType.equals("network")) {
+			view = networkView;
 		}
 		return view;
 	}
@@ -854,16 +857,8 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of the Object") @PathParam("objectId") Long objectId, 
 			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
-		CyNetworkView networkView = null;
-		try {
-			networkView = getView(networkId, viewId);
-		} catch(NotFoundException e) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
-					e.getMessage(), 
-					logger, e);
-		}
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if (view == null) {
@@ -882,23 +877,7 @@ public class NetworkViewResource extends AbstractResource {
 					logger, null);
 		}
 
-		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
-
-		VisualProperty<Object> targetVp = null;
-		for(final VisualProperty<?> vp: vps) {
-			if(vp.getIdString().equals(visualProperty)) {
-				if (view.isDirectlyLocked(vp)) {
-					targetVp = (VisualProperty<Object>) vp;
-					break;
-				} else {
-					throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-							RESOURCE_URN, 
-							COULD_NOT_FIND_RESOURCE_ERROR, 
-							"Could not find bypass visual property: " + visualProperty, 
-							logger, null);
-				}
-			}
-		}
+		VisualProperty<Object> targetVp = (VisualProperty<Object>) getTargetVisualPropertyCI(view, objectType, visualProperty, true);
 
 		VisualPropertyValueModel entity = new VisualPropertyValueModel();
 		entity.visualProperty = targetVp.getIdString();
@@ -914,6 +893,46 @@ public class NetworkViewResource extends AbstractResource {
 
 	}
 
+	private CyNetworkView getNetworkViewCI(long networkId, long viewId) throws WebApplicationException {
+		CyNetworkView networkView = null;
+		try {
+			networkView = getView(networkId, viewId);
+		} catch(NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					COULD_NOT_FIND_RESOURCE_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		return networkView;
+	}
+	
+	private VisualProperty<?> getTargetVisualPropertyCI(View<? extends CyIdentifiable> view, String objectType, String visualProperty, boolean mustExist) throws WebApplicationException {
+		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
+
+		VisualProperty<?> targetVp = null;
+		for(final VisualProperty<?> vp: vps) {
+			if(vp.getIdString().equals(visualProperty)) {
+				if (mustExist) {
+					if (view.isDirectlyLocked(vp)) {
+						targetVp = vp;
+					}
+				} else {
+					targetVp = vp;
+				}
+				break;
+			}
+		}
+		if(targetVp == null) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					COULD_NOT_FIND_RESOURCE_ERROR, 
+					"Could not find bypass visual property: " + visualProperty, 
+					logger, null);
+		}
+		return targetVp;
+	}
+	
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -938,18 +957,10 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty,
 			@ApiParam(hidden= true)final InputStream inputStream) {
 
-		CyNetworkView networkView = null;
-		try {
-			networkView = getView(networkId, viewId);
-		} catch(NotFoundException e) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
-					e.getMessage(), 
-					logger, e);
-		}
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
-
+		
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
@@ -957,23 +968,9 @@ public class NetworkViewResource extends AbstractResource {
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
-		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
-
-		VisualProperty<?> targetVp = null;
-		for(final VisualProperty<?> vp: vps) {
-			if(vp.getIdString().equals(visualProperty)) {
-				targetVp = vp;
-				break;
-			}
-		}
-		if(targetVp == null) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
-					"Could not find bypass visual property: " + visualProperty, 
-					logger, null);
-		}
-
+		
+		getTargetVisualPropertyCI(view, objectType, visualProperty, false);
+		
 		try {
 			final ObjectMapper objMapper = new ObjectMapper();
 			final JsonNode rootNode = objMapper.readValue(inputStream, JsonNode.class);
@@ -1006,16 +1003,8 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of Object")@PathParam("objectId") Long objectId, 
 			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
-		CyNetworkView networkView = null;
-		try {
-			networkView = getView(networkId, viewId);
-		} catch(NotFoundException e) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
-					e.getMessage(), 
-					logger, e);
-		}
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if (view == null) {
@@ -1026,30 +1015,7 @@ public class NetworkViewResource extends AbstractResource {
 					logger, null);
 		}
 
-		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
-
-		VisualProperty<?> targetVp = null;
-		for(final VisualProperty<?> vp: vps) {
-			if(vp.getIdString().equals(visualProperty)) {
-				if (view.isDirectlyLocked(vp)) {
-					targetVp = vp;
-					break;
-				} else {
-					throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-							RESOURCE_URN, 
-							COULD_NOT_FIND_RESOURCE_ERROR, 
-							"Could not find bypass visual property: " + visualProperty, 
-							logger, null);
-				}
-			}
-		}
-		if(targetVp == null) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
-					"Could not find bypass visual property: " + visualProperty, 
-					logger, null);
-		}
+		VisualProperty<?> targetVp = getTargetVisualPropertyCI(view, objectType, visualProperty, true);
 
 		view.clearValueLock(targetVp);
 
@@ -1060,7 +1026,7 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific network visual property",
+	@ApiOperation(value="Get a network Visual Property",
 			notes="Gets the Network Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
 				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	public String getNetworkVisualProp(
@@ -1074,7 +1040,97 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return getSingleVp(visualProperty, networkView, networkLexicon);
 	}
+	
+	@PUT
+	@Path("/{viewId}/network/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Bypass the Network Visual Style with a set Visual Property",
+			notes="Bypasses the Visual Style of the Network with the Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
+				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+				response=CIResponse.class )
+	@ApiImplicitParams(
+			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
+		)
+	public Response putNetworkVisualPropBypass(
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty,
+			@ApiParam(hidden=true) final InputStream is) {
+		final CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
 
+		if(nodeLexicon == null) {
+			initLexicon();
+		}
+		
+		getTargetVisualPropertyCI(networkView, "network", visualProperty, false);
+
+		try {
+			final ObjectMapper objMapper = new ObjectMapper();
+			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
+			styleMapper.updateViewVisualProperty(networkView, rootNode, getLexicon(), true);
+		} catch (Exception e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating view. Reason: " + e.getMessage(), 
+					logger, e);
+		}
+		return Response.ok().entity(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+	
+	@DELETE
+	@Path("/{viewId}/network/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Deletes the Visual Property the Network Visual Style is bypassed with",
+			notes="Deletes the bypass Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters. When this is done, the " + 
+				    "Visual Property will be defined by the Visual Style\n\n" + 
+							ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+					response=CIResponse.class 
+					)
+	public Response deleteNetworkVisualProp(
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty) {
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
+		VisualProperty<?> targetVp = getTargetVisualPropertyCI(networkView, "network", visualProperty, true);
+
+		networkView.clearValueLock(targetVp);
+
+		return Response.ok().entity(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+	
+	@GET
+	@Path("/{viewId}/network/{visualProperty}/bypass")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Get the Visual Property the Network Visual Style is bypassed with",
+			notes="Gets the bypass Visual Property specified by the `visualProperty`, `viewId`, and `networkId` parameters. " + 
+					" The response is the Visual Property that is used in place of the definition provided by the Visual "
+					+ "Style.\n\n"
+					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+			response=SingleVisualPropertyResponse.class
+	)
+	public Response getNetworkVisualPropBypass(
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
+			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty) {
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
+		VisualProperty<Object> targetVp = (VisualProperty<Object>) getTargetVisualPropertyCI(networkView, "network", visualProperty, true);
+
+		VisualPropertyValueModel entity = new VisualPropertyValueModel();
+		entity.visualProperty = targetVp.getIdString();
+		Object value = networkView.getVisualProperty(targetVp);
+		if  (targetVp.getRange().getType().equals(Boolean.class)
+				|| targetVp.getRange().getType().equals(String.class)
+				||	Number.class.isAssignableFrom(targetVp.getRange().getType())) {
+			entity.value = value;
+		} else {
+			entity.value = targetVp.toSerializableString(value);
+		}
+		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
+	}
+	
 	private String getSingleVp(final String visualProperty, final View<? extends CyIdentifiable> view, 
 			final Collection<VisualProperty<?>> vps) {
 		VisualProperty<?> targetVp = null;

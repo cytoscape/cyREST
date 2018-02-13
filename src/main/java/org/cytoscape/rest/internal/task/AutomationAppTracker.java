@@ -24,17 +24,21 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 {
 	Map<Bundle, Set<Object>> bundles;
 
-	private final BundleContext context;
 
 	public AutomationAppTracker( BundleContext context, Filter filter) {
 		super( context, filter, null );
-		this.context = context;
 		this.bundles = new HashMap<Bundle, Set<Object>>();
 	}
 
 	public Set<Bundle> getAppBundles() {
 		
 		return Collections.unmodifiableSet(bundles.keySet());
+	}
+	
+	private void delegateAddService( ServiceReference reference, Object service ) {
+		if( isAutomationService(reference, service ) ) {
+			addAutomationService(reference.getBundle(), service);
+		}
 	}
 	
 	@Override
@@ -53,23 +57,25 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		bundles.put(bundle, services);
 		//System.out.println("Automation bundle found: " + bundle);	
 	}
-	
-	private void delegateAddService( ServiceReference reference, Object service ) {
-		if( isAutomationService(reference, service ) ) {
-			addAutomationService(reference.getBundle(), service);
-		}
-	}
 
 	@Override
 	public void removedService( ServiceReference reference, Object service ) {
-		
+		Set<Object> bundleServices = bundles.get(reference.getBundle());
+		if (bundleServices != null) {
+			bundleServices.remove(service);
+			if (bundleServices.size() > 0) {
+				bundles.put(reference.getBundle(), bundleServices);
+			} else {
+				bundles.remove(reference.getBundle());
+			}
+		}
 		super.removedService(reference, service);
 	}
 
 	@Override
 	public void modifiedService( ServiceReference reference, Object service ) {
 		
-		delegateAddService( reference, service );
+		super.modifiedService(reference, service);
 	}
 
 	private boolean isAutomationService( ServiceReference reference, Object service ) {
@@ -109,8 +115,8 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 
 	@Override
 	public void bundleChanged(BundleEvent event) {
-		if (event.getType() == BundleEvent.STOPPED) {
-			
+		if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
+			bundles.remove(event.getBundle());
 		}
 		
 	}

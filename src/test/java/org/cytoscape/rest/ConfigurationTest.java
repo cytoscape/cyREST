@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.AppsResource;
 import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
@@ -37,6 +38,7 @@ public class ConfigurationTest
 	@Test
 	public void testConstants() 
 	{
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, AppsResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, RootResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, NetworkResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, NetworkFullResource.class));
@@ -63,7 +65,7 @@ public class ConfigurationTest
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(20, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(21, CyRESTConstants.coreResourceClasses.length);
 
 	}
 	

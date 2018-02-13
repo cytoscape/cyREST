@@ -82,6 +82,9 @@ public class CoreServiceModule extends AbstractModule {
 	private final EdgeListReaderFactory edgelistReaderFactory;
 	private final ServiceTracker cytoscapeJsWriterFactory;
 	private final ServiceTracker cytoscapeJsReaderFactory;
+	
+	private final AutomationAppTracker automationAppTracker;
+	
 	private final NetworkViewTaskFactory fitContent;
 	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
@@ -116,7 +119,8 @@ public class CoreServiceModule extends AbstractModule {
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
 			final ServiceTracker cytoscapeJsWriterFactory,
-			final ServiceTracker cytoscapeJsReaderFactory, final CyLayoutAlgorithmManager layoutManager,
+			final ServiceTracker cytoscapeJsReaderFactory, 
+			final AutomationAppTracker automationAppTracker, final CyLayoutAlgorithmManager layoutManager,
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
@@ -146,6 +150,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.vmm = vmm;
 		this.cytoscapeJsReaderFactory = cytoscapeJsReaderFactory;
 		this.cytoscapeJsWriterFactory = cytoscapeJsWriterFactory;
+		this.automationAppTracker = automationAppTracker;
 		this.layoutManager = layoutManager;
 		this.vizmapWriterFactoryListener = vizmapWriterFactoryListener;
 		this.headlessMonitor = headlessMonitor;
@@ -196,6 +201,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(CyApplicationManager.class).toInstance(applicationManager);
 		bind(ServiceTracker.class).annotatedWith(CytoscapeJsReaderFactory.class).toInstance(cytoscapeJsReaderFactory);
 		bind(ServiceTracker.class).annotatedWith(CytoscapeJsWriterFactory.class).toInstance(cytoscapeJsWriterFactory);
+		bind(AutomationAppTracker.class).toInstance(automationAppTracker);
 		bind(CyLayoutAlgorithmManager.class).toInstance(layoutManager);
 		bind(WriterListener.class).toInstance(vizmapWriterFactoryListener);
 		bind(TaskMonitor.class).toInstance(headlessMonitor);

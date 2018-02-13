@@ -97,6 +97,7 @@ import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
+import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -372,6 +373,8 @@ public class BasicResourceTest extends JerseyTest {
 		ServiceTracker cytoscapeJsWriterFactoryTracker = mock(ServiceTracker.class);
 		when(cytoscapeJsWriterFactoryTracker.getService()).thenReturn(cytoscapeJsWriterFactory);
 
+		AutomationAppTracker automationAppTracker = mock(AutomationAppTracker.class);
+		
 		WriterListener writerListsner = mock(WriterListener.class);
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
@@ -736,7 +739,9 @@ public class BasicResourceTest extends JerseyTest {
 		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
-				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
+				cytoscapeJsReaderFactoryTracker, 
+				automationAppTracker,
+				layouts, writerListsner,
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,

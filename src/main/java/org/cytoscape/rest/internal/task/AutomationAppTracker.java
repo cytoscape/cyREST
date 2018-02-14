@@ -48,7 +48,7 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		return service;
 	}
 
-	public void addAutomationService(Bundle bundle, Object service) {
+	private void addAutomationService(Bundle bundle, Object service) {
 		Set<Object> services = bundles.get(bundle);
 		if (services == null) {
 			services = new HashSet<Object>();
@@ -115,7 +115,7 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 
 	@Override
 	public void bundleChanged(BundleEvent event) {
-		if (event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
+		if (event.getType() == BundleEvent.STOPPING  || event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
 			bundles.remove(event.getBundle());
 		}
 		

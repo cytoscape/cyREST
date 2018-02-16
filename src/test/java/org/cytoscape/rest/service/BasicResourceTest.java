@@ -79,6 +79,7 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.AppsResource;
 import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.CyExceptionMapper;
@@ -97,6 +98,7 @@ import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
+import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -161,6 +163,8 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
@@ -372,6 +376,15 @@ public class BasicResourceTest extends JerseyTest {
 		ServiceTracker cytoscapeJsWriterFactoryTracker = mock(ServiceTracker.class);
 		when(cytoscapeJsWriterFactoryTracker.getService()).thenReturn(cytoscapeJsWriterFactory);
 
+		AutomationAppTracker automationAppTracker = mock(AutomationAppTracker.class);
+		Set<Bundle> automationAppBundles = new HashSet<Bundle>();
+		Bundle dummyAutomationAppBundle = mock(Bundle.class);
+		when(dummyAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyautomationapp");
+		when(dummyAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
+		when(dummyAutomationAppBundle.getState()).thenReturn(1);
+		automationAppBundles.add(dummyAutomationAppBundle);
+		when(automationAppTracker.getAppBundles()).thenReturn(automationAppBundles);
+		
 		WriterListener writerListsner = mock(WriterListener.class);
 		TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 
@@ -736,7 +749,9 @@ public class BasicResourceTest extends JerseyTest {
 		
 		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
-				cytoscapeJsReaderFactoryTracker, layouts, writerListsner,
+				cytoscapeJsReaderFactoryTracker, 
+				automationAppTracker,
+				layouts, writerListsner,
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,
@@ -1015,6 +1030,7 @@ public class BasicResourceTest extends JerseyTest {
 					public void start() {
 						try {	
 							final Set<Class<?>> resourceClasses = new HashSet<Class<?>>();
+							resourceClasses.add(AppsResource.class);
 							resourceClasses.add(RootResource.class);
 							resourceClasses.add(NetworkResource.class);
 							resourceClasses.add(NetworkFullResource.class);

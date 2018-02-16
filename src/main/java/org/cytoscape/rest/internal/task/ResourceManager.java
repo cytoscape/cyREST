@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.resource.apps.AppConstants;
 import org.osgi.framework.BundleContext;
@@ -91,11 +93,11 @@ public final class ResourceManager {
 
 		//serviceRegistrations.add(bundleContext.registerService(ServletExceptionMapper.class.getName(), new ServletExceptionMapper(), new Properties()));
 		
-		final String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
+		
 
 		swagger = injector.getInstance(CyRESTSwagger.class);
 
-		swaggerResourceTracker = new SwaggerResourceTracker(bundleContext,bundleContext.createFilter(ANY_SERVICE_FILTER), swagger);
+		swaggerResourceTracker = new SwaggerResourceTracker(bundleContext,bundleContext.createFilter(CyRESTConstants.ANY_SERVICE_FILTER), swagger);
 		swaggerResourceTracker.open();
 
 		serviceRegistrations.add(bundleContext.registerService(CyRESTSwagger.class.getName(), swagger, new Hashtable<String, Object>()));

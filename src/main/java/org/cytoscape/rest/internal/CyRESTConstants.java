@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal;
 
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
+import org.cytoscape.rest.internal.resource.AppsResource;
 import org.cytoscape.rest.internal.resource.CIResponseFilter;
 import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
@@ -23,6 +24,7 @@ import org.cytoscape.rest.internal.resource.UIResource;
 
 public class CyRESTConstants {
 	public static final Class<?>[] coreResourceClasses = {
+			AppsResource.class,
 			RootResource.class,
 			NetworkResource.class,
 			NetworkFullResource.class,
@@ -53,6 +55,8 @@ public class CyRESTConstants {
 			//For Error Handling
 			CyExceptionMapper.class
 	};
+	
+	public final static String ANY_SERVICE_FILTER = "(&(objectClass=*)(!(com.eclipsesource.jaxrs.publish=false)))";
 	
 	public final static String CYTOSCAPE_API_VERSION = "3.6.1";
 	

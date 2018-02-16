@@ -38,6 +38,7 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.session.CySessionManager;
@@ -108,6 +109,7 @@ public class ResourceManagerTest
 		final VisualMappingManager vmm = mock(VisualMappingManager.class);
 		final ServiceTracker cytoscapeJsWriterFactory = mock(ServiceTracker.class);
 		final ServiceTracker cytoscapeJsReaderFactory = mock(ServiceTracker.class);
+		final AutomationAppTracker automationAppTracker = mock(AutomationAppTracker.class);
 		final CyLayoutAlgorithmManager layoutManager = mock(CyLayoutAlgorithmManager.class);
 		final WriterListener vizmapWriterFactoryListener = mock(WriterListener.class);
 		final TaskMonitor headlessMonitor = mock(TaskMonitor.class);
@@ -148,7 +150,7 @@ public class ResourceManagerTest
 		final String cyRESTPort = "1234"; 
 		final URI logLocation = URI.create("nowhere");
 
-		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
+		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
 				cyRESTPort, logLocation,
 				ciResponseFactory,

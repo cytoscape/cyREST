@@ -64,6 +64,8 @@ public class CollectionResource extends AbstractResource {
 	
 	private static final String TABLE_TYPE_DESCRIPTION = "The `default` table contains data relevant to a Root Network. The `shared` table contains data shared by all Sub-Networks of a Root Network.";
 	
+	private static final String TABLE_TYPE_NOTES_DESCRIPTION = "Root network tables, particularly the shared table accessible by specifying the `tableType` parameter as `shared`, are available through Collection operations, and are not normally accessible in other contexts.";
+	
 	public CollectionResource() {
 		super();
 		mapper = new ObjectMapper();
@@ -196,7 +198,9 @@ public class CollectionResource extends AbstractResource {
 	@GET
 	@Path("/{networkId}/tables/{tableType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Get a specific Table in a Root Network", response=CyTableWithRowsModel.class, notes="Returns either the `default` or `shared` table from the Root Network specified by the `networkId` parameter.")
+	@ApiOperation(value="Get a specific Table in a Root Network", 
+		response=CyTableWithRowsModel.class, 
+		notes="Returns either the `default` or `shared` table from the Root Network specified by the `networkId` parameter.\n\n" + TABLE_TYPE_NOTES_DESCRIPTION)
 	public Response getRootTable(
 			@ApiParam(value="Root Network SUID\n\n" + COLLECTION_ASCII_ART) @PathParam("networkId") Long networkId,
 			@ApiParam(value=TABLE_TYPE_DESCRIPTION, allowableValues="default,shared") @PathParam("tableType") String tableType) {
@@ -205,7 +209,7 @@ public class CollectionResource extends AbstractResource {
 	
 	@DELETE
 	@Path("/{networkId}/tables/{tableType}/columns/{columnName}")
-	@ApiOperation(value="Delete a column", notes="Deletes the column specified by the `columnName` parameter from the table specified the `tableType` parameter in the Root Network specified by the `networkId` parameter.")
+	@ApiOperation(value="Delete a column", notes="Deletes the column specified by the `columnName` parameter from the table specified the `tableType` parameter in the Root Network specified by the `networkId` parameter.\n\n"  + TABLE_TYPE_NOTES_DESCRIPTION)
 	public Response deleteColumn(
 			@ApiParam(value="Root Network SUID\n\n" + COLLECTION_ASCII_ART) @PathParam("networkId") Long networkId, 
 			@ApiParam(value=TABLE_TYPE_DESCRIPTION, allowableValues="default,shared") @PathParam("tableType") String tableType,
@@ -227,7 +231,7 @@ public class CollectionResource extends AbstractResource {
 	
 	@GET
 	@Path("/{networkId}/tables/{tableType}/columns")
-	@ApiOperation(value="Get a list of columns for a Root Network table", notes="Return a list of the columns in the table specified by the `tableType` parameter in the Root Network specified by the `networkId` parameter.", response=CyColumnModel.class, responseContainer="list")
+	@ApiOperation(value="Get a list of columns for a Root Network table", notes="Return a list of the columns in the table specified by the `tableType` parameter in the Root Network specified by the `networkId` parameter.\n\n"  + TABLE_TYPE_NOTES_DESCRIPTION, response=CyColumnModel.class, responseContainer="list")
 	public Response getColumns(
 			@ApiParam(value="Root Network SUID\n\n" + COLLECTION_ASCII_ART) @PathParam("networkId") Long networkId, 
 			@ApiParam(value=TABLE_TYPE_DESCRIPTION, allowableValues="default,shared") @PathParam("tableType") String tableType) {
@@ -256,7 +260,7 @@ public class CollectionResource extends AbstractResource {
 	@PUT
 	@Path("/{networkId}/tables/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="Update table values", notes="Updates the values in a table. New columns will be created if they do not exist in the target table.")
+	@ApiOperation(value="Update table values", notes="Updates the values in a table. New columns will be created if they do not exist in the target table.\n\n"  + TABLE_TYPE_NOTES_DESCRIPTION)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTableModel", paramType="body", required=true)
 			)

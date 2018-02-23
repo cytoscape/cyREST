@@ -105,6 +105,10 @@ public class CyActivator extends AbstractCyActivator {
 
 	private String cyRESTPort = null;
 	private URI logLocation = null;
+	
+	private ServiceTracker cytoscapeJsWriterFactory = null;
+	private ServiceTracker cytoscapeJsReaderFactory = null;
+	
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
 
@@ -124,9 +128,30 @@ public class CyActivator extends AbstractCyActivator {
 		
 		serverState = ServerState.STARTING;
 
+		// Get any command line arguments. The "-R" is ours
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
+		
+		@SuppressWarnings("unchecked")
+		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
+
+		final Properties clProps = commandLineProps.getProperties();
+		
+		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
+
+		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
+			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
+
+		if(restPortNumber == null) {
+			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
+		}
+
+		this.cyRESTPort = restPortNumber;
+		
 		logger.info("Initializing cyREST API server...");
 		long start = System.currentTimeMillis();
-
+		
 		osgiJAXRSManager = new OSGiJAXRSManager();
 
 		final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -143,7 +168,7 @@ public class CyActivator extends AbstractCyActivator {
 					logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
 					
 				} else {
-					this.initDependencies(bc);
+					this.initDependencies(bc, cyPropertyServiceRef, this.cyRESTPort);
 					osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
 					resourceManager.registerResourceServices();
 					serverState = ServerState.STARTED;
@@ -212,7 +237,7 @@ public class CyActivator extends AbstractCyActivator {
 		}
 	}
 	
-	private final void initDependencies(final BundleContext bc) throws Exception {
+	private final void initDependencies(final BundleContext bc, final CyProperty<Properties> cyPropertyServiceRef, final String restPortNumber) throws Exception {
 		
 		CIResponseFactory ciResponseFactory = new CIResponseFactoryImpl();
 		CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(this.logLocation);
@@ -241,9 +266,7 @@ public class CyActivator extends AbstractCyActivator {
 		automationAppTracker.open();
 		bc.addBundleListener(automationAppTracker);
 		
-		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
+
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 		final CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
 		final CyNetworkViewFactory netViewFact = getService(bc, CyNetworkViewFactory.class);
@@ -271,26 +294,9 @@ public class CyActivator extends AbstractCyActivator {
 		final CommandExecutorTaskFactory ceTaskFactory = getService(bc, CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = getService(bc, SynchronousTaskManager.class);
 
-		// Get any command line arguments. The "-R" is ours
-		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
-
-		final Properties clProps = commandLineProps.getProperties();
-
-		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
-
-		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
-			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
-
-		if(restPortNumber == null) {
-			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
-		}
-
-		this.cyRESTPort = restPortNumber;
-		
+	
 		// Set Port number
-		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
-
+		
 		final CyServiceRegistrar serviceRegistrar = getService(bc, CyServiceRegistrar.class);
 		
 		CyRESTCoreSwaggerAction swaggerCoreAction = new CyRESTCoreSwaggerAction(serviceRegistrar, this.cyRESTPort);
@@ -306,8 +312,7 @@ public class CyActivator extends AbstractCyActivator {
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 
-		ServiceTracker cytoscapeJsWriterFactory = null;
-		ServiceTracker cytoscapeJsReaderFactory = null;
+		
 		//CyNetworkViewWriterFactory cxWriterFactory = null;
 
 		cytoscapeJsWriterFactory = new ServiceTracker(bc, bc.createFilter("(&(objectClass=org.cytoscape.io.write.CyNetworkViewWriterFactory)(id=cytoscapejsNetworkWriterFactory))"), null);
@@ -354,6 +359,8 @@ public class CyActivator extends AbstractCyActivator {
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
 		
+		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
+		
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, 
@@ -388,6 +395,12 @@ public class CyActivator extends AbstractCyActivator {
 				logger.error("Error shutting down REST server", e);
 				e.printStackTrace();
 			}
+		}
+		if (cytoscapeJsWriterFactory != null) {
+			cytoscapeJsWriterFactory.close();
+		}
+		if (cytoscapeJsReaderFactory != null) {
+			cytoscapeJsReaderFactory.close();
 		}
 		super.shutDown();
 	}

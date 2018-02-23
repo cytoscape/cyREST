@@ -42,8 +42,10 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
+import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.datamapper.VisualStyleMapper;
 import org.cytoscape.rest.internal.model.CountModel;
+import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
 import org.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;
@@ -60,6 +62,7 @@ import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.util.BoundedDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +100,8 @@ public class NetworkViewResource extends AbstractResource {
 	private static final int COULD_NOT_FIND_RESOURCE_ERROR = 1;
 
 	private static final int INVALID_PARAMETER_ERROR = 2;
+	
+	private static final int TASK_EXECUTION_ERROR = 3;
 
 	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
 	
@@ -127,6 +132,14 @@ public class NetworkViewResource extends AbstractResource {
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
 
+	@Inject
+	@NotNull
+	protected LevelOfDetails detailsTF;
+	
+	@Inject
+	@NotNull
+	private TaskMonitor headlessTaskMonitor;
+	
 	@Inject
 	@NotNull
 	private GraphicsWriterManager graphicsWriterManager;
@@ -162,7 +175,6 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	@POST
-
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new Network View",
 			notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
@@ -189,7 +201,6 @@ public class NetworkViewResource extends AbstractResource {
 
 
 	@DELETE
-	
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Delete all Network Views", notes="Deletes all Network Views available in the Network specified by the `networkId` parameter. " + FIRST_VIEWS_NOTE + "\n\n")
 	public Response deleteAllNetworkViews(
@@ -274,6 +285,38 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 
+	@PUT
+	@Path("/{viewId}/lod")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@ApiOperation(value="Change level of graphics details (LoD)", 
+		notes="Switch between full graphics details (normal rendering speed) and low graphics details (fast rendering speed).\n\n",
+			response=CIResponse.class )
+	public Response updateLodState(	
+			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View", required=true) @PathParam("viewId") Long viewId
+			) {
+		
+		CyNetworkView view = getNetworkViewCI(networkId, viewId);
+		
+		final TaskIterator lod = detailsTF.getLodTF().createTaskIterator(view);
+		
+		try {
+			lod.next().run(headlessTaskMonitor);
+		} catch (Exception e) {
+			if (view == null) {
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						RESOURCE_URN, 
+						TASK_EXECUTION_ERROR, 
+						"Error executing Level of Details Task.", 
+						logger, e);
+			}
+		}
+
+		return Response.ok().entity(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+
+	
+	
 	@GET
 	@Path("/{viewId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)

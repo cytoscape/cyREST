@@ -80,7 +80,8 @@ public class UIResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Toggle level of graphics details (LoD)", 
 		notes="Switch between full graphics details <---> fast rendering mode.\n\n"
-				+ "Returns a success message.")
+				+ "Returns a success message.",
+				hidden=true)
 	public MessageModel updateLodState() {
 		
 		CyNetworkView view = applicationManager.getCurrentNetworkView();

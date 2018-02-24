@@ -96,6 +96,7 @@ public class NetworkResource extends AbstractResource {
 	private static final String RESOURCE_URN = "networks";
 
 	private static final int NOT_FOUND_ERROR= 1;
+	static final int INVALID_PARAMETER_ERROR = 2;
 	
 	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
@@ -143,6 +144,37 @@ public class NetworkResource extends AbstractResource {
 		
 		NetworkSUIDModel entity = new NetworkSUIDModel(network.getSUID());
 		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
+	}
+	
+	@PUT
+	@Path("/currentNetwork")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Set the current network",
+	notes = "Sets the current network.",
+	response = CIResponse.class)
+	public Response setCurrentNetwork(@ApiParam(value="SUID of the Network") NetworkSUIDModel networkSUIDModel) {
+		
+		if (networkSUIDModel == null || networkSUIDModel.networkSUID == null) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Missing or invalid message body.", 
+					logger, null);
+		
+		}
+		CyNetwork network = null;
+		try {
+			network = getCyNetwork(networkSUIDModel.networkSUID);
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		applicationManager.setCurrentNetwork(network);
+		
+		return Response.ok(ciResponseFactory.getCIResponse(new Object())).build();
 	}
 	
 	private static class NetworkViewSUIDResponse extends CIResponse<NetworkViewSUIDModel> {};

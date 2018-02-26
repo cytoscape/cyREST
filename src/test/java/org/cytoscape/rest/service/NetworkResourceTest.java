@@ -24,8 +24,10 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.rest.internal.model.NetworkSUIDModel;
+import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
 import org.cytoscape.rest.internal.resource.NetworkResource;
-import org.cytoscape.work.TaskIterator;
+import org.cytoscape.view.model.CyNetworkView;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
@@ -33,6 +35,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NetworkResourceTest extends BasicResourceTest {
 	
@@ -66,6 +72,77 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(2, root.size());
 	}
 
+	@Test
+	public void testGetCurrentNetwork() throws Exception {
+		CyNetwork currentNetwork = mock(CyNetwork.class);
+		when(currentNetwork.getSUID()).thenReturn(668l);
+		when(cyApplicationManager.getCurrentNetwork()).thenReturn(currentNetwork);
+		String result = target("/v1/networks/currentNetwork").request().get(
+				String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		JsonNode data = root.get("data");
+		long suid = data.get("networkSUID").asLong();
+		assertEquals(668l, suid);
+	}
+	
+	@Test
+	public void testPutCurrentNetwork() throws Exception {
+		
+		NetworkSUIDModel networkSUIDModel = new NetworkSUIDModel(network.getSUID());
+		Entity<NetworkSUIDModel> entity = Entity.entity(networkSUIDModel, MediaType.APPLICATION_JSON);
+	
+		Response response = target("/v1/networks/currentNetwork").request().put(
+				entity);
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(0,root.get("errors").size());
+		verify(cyApplicationManager).setCurrentNetwork(network);
+	}
+	
+	@Test
+	public void testGetCurrentNetworkView() throws Exception {
+		CyNetworkView currentNetworkView = mock(CyNetworkView.class);
+		when(currentNetworkView.getSUID()).thenReturn(664l);
+		when(cyApplicationManager.getCurrentNetworkView()).thenReturn(currentNetworkView);
+		String result = target("/v1/networks/views/currentNetworkView").request().get(
+				String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		JsonNode data = root.get("data");
+		long suid = data.get("networkViewSUID").asLong();
+		assertEquals(664l, suid);
+	}
+	
+
+	@Test
+	public void testPutCurrentNetworkView() throws Exception {
+		
+		NetworkViewSUIDModel networkViewSUIDModel = new NetworkViewSUIDModel(view.getSUID());
+		Entity<NetworkViewSUIDModel> entity = Entity.entity(networkViewSUIDModel, MediaType.APPLICATION_JSON);
+	
+		Response response = target("/v1/networks/currentNetworkView").request().put(
+				entity);
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(0,root.get("errors").size());
+		verify(cyApplicationManager).setCurrentNetworkView(view);
+	}
+	
 	@Test
 	public void testGetNetworksQueryNullProducesError() throws Exception {
 		Response result = target("/v1/networks").queryParam("column", "dummy").request().get();

@@ -33,7 +33,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.io.read.AbstractCyNetworkReader;
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.read.InputStreamTaskFactory;
@@ -52,6 +54,7 @@ import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.EdgeModel;
 import org.cytoscape.rest.internal.model.NetworkSUIDModel;
+import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
 import org.cytoscape.rest.internal.model.CreatedCyEdgeModel;
 import org.cytoscape.rest.internal.model.NodeModel;
 import org.cytoscape.rest.internal.model.SUIDNameModel;
@@ -63,6 +66,8 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -83,9 +88,16 @@ import io.swagger.annotations.ApiResponses;
 @Path("/v1/networks")
 public class NetworkResource extends AbstractResource {
 
+	private final static Logger logger = LoggerFactory.getLogger(NetworkResource.class);
+	
 	private static final String CX_READER_ID = "cytoscapeCxNetworkReaderFactory";
 	private static final String CX_FORMAT = "cx";
 
+	private static final String RESOURCE_URN = "networks";
+
+	private static final int NOT_FOUND_ERROR= 1;
+	static final int INVALID_PARAMETER_ERROR = 2;
+	
 	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
@@ -111,6 +123,136 @@ public class NetworkResource extends AbstractResource {
 		return Response.ok(result).build();
 	}
 
+	private static class NetworkSUIDResponse extends CIResponse<NetworkSUIDModel> {};
+
+	
+	@GET
+	@Path("/currentNetwork")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the current network",
+	notes = "Returns the current network.",
+	response = NetworkSUIDResponse.class)
+	public Response getCurrentNetwork() {
+		CyNetwork network = applicationManager.getCurrentNetwork();
+		if (network == null) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"No current network available", 
+					logger, null);
+		}
+		
+		NetworkSUIDModel entity = new NetworkSUIDModel(network.getSUID());
+		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
+	}
+	
+	@PUT
+	@Path("/currentNetwork")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Set the current network",
+	notes = "Sets the current network.",
+	response = CIResponse.class)
+	public Response setCurrentNetwork(@ApiParam(value="SUID of the Network") NetworkSUIDModel networkSUIDModel) {
+		
+		if (networkSUIDModel == null || networkSUIDModel.networkSUID == null) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Missing or invalid message body.", 
+					logger, null);
+		
+		}
+		CyNetwork network = null;
+		try {
+			network = getCyNetwork(networkSUIDModel.networkSUID);
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		applicationManager.setCurrentNetwork(network);
+		
+		return Response.ok(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+	
+	@PUT
+	@Path("/currentNetworkView")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Set the current Network View",
+	notes = "Sets the current Network View.",
+	response = CIResponse.class,
+	tags={CyRESTSwagger.CyRESTSwaggerConfig.NETWORK_VIEWS_TAG})
+	public Response setCurrentNetworkView(@ApiParam(value="SUID of the Network View") NetworkViewSUIDModel networkViewSUIDModel) {
+		
+		if (networkViewSUIDModel == null || networkViewSUIDModel.networkViewSUID == null) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Missing or invalid message body.", 
+					logger, null);
+		
+		}
+		CyNetworkView networkView = null;
+		try {
+			Collection<CyNetwork> cyNetworks = networkManager.getNetworkSet();
+			if (cyNetworks != null) {
+				for (CyNetwork cyNetwork : cyNetworks) {
+				final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(cyNetwork);
+				for (final CyNetworkView view : views) {
+					final Long vid = view.getSUID();
+					if (vid.equals(networkViewSUIDModel.networkViewSUID)) {
+							networkView = view;
+						}
+					}
+				}
+			}
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		if (networkView == null) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view matching SUID:" + networkViewSUIDModel.networkViewSUID, 
+					logger, null);
+		}
+		applicationManager.setCurrentNetworkView(networkView);
+		
+		return Response.ok(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+	
+	private static class NetworkViewSUIDResponse extends CIResponse<NetworkViewSUIDModel> {};
+	
+	/* The placement of this operation in this class is kind of ugly, but since the network 
+	 * views resource requires a network to be selected, this is the easiest way to organize it.
+	 */
+	@GET
+	@Path("/views/currentNetworkView")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the current Network View",
+	notes = "Returns the current Network View.",
+	response = NetworkViewSUIDResponse.class,
+	tags={CyRESTSwagger.CyRESTSwaggerConfig.NETWORK_VIEWS_TAG})
+	public Response getCurrentNetworkView() {
+		CyNetworkView network = applicationManager.getCurrentNetworkView();
+		if (network == null) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					NetworkViewResource.RESOURCE_URN, 
+					NetworkViewResource.NOT_FOUND_ERROR, 
+					"No current network view available", 
+					logger, null);
+		}
+		
+		NetworkViewSUIDModel entity = new NetworkViewSUIDModel(network.getSUID());
+		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
+	}
+	
 
 	@GET
 	@Path("/{networkId}/nodes/count")

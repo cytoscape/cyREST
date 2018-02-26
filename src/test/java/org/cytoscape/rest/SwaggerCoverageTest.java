@@ -22,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.rest.internal.CyRESTConstants;
+import org.cytoscape.rest.internal.model.ModelConstants;
 import org.junit.Test;
 
 import io.swagger.annotations.ApiOperation;
@@ -130,9 +131,18 @@ public class SwaggerCoverageTest {
 									|| Map.class.isAssignableFrom(parameter.getType())) {
 								hasMessageBodyModel = true;
 							}
+							else if (parameter.getType().getPackage().equals(ModelConstants.class.getPackage()))
+							{
+									if (ModelConstants.class.equals(parameter.getType())){ 
+										fail(ModelConstants.class.getName() + " is not a valid model");
+									} else {
+										hasMessageBodyModel = true;
+									}		
+							}
 							else {
+								
 								// This is an unexpected body type.
-								fail("Unrecognized body parameter type:" + clazz.getName() + method.toGenericString() + " " + parameter.getType().getName());
+								fail("Unrecognized body parameter type:" + clazz.getName() + " " + method.toGenericString() + " " + parameter.getType().getName());
 							}
 						}
 					}

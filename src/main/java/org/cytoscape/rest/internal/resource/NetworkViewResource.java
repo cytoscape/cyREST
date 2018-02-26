@@ -95,9 +95,9 @@ public class NetworkViewResource extends AbstractResource {
 
 	private static final String DEF_HEIGHT = "600";
 
-	private static final String RESOURCE_URN = "networks:views";
+	static final String RESOURCE_URN = "networks:views";
 
-	private static final int COULD_NOT_FIND_RESOURCE_ERROR = 1;
+	static final int NOT_FOUND_ERROR = 1;
 
 	private static final int INVALID_PARAMETER_ERROR = 2;
 	
@@ -907,7 +907,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
@@ -915,7 +915,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Object type not recognized: " + objectType, 
 					logger, null);
 		}
@@ -943,7 +943,7 @@ public class NetworkViewResource extends AbstractResource {
 		} catch(NotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					e.getMessage(), 
 					logger, e);
 		}
@@ -969,7 +969,7 @@ public class NetworkViewResource extends AbstractResource {
 		if(targetVp == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Could not find bypass visual property: " + visualProperty, 
 					logger, null);
 		}
@@ -1007,7 +1007,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
@@ -1053,7 +1053,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					COULD_NOT_FIND_RESOURCE_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}

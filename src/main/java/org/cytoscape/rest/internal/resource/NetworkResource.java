@@ -177,6 +177,56 @@ public class NetworkResource extends AbstractResource {
 		return Response.ok(ciResponseFactory.getCIResponse(new Object())).build();
 	}
 	
+	@PUT
+	@Path("/currentNetworkView")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Set the current Network View",
+	notes = "Sets the current Network View.",
+	response = CIResponse.class,
+	tags={CyRESTSwagger.CyRESTSwaggerConfig.NETWORK_VIEWS_TAG})
+	public Response setCurrentNetworkView(@ApiParam(value="SUID of the Network View") NetworkViewSUIDModel networkViewSUIDModel) {
+		
+		if (networkViewSUIDModel == null || networkViewSUIDModel.networkViewSUID == null) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Missing or invalid message body.", 
+					logger, null);
+		
+		}
+		CyNetworkView networkView = null;
+		try {
+			Collection<CyNetwork> cyNetworks = networkManager.getNetworkSet();
+			if (cyNetworks != null) {
+				for (CyNetwork cyNetwork : cyNetworks) {
+				final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(cyNetwork);
+				for (final CyNetworkView view : views) {
+					final Long vid = view.getSUID();
+					if (vid.equals(networkViewSUIDModel.networkViewSUID)) {
+							networkView = view;
+						}
+					}
+				}
+			}
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		if (networkView == null) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view matching SUID:" + networkViewSUIDModel.networkViewSUID, 
+					logger, null);
+		}
+		applicationManager.setCurrentNetworkView(networkView);
+		
+		return Response.ok(ciResponseFactory.getCIResponse(new Object())).build();
+	}
+	
 	private static class NetworkViewSUIDResponse extends CIResponse<NetworkViewSUIDModel> {};
 	
 	/* The placement of this operation in this class is kind of ugly, but since the network 

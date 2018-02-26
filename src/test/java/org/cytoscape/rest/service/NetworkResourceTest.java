@@ -130,7 +130,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		NetworkViewSUIDModel networkViewSUIDModel = new NetworkViewSUIDModel(view.getSUID());
 		Entity<NetworkViewSUIDModel> entity = Entity.entity(networkViewSUIDModel, MediaType.APPLICATION_JSON);
 	
-		Response response = target("/v1/networks/currentNetworkView").request().put(
+		Response response = target("/v1/networks/views/currentNetworkView").request().put(
 				entity);
 		String result = response.readEntity(String.class);
 		assertNotNull(result);

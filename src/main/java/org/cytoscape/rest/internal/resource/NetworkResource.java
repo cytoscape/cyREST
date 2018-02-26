@@ -178,7 +178,7 @@ public class NetworkResource extends AbstractResource {
 	}
 	
 	@PUT
-	@Path("/currentNetworkView")
+	@Path("/views/currentNetworkView")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Set the current Network View",
 	notes = "Sets the current Network View.",

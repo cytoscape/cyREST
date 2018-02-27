@@ -9,7 +9,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.rest.internal.model.AppModel;
-import org.cytoscape.rest.internal.model.ServerStatusModel;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.osgi.framework.Bundle;
 
@@ -21,7 +20,6 @@ import io.swagger.annotations.ApiOperation;
 /**
  * Resource to provide the status of installed Cytoscape apps. 
  * 
- * 
  * @servicetag Server status
  * 
  */
@@ -30,6 +28,8 @@ import io.swagger.annotations.ApiOperation;
 @Path("/v1/apps")
 public class AppsResource extends AbstractResource {
 
+	private static String BUNDLE_NAME = "Bundle-Name";
+	
 	@Inject
 	AutomationAppTracker appTracker;
 	
@@ -41,6 +41,10 @@ public class AppsResource extends AbstractResource {
 		ArrayList<AppModel> list = new ArrayList<AppModel>();
 		for (Bundle bundle : appTracker.getAppBundles()) {
 			AppModel appModel = new AppModel();
+			Object appNameObject = bundle.getHeaders().get(BUNDLE_NAME);
+			if (appNameObject != null) {
+				appModel.appName = appNameObject.toString();
+			}
 			appModel.symbolicName = bundle.getSymbolicName();
 			appModel.version = bundle.getVersion().toString();
 			appModel.state = bundle.getState();

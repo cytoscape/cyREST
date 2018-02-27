@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -382,6 +383,9 @@ public class BasicResourceTest extends JerseyTest {
 		when(dummyAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyautomationapp");
 		when(dummyAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
 		when(dummyAutomationAppBundle.getState()).thenReturn(1);
+		Hashtable<String, Object> dummyAutomationAppBundleHeaders = new Hashtable<String, Object>();
+		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy automation bundle");
+		when(dummyAutomationAppBundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
 		automationAppBundles.add(dummyAutomationAppBundle);
 		when(automationAppTracker.getAppBundles()).thenReturn(automationAppBundles);
 		
@@ -694,7 +698,6 @@ public class BasicResourceTest extends JerseyTest {
 				}
 			}).when(dummyAppendTaskB).run(any());
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		

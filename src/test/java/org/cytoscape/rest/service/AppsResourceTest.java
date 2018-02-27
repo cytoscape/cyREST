@@ -35,6 +35,7 @@ public class AppsResourceTest extends BasicResourceTest {
 		assertTrue(root.isArray());
 		assertEquals(1, root.size());
 		JsonNode firstNode = root.get(0);
+		assertEquals("dummy automation bundle", firstNode.get("appName").asText());
 		assertEquals("org.dummyorg.dummyautomationapp", firstNode.get("symbolicName").asText());
 		assertEquals("6.0.0", firstNode.get("version").asText());
 		assertEquals(1, firstNode.get("state").asInt());

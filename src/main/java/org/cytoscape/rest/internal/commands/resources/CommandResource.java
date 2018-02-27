@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -242,6 +243,7 @@ public class CommandResource
 
 	@POST
 	@Path("/{namespace}/{command}") 
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Execute Command with JSON output", hidden=true)
 	public Response handleJSONCommand(@PathParam("namespace") String namespace,

@@ -165,6 +165,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 									operation.addResponse("200", response);
 									if (isJSONCapable) {
 										setPostParameters(namespace, command, available, operation);
+										operation.addConsumes(MediaType.APPLICATION_JSON);
 										operation.addProduces(MediaType.APPLICATION_JSON);
 										testPath.setPost(operation);
 									} else {

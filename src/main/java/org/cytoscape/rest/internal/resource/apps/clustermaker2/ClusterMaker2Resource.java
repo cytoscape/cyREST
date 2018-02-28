@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.APPS_TAG + ": clusterMaker2"})
+@Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.APPS_TAG + ": clusterMaker2"}, hidden=true)
 @Path(AppConstants.APPS_ROOT + "clustermaker2/")
 public class ClusterMaker2Resource  
 {
@@ -195,7 +195,8 @@ public class ClusterMaker2Resource
 	@Consumes("application/json")
 	@ApiOperation(value = "Execute MCODE Clustering",
     notes = "",
-    response = ClusterMakerCIResponse.class)
+    response = ClusterMakerCIResponse.class,
+    hidden = true)
 	@ApiResponses(value = { 
 			  @ApiResponse(code = 404, message = "Network does not exist", response = CIResponse.class),
 			  @ApiResponse(code = 503, message = "clusterMaker2 MCODE command is unavailable", response = CIResponse.class),

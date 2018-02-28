@@ -41,13 +41,13 @@ public class AppsResource extends AbstractResource {
 		ArrayList<AppModel> list = new ArrayList<AppModel>();
 		for (Bundle bundle : appTracker.getAppBundles()) {
 			AppModel appModel = new AppModel();
-			Object appNameObject = bundle.getHeaders().get(BUNDLE_NAME);
-			if (appNameObject != null) {
-				appModel.appName = appNameObject.toString();
+			Object bundleNameObject = bundle.getHeaders().get(BUNDLE_NAME);
+			if (bundleNameObject != null) {
+				appModel.bundleName = bundleNameObject.toString();
 			}
-			appModel.symbolicName = bundle.getSymbolicName();
-			appModel.version = bundle.getVersion().toString();
-			appModel.state = bundle.getState();
+			appModel.bundleSymbolicName = bundle.getSymbolicName();
+			appModel.bundleVersion = bundle.getVersion().toString();
+			appModel.bundleState = bundle.getState();
 			list.add(appModel);
 		}
 		return list;

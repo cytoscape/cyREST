@@ -149,6 +149,7 @@ public class NetworkResource extends AbstractResource {
 	@PUT
 	@Path("/currentNetwork")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Set the current network",
 	notes = "Sets the current network.",
 	response = CIResponse.class)
@@ -180,6 +181,7 @@ public class NetworkResource extends AbstractResource {
 	@PUT
 	@Path("/views/currentNetworkView")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Set the current Network View",
 	notes = "Sets the current Network View.",
 	response = CIResponse.class,
@@ -353,6 +355,7 @@ public class NetworkResource extends AbstractResource {
 	@PUT
 	@Path("/{networkId}/nodes/selected")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Set selected nodes", notes="Sets as selected the nodes specified by the `suids` and `networkId` parameters.\n\nReturns a list of selected SUIDs.")
 	public Collection<Long> setSelectedNodes(
 			@ApiParam(value="SUID of the network containing the nodes") @PathParam("networkId") Long networkId, 
@@ -424,6 +427,7 @@ public class NetworkResource extends AbstractResource {
 	@PUT
 	@Path("/{networkId}/edges/selected")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Set selected edges", notes="Sets as selected the edges specified by the `suids` and `networkId` parameters.\n\nReturns a list of selected SUIDs.")
 	public Collection<Long> setSelectedEdges(
 			@ApiParam(value="SUID of the network containing the edges") @PathParam("networkId") Long networkId, 

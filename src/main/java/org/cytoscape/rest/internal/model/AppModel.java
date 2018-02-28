@@ -1,8 +1,8 @@
 package org.cytoscape.rest.internal.model;
 
 public class AppModel {
-	public String appName;
-	public String symbolicName;
-	public String version;
-	public int state;
+	public String bundleName;
+	public String bundleSymbolicName;
+	public String bundleVersion;
+	public int bundleState;
 }

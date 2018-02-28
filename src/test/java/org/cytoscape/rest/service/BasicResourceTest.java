@@ -383,7 +383,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(dummyAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyautomationapp");
 		when(dummyAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
 		when(dummyAutomationAppBundle.getState()).thenReturn(1);
-		Hashtable<String, Object> dummyAutomationAppBundleHeaders = new Hashtable<String, Object>();
+		Hashtable<String, String> dummyAutomationAppBundleHeaders = new Hashtable<String, String>();
 		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy automation bundle");
 		when(dummyAutomationAppBundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
 		automationAppBundles.add(dummyAutomationAppBundle);

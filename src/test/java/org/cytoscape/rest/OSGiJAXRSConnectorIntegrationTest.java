@@ -80,12 +80,12 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String HK2_PATH = "hk2/";
 
 	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0-b34.jar",
-			HK2_PATH + "hk2-locator-2.4.0-b34.jar",
-			HK2_PATH + "hk2-utils-2.4.0-b34.jar",
+			HK2_PATH + "hk2-api-2.4.0.jar",
+			HK2_PATH + "hk2-locator-2.4.0.jar",
+			HK2_PATH + "hk2-utils-2.4.0.jar",
 			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0-b34.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0-b34.jar",
+			HK2_PATH + "javax.inject-2.4.0.jar",
+			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
 
 	};
 

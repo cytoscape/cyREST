@@ -369,12 +369,13 @@ public class StyleResource extends AbstractResource {
 	@PUT
 	@Path("/{name}/defaults")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update the default values for Visual Properties",
 			notes="Updates the default values for the Visual Properties in the Visual Style specified by the `name` parameter.\n\n"
 				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of Visual Property values to update.", 
-				dataType="[Lorg.cytoscape.rest.internal.model.VisualStyleMappingModel;", paramType="body", required=true)
+				dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
 			)
 	public Response updateDefaults(
 			@ApiParam(value="Name of the Visual Style")@PathParam("name") String name, 

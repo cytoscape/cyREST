@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -123,6 +124,7 @@ public class SessionResource extends AbstractResource {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Save current Session to a file",
     notes = "Saves the current session to a file. If successful, the session file location will be returned.",
     response = FileModel.class)

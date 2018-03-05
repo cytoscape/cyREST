@@ -51,6 +51,7 @@ import com.google.inject.TypeLiteral;
 
 public class CoreServiceModule extends AbstractModule {
 
+	private final AllAppsStartedListener allAppsStartedListener;
 	private final TaskMonitor headlessMonitor;
 
 	private final CyNetworkManager networkManager;
@@ -115,7 +116,7 @@ public class CoreServiceModule extends AbstractModule {
 	private final CIExceptionFactory ciExceptionFactory;
 	
 
-	public CoreServiceModule(final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
+	public CoreServiceModule(AllAppsStartedListener allAppsStartedListener, final CyNetworkManager networkManager, final CyNetworkViewManager networkViewManager,
 			final CyNetworkFactory networkFactory, final TaskFactoryManager tfManager,
 			final CyApplicationManager applicationManager, final VisualMappingManager vmm,
 			final ServiceTracker cytoscapeJsWriterFactory,
@@ -141,7 +142,7 @@ public class CoreServiceModule extends AbstractModule {
 			final CIResponseFactory ciResponseFactory,
 			final CIErrorFactory ciErrorFactory,
 			final CIExceptionFactory ciExceptionFactory) {
-	
+		this.allAppsStartedListener = allAppsStartedListener;
 		this.networkManager = networkManager;
 		this.networkViewManager = networkViewManager;
 		this.networkFactory = networkFactory;
@@ -193,6 +194,7 @@ public class CoreServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(AllAppsStartedListener.class).toInstance(allAppsStartedListener);
 		bind(CyNetworkManager.class).toInstance(networkManager);
 		bind(CyNetworkViewManager.class).toInstance(networkViewManager);
 		bind(CyNetworkFactory.class).toInstance(networkFactory);

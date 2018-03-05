@@ -13,7 +13,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
-public class MiscResourceTest extends JerseyTest {
+public class MiscResourceTest extends BasicResourceTest {
 
 	@Override
 	protected Application configure() {

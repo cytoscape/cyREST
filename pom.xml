@@ -23,7 +23,7 @@
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
 
-	<version>3.7.0</version>
+	<version>3.8.0</version>
 
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
@@ -551,6 +551,12 @@
 
 	<dependencies>
 		<!-- Cytoscape 3 Dependencies -->
+		<dependency>
+			<groupId>org.cytoscape</groupId>
+			<artifactId>app-api</artifactId>
+			<version>${cytoscape.api.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>event-api</artifactId>

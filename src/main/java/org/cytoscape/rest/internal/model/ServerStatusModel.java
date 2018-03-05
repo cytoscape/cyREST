@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 @XmlRootElement
 public class ServerStatusModel {
 	
+	private boolean allAppsStarted;
 	private String apiVersion;
 	private Integer numberOfCores;
 	
@@ -17,6 +18,16 @@ public class ServerStatusModel {
 		this.setApiVersion("v1");
 		this.setNumberOfCores(Runtime.getRuntime().availableProcessors());
 		this.setMemoryStatus(new MemoryStatusModel());
+	}
+	
+	@ApiModelProperty(value="`true` if all apps have been loaded.")
+	public boolean getAllAppsStarted() {
+		return allAppsStarted;
+	}
+	
+	
+	public void setAllAppsStarted(boolean allAppsLoaded) {
+		this.allAppsStarted = allAppsLoaded;
 	}
 	
 	/**

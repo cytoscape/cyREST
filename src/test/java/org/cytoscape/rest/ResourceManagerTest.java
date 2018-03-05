@@ -39,6 +39,7 @@ import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
+import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.ResourceManager;
@@ -100,8 +101,9 @@ public class ResourceManagerTest
 	@Before
 	public void setup() throws InvalidSyntaxException
 	{
+		
 		final Class<?>[] testClasses = {TestClass.class}; 
-
+		final AllAppsStartedListener allAppsStartedListener = mock(AllAppsStartedListener.class);
 		final CyNetworkManager networkManager = mock(CyNetworkManager.class);
 		final CyNetworkViewManager networkViewManager= mock(CyNetworkViewManager.class);
 		final CyNetworkFactory networkFactory= mock(CyNetworkFactory.class); 
@@ -151,7 +153,7 @@ public class ResourceManagerTest
 		final String cyRESTPort = "1234"; 
 		final URI logLocation = URI.create("nowhere");
 
-		CoreServiceModule coreServiceModule = new CoreServiceModule(networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
+		CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
 				cyRESTPort, logLocation,
 				ciResponseFactory,

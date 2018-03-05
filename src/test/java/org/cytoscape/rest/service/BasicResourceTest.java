@@ -99,6 +99,7 @@ import org.cytoscape.rest.internal.resource.StyleResource;
 import org.cytoscape.rest.internal.resource.SwaggerUIResource;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.cytoscape.rest.internal.resource.UIResource;
+import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -260,6 +261,8 @@ public class BasicResourceTest extends JerseyTest {
 	}
 
 	public BasicResourceTest() {
+		final AllAppsStartedListener allAppsStartedListener = mock(AllAppsStartedListener.class);
+		
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
 		Object context = new Object();
 		when(def.createLayoutContext()).thenReturn(context);
@@ -750,7 +753,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		
 		
-		this.binder = new CoreServiceModule(networkManager, viewManager, netFactory,
+		this.binder = new CoreServiceModule(allAppsStartedListener, networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
 				cytoscapeJsReaderFactoryTracker, 
 				automationAppTracker,

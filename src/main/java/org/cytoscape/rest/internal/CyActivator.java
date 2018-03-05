@@ -1,5 +1,6 @@
 package org.cytoscape.rest.internal;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
+import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
@@ -37,6 +39,7 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
+import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -249,6 +252,9 @@ public class CyActivator extends AbstractCyActivator {
 		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
 		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
 		
+		final AllAppsStartedListener allAppsStartedListener =  new AllAppsStartedListener();
+		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
+		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager::addFactory, mappingFactoryManager::removeFactory,
@@ -362,7 +368,7 @@ public class CyActivator extends AbstractCyActivator {
 		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 		
 		// Start REST Server
-		final CoreServiceModule coreServiceModule = new CoreServiceModule(netMan, netViewMan, netFact, taskFactoryManagerManager,
+		final CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, 
 				automationAppTracker,
 				layoutManager,

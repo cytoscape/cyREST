@@ -3,6 +3,7 @@ package org.cytoscape.rest.internal.resource;
 import java.util.Properties;
 
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -12,8 +13,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
+import org.cytoscape.rest.internal.task.AllAppsStartedListener;
+
+import com.google.inject.Inject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,16 +37,23 @@ import io.swagger.annotations.ApiResponse;
 @Path("/v1")
 public class MiscResource extends AbstractResource {
 
+	@Inject
+	@NotNull
+	private AllAppsStartedListener allAppsStartedListener;
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Cytoscape RESTful API server status",
-	notes="Returns the status of the server if operational, including version information and available memory and processor resources.")
+		notes="Returns the status of the server if operational, including version information and available memory and "
+				+ "processor resources.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 500, message = "CyREST service is unavailable"),
 			@ApiResponse(code = 200, message = "Server Status", response = ServerStatusModel.class),
 	})
 	public ServerStatusModel getStatus() {
-		return new ServerStatusModel();
+		ServerStatusModel output = new ServerStatusModel();
+		output.setAllAppsStarted(allAppsStartedListener.getAllAppsStarted());
+		return output;
 	}
 
 	@GET

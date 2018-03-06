@@ -233,6 +233,7 @@ public class CyRESTSwagger extends AbstractResource
 				@Tag(name = CyRESTSwaggerConfig.COLLECTIONS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.COMMANDS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.CYTOSCAPE_SYSTEM_TAG),
+				@Tag(name = CyRESTSwaggerConfig.FILTERS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.GROUPS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.LAYOUTS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.NETWORKS_TAG),
@@ -245,7 +246,7 @@ public class CyRESTSwagger extends AbstractResource
 				@Tag(name = CyRESTSwaggerConfig.VISUAL_STYLES_TAG)
 		}, 
 		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
-			)
+	)
 	public static class CyRESTSwaggerConfig implements ReaderListener
 	{
 
@@ -263,6 +264,7 @@ public class CyRESTSwagger extends AbstractResource
 		public static final String GROUPS_TAG = "Groups";
 		public static final String COLLECTIONS_TAG = "Collections";
 		public static final String CYTOSCAPE_SYSTEM_TAG = "Cytoscape System";
+		public static final String FILTERS_TAG = "Filters";
 
 		@Override
 		public void beforeScan(Reader arg0, Swagger arg1) 

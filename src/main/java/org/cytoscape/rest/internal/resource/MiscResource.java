@@ -79,9 +79,9 @@ public class MiscResource extends AbstractResource {
 		if (props == null) {
 			throw new InternalServerErrorException("Could not find CyProperty object.");
 		}
-
-		final Properties property = (Properties) this.props.getProperties();
-		final Object versionNumber = property.get("cytoscape.version.number");
+		
+		final Properties properties = (Properties) this.props.getProperties();
+		final Object versionNumber = properties.get("cytoscape.version.number");
 		if (versionNumber != null) {
 			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {

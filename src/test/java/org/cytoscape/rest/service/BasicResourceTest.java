@@ -78,6 +78,7 @@ import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
+import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.AppsResource;
@@ -188,6 +189,8 @@ public class BasicResourceTest extends JerseyTest {
 	
 	CyNode cyGroupNode;
 
+	protected final AllAppsStartedListener allAppsStartedListener;
+	
 	protected CyApplicationManager cyApplicationManager;
 	
 	protected CyRootNetworkManager rootNetworkManager;
@@ -261,7 +264,7 @@ public class BasicResourceTest extends JerseyTest {
 	}
 
 	public BasicResourceTest() {
-		final AllAppsStartedListener allAppsStartedListener = mock(AllAppsStartedListener.class);
+		allAppsStartedListener = mock(AllAppsStartedListener.class);
 		
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
 		Object context = new Object();
@@ -443,7 +446,12 @@ public class BasicResourceTest extends JerseyTest {
 		when(cyNetworkReader.getNetworks()).thenReturn(new CyNetwork[]{network});
 		when(loadNetworkURLTaskFactory.loadCyNetworks((java.net.URL) anyObject())).thenReturn(new TaskIterator(cyNetworkReader));
 
-		CyProperty<Properties> cyPropertyServiceRef = mock(CyProperty.class);
+		CyProperty<Properties> cyProps = mock(CyProperty.class);
+		Properties properties = mock(Properties.class);
+		String versionNumberString = "cytoscape.version.number"; 
+		when(properties.get(eq(versionNumberString))).thenReturn("1.2.3");
+		when(cyProps.getProperties()).thenReturn(properties);
+		
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);
 
@@ -761,7 +769,7 @@ public class BasicResourceTest extends JerseyTest {
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,
-				cyPropertyServiceRef, networkSelectedNodesAndEdgesTaskFactory,
+				cyProps, networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContentTaskFactory,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 

@@ -20,7 +20,7 @@ public class ServerStatusModel {
 		this.setMemoryStatus(new MemoryStatusModel());
 	}
 	
-	@ApiModelProperty(value="`true` if all apps have been loaded.")
+	@ApiModelProperty(value="`true` if this instance of Cytoscape has finished loading all installed apps. If this value is `false`, sending requests to App-dependent operations may not be safe.")
 	public boolean getAllAppsStarted() {
 		return allAppsStarted;
 	}

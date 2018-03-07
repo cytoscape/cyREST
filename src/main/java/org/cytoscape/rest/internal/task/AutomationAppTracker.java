@@ -10,8 +10,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.ext.Provider;
 
-import org.cytoscape.work.TaskFactory;
+import org.cytoscape.rest.internal.CyRESTConstants;
+import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewCollectionTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
+import org.cytoscape.task.TableTaskFactory;
 import org.cytoscape.work.ServiceProperties;
+import org.cytoscape.work.TaskFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -23,11 +28,12 @@ import org.osgi.util.tracker.ServiceTracker;
 public class AutomationAppTracker extends ServiceTracker implements BundleListener
 {
 	Map<Bundle, Set<Object>> bundles;
-
+	Map<String, Map<String, Bundle>> commandBundles;
 
 	public AutomationAppTracker( BundleContext context, Filter filter) {
 		super( context, filter, null );
 		this.bundles = new HashMap<Bundle, Set<Object>>();
+		this.commandBundles = new HashMap<String, Map<String, Bundle>>();
 	}
 
 	public Set<Bundle> getAppBundles() {
@@ -36,10 +42,16 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 	}
 	
 	private void delegateAddService( ServiceReference reference, Object service ) {
-		if( isAutomationService(reference, service ) ) {
+		if( isAutomationService(reference, service )) {
 			addAutomationService(reference.getBundle(), service);
 		}
+		if (isCommand(reference, service)) {
+			addAutomationService(reference.getBundle(), service);
+			addCommand(reference);
+		}
 	}
+	
+	
 	
 	@Override
 	public Object addingService( ServiceReference reference ) {
@@ -55,9 +67,20 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		}
 		services.add(service);
 		bundles.put(bundle, services);
-		//System.out.println("Automation bundle found: " + bundle);	
 	}
 
+	private void addCommand(ServiceReference serviceReference) {
+		
+		String command = serviceReference.getProperty(ServiceProperties.COMMAND).toString();
+		String commandNamespace = serviceReference.getProperty(ServiceProperties.COMMAND_NAMESPACE).toString();
+		Map<String, Bundle> commandMap = commandBundles.get(commandNamespace);
+		if (commandMap == null) {
+			commandMap = new HashMap<String, Bundle>();
+		}
+		commandMap.put(command, serviceReference.getBundle());
+		commandBundles.put(commandNamespace, commandMap);
+	}
+	
 	@Override
 	public void removedService( ServiceReference reference, Object service ) {
 		Set<Object> bundleServices = bundles.get(reference.getBundle());
@@ -74,12 +97,11 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 
 	@Override
 	public void modifiedService( ServiceReference reference, Object service ) {
-		
 		super.modifiedService(reference, service);
 	}
 
 	private boolean isAutomationService( ServiceReference reference, Object service ) {
-		return service != null && ( hasRegisterableAnnotation( service ) || service instanceof Feature || isCommand(reference, service) );
+		return service != null && (hasRegisterableAnnotation( service ) || service instanceof Feature);
 	}
 
 	private boolean hasRegisterableAnnotation( Object service ) {
@@ -90,18 +112,31 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 				result = result || isRegisterableAnnotationPresent( type );
 			}
 		}
-		/*
-		if (result) {
-			System.out.println("\t"+ service.getClass().getSimpleName() + " is a JAX-RS service");
-		}
-		*/
 		return result;
 	}
 
-	private boolean isCommand(ServiceReference reference, Object service) {
+	public boolean isCommandTaskFactory(Object service) {
 		if (service instanceof TaskFactory) {
+			return true;
+		}
+		if (service instanceof NetworkTaskFactory) {
+			return true;
+		}
+		if (service instanceof NetworkViewTaskFactory) {
+			return true;
+		}
+		if (service instanceof NetworkViewCollectionTaskFactory) {
+			return true;
+		}
+		if (service instanceof TableTaskFactory) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isCommand(ServiceReference reference, Object service) {
+		if (service != null && isCommandTaskFactory(service)) {
 			if (reference.getProperty(ServiceProperties.COMMAND) != null && reference.getProperty(ServiceProperties.COMMAND_NAMESPACE) != null) {
-				//System.out.println("\t" + service.getClass().getSimpleName() + " is a Command");
 				return true;
 			}
 		}
@@ -118,7 +153,17 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		if (event.getType() == BundleEvent.STOPPING  || event.getType() == BundleEvent.STOPPED || event.getType() == BundleEvent.UNINSTALLED) {
 			bundles.remove(event.getBundle());
 		}
-		
+	}
+
+	public String getCommandSourceApp(String commandNamespace, String command) {
+		Map<String, Bundle> commandMap = commandBundles.get(commandNamespace);
+		Bundle bundle = commandMap.get(command);
+		Object bundleNameObject = bundle.getHeaders().get(CyRESTConstants.BUNDLE_NAME);
+		String bundleName = null;
+		if (bundleNameObject != null) {
+			bundleName = bundleNameObject.toString();
+		}
+		return bundleName; 		
 	}
 
 }

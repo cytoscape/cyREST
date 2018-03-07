@@ -1,9 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,6 +25,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.SavePolicy;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
+import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.util.ListMultipleSelection;
@@ -67,6 +66,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 {
 	private static final Logger logger = LoggerFactory.getLogger(CyRESTCommandSwagger.class);
 	
+	@Inject
+	@NotNull
+	AutomationAppTracker appTracker;
 	
 	@Inject
 	@NotNull
@@ -155,8 +157,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 									operation.setOperationId(namespace + "/" + command);
 									operation.setSummary(available.getDescription(namespace, command));
 
-									operation.setDescription(available.getLongDescription(namespace, command));
-
+									operation.setDescription(available.getLongDescription(namespace, command) + "\n\n_App: " + appTracker.getCommandSourceApp(namespace, command) + "_");
+									
 									Response response = new Response();
 									response.setDescription("successful operation");
 

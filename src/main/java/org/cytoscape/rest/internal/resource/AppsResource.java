@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.AppModel;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.osgi.framework.Bundle;
@@ -27,8 +28,6 @@ import io.swagger.annotations.ApiOperation;
 @Singleton
 @Path("/v1/apps")
 public class AppsResource extends AbstractResource {
-
-	private static String BUNDLE_NAME = "Bundle-Name";
 	
 	@Inject
 	AutomationAppTracker appTracker;
@@ -41,7 +40,7 @@ public class AppsResource extends AbstractResource {
 		ArrayList<AppModel> list = new ArrayList<AppModel>();
 		for (Bundle bundle : appTracker.getAppBundles()) {
 			AppModel appModel = new AppModel();
-			Object bundleNameObject = bundle.getHeaders().get(BUNDLE_NAME);
+			Object bundleNameObject = bundle.getHeaders().get(CyRESTConstants.BUNDLE_NAME);
 			if (bundleNameObject != null) {
 				appModel.bundleName = bundleNameObject.toString();
 			}

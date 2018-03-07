@@ -76,4 +76,6 @@ public class CyRESTConstants {
 	public final static String CYTOSCAPE_JS_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
 
 	public final static String CYTOSCAPE_JS_LINK = "http://cytoscape.github.io/cytoscape.js/";
+	
+	public static String BUNDLE_NAME = "Bundle-Name";
 }

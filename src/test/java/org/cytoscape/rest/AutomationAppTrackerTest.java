@@ -5,9 +5,15 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Hashtable;
+
 import javax.ws.rs.Path;
 
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
+import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewCollectionTaskFactory;
+import org.cytoscape.task.NetworkViewTaskFactory;
+import org.cytoscape.task.TableTaskFactory;
 import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 import org.junit.After;
@@ -58,9 +64,13 @@ public class AutomationAppTrackerTest {
 	}
 	
 	@Test
-	public void testAddCommandService() {
+	public void testAddCommandTaskFactoryService() {
 		assertEquals(0, automationAppTracker.getAppBundles().size());
 		Bundle bundle = mock(Bundle.class);
+		
+		Hashtable<String, Object> dummyAutomationAppBundleHeaders = new Hashtable<String, Object>();
+		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy command bundle");
+		when(bundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
 		ServiceReference serviceReference = mock(ServiceReference.class);
 		TaskFactory service = mock(TaskFactory.class);
 		when(serviceReference.getProperty(ServiceProperties.COMMAND)).thenReturn("dummyCommand");
@@ -72,6 +82,49 @@ public class AutomationAppTrackerTest {
 		
 		assertEquals(1, automationAppTracker.getAppBundles().size());
 		assertSame(bundle, automationAppTracker.getAppBundles().iterator().next());
+	
+		assertEquals("dummy command bundle", automationAppTracker.getCommandSourceApp("dummyNamespace", "dummyCommand"));
+	}
+	
+	@Test
+	public void testModifiedService() {
+		automationAppTracker.modifiedService(null, null);
+	}
+	
+	@Test
+	public void testObjectIsNotCommand() {
+		Object service = new Object();
+		assertEquals(false, automationAppTracker.isCommandTaskFactory(service));
+	}
+	
+	@Test
+	public void testNetworkTaskFactoryIsCommand() {
+		NetworkTaskFactory service = mock(NetworkTaskFactory.class);
+		assertEquals(true, automationAppTracker.isCommandTaskFactory(service));
+	}
+	
+	@Test
+	public void testTaskFactoryIsCommand() {
+		TaskFactory service = mock(TaskFactory.class);
+		assertEquals(true, automationAppTracker.isCommandTaskFactory(service));
+	}
+	
+	@Test
+	public void testNetworkViewTaskFactoryIsCommand() {
+		NetworkViewTaskFactory service = mock(NetworkViewTaskFactory.class);
+		assertEquals(true, automationAppTracker.isCommandTaskFactory(service));
+	}
+	
+	@Test
+	public void testNetworkViewCollectionTaskFactoryIsCommand() {
+		NetworkViewCollectionTaskFactory service = mock(NetworkViewCollectionTaskFactory.class);
+		assertEquals(true, automationAppTracker.isCommandTaskFactory(service));
+	}
+	
+	@Test
+	public void testTableTaskFactoryIsCommand() {
+		TableTaskFactory service = mock(TableTaskFactory.class);
+		assertEquals(true, automationAppTracker.isCommandTaskFactory(service));
 	}
 	
 	@Path("/v1/apps/")

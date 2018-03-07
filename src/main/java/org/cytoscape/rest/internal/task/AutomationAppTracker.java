@@ -115,7 +115,7 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		return result;
 	}
 
-	private boolean isCommandTaskFactory(Object service) {
+	public boolean isCommandTaskFactory(Object service) {
 		if (service instanceof TaskFactory) {
 			return true;
 		}
@@ -163,7 +163,7 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		if (bundleNameObject != null) {
 			bundleName = bundleNameObject.toString();
 		}
-		return "_App: " + bundleName + "_"; 		
+		return bundleName; 		
 	}
 
 }

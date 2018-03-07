@@ -157,7 +157,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 									operation.setOperationId(namespace + "/" + command);
 									operation.setSummary(available.getDescription(namespace, command));
 
-									operation.setDescription(available.getLongDescription(namespace, command) + "\n\n" + appTracker.getCommandSourceApp(namespace, command));
+									operation.setDescription(available.getLongDescription(namespace, command) + "\n\n_App: " + appTracker.getCommandSourceApp(namespace, command) + "_");
 									
 									Response response = new Response();
 									response.setDescription("successful operation");

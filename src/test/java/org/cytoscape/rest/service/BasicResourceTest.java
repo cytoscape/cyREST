@@ -103,6 +103,7 @@ import org.cytoscape.rest.internal.resource.UIResource;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
+import org.cytoscape.rest.internal.task.CyPropertyListener;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
@@ -446,6 +447,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(cyNetworkReader.getNetworks()).thenReturn(new CyNetwork[]{network});
 		when(loadNetworkURLTaskFactory.loadCyNetworks((java.net.URL) anyObject())).thenReturn(new TaskIterator(cyNetworkReader));
 
+		CyPropertyListener cyPropertyListener = mock(CyPropertyListener.class);
 		CyProperty<Properties> cyProps = mock(CyProperty.class);
 		Properties properties = mock(Properties.class);
 		String versionNumberString = "cytoscape.version.number"; 
@@ -759,8 +761,6 @@ public class BasicResourceTest extends JerseyTest {
 		
 		final URI logLocation = this.logLocation;
 
-		
-		
 		this.binder = new CoreServiceModule(allAppsStartedListener, networkManager, viewManager, netFactory,
 				tfManager, cyApplicationManager, vmm, cytoscapeJsWriterFactoryTracker,
 				cytoscapeJsReaderFactoryTracker, 
@@ -769,7 +769,8 @@ public class BasicResourceTest extends JerseyTest {
 				headlessTaskMonitor, tableManager, vsFactory,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,
-				cyProps, networkSelectedNodesAndEdgesTaskFactory,
+				cyPropertyListener, cyProps, 
+				networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContentTaskFactory,
 				edgeBundler, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 

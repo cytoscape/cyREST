@@ -68,7 +68,7 @@ public class AutomationAppTrackerTest {
 		assertEquals(0, automationAppTracker.getAppBundles().size());
 		Bundle bundle = mock(Bundle.class);
 		
-		Hashtable<String, Object> dummyAutomationAppBundleHeaders = new Hashtable<String, Object>();
+		Hashtable<String, String> dummyAutomationAppBundleHeaders = new Hashtable<String, String>();
 		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy command bundle");
 		when(bundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
 		ServiceReference serviceReference = mock(ServiceReference.class);

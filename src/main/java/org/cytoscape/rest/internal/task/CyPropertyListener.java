@@ -47,6 +47,7 @@ public class CyPropertyListener {
 	public void removeCyProperty(CyProperty<?> property, Map<?,?> serviceProperties){
 		String propertyName = property.getName();
 		Object obj = property.getProperties();
+		String serviceCyPropertyName = (String) serviceProperties.get(CY_PROPERTY_NAME);
 		
 	}
 }

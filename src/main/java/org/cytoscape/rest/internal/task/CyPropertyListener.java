@@ -48,6 +48,8 @@ public class CyPropertyListener {
 		String propertyName = property.getName();
 		Object obj = property.getProperties();
 		String serviceCyPropertyName = (String) serviceProperties.get(CY_PROPERTY_NAME);
-		
+		if (propertyName != null && serviceCyPropertyName != null && isJavaProperty(property)) {
+			this.cyPropertyMap.remove(serviceCyPropertyName);
+		}
 	}
 }

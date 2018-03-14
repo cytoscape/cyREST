@@ -78,7 +78,6 @@ import org.cytoscape.rest.internal.GraphicsWriterManager;
 import org.cytoscape.rest.internal.MappingFactoryManager;
 import org.cytoscape.rest.internal.TaskFactoryManager;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
-import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.AlgorithmicResource;
 import org.cytoscape.rest.internal.resource.AppsResource;
@@ -94,6 +93,7 @@ import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkNameResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.PropertiesResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
@@ -174,6 +174,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -214,6 +215,12 @@ public class BasicResourceTest extends JerseyTest {
 	protected CyNetworkManager networkManager = nts.getNetworkManager();
 
 	protected CyNetworkViewManager viewManager;
+	
+	protected CyPropertyListener cyPropertyListener;
+	
+	protected CyProperty<Properties> cyProps;
+	
+	protected Properties properties; 
 	
 	protected CyGroupFactory groupFactory;
 	
@@ -447,12 +454,28 @@ public class BasicResourceTest extends JerseyTest {
 		when(cyNetworkReader.getNetworks()).thenReturn(new CyNetwork[]{network});
 		when(loadNetworkURLTaskFactory.loadCyNetworks((java.net.URL) anyObject())).thenReturn(new TaskIterator(cyNetworkReader));
 
-		CyPropertyListener cyPropertyListener = mock(CyPropertyListener.class);
-		CyProperty<Properties> cyProps = mock(CyProperty.class);
-		Properties properties = mock(Properties.class);
+		cyPropertyListener = mock(CyPropertyListener.class);
+	
+		cyProps = mock(CyProperty.class);
+		properties = mock(Properties.class);
+		String dummyPropertyString = "dummy.property"; 
+		when(properties.stringPropertyNames()).thenReturn(Sets.newHashSet(new String[] {dummyPropertyString}));
+		when(properties.containsKey(eq(dummyPropertyString))).thenReturn(true);
+		when(properties.getProperty(eq(dummyPropertyString))).thenReturn("dummyPropertyValue");
+		
 		String versionNumberString = "cytoscape.version.number"; 
 		when(properties.get(eq(versionNumberString))).thenReturn("1.2.3");
+		
 		when(cyProps.getProperties()).thenReturn(properties);
+		
+		List<String> cyPropertyNames = Arrays.asList(new String[]{"dummy.properties"});
+		when(cyPropertyListener.getPropertyNames()).thenReturn(cyPropertyNames);
+		
+		doAnswer(new Answer<CyProperty<?>>() {
+			public CyProperty<?> answer(InvocationOnMock invocation) {
+				return cyProps;
+			}
+		}).when(cyPropertyListener).getCyProperty(eq("dummy.properties"));
 		
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);
@@ -1050,6 +1073,7 @@ public class BasicResourceTest extends JerseyTest {
 							resourceClasses.add(NetworkResource.class);
 							resourceClasses.add(NetworkFullResource.class);
 							resourceClasses.add(NetworkViewResource.class);
+							resourceClasses.add(PropertiesResource.class);
 							resourceClasses.add(TableResource.class); 
 							resourceClasses.add(MiscResource.class);
 							resourceClasses.add(AlgorithmicResource.class);

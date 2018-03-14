@@ -14,8 +14,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.rest.internal.model.CyPropertyModel;
 import org.cytoscape.rest.internal.model.CyPropertyValueModel;
 import org.cytoscape.rest.internal.task.CyPropertyListener;
@@ -54,9 +56,8 @@ public class PropertiesResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="List available Cytoscape Property namespaces",
 	notes="Returns a list of available Cytoscape Property namespaces")
-	public List<String> getPropertyNamespaceList() {
-		return cyPropertyListener.getPropertyNames();
-	
+	public CIResponse<List<String>> getPropertyNamespaceList() {
+		return ciResponseFactory.getCIResponse(cyPropertyListener.getPropertyNames());
 	}
 	
 	private Properties getProperties(String namespace) {
@@ -83,20 +84,23 @@ public class PropertiesResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Gets a list of Cytoscape Properties for a namespace",
 	notes="Returns the Cytoscape Properties in the namespace specified by the `namespace` parameter.")
-	public List<String> getPropertyList(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace)
+	public CIResponse<List<String>> getPropertyList(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace)
 	{
 		Properties properties = getProperties(namespace);
 		List<String> output = new ArrayList<String>();
 		output.addAll(properties.stringPropertyNames());
-		return output;
+		return ciResponseFactory.getCIResponse(output);
 	}
+	
+	private static class CyPropertyModelResponse extends CIResponse<CyPropertyModel> {};
 	
 	@GET
 	@Path("/{namespace}/{propertyKey}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Gets a Cytoscape Property",
-	notes="Returns the Cytoscape Property specified by the `namespace` and `propertyKey` parameters.")
-	public CyPropertyModel getProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
+	notes="Returns the Cytoscape Property specified by the `namespace` and `propertyKey` parameters.",
+	response=CyPropertyModelResponse.class)
+	public Response getProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
 			@ApiParam(value="Key of the CyProperty") @PathParam("propertyKey") String propertyKey 
 			){
 		CyPropertyModel output = null;
@@ -113,7 +117,7 @@ public class PropertiesResource extends AbstractResource {
 		output.key = propertyKey;
 		output.value = property;
 			
-		return output;
+		return Response.ok(ciResponseFactory.getCIResponse(output)).build();
 	}
 	
 	@PUT

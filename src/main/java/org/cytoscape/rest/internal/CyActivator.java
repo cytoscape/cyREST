@@ -43,6 +43,7 @@ import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Reso
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
+import org.cytoscape.rest.internal.task.CyPropertyListener;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
 import org.cytoscape.rest.internal.task.ResourceManager;
@@ -132,15 +133,21 @@ public class CyActivator extends AbstractCyActivator {
 		
 		serverState = ServerState.STARTING;
 
+		CyPropertyListener cyPropertyListener = new CyPropertyListener();
+		
+		registerServiceListener(bc, cyPropertyListener::addCyProperty, cyPropertyListener::removeCyProperty, CyProperty.class);
+		
+		
 		// Get any command line arguments. The "-R" is ours
 		@SuppressWarnings("unchecked")
-		final CyProperty<Properties> cyPropertyServiceRef = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
+		CyProperty<Properties> cyPropertyServiceRef =  getService(bc, CyProperty.class,	"(cyPropertyName=cytoscape3.props)");
 		
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
 
 		final Properties clProps = commandLineProps.getProperties();
+		
+		
 		
 		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
 
@@ -172,7 +179,7 @@ public class CyActivator extends AbstractCyActivator {
 					logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
 					
 				} else {
-					this.initDependencies(bc, cyPropertyServiceRef, this.cyRESTPort);
+					this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
 					osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
 					resourceManager.registerResourceServices();
 					serverState = ServerState.STARTED;
@@ -256,7 +263,7 @@ public class CyActivator extends AbstractCyActivator {
 		}
 	}
 	
-	private final void initDependencies(final BundleContext bc, final CyProperty<Properties> cyPropertyServiceRef, final String restPortNumber) throws Exception {
+	private final void initDependencies(final BundleContext bc, final CyPropertyListener cyPropertyListener, final CyProperty<Properties> cyPropertyServiceRef, final String restPortNumber) throws Exception {
 		
 		CIResponseFactory ciResponseFactory = new CIResponseFactoryImpl();
 		CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(this.logLocation);
@@ -389,7 +396,8 @@ public class CyActivator extends AbstractCyActivator {
 				automationAppTracker,
 				layoutManager,
 				writerListener, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
-				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, cyPropertyServiceRef,
+				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
+				cyPropertyListener, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
 				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 

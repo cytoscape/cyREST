@@ -76,6 +76,7 @@ public class CoreServiceModule extends AbstractModule {
 	
 	private final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory;
 
+	private final CyPropertyListener cyPropertyListener;
 	private final CyProperty<Properties> props;
 	
 	// TFs
@@ -126,7 +127,8 @@ public class CoreServiceModule extends AbstractModule {
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
 			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
-			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, final CyProperty<Properties> props,
+			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, 
+			final CyPropertyListener cyPropertyListener, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
 			final CyTableFactory tableFactory, final NetworkViewTaskFactory fitContent, final EdgeBundler edgeBundler,
@@ -162,6 +164,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.groupManager = groupManager;
 		this.cyRootNetworkManager = cyRootNetworkManager;
 		this.loadNetworkURLTaskFactory = loadNetworkURLTaskFactory;
+		this.cyPropertyListener = cyPropertyListener;
 		this.props = props;
 		this.newNetworkSelectedNodesAndEdgesTaskFactory = newNetworkSelectedNodesAndEdgesTaskFactory;
 		this.edgelistReaderFactory = edgelistReaderFactory;
@@ -215,6 +218,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(CyRootNetworkManager.class).toInstance(cyRootNetworkManager);
 		bind(LoadNetworkURLTaskFactory.class).toInstance(loadNetworkURLTaskFactory);
 		//bind(CyProperty.class).toInstance(props);
+		bind(CyPropertyListener.class).toInstance(cyPropertyListener);
 		bind(new TypeLiteral<CyProperty<Properties>>(){}).toInstance(props);
 		bind(NewNetworkSelectedNodesAndEdgesTaskFactory.class).toInstance(newNetworkSelectedNodesAndEdgesTaskFactory);
 		bind(EdgeListReaderFactory.class).toInstance(edgelistReaderFactory);

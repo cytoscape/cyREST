@@ -19,6 +19,7 @@ import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkNameResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.PropertiesResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
@@ -29,8 +30,6 @@ import org.junit.Test;
 
 public class ConfigurationTest 
 {
-	
-	
 	/**
 	 * This is a little nit-picky, but is here to ensure that adding or removing another resource to the server requires 
 	 * acknowledgement in testing.
@@ -43,6 +42,7 @@ public class ConfigurationTest
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, NetworkResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, NetworkFullResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, NetworkViewResource.class));
+		assertTrue(contains(CyRESTConstants.coreResourceClasses, PropertiesResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,TableResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,MiscResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,AlgorithmicResource.class));
@@ -54,18 +54,18 @@ public class ConfigurationTest
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,UIResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CollectionResource.class));
 
-				// For Commands
+		// For Commands
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CommandResource.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CyRESTCommandSwagger.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,SwaggerUIResource.class));
 
-				//For CORS
+		//For CORS
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));
 		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(21, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(22, CyRESTConstants.coreResourceClasses.length);
 
 	}
 	

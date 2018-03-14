@@ -15,6 +15,7 @@ import org.cytoscape.rest.internal.resource.NetworkFullResource;
 import org.cytoscape.rest.internal.resource.NetworkNameResource;
 import org.cytoscape.rest.internal.resource.NetworkResource;
 import org.cytoscape.rest.internal.resource.NetworkViewResource;
+import org.cytoscape.rest.internal.resource.PropertiesResource;
 import org.cytoscape.rest.internal.resource.RootResource;
 import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.rest.internal.resource.StyleResource;
@@ -37,6 +38,7 @@ public class CyRESTConstants {
 			GlobalTableResource.class,
 			SessionResource.class,
 			NetworkNameResource.class,
+			PropertiesResource.class,
 			UIResource.class,
 			CollectionResource.class,
 

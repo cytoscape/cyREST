@@ -1,8 +1,5 @@
 package org.cytoscape.rest.service;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -15,8 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
-import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.rest.internal.resource.GroupResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;

@@ -41,9 +41,9 @@ import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.CoreServiceModule;
+import org.cytoscape.rest.internal.task.CyPropertyListener;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.session.CySessionManager;
-import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
@@ -122,6 +122,7 @@ public class ResourceManagerTest
 		final CyGroupManager groupManager = mock(CyGroupManager.class);
 		final CyRootNetworkManager cyRootNetworkManager = mock(CyRootNetworkManager.class);
 		final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory = mock(LoadNetworkURLTaskFactory.class);
+		final CyPropertyListener cyPropertyListener = mock(CyPropertyListener.class);
 		final CyProperty<Properties> props = mock(CyProperty.class);
 		final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 		final EdgeListReaderFactory edgelistReaderFactory = mock(EdgeListReaderFactory.class);
@@ -152,7 +153,10 @@ public class ResourceManagerTest
 		final String cyRESTPort = "1234"; 
 		final URI logLocation = URI.create("nowhere");
 
-		CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, props, newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
+		CoreServiceModule coreServiceModule = new CoreServiceModule(
+				allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
+				cyPropertyListener, props, 
+				newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
 				cyRESTPort, logLocation,
 				ciResponseFactory,

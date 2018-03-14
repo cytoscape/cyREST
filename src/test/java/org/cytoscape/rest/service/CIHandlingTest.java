@@ -198,7 +198,7 @@ public class CIHandlingTest extends BasicResourceTest {
 	@Test
 	public void testExplicitCIError() {
 		try {
-		String response = target("/ciresource/failwithresource").request().get(String.class);
+			String response = target("/ciresource/failwithresource").request().get(String.class);
 		} catch (ServerErrorException e) {
 			CIResponse<?> ciResponse = e.getResponse().readEntity(CIResponse.class);
 			System.out.println(ciResponse.errors.size());

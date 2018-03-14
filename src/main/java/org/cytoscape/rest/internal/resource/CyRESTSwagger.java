@@ -238,6 +238,7 @@ public class CyRESTSwagger extends AbstractResource
 				@Tag(name = CyRESTSwaggerConfig.LAYOUTS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.NETWORKS_TAG),
 				@Tag(name = CyRESTSwaggerConfig.NETWORK_VIEWS_TAG),
+				@Tag(name = CyRESTSwaggerConfig.PROPERTIES_TAG),
 				@Tag(name = CyRESTSwaggerConfig.REST_SERVICE_TAG),
 				@Tag(name = CyRESTSwaggerConfig.SESSION_TAG),
 				@Tag(name = CyRESTSwaggerConfig.TABLES_TAG),	
@@ -259,6 +260,7 @@ public class CyRESTSwagger extends AbstractResource
 		public static final String REST_SERVICE_TAG = "REST Service";
 		public static final String LAYOUTS_TAG = "Layouts";
 		public static final String NETWORK_VIEWS_TAG = "Network Views";
+		public static final String PROPERTIES_TAG = "Properties";
 		public static final String VISUAL_PROPERTIES_TAG = "Visual Properties";
 		public static final String VISUAL_STYLES_TAG = "Visual Styles";
 		public static final String GROUPS_TAG = "Groups";

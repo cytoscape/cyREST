@@ -126,11 +126,10 @@ public class PropertiesResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Sets a Cytoscape Property",
 	notes="Sets the Cytoscape Property specified by the `namespace` and `propertyKey` parameters.")
-	public void putProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
+	public CIResponse<Object> putProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
 			@ApiParam(value="Key of the CyProperty") @PathParam("propertyKey") String propertyKey,
 			@ApiParam(value="A CyProperty value") CyPropertyValueModel propertyValue
 			){
-		
 		Properties properties = getProperties(namespace);
 		if (properties.containsKey(propertyKey)) {
 			properties.setProperty(propertyKey, propertyValue.value);
@@ -142,7 +141,7 @@ public class PropertiesResource extends AbstractResource {
 					"Property namespace \"" + namespace + "\" does not contain property: " + propertyKey, 
 					logger, null);
 		}
-		
+		return ciResponseFactory.getCIResponse(new Object());
 	}
 	
 	@DELETE
@@ -151,10 +150,9 @@ public class PropertiesResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Deletes a Cytoscape Property",
 	notes="Deletes the Cytoscape Property specified by the `namespace` and `propertyKey` parameters.")
-	public void deleteProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
+	public CIResponse<Object> deleteProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
 			@ApiParam(value="Key of the CyProperty") @PathParam("propertyKey") String propertyKey
 			){
-		
 		Properties properties = getProperties(namespace);
 		if (properties.containsKey(propertyKey)) {
 			properties.remove(propertyKey);
@@ -166,7 +164,7 @@ public class PropertiesResource extends AbstractResource {
 					"Property namespace \"" + namespace + "\" does not contain property: " + propertyKey, 
 					logger, null);
 		}
-		
+		return ciResponseFactory.getCIResponse(new Object());
 	}
 	
 	@POST
@@ -175,10 +173,11 @@ public class PropertiesResource extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Creates a Cytoscape Property",
 	notes="Creates a Cytoscape Property in the namespace specified by the `namespace` parameter.")
-	public void postProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
+	public CIResponse<Object> postProperty(@ApiParam(value="Cytoscape Property namespace") @PathParam("namespace") String namespace ,
 			@ApiParam(value="A CyProperty with a key and value") CyPropertyModel propertyValue
 			){
 		Properties properties = getProperties(namespace);
 		properties.setProperty(propertyValue.key, propertyValue.value);
+		return ciResponseFactory.getCIResponse(new Object());
 	}
 }

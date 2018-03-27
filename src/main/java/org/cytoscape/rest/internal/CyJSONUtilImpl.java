@@ -136,6 +136,9 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 		if (includeDefinition) {
 			object.addProperty(JsonTags.COLUMN_NAME, cyColumn.getName());
 			object.addProperty(JsonTags.COLUMN_TYPE, cyColumn.getType().getSimpleName());
+			if (List.class.isAssignableFrom(cyColumn.getType())) {
+				object.addProperty(JsonTags.COLUMN_LIST_TYPE, cyColumn.getListElementType().getSimpleName());
+			}
 			object.addProperty(JsonTags.COLUMN_IMMUTABLE,cyColumn.isImmutable());
 			object.addProperty(JsonTags.PRIMARY_KEY, cyColumn.isPrimaryKey());
 		}

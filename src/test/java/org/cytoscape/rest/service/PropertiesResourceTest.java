@@ -94,7 +94,7 @@ public class PropertiesResourceTest extends BasicResourceTest {
 		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/properties/dummy.properties/dummy.property").request().put(entity);
 		assertNotNull(result);
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		verify(properties).setProperty("dummy.property", "new.value");
 	}
@@ -148,7 +148,7 @@ public class PropertiesResourceTest extends BasicResourceTest {
 		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
 		Response result = target("/v1/properties/dummy.properties/").request().post(entity);
 		assertNotNull(result);
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		verify(properties).setProperty("new.property", "new.value");
 	}
@@ -158,7 +158,7 @@ public class PropertiesResourceTest extends BasicResourceTest {
 	public void testDeleteProperty() throws Exception {
 		Response result = target("/v1/properties/dummy.properties/dummy.property").request().delete();
 		assertNotNull(result);
-		assertEquals(204, result.getStatus());
+		assertEquals(200, result.getStatus());
 		
 		verify(properties).remove("dummy.property");
 	}

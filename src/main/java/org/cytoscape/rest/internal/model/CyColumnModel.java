@@ -9,8 +9,8 @@ public class CyColumnModel {
 	public String name;
 	@ApiModelProperty(value = "Column Data Type", required=true, example="Double")
 	public ModelConstants.ColumnTypeAll type; //"data type, Double, String, Boolean, Long, Integer",
-	@ApiModelProperty(value="If the type of this column is list, this specifies the type of data in the list.", required=false, example="false")
-	public Boolean listType;
+	@ApiModelProperty(value="If the type of this column is list, this specifies the type of data in the list.", required=false, example="String")
+	public ModelConstants.ColumnTypePrimitive listType;
 	@ApiModelProperty(value="If true, this column is immutable.", required=true, example="false")
 	public Boolean immutable; //": "Optional: boolean value to specify immutable or not",
 	@ApiModelProperty(value="If true, this column acts as the primary key for this table.", required=true, example="false")

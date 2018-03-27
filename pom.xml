@@ -10,6 +10,7 @@
 		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 		<maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
 		<osgi.api.version>4.2.0</osgi.api.version>
 		<junit.version>4.12</junit.version>
@@ -17,7 +18,7 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>3.6.0</cytoscape.api.version>
+		<cytoscape.api.version>3.6.1</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -423,6 +424,19 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<systemProperties>
+						<property>
+							<name>cytoscape.api.version</name>
+							<value>${cytoscape.api.version}</value>
+						</property>
+					</systemProperties>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

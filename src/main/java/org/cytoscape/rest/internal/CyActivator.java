@@ -13,7 +13,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
+import javax.ws.rs.core.Response;
 
+import org.apache.karaf.features.FeaturesService;
 import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
@@ -114,9 +116,14 @@ public class CyActivator extends AbstractCyActivator {
 	private ServiceTracker cytoscapeJsWriterFactory = null;
 	private ServiceTracker cytoscapeJsReaderFactory = null;
 	
+	private AllAppsStartedListener allAppsStartedListener = null;
+	
+	private FeaturesService featuresService = null;
+	
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
 
+	private AutomationAppTracker automationAppTracker = null;
 	
 	public CyActivator() {
 		super();
@@ -133,7 +140,12 @@ public class CyActivator extends AbstractCyActivator {
 		
 		serverState = ServerState.STARTING;
 
+		allAppsStartedListener =  new AllAppsStartedListener();
+		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
+		
 		CyPropertyListener cyPropertyListener = new CyPropertyListener();
+		
+		featuresService = getService(bc, FeaturesService.class);
 		
 		registerServiceListener(bc, cyPropertyListener::addCyProperty, cyPropertyListener::removeCyProperty, CyProperty.class);
 		
@@ -146,8 +158,6 @@ public class CyActivator extends AbstractCyActivator {
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
 
 		final Properties clProps = commandLineProps.getProperties();
-		
-		
 		
 		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
 
@@ -180,7 +190,7 @@ public class CyActivator extends AbstractCyActivator {
 					
 				} else {
 					this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
-					osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
+					osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
 					resourceManager.registerResourceServices();
 					serverState = ServerState.STARTED;
 					logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
@@ -275,8 +285,7 @@ public class CyActivator extends AbstractCyActivator {
 		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
 		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
 		
-		final AllAppsStartedListener allAppsStartedListener =  new AllAppsStartedListener();
-		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
+	
 		
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
@@ -291,7 +300,7 @@ public class CyActivator extends AbstractCyActivator {
 		registerServiceListener(bc, viewWriterManager::addFactory, viewWriterManager::removeFactory,
 				CyNetworkViewWriterFactory.class);
 
-		AutomationAppTracker automationAppTracker = new AutomationAppTracker(bc, bc.createFilter(CyRESTConstants.ANY_SERVICE_FILTER));
+		automationAppTracker = new AutomationAppTracker(bc, bc.createFilter(CyRESTConstants.ANY_SERVICE_FILTER));
 		automationAppTracker.open();
 		bc.addBundleListener(automationAppTracker);
 		
@@ -413,6 +422,8 @@ public class CyActivator extends AbstractCyActivator {
 	public void shutDown() {
 		logger.info("Shutting down REST server...");
 
+		automationAppTracker.close();
+		
 		if (resourceManager != null) {
 			resourceManager.unregisterResourceServices();
 		}

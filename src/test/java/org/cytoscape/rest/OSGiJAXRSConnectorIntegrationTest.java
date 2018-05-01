@@ -23,6 +23,7 @@ import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.karaf.features.FeaturesService;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class OSGiJAXRSConnectorIntegrationTest 
 {
+	
 	private static final String PAX_JETTY_PATH = "pax-jetty/";
 
 	private static final String[] PAX_JETTY_BUNDLES = {
@@ -204,8 +206,10 @@ public class OSGiJAXRSConnectorIntegrationTest
 
 	@Test
 	public void testBundleInstallation() throws Exception {
+		
 		OSGiJAXRSManager manager = new OSGiJAXRSManager();
-		manager.installOSGiJAXRSBundles(bc, "6666");
+		FeaturesService featuresService = mock(FeaturesService.class);
+		manager.installOSGiJAXRSBundles(bc, featuresService, "6666");
 		for (String[] resourceGroup : allBundles) {
 			for (String resource : resourceGroup) {
 				verify(bundle).getResource(resource);
@@ -216,6 +220,8 @@ public class OSGiJAXRSConnectorIntegrationTest
 	@Test 
 	public void testBundleUninstallation() throws Exception {
 		OSGiJAXRSManager manager = new OSGiJAXRSManager();	
+		FeaturesService featuresService = mock(FeaturesService.class);
+	
 		final List<Bundle> bundleList = new ArrayList<Bundle>();
 		
 		doAnswer( new Answer<Bundle>() {
@@ -226,7 +232,8 @@ public class OSGiJAXRSConnectorIntegrationTest
 		    	return bundle;
 		    	}
 		    }).when(bc).installBundle(anyString(), any(InputStream.class) );
-		manager.installOSGiJAXRSBundles(bc, "6666");
+		
+		manager.installOSGiJAXRSBundles(bc, featuresService, "6666");
 		manager.uninstallOSGiJAXRSBundles();
 		
 		for (Bundle bundle : bundleList) {

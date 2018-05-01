@@ -7,6 +7,10 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -16,8 +20,19 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class OSGiJAXRSManager
 {
+	   private static final String SCHEMA_HTTP = "http";
+	    private static final String SCHEMA_HTTPS = "https";
+	    private static final String PROXY_HOST = "proxyHost";
+	    private static final String PROXY_PORT = "proxyPort";
+	    private static final String PROXY_USER = "proxyUser";
+	    private static final String PROXY_PASSWORD = "proxyPassword";
+	    private static final String NON_PROXY_HOSTS = "nonProxyHosts";
+
+	
 	private BundleContext context;
 
+	private FeaturesService featuresService;
+	
 	private List<Bundle> bundles; 
 
 	private String port;
@@ -71,18 +86,71 @@ public class OSGiJAXRSManager
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
-	public void installOSGiJAXRSBundles(BundleContext bundleContext, String port) throws Exception 
+	public void installOSGiJAXRSBundles(BundleContext bundleContext, FeaturesService featuresService, String port) throws Exception 
 	{
+		this.featuresService = featuresService;
 		context = bundleContext;
-
+		
+	/*
+		String proxyHost = System.getProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
+		if (proxyHost == null || proxyHost.length() == 0) {
+	        System.clearProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
+	    }
+		
+		String schema = (proxyHost != null) ? SCHEMA_HTTPS : SCHEMA_HTTP;
+        if (proxyHost == null) {
+            proxyHost = System.getProperty(schema + "." + PROXY_HOST);
+        }
+       
+        if (proxyHost == null || proxyHost.length() == 0) {
+        	System.clearProperty(schema + "." + PROXY_HOST);
+        }
+        proxyHost = System.getProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
+        
+    	System.out.println("Proxy Host: " + proxyHost);
+    	System.out.println("Schema: " + schema);
+    	
+		String proxyUser = System.getProperty(schema + "." + PROXY_USER);
+	    String proxyPassword = System.getProperty(schema + "." + PROXY_PASSWORD);
+	    String proxyPort = System.getProperty(schema + "." + PROXY_PORT, "8080");
+	    String nonProxyHosts = System.getProperty(schema + "." + NON_PROXY_HOSTS);
+	
+		System.out.println("Proxy User: " + proxyUser);
+		System.out.println("Proxy Password: " + proxyPassword);
+		System.out.println("Proxy Port: " + proxyPort);
+		System.out.println("Non Proxy Hosts: " + nonProxyHosts);
+		*/
+		//System.out.println("Installing Jetty");
+		installFeature(context, featuresService.getFeature("jetty", "9.4.6.v20170531"));
+		
+		//featuresService.installFeature("jetty", "9.4.6.v20170531");
+		//System.out.println("Installed Jetty");
+		
+		installFeature(context, featuresService.getFeature("scr"));
+		//System.out.println("Installed SCR");
+		
+		installFeature(context, featuresService.getFeature("pax-web-core"));
+		//System.out.println("Installed PAX Core");
+		
+		installFeature(context, featuresService.getFeature("pax-jetty"));
+		//System.out.println("Installed PAX Jetty");
+		
+		installFeature(context, featuresService.getFeature("pax-http-jetty"));
+		//System.out.println("Installed PAX HTTP Jetty");
+		
+		installFeature(context, featuresService.getFeature("pax-http"));
+		//System.out.println("Installed PAX HTTP");
+		
+		installFeature(context, featuresService.getFeature("pax-http-service"));
+		//System.out.println("Installed PAX HTTP Service");
+		
+		installFeature(context, featuresService.getFeature("http"));
+		//System.out.println("Installed HTTP");
+				
+		
 		this.bundles = new ArrayList<Bundle>();
 		this.port = port;
 		setPortConfig(context);
-
-		//installBundlesFromResources(bundleContext, PAX_JETTY_BUNDLES);
-		//installBundlesFromResources(bundleContext, PAX_HTTP_BUNDLES);
-		//installBundlesFromResources(bundleContext, KARAF_SCR_BUNDLES);
-		//installBundlesFromResources(bundleContext, KARAF_HTTP_BUNDLES);
 
 		setRootResourceConfig(context);
 
@@ -93,6 +161,21 @@ public class OSGiJAXRSManager
 
 	}
 
+	private void installFeature(BundleContext bc, Feature feature) throws BundleException, IOException{
+		if (feature == null) {
+			return;
+		}
+		List<Bundle> bundleList = new LinkedList<Bundle>();
+		List<BundleInfo> bundleInfos = feature.getBundles();
+		for (BundleInfo bundle : bundleInfos) {
+			bundleList.add(bc.installBundle(bundle.getLocation()));
+		}
+		for (Bundle bundle : bundleList) {
+			//System.out.println("Installing bundle " + bundle.getSymbolicName() + " from feature " + feature.getName());
+			bundle.start();
+		}
+	}
+	
 	private void setRootResourceConfig(BundleContext context) throws Exception
 	{
 		ServiceReference configurationAdminReference = 

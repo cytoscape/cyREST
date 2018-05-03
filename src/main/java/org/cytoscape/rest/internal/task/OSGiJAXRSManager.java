@@ -91,62 +91,14 @@ public class OSGiJAXRSManager
 		this.featuresService = featuresService;
 		context = bundleContext;
 		
-	/*
-		String proxyHost = System.getProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
-		if (proxyHost == null || proxyHost.length() == 0) {
-	        System.clearProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
-	    }
-		
-		String schema = (proxyHost != null) ? SCHEMA_HTTPS : SCHEMA_HTTP;
-        if (proxyHost == null) {
-            proxyHost = System.getProperty(schema + "." + PROXY_HOST);
-        }
-       
-        if (proxyHost == null || proxyHost.length() == 0) {
-        	System.clearProperty(schema + "." + PROXY_HOST);
-        }
-        proxyHost = System.getProperty(SCHEMA_HTTPS + "." + PROXY_HOST);
-        
-    	System.out.println("Proxy Host: " + proxyHost);
-    	System.out.println("Schema: " + schema);
-    	
-		String proxyUser = System.getProperty(schema + "." + PROXY_USER);
-	    String proxyPassword = System.getProperty(schema + "." + PROXY_PASSWORD);
-	    String proxyPort = System.getProperty(schema + "." + PROXY_PORT, "8080");
-	    String nonProxyHosts = System.getProperty(schema + "." + NON_PROXY_HOSTS);
-	
-		System.out.println("Proxy User: " + proxyUser);
-		System.out.println("Proxy Password: " + proxyPassword);
-		System.out.println("Proxy Port: " + proxyPort);
-		System.out.println("Non Proxy Hosts: " + nonProxyHosts);
-		*/
-		//System.out.println("Installing Jetty");
 		installFeature(context, featuresService.getFeature("jetty", "9.4.6.v20170531"));
-		
-		//featuresService.installFeature("jetty", "9.4.6.v20170531");
-		//System.out.println("Installed Jetty");
-		
 		installFeature(context, featuresService.getFeature("scr"));
-		//System.out.println("Installed SCR");
-		
 		installFeature(context, featuresService.getFeature("pax-web-core"));
-		//System.out.println("Installed PAX Core");
-		
 		installFeature(context, featuresService.getFeature("pax-jetty"));
-		//System.out.println("Installed PAX Jetty");
-		
 		installFeature(context, featuresService.getFeature("pax-http-jetty"));
-		//System.out.println("Installed PAX HTTP Jetty");
-		
 		installFeature(context, featuresService.getFeature("pax-http"));
-		//System.out.println("Installed PAX HTTP");
-		
 		installFeature(context, featuresService.getFeature("pax-http-service"));
-		//System.out.println("Installed PAX HTTP Service");
-		
 		installFeature(context, featuresService.getFeature("http"));
-		//System.out.println("Installed HTTP");
-				
 		
 		this.bundles = new ArrayList<Bundle>();
 		this.port = port;
@@ -171,7 +123,6 @@ public class OSGiJAXRSManager
 			bundleList.add(bc.installBundle(bundle.getLocation()));
 		}
 		for (Bundle bundle : bundleList) {
-			//System.out.println("Installing bundle " + bundle.getSymbolicName() + " from feature " + feature.getName());
 			bundle.start();
 		}
 	}

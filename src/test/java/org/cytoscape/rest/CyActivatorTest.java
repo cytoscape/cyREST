@@ -21,6 +21,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import org.cytoscape.app.event.AppsFinishedStartingEvent;
+import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyActivator.ServerState;
@@ -192,7 +194,7 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		cyActivator.handleEvent(new AppsFinishedStartingEvent(new Object()));
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {
@@ -213,7 +215,9 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		//never(registerService(bc, this, AppsFinishedStartingListener.class);
+		
+		//cyActivator.handleEvent(new AppsFinishedStartingEvent(new Object()));
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {
@@ -234,7 +238,7 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {

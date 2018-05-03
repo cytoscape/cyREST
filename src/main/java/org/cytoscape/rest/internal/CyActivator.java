@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.ws.rs.core.Response;
 
 import org.apache.karaf.features.FeaturesService;
+import org.cytoscape.app.event.AppsFinishedStartingEvent;
 import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
@@ -40,6 +41,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.CyActivator.ServerState;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
@@ -85,9 +87,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Module;
 
-public class CyActivator extends AbstractCyActivator {
+public class CyActivator extends AbstractCyActivator implements AppsFinishedStartingListener{
 	
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
+	
+	private BundleContext bc;
 	
 	public class WriterListener {
 
@@ -119,6 +123,9 @@ public class CyActivator extends AbstractCyActivator {
 	private AllAppsStartedListener allAppsStartedListener = null;
 	
 	private FeaturesService featuresService = null;
+
+	private CyPropertyListener cyPropertyListener = null;
+	private CyProperty<Properties> cyPropertyServiceRef = null;
 	
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
@@ -130,7 +137,7 @@ public class CyActivator extends AbstractCyActivator {
 	}
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
-
+		this.bc = bc;
 		try {
 			this.logLocation = this.getLogLocation(bc);
 		} catch (IOException e1) {
@@ -143,7 +150,7 @@ public class CyActivator extends AbstractCyActivator {
 		allAppsStartedListener =  new AllAppsStartedListener();
 		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
 		
-		CyPropertyListener cyPropertyListener = new CyPropertyListener();
+		cyPropertyListener = new CyPropertyListener();
 		
 		featuresService = getService(bc, FeaturesService.class);
 		
@@ -151,8 +158,8 @@ public class CyActivator extends AbstractCyActivator {
 		
 		
 		// Get any command line arguments. The "-R" is ours
-		@SuppressWarnings("unchecked")
-		CyProperty<Properties> cyPropertyServiceRef =  getService(bc, CyProperty.class,	"(cyPropertyName=cytoscape3.props)");
+		//@SuppressWarnings("unchecked")
+		cyPropertyServiceRef =  getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
 		
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
@@ -189,11 +196,7 @@ public class CyActivator extends AbstractCyActivator {
 					logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
 					
 				} else {
-					this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
-					osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
-					resourceManager.registerResourceServices();
-					serverState = ServerState.STARTED;
-					logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
+					registerService(bc, this, AppsFinishedStartingListener.class);
 				}
 			} 
 			catch (Exception e) {
@@ -270,6 +273,25 @@ public class CyActivator extends AbstractCyActivator {
 			return true;
 		} else {
 			return false;
+		}
+	}
+	
+	private void startCyREST() throws Exception {
+		this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
+		osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
+		resourceManager.registerResourceServices();
+		serverState = ServerState.STARTED;
+		logger.info("cyREST API Server initialized.");
+	}
+	
+	@Override
+	public void handleEvent(AppsFinishedStartingEvent event)  {
+		try {
+			startCyREST();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Unable to start CyREST", e);
 		}
 	}
 	

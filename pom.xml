@@ -15,6 +15,7 @@
 		<osgi.api.version>6.0.0</osgi.api.version>
     	<osgi.compendium.version>5.0.0</osgi.compendium.version>
  
+ 		<karaf.version>4.2.0</karaf.version>
 		<junit.version>4.12</junit.version>
 		<jersey.version>2.23</jersey.version>
 
@@ -301,7 +302,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 						<Cytoscape-App-Dependencies>CX Support;2.1.0</Cytoscape-App-Dependencies>
 					</instructions>
@@ -494,26 +495,33 @@
 			<scope>provided</scope>
 		</dependency>
 	
+	 <dependency>
+	 	  <groupId>org.apache.karaf.features</groupId>
+    	 <artifactId>org.apache.karaf.features.core</artifactId>
+    	  <version>${karaf.version}</version>
+    	  <scope>provided</scope>
+	 </dependency>
+	
 		<!-- Guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-multibindings</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>25.0-jre</version>
 		</dependency>
 
 		<!-- OSGi core dependency -->
@@ -543,7 +551,7 @@
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
+			<version>2.0.1.Final</version>
 		</dependency>
 
 
@@ -586,26 +594,26 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>1.5.3</version>
+			<version>1.10.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-service</artifactId>
-			<version>1.5.3</version>
+			<version>1.10.1</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.18</version>
+			<version>1.5.19</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
-			<version>1.5.18</version>
+			<version>1.5.19</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

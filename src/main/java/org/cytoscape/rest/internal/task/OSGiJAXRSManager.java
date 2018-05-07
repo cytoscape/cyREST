@@ -7,6 +7,10 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -16,8 +20,19 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class OSGiJAXRSManager
 {
+	   private static final String SCHEMA_HTTP = "http";
+	    private static final String SCHEMA_HTTPS = "https";
+	    private static final String PROXY_HOST = "proxyHost";
+	    private static final String PROXY_PORT = "proxyPort";
+	    private static final String PROXY_USER = "proxyUser";
+	    private static final String PROXY_PASSWORD = "proxyPassword";
+	    private static final String NON_PROXY_HOSTS = "nonProxyHosts";
+
+	
 	private BundleContext context;
 
+	private FeaturesService featuresService;
+	
 	private List<Bundle> bundles; 
 
 	private String port;
@@ -71,18 +86,23 @@ public class OSGiJAXRSManager
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
-	public void installOSGiJAXRSBundles(BundleContext bundleContext, String port) throws Exception 
+	public void installOSGiJAXRSBundles(BundleContext bundleContext, FeaturesService featuresService, String port) throws Exception 
 	{
+		this.featuresService = featuresService;
 		context = bundleContext;
-
+		
+		installFeature(context, featuresService.getFeature("jetty", "9.4.6.v20170531"));
+		installFeature(context, featuresService.getFeature("scr"));
+		installFeature(context, featuresService.getFeature("pax-web-core"));
+		installFeature(context, featuresService.getFeature("pax-jetty"));
+		installFeature(context, featuresService.getFeature("pax-http-jetty"));
+		installFeature(context, featuresService.getFeature("pax-http"));
+		installFeature(context, featuresService.getFeature("pax-http-service"));
+		installFeature(context, featuresService.getFeature("http"));
+		
 		this.bundles = new ArrayList<Bundle>();
 		this.port = port;
 		setPortConfig(context);
-
-		//installBundlesFromResources(bundleContext, PAX_JETTY_BUNDLES);
-		//installBundlesFromResources(bundleContext, PAX_HTTP_BUNDLES);
-		//installBundlesFromResources(bundleContext, KARAF_SCR_BUNDLES);
-		//installBundlesFromResources(bundleContext, KARAF_HTTP_BUNDLES);
 
 		setRootResourceConfig(context);
 
@@ -93,6 +113,20 @@ public class OSGiJAXRSManager
 
 	}
 
+	private void installFeature(BundleContext bc, Feature feature) throws BundleException, IOException{
+		if (feature == null) {
+			return;
+		}
+		List<Bundle> bundleList = new LinkedList<Bundle>();
+		List<BundleInfo> bundleInfos = feature.getBundles();
+		for (BundleInfo bundle : bundleInfos) {
+			bundleList.add(bc.installBundle(bundle.getLocation()));
+		}
+		for (Bundle bundle : bundleList) {
+			bundle.start();
+		}
+	}
+	
 	private void setRootResourceConfig(BundleContext context) throws Exception
 	{
 		ServiceReference configurationAdminReference = 

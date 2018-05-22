@@ -103,7 +103,6 @@ public class OSGiJAXRSManager
 		this.bundles = new ArrayList<Bundle>();
 		this.port = port;
 		setPortConfig(context);
-
 		setRootResourceConfig(context);
 
 		installBundlesFromResources(bundleContext, JERSEY_MISC_BUNDLES);

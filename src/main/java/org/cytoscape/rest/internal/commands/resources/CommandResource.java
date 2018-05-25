@@ -35,7 +35,7 @@ import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.cytoscape.work.SynchronousTaskManager;
-import org.glassfish.grizzly.http.util.HttpStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +274,7 @@ public class CommandResource
 
 		if (jsonTaskObserver.succeeded == false) {
 			ciErrorList.add(ciErrorFactory.getCIError(
-					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI, 2), 
 					"Successful response was not returned."));
 		}
@@ -399,7 +399,7 @@ public class CommandResource
 			
 			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			CIError jsonSyntaxError = ciErrorFactory.getCIError(
-					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI,3), 
 					"Task returned invalid json.");
 			errors.add(jsonSyntaxError);

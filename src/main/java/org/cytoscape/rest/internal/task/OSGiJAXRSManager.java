@@ -91,7 +91,7 @@ public class OSGiJAXRSManager
 		this.featuresService = featuresService;
 		context = bundleContext;
 		
-		installFeature(context, featuresService.getFeature("jetty", "9.4.6.v20170531"));
+		installFeature(context, featuresService.getFeature("cytoscape-jetty"));
 		installFeature(context, featuresService.getFeature("scr"));
 		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));

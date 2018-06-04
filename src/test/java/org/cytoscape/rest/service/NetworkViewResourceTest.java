@@ -152,7 +152,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(root);
 		System.out.println(root);
 		assertTrue(root.isArray());
-		assertEquals(12, root.size());
+		assertEquals(13, root.size());
 	}
 
 

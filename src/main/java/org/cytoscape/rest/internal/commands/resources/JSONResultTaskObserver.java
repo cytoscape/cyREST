@@ -3,6 +3,8 @@ package org.cytoscape.rest.internal.commands.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.cytoscape.ci.CIErrorFactory;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.rest.internal.CyRESTConstants;
@@ -12,7 +14,6 @@ import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.TaskObserver;
 import org.cytoscape.work.TunableValidator;
 import org.cytoscape.work.json.JSONResult;
-import org.glassfish.grizzly.http.util.HttpStatus;
 import org.slf4j.Logger;
 
 class JSONResultTaskObserver extends CommandResourceTaskObserver implements TaskObserver
@@ -61,18 +62,18 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 				if (((TunableValidator)finishStatus.getTask()).getValidationState(stringBuilder) == TunableValidator.ValidationState.INVALID)
 				{
 					ciError = ciErrorFactory.getCIError(
-							HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+							Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 							CyRESTConstants.getErrorURI(CommandResource.JSON_COMMAND_RESOURCE_URI, 2), 
 							"Task Cancelled. Could not validate Tunable inputs: " + stringBuilder.toString());
 				} else {
 					ciError = ciErrorFactory.getCIError(
-							HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+							Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 							CyRESTConstants.getErrorURI(CommandResource.JSON_COMMAND_RESOURCE_URI, 2), 
 							"Task Cancelled. All inputs were validated.");
 				}
 			} else {
 				ciError = ciErrorFactory.getCIError(
-						HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+						Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 						CyRESTConstants.getErrorURI(CommandResource.JSON_COMMAND_RESOURCE_URI, 2), 
 						"Task Cancelled.");
 			}
@@ -81,13 +82,13 @@ class JSONResultTaskObserver extends CommandResourceTaskObserver implements Task
 		else if (finishStatus.getType() == FinishStatus.Type.FAILED) {
 			CIError ciError;
 			if (finishStatus.getException() != null) {
-				 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+				 ciError = ciErrorFactory.getCIError(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 						 CyRESTConstants.getErrorURI(CommandResource.JSON_COMMAND_RESOURCE_URI, 2), 
 						finishStatus.getException().getMessage() == null ? finishStatus.getException().toString() : finishStatus.getException().getMessage()
 						);
 				 finishStatus.getException().printStackTrace(System.err);
 			} else {
-				 ciError = ciErrorFactory.getCIError(HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+				 ciError = ciErrorFactory.getCIError(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 						 CyRESTConstants.getErrorURI(CommandResource.JSON_COMMAND_RESOURCE_URI, 2), 
 							"Task Failed with No Exception: " + (finishStatus.getTask() != null ? finishStatus.getTask().getClass().getName() : "no attached class")
 							);

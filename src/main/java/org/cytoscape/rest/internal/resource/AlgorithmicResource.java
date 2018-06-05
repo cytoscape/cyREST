@@ -39,6 +39,8 @@ import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,6 +79,22 @@ public class AlgorithmicResource extends AbstractResource {
 	@NotNull
 	private EdgeBundler edgeBundler;
 
+	private static final String RESOURCE_URN = "apply";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(AlgorithmicResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	private static final int NOT_FOUND_ERROR= 1;
+	
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -92,7 +110,7 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		throw404ifYFiles(algorithmName);
 		
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final Collection<CyNetworkView> views = 
 				this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
@@ -335,7 +353,7 @@ public class AlgorithmicResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId
 			) {
 
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		VisualStyle targetStyle = null;
 		for (final VisualStyle style : styles) {
@@ -376,7 +394,7 @@ public class AlgorithmicResource extends AbstractResource {
 		notes="Fit the first available Network View for the Network specified by the `networkId` parameter to the current window.")
 	public MessageModel fitContent(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
@@ -407,7 +425,7 @@ public class AlgorithmicResource extends AbstractResource {
 			)
 	public MessageModel bundleEdge(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
@@ -471,6 +489,5 @@ public class AlgorithmicResource extends AbstractResource {
 					new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
 		}
 	}
-	
 	
 }

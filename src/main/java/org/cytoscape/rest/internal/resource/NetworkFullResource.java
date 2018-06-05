@@ -12,6 +12,8 @@ import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.CyRESTConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +24,20 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/networks.json")
 public class NetworkFullResource extends AbstractResource {
 
+	private static final String RESOURCE_URN = "networks";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(NetworkFullResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	public NetworkFullResource() {
 		super();
 	}

@@ -36,6 +36,8 @@ import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +55,20 @@ public class CollectionResource extends AbstractResource {
 	private final ObjectMapper mapper;
 	private final TableMapper tableMapper;
 
+	private static final String RESOURCE_URN = "collections";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(CollectionResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	private static final String COLLECTION_ASCII_ART =
 			"Cytoscape can contain multiple Root Networks, each with their own Sub-Networks\n```\n" + 
 			"── Root Network 1\n" + 

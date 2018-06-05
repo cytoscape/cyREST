@@ -27,9 +27,10 @@ public class GroupTest extends BasicResourceTest {
 	protected Application configure() {
 		return new ResourceConfig(GroupResource.class);
 	}
-	
-	private void createGroup() {
-		
+	@Test
+	public void resourceURITest() {
+		GroupResource resource = new GroupResource();
+		assertEquals("groups", resource.getResourceURI());
 	}
 
 	@Test

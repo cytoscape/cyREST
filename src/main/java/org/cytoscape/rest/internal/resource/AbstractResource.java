@@ -79,6 +79,10 @@ public abstract class AbstractResource {
 	protected static final String COLUMN_DESCRIPTION = "The name of the column that will be queried for matches.";
 	protected static final String QUERY_STRING_DESCRIPTION = "The value to be matched.";
 
+	public abstract String getResourceURI();
+	
+	public abstract Logger getResourceLogger();
+	
 	/**
 	 * Create a informative error message instead of plain 500.
 	 * 
@@ -207,20 +211,30 @@ public abstract class AbstractResource {
 		return ciExceptionFactory.getCIException(status, new CIError[]{ciError});
 	}
 	
-	protected final CyNetwork getCyNetwork(final Long id) {
+	protected final CyNetwork getCyNetwork(int ciErrorCode, final Long id) {
 		if (id == null) {
-			throw new NotFoundException("SUID is null.");
+			//throw new NotFoundException("SUID is null.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					ciErrorCode, 
+					"Could not find Network: SUID is null.", 
+					getResourceLogger(), null);
 		}
 
 		final CyNetwork network = networkManager.getNetwork(id);
 		if (network == null) {
-			throw new NotFoundException("Could not find network with SUID: " + id);
+			//throw new NotFoundException("Could not find Network with SUID: " + id);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					ciErrorCode, 
+					"Could not find Network with SUID: " + id, 
+					getResourceLogger(), null);
 		}
 		return network;
 	}
 
-	protected final Collection<CyNetworkView> getCyNetworkViews(final Long id) {
-		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(id));
+	protected final Collection<CyNetworkView> getCyNetworkViews(int ciErrorCode, final Long id) {
+		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(ciErrorCode, id));
 		if (views.isEmpty()) {
 			throw new NotFoundException("No view is available for network with SUID: " + id);
 		}
@@ -246,9 +260,9 @@ public abstract class AbstractResource {
 		}
 	}
 
-	protected final Collection<Long> getByQuery(final Long id, final String objType, final String column,
+	protected final Collection<Long> getByQuery(int ciErrorCode, final Long id, final String objType, final String column,
 			final String query) {
-		final CyNetwork network = getCyNetwork(id);
+		final CyNetwork network = getCyNetwork(ciErrorCode, id);
 		CyTable table = null;
 
 		List<? extends CyIdentifiable> graphObjects;

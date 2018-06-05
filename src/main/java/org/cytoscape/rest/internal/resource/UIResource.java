@@ -32,6 +32,8 @@ import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +50,20 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/ui")
 public class UIResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "ui";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(UIResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	protected CySwingApplication desktop;

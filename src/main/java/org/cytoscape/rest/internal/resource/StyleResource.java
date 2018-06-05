@@ -49,6 +49,8 @@ import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,6 +70,20 @@ import io.swagger.annotations.ExampleProperty;
 @Path("/v1/styles")
 public class StyleResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "styles";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(StyleResource.class);
+		
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
 	@Inject

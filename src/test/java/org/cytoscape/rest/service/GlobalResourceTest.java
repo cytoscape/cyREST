@@ -13,14 +13,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GlobalResourceTest extends BasicResourceTest {
-
 	
 	private ObjectMapper mapper = new ObjectMapper();
 
-	
 	@Override
 	protected Application configure() {
 		return new ResourceConfig(GlobalTableResource.class);
+	}
+	
+	@Test
+	public void resourceURITest() {
+		GlobalTableResource resource = new GlobalTableResource();
+		assertEquals("tables", resource.getResourceURI());
 	}
 	
 	@Test

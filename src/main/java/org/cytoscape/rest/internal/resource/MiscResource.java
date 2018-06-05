@@ -13,10 +13,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -36,7 +37,21 @@ import io.swagger.annotations.ApiResponse;
 @Singleton
 @Path("/v1")
 public class MiscResource extends AbstractResource {
+	
+	private static final String RESOURCE_URN = "";
 
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(MiscResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	private AllAppsStartedListener allAppsStartedListener;

@@ -30,6 +30,12 @@ public class CyRESTSwaggerTest extends SwaggerResourceTest
 {
 	private ObjectMapper mapper = new ObjectMapper();
 	
+	@Test
+	public void resourceURITest() {
+		CyRESTSwagger resource = new CyRESTSwagger();
+		assertEquals("swagger", resource.getResourceURI());
+	}
+	
 	@Api
 	@Path("/dummy")
 	public class DummySwaggerResource{

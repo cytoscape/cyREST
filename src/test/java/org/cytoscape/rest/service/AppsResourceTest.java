@@ -24,6 +24,12 @@ public class AppsResourceTest extends BasicResourceTest {
 	}
 
 	@Test
+	public void resourceURITest() {
+		AppsResource resource = new AppsResource();
+		assertEquals("apps", resource.getResourceURI());
+	}
+	
+	@Test
 	public void appsTest() throws JsonProcessingException, IOException {
 		final Response response = target("/v1/apps/").request().get();
 		assertEquals(200, response.getStatus());

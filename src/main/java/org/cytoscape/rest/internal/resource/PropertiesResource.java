@@ -43,11 +43,23 @@ public class PropertiesResource extends AbstractResource {
 	
 	static final String RESOURCE_URN = "properties";
 
+	private final static Logger logger = LoggerFactory.getLogger(PropertiesResource.class);
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	static final int NOT_FOUND_ERROR = 1;
 
 	static final int INVALID_PARAMETER_ERROR = 2;
 
-	private final static Logger logger = LoggerFactory.getLogger(PropertiesResource.class);
+	
 	
 	@Inject
 	protected CyPropertyListener cyPropertyListener;

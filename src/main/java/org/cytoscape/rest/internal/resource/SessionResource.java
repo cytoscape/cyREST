@@ -26,6 +26,8 @@ import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.task.write.SaveSessionTaskFactory;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -38,6 +40,20 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/session")
 public class SessionResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "session";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(SessionResource.class);
+		
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	private CySessionManager sessionManager;

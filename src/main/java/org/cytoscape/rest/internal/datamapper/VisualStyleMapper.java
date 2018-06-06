@@ -181,7 +181,15 @@ public class VisualStyleMapper {
 
 		final Map map = new HashMap();
 		for (JsonNode pair : discreteMapping) {
-			final Object key = parseKeyValue(type, pair.get(MAPPING_DISCRETE_KEY).textValue());
+			String keyValue;
+			if (pair.get(MAPPING_DISCRETE_KEY).isTextual()) {
+				System.out.println("isTextual");
+				keyValue = pair.get(MAPPING_DISCRETE_KEY).textValue();
+			} else {
+				System.out.println("isText");
+				keyValue = pair.get(MAPPING_DISCRETE_KEY).asText();
+			}
+			final Object key = parseKeyValue(type, keyValue);
 			if (key != null) {
 				map.put(key, vp.parseSerializableString(pair.get(MAPPING_DISCRETE_VALUE).textValue()));
 			}

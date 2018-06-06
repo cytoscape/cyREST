@@ -324,14 +324,7 @@ public class StyleResourceTest extends BasicResourceTest {
 	}
 
 	@Test
-	public void testCreateMapping() throws Exception {
-		testCreateDiscrete();
-		testCreateContinuous();
-		testCreatePassthrough();
-	}
-
-
-	private void testCreateDiscrete() {
+	public void testCreateDiscreteWithStringKey() {
 		final String edgeWidthMapping = "[{"
 				+ "\"mappingType\": \"discrete\","
 				+ "\"mappingColumn\": \"interaction\","
@@ -365,9 +358,190 @@ public class StyleResourceTest extends BasicResourceTest {
 		}
 		assertTrue(added);
 	}
+	
+	@Test
+	public void testCreateDiscreteWithIntegerKey() {
+		final String edgeWidthMapping = "[{"
+				+ "\"mappingType\": \"discrete\","
+				+ "\"mappingColumn\": \"interaction\","
+				+ "\"mappingColumnType\": \"Integer\","
+				+ "\"visualProperty\": \"EDGE_WIDTH\", "
+				+ "\"map\": ["
+				+ "{\"key\" : 0, \"value\" : \"20\"},"
+				+ "{\"key\" : 1, \"value\" : \"1.5\"}"
+				+ "]}"
+				+ "]";
 
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(Integer.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
+	}
 
-	private void testCreateContinuous() {
+	
+	@Test
+	public void testCreateDiscreteWithDoubleKey() {
+		final String edgeWidthMapping = "[{"
+				+ "\"mappingType\": \"discrete\","
+				+ "\"mappingColumn\": \"interaction\","
+				+ "\"mappingColumnType\": \"Double\","
+				+ "\"visualProperty\": \"EDGE_WIDTH\", "
+				+ "\"map\": ["
+				+ "{\"key\" : 0.0, \"value\" : \"20\"},"
+				+ "{\"key\" : 1.0, \"value\" : \"1.5\"}"
+				+ "]}"
+				+ "]";
+
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(Double.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
+	}
+	
+	@Test
+	public void testCreateDiscreteWithLongKey() {
+		final String edgeWidthMapping = "[{"
+				+ "\"mappingType\": \"discrete\","
+				+ "\"mappingColumn\": \"interaction\","
+				+ "\"mappingColumnType\": \"Long\","
+				+ "\"visualProperty\": \"EDGE_WIDTH\", "
+				+ "\"map\": ["
+				+ "{\"key\" : 0, \"value\" : \"20\"},"
+				+ "{\"key\" : 1, \"value\" : \"1.5\"}"
+				+ "]}"
+				+ "]";
+
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(Long.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
+	}
+	
+	@Test
+	public void testCreateDiscreteWithFloatKey() {
+		final String edgeWidthMapping = "[{"
+				+ "\"mappingType\": \"discrete\","
+				+ "\"mappingColumn\": \"interaction\","
+				+ "\"mappingColumnType\": \"Float\","
+				+ "\"visualProperty\": \"EDGE_WIDTH\", "
+				+ "\"map\": ["
+				+ "{\"key\" : 0.0, \"value\" : \"20\"},"
+				+ "{\"key\" : 1.0, \"value\" : \"1.5\"}"
+				+ "]}"
+				+ "]";
+
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(Float.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
+	}
+	
+	@Test
+	public void testCreateDiscreteWithBooleanKey() {
+		final String edgeWidthMapping = "[{"
+				+ "\"mappingType\": \"discrete\","
+				+ "\"mappingColumn\": \"interaction\","
+				+ "\"mappingColumnType\": \"Boolean\","
+				+ "\"visualProperty\": \"EDGE_WIDTH\", "
+				+ "\"map\": ["
+				+ "{\"key\" : true, \"value\" : \"20\"},"
+				+ "{\"key\" : false, \"value\" : \"1.5\"}"
+				+ "]}"
+				+ "]";
+
+		assertEquals(11, style.getAllVisualMappingFunctions().size());
+		
+		// Test String column
+		Entity<String> entity = Entity.entity(edgeWidthMapping, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/styles/vs1/mappings").request().post(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(201, result.getStatus());
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(12, style.getAllVisualMappingFunctions().size());
+		boolean added = false;
+		for (VisualMappingFunction<?,?> vm : style.getAllVisualMappingFunctions()){
+			if (vm.getVisualProperty().getIdString().equals("EDGE_WIDTH")) {
+				assertEquals("interaction", vm.getMappingColumnName());
+				assertEquals(Boolean.class, vm.getMappingColumnType());
+				assertTrue(vm instanceof DiscreteMapping);
+				added = true;
+			}
+		}
+		assertTrue(added);
+	}
+	
+	@Test
+	public void testCreateContinuous() {
 		final String nodeSizeMapping = "[{"
 				+ "\"mappingType\": \"continuous\","
 				+ "\"mappingColumn\": \"Degree\","
@@ -398,8 +572,8 @@ public class StyleResourceTest extends BasicResourceTest {
 		assertEquals(Double.class, p1.getRange().equalValue.getClass());
 	}
 
-
-	private void testCreatePassthrough() {
+	@Test
+	public void testCreatePassthrough() {
 		final String edgeLabelMapping = "[{"
 				+ "\"mappingType\": \"passthrough\","
 				+ "\"mappingColumn\": \"name\","

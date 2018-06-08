@@ -109,6 +109,8 @@ public class NetworkResource extends AbstractResource {
 	
 	private static final int NOT_FOUND_ERROR= 1;
 	static final int INVALID_PARAMETER_ERROR = 2;
+	static final int INTERNAL_METHOD_ERROR = 3;
+	static final int SERIALIZATION_ERROR = 3;
 	
 	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
@@ -345,7 +347,7 @@ public class NetworkResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the nodes") @PathParam("networkId") Long networkId, 
 			@ApiParam(value=COLUMN_DESCRIPTION, required=false) @QueryParam("column") String column,
 			@ApiParam(value=QUERY_STRING_DESCRIPTION, required=false) @QueryParam("query") String query) {
-		return getByQuery(NOT_FOUND_ERROR, networkId, "nodes", column, query);
+		return getByQuery(NOT_FOUND_ERROR, INTERNAL_METHOD_ERROR, INVALID_PARAMETER_ERROR, networkId, "nodes", column, query);
 	}
 
 	@GET
@@ -458,7 +460,7 @@ public class NetworkResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the edges") @PathParam("networkId") Long networkId, 
 			@ApiParam(value=COLUMN_DESCRIPTION, required=false) @QueryParam("column") String column,
 			@ApiParam(value=QUERY_STRING_DESCRIPTION, required=false) @QueryParam("query") String query) {
-		return getByQuery(NOT_FOUND_ERROR, networkId, "edges", column, query);
+		return getByQuery(NOT_FOUND_ERROR, INTERNAL_METHOD_ERROR, INVALID_PARAMETER_ERROR, networkId, "edges", column, query);
 	}
 
 
@@ -474,7 +476,7 @@ public class NetworkResource extends AbstractResource {
 		if (node == null) {
 			throw new NotFoundException("Could not find node with SUID: " + nodeId);
 		}
-		return getGraphObject(network, node);
+		return getGraphObject(SERIALIZATION_ERROR, network, node);
 	}
 
 	@GET
@@ -489,7 +491,7 @@ public class NetworkResource extends AbstractResource {
 		if (edge == null) {
 			throw new NotFoundException("Could not find edge with SUID: " + edgeId);
 		}
-		return getGraphObject(network, edge);
+		return getGraphObject(SERIALIZATION_ERROR, network, edge);
 	}
 
 	@GET

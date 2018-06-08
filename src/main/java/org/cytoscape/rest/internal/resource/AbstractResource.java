@@ -233,10 +233,15 @@ public abstract class AbstractResource {
 		return network;
 	}
 
-	protected final Collection<CyNetworkView> getCyNetworkViews(int ciErrorCode, final Long id) {
-		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(ciErrorCode, id));
+	protected final Collection<CyNetworkView> getCyNetworkViews(int networkNotFoundErrorCode, int noViewsForNetworkErrorCode, final Long id) {
+		final Collection<CyNetworkView> views = networkViewManager.getNetworkViews(getCyNetwork(networkNotFoundErrorCode, id));
 		if (views.isEmpty()) {
-			throw new NotFoundException("No view is available for network with SUID: " + id);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					noViewsForNetworkErrorCode, 
+					"No Views Available for Network with SUID: " + id, 
+					getResourceLogger(), null);
+			//throw new NotFoundException("No view is available for network with SUID: " + id);
 		}
 		return views;
 	}
@@ -249,20 +254,25 @@ public abstract class AbstractResource {
 		return node;
 	}
 
-	protected final String getGraphObject(final CyNetwork network, final CyIdentifiable obj) {
+	protected final String getGraphObject(int serializationErrorCode, final CyNetwork network, final CyIdentifiable obj) {
 		final CyRow row = network.getRow(obj);
 
 		try {
 			return this.serializer.serializeGraphObject(obj, row);
 		} catch (IOException e) {
-			throw getError("Could not serialize graph object with SUID: " + obj.getSUID(), e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize graph object with SUID: " + obj.getSUID(), e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					serializationErrorCode, 
+					"Could not serialize Graph Object with SUID: " + obj.getSUID(), 
+					getResourceLogger(), null);
 		}
 	}
 
-	protected final Collection<Long> getByQuery(int ciErrorCode, final Long id, final String objType, final String column,
+	protected final Collection<Long> getByQuery(int couldNotFindNetworkErrorCode, int invalidObjectTypeErrorCode, int invalidParameterErrorCode, final Long id, final String objType, final String column,
 			final String query) {
-		final CyNetwork network = getCyNetwork(ciErrorCode, id);
+		final CyNetwork network = getCyNetwork(couldNotFindNetworkErrorCode, id);
 		CyTable table = null;
 
 		List<? extends CyIdentifiable> graphObjects;
@@ -273,8 +283,13 @@ public abstract class AbstractResource {
 			table = network.getDefaultEdgeTable();
 			graphObjects = network.getEdgeList();
 		} else {
-			throw getError("Invalid graph object type: " + objType, new IllegalArgumentException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Invalid graph object type: " + objType, new IllegalArgumentException(),
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					invalidObjectTypeErrorCode, 
+					"Invalid Graph Object Type: " + objType, 
+					getResourceLogger(), null);
 		}
 
 		if (query == null && column == null) {
@@ -283,8 +298,13 @@ public abstract class AbstractResource {
 					.map(obj->obj.getSUID())
 					.collect(Collectors.toList());
 		} else if (query == null || column == null) {
-			throw getError("Missing query parameter.", new IllegalArgumentException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Missing query parameter.", new IllegalArgumentException(),
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					invalidParameterErrorCode, 
+					"Missing Query Parameter; query and column cannot be null", 
+					getResourceLogger(), null);
 		} else {
 			Object rawQuery = MapperUtil.getRawValue(query, table.getColumn(column).getType());
 			final Collection<CyRow> rows = table.getMatchingRows(column, rawQuery);

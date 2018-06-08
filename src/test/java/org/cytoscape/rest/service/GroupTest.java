@@ -30,7 +30,7 @@ public class GroupTest extends BasicResourceTest {
 	@Test
 	public void resourceURITest() {
 		GroupResource resource = new GroupResource();
-		assertEquals("groups", resource.getResourceURI());
+		assertEquals("networks:groups", resource.getResourceURI());
 	}
 
 	@Test

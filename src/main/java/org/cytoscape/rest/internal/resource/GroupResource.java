@@ -61,6 +61,7 @@ public class GroupResource extends AbstractResource {
 	}
 
 	private static final int NOT_FOUND_ERROR= 1;
+	public static final int  SERIALIZATION_ERROR = 2;
 	
 	private final GroupMapper mapper;
 
@@ -243,7 +244,7 @@ public class GroupResource extends AbstractResource {
 		}
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
-			return getNumberObjectString("groupSUID", newGroup.getGroupNode().getSUID());
+			return getNumberObjectString(SERIALIZATION_ERROR, "groupSUID", newGroup.getGroupNode().getSUID());
 		} catch (Exception e) {
 			throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}

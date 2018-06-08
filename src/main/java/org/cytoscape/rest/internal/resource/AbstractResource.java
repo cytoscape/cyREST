@@ -211,12 +211,12 @@ public abstract class AbstractResource {
 		return ciExceptionFactory.getCIException(status, new CIError[]{ciError});
 	}
 	
-	protected final CyNetwork getCyNetwork(int ciErrorCode, final Long id) {
+	protected final CyNetwork getCyNetwork(int networkNotFoundErrorCode, final Long id) {
 		if (id == null) {
 			//throw new NotFoundException("SUID is null.");
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					ciErrorCode, 
+					networkNotFoundErrorCode, 
 					"Could not find Network: SUID is null.", 
 					getResourceLogger(), null);
 		}
@@ -226,7 +226,7 @@ public abstract class AbstractResource {
 			//throw new NotFoundException("Could not find Network with SUID: " + id);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					ciErrorCode, 
+					networkNotFoundErrorCode, 
 					"Could not find Network with SUID: " + id, 
 					getResourceLogger(), null);
 		}
@@ -342,7 +342,7 @@ public abstract class AbstractResource {
 		return result;
 	}
 
-	protected final String getNumberObjectString(final String fieldName, final Number value) {
+	protected final String getNumberObjectString(int serializationErrorCode, final String fieldName, final Number value) {
 		final JsonFactory factory = new JsonFactory();
 
 		String result = null;
@@ -390,7 +390,7 @@ public abstract class AbstractResource {
 	}
 	
 	
-	protected final String getNetworkString(final CyNetwork network) {
+	protected final String getNetworkString(int serializationErrorCode, final CyNetwork network) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
 		if (cytoscapeJsWriterFactory == null)
@@ -410,10 +410,15 @@ public abstract class AbstractResource {
 		return jsonString;
 	}
 	
-	protected final VisualLexicon getLexicon() {
+	protected final VisualLexicon getLexicon(int noVisualLexiconErrorCode) {
 		final Set<VisualLexicon> lexicon = vmm.getAllVisualLexicon();
 		if (lexicon.isEmpty()) {
-			throw getError("Could not find visual lexicon.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not find Visual Lexicon.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					noVisualLexiconErrorCode, 
+					"Could not find Visual Lexicon", 
+					getResourceLogger(), null);
 		}
 		
 		// TODO: What happens if we have multiple renderer?

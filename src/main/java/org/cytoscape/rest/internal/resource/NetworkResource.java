@@ -83,6 +83,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.*;
+
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks")
@@ -107,11 +109,7 @@ public class NetworkResource extends AbstractResource {
 		return logger;
 	}
 	
-	private static final int NOT_FOUND_ERROR= 1;
-	static final int INVALID_PARAMETER_ERROR = 2;
-	static final int INTERNAL_METHOD_ERROR = 3;
-	static final int SERIALIZATION_ERROR = 3;
-	
+
 	@Inject
 	protected SelectFirstNeighborsTaskFactory selectFirstNeighborsTaskFactory;
 
@@ -133,7 +131,7 @@ public class NetworkResource extends AbstractResource {
 	notes = "Returns the number of networks in current Cytoscape session.",
 	response = CountModel.class)
 	public Response getNetworkCount() {
-		final String result = getNumberObjectString(JsonTags.COUNT, networkManager.getNetworkSet().size());
+		final String result = getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, networkManager.getNetworkSet().size());
 		return Response.ok(result).build();
 	}
 
@@ -277,7 +275,7 @@ public class NetworkResource extends AbstractResource {
 	notes = "Returns the number of nodes in the network specified by the `networkId` parameter.",
 	response = CountModel.class)
 	public Response getNodeCount(@ApiParam(value="SUID of the network containing the nodes") @PathParam("networkId") Long networkId) {
-		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(NOT_FOUND_ERROR, networkId).getNodeCount());
+		final String result = getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, getCyNetwork(NOT_FOUND_ERROR, networkId).getNodeCount());
 		return Response.ok(result).build();
 	}
 
@@ -288,7 +286,7 @@ public class NetworkResource extends AbstractResource {
 	notes = "Returns the number of edges in the network specified by the `networkId` parameter.",
 	response = CountModel.class)
 	public Response getEdgeCount(@ApiParam(value="SUID of the network containing the edges") @PathParam("networkId") Long networkId) {
-		final String result = getNumberObjectString(JsonTags.COUNT, getCyNetwork(NOT_FOUND_ERROR, networkId).getEdgeCount());
+		final String result = getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, getCyNetwork(NOT_FOUND_ERROR, networkId).getEdgeCount());
 		return Response.ok(result).build();
 	}
 
@@ -336,7 +334,7 @@ public class NetworkResource extends AbstractResource {
 			)
 	public String getNetwork(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		return getNetworkString(getCyNetwork(NOT_FOUND_ERROR, networkId));
+		return getNetworkString(SERIALIZATION_ERROR, getCyNetwork(NOT_FOUND_ERROR, networkId));
 	}
 
 	@GET
@@ -528,7 +526,7 @@ public class NetworkResource extends AbstractResource {
 		} else {
 			throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		return getNumberObjectString(type, nodeSUID);
+		return getNumberObjectString(SERIALIZATION_ERROR, type, nodeSUID);
 	}
 
 	@GET
@@ -959,7 +957,7 @@ public class NetworkResource extends AbstractResource {
 		}
 
 		// Return SUID-to-Original map
-		return getNumberObjectString(JsonTags.NETWORK_SUID, newNetwork.getSUID());
+		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.NETWORK_SUID, newNetwork.getSUID());
 	}
 
 	@POST
@@ -1012,7 +1010,7 @@ public class NetworkResource extends AbstractResource {
 					if(title != null) {
 						newSubNetwork.getRow(newSubNetwork).set(CyNetwork.NAME, title);
 					}
-					return getNumberObjectString(JsonTags.NETWORK_SUID, suid);
+					return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.NETWORK_SUID, suid);
 				} else {
 					throw getError("viewTask returned no networks.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
 				}

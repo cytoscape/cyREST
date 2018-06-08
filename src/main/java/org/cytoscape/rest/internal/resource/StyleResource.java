@@ -84,6 +84,8 @@ public class StyleResource extends AbstractResource {
 		return logger;
 	}
 	
+	static final int NO_VISUAL_LEXICON_ERROR = 1;
+	
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
 	@Inject
@@ -303,7 +305,7 @@ public class StyleResource extends AbstractResource {
 	}
 	
 	private final VisualMappingFunction<?, ?> getMappingFunction(final String vp, final VisualStyle style) {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Set<VisualProperty<?>> allVp = lexicon.getAllVisualProperties();
 		VisualProperty<?> visualProp = null;
 		for (VisualProperty<?> curVp : allVp) {
@@ -326,7 +328,7 @@ public class StyleResource extends AbstractResource {
 
 	private final String serializeDefaultValues(String name) {
 		final VisualStyle style = getStyleByName(name);
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		try {
 			return styleSerializer.serializeDefaults(vps, style);
@@ -364,12 +366,12 @@ public class StyleResource extends AbstractResource {
 	}
 
 	private final Set<VisualProperty<?>> getAllVisualProperties() {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		return lexicon.getAllVisualProperties();
 	}
 
 	private final VisualProperty<?> getVisualProperty(String vpName) {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		for (VisualProperty<?> vp : vps) {
 			if (vp.getIdString().equals(vpName)) {
@@ -464,7 +466,7 @@ public class StyleResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
 		try {
-			return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
+			return styleSerializer.serializeStyle(getLexicon(NO_VISUAL_LEXICON_ERROR).getAllVisualProperties(), style);
 		} catch (IOException e) {
 			throw getError("Could not get Visual Style JSON.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -484,7 +486,7 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(),
+			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(NO_VISUAL_LEXICON_ERROR),
 					rootNode);
 			vmm.addVisualStyle(style);
 			
@@ -542,7 +544,7 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(NO_VISUAL_LEXICON_ERROR),rootNode);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw getError("Could not create new Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -566,7 +568,7 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.updateStyleName(style, getLexicon(), rootNode);
+			this.visualStyleMapper.updateStyleName(style, getLexicon(NO_VISUAL_LEXICON_ERROR), rootNode);
 		} catch (Exception e) {
 			throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -593,7 +595,7 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(NO_VISUAL_LEXICON_ERROR),rootNode);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw getError("Could not update Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);

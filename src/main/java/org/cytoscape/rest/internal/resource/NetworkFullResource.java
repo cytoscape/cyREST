@@ -19,6 +19,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.*;
+
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks.json")
@@ -78,7 +81,7 @@ public class NetworkFullResource extends AbstractResource {
 		result.append("[");
 
 		for (final CyNetwork network : networks) {
-			result.append(getNetworkString(network));
+			result.append(getNetworkString(SERIALIZATION_ERROR, network));
 			result.append(",");
 		}
 		String jsonString = result.toString();

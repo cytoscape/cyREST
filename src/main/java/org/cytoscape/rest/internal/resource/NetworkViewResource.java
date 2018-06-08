@@ -107,11 +107,11 @@ public class NetworkViewResource extends AbstractResource {
 	}
 	
 	static final int NOT_FOUND_ERROR = 1;
-
 	static final int INVALID_PARAMETER_ERROR = 2;
-	
 	static final int NO_VIEWS_FOR_NETWORK_ERROR = 3;
-
+	static final int NO_VISUAL_LEXICON_ERROR = 4;
+	static final int SERIALIZATION_ERROR = 5;
+	
 	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
 	
 	private static final String VIEW_FILE_PARAMETER_NOTES = "The format of the file written is defined by the file extension.\n\n"  
@@ -165,7 +165,7 @@ public class NetworkViewResource extends AbstractResource {
 
 	private final void initLexicon() {
 		// Prepare lexicon
-		this.lexicon = getLexicon();
+		this.lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
 		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
 		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK).stream()
@@ -196,7 +196,7 @@ public class NetworkViewResource extends AbstractResource {
 			response = CountModel.class)
 	public String getNetworkViewCount(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		return getNumberObjectString(JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(NOT_FOUND_ERROR, networkId)).size());
+		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(NOT_FOUND_ERROR, networkId)).size());
 	}
 
 
@@ -594,7 +594,7 @@ public class NetworkViewResource extends AbstractResource {
 					new IllegalArgumentException(),
 					Response.Status.NOT_FOUND);
 		}
-		styleMapper.updateView(view, viewNode, getLexicon(), bypass);
+		styleMapper.updateView(view, viewNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 	}
 
 	@PUT
@@ -698,7 +698,7 @@ public class NetworkViewResource extends AbstractResource {
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(view, rootNode, getLexicon(), bypass);
+			styleMapper.updateView(view, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -732,7 +732,7 @@ public class NetworkViewResource extends AbstractResource {
 		try {
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateView(networkView, rootNode, getLexicon(), bypass);
+			styleMapper.updateView(networkView, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 		} catch (Exception e) {
 			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
 		}
@@ -986,7 +986,7 @@ public class NetworkViewResource extends AbstractResource {
 		try {
 			final ObjectMapper objMapper = new ObjectMapper();
 			final JsonNode rootNode = objMapper.readValue(inputStream, JsonNode.class);
-			styleMapper.updateViewVisualProperty(view, rootNode, getLexicon(), true);
+			styleMapper.updateViewVisualProperty(view, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), true);
 		} catch (Exception e) {
 			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					RESOURCE_URN, 
@@ -1079,7 +1079,7 @@ public class NetworkViewResource extends AbstractResource {
 		try {
 			final ObjectMapper objMapper = new ObjectMapper();
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			styleMapper.updateViewVisualProperty(networkView, rootNode, getLexicon(), true);
+			styleMapper.updateViewVisualProperty(networkView, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), true);
 		} catch (Exception e) {
 			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					RESOURCE_URN, 

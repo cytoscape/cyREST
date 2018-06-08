@@ -24,6 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.*;
+
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks.names")

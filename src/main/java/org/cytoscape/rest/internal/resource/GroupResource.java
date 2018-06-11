@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
@@ -62,6 +63,8 @@ public class GroupResource extends AbstractResource {
 
 	private static final int NOT_FOUND_ERROR= 1;
 	public static final int  SERIALIZATION_ERROR = 2;
+	private static final int INVALID_PARAMETER_ERROR = 3;
+	public static final int INTERNAL_METHOD_ERROR = 4;
 	
 	private final GroupMapper mapper;
 
@@ -92,7 +95,12 @@ public class GroupResource extends AbstractResource {
 			groupMapper.registerModule(new GroupModule(network));
 			return groupMapper.writeValueAsString(groups);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize groups.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -126,7 +134,12 @@ public class GroupResource extends AbstractResource {
 			groupMapper.registerModule(new GroupModule(network));
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -143,7 +156,12 @@ public class GroupResource extends AbstractResource {
 				groupManager.destroyGroup(group);
 			}
 		} catch (Exception e) {
-			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -158,7 +176,12 @@ public class GroupResource extends AbstractResource {
 		try {
 			groupManager.destroyGroup(group);
 		} catch (Exception e) {
-			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -200,7 +223,12 @@ public class GroupResource extends AbstractResource {
 				group.expand(network);
 			}
 		} catch (Exception e) {
-			throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not toggle group state. State: " + collapse, 
+					getResourceLogger(), e);
 		}
 		return Response.noContent().build();
 	}
@@ -240,13 +268,23 @@ public class GroupResource extends AbstractResource {
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException ex) {
-			throw getError("Could not create JSON root node.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create JSON root node.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not create JSON root node.", 
+					getResourceLogger(), ex);
 		}
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
 			return getNumberObjectString(SERIALIZATION_ERROR, "groupSUID", newGroup.getGroupNode().getSUID());
 		} catch (Exception e) {
-			throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Error creating group.", 
+					getResourceLogger(), e);
 		}
 	}
 }

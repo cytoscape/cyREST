@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.model.SUIDNameModel;
@@ -63,14 +64,24 @@ public class NetworkNameResource extends AbstractResource {
 			networks = networkManager.getNetworkSet();
 		} else {
 			if (column == null || column.length() == 0) {
-				throw getError("Column name parameter is missing.",
-						new IllegalArgumentException(),
-						Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Column name parameter is missing.",
+				//		new IllegalArgumentException(),
+				//		Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INVALID_PARAMETER_ERROR, 
+						"Column parameter is missing.", 
+						getResourceLogger(), null);
 			}
 			if (query == null || query.length() == 0) {
-				throw getError("Query parameter is missing.",
-						new IllegalArgumentException(),
-						Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Query parameter is missing.",
+				//		new IllegalArgumentException(),
+				//		Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INVALID_PARAMETER_ERROR, 
+						"Query parameter is missing.", 
+						getResourceLogger(), null);
 			}
 			networks = getNetworksByQuery(query, column);
 		}

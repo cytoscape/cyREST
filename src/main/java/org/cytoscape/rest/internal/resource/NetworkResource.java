@@ -334,7 +334,7 @@ public class NetworkResource extends AbstractResource {
 			)
 	public String getNetwork(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		return getNetworkString(SERIALIZATION_ERROR, getCyNetwork(NOT_FOUND_ERROR, networkId));
+		return getNetworkString(SERVICE_UNAVAILABLE_ERROR, SERIALIZATION_ERROR, getCyNetwork(NOT_FOUND_ERROR, networkId));
 	}
 
 	@GET
@@ -688,7 +688,12 @@ public class NetworkResource extends AbstractResource {
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException e) {
-			throw getError("Could not find root node in the given JSON..", e, Response.Status.PRECONDITION_FAILED);
+			//throw getError("Could not find root node in the given JSON..", e, Response.Status.PRECONDITION_FAILED);
+			throw this.getCIWebApplicationException(Status.PRECONDITION_FAILED.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not find root node in the given JSON.", 
+					getResourceLogger(), e);
 		}
 
 		// Single or multiple
@@ -748,12 +753,22 @@ public class NetworkResource extends AbstractResource {
 				updateViews(network);
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw getError("Could not create edge.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not create edge.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"Could not create edge.", 
+						getResourceLogger(), e);
 			}
 			return Response.status(Response.Status.CREATED).entity(result).build();
 		} else {
-			throw getError("Need to POST as array.", new IllegalArgumentException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Need to POST as array.", new IllegalArgumentException(),
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Need to POST as array.", 
+					getResourceLogger(), null);
 		}
 	}
 
@@ -899,8 +914,13 @@ public class NetworkResource extends AbstractResource {
 
 				e.printStackTrace();
 
-				throw getError("Could not load networks from given locations.", e,
-						Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not load networks from given locations.", e,
+				//		Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						URL_ERROR, 
+						"Could not load networks from given locations.", 
+						getResourceLogger(), e);
 			}
 		}
 
@@ -923,7 +943,12 @@ public class NetworkResource extends AbstractResource {
 			InputStreamTaskFactory cytoscapeJsReaderFactory = (InputStreamTaskFactory) this.cytoscapeJsReaderFactory.getService();
 			if (cytoscapeJsReaderFactory == null)
 			{
-				throw getError("Cytoscape js reader factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+				//throw getError("Cytoscape js reader factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+				throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), 
+						getResourceURI(), 
+						SERIALIZATION_ERROR, 
+						"No Cytoscape js reader available", 
+						getResourceLogger(), null);
 			}
 			it = cytoscapeJsReaderFactory.createTaskIterator(is, collection);
 		}
@@ -933,8 +958,12 @@ public class NetworkResource extends AbstractResource {
 		try {
 			reader.run(new HeadlessTaskMonitor());
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw getError("Could not parse the given network JSON.", e, Response.Status.PRECONDITION_FAILED);
+			//throw getError("Could not parse the given network JSON.", e, Response.Status.PRECONDITION_FAILED);
+			throw this.getCIWebApplicationException(Status.PRECONDITION_FAILED.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the given network JSON", 
+					getResourceLogger(), e);
 		}
 
 		final CyNetwork[] networks = reader.getNetworks();
@@ -953,7 +982,12 @@ public class NetworkResource extends AbstractResource {
 		try {
 			is.close();
 		} catch (IOException e) {
-			throw getError("Could not close the network input stream.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not close the network input stream.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not close the network input stream.", 
+					getResourceLogger(), e);
 		}
 
 		// Return SUID-to-Original map

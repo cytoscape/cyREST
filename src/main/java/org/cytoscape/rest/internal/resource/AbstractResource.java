@@ -266,7 +266,7 @@ public abstract class AbstractResource {
 					getResourceURI(), 
 					serializationErrorCode, 
 					"Could not serialize Graph Object with SUID: " + obj.getSUID(), 
-					getResourceLogger(), null);
+					getResourceLogger(), e);
 		}
 	}
 
@@ -358,7 +358,12 @@ public abstract class AbstractResource {
 			result = stream.toString("UTF-8");
 			stream.close();
 		} catch (IOException e) {
-			throw getError("Could not serialize number: " + value, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize number: " + value, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					serializationErrorCode, 
+					"Could not serialize number: " + value, 
+					getResourceLogger(), e);
 		}
 
 		return result;
@@ -390,12 +395,17 @@ public abstract class AbstractResource {
 	}
 	
 	
-	protected final String getNetworkString(int serializationErrorCode, final CyNetwork network) {
+	protected final String getNetworkString(int serviceUnavailableErrorCode, int serializationErrorCode, final CyNetwork network) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
 		if (cytoscapeJsWriterFactory == null)
 		{
-			throw getError("Cytoscape js writer factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+			//throw getError("Cytoscape js writer factory is unavailable.", new IllegalStateException(), Response.Status.SERVICE_UNAVAILABLE);
+			throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), 
+					getResourceURI(), 
+					serviceUnavailableErrorCode, 
+					"No Cytoscape js writer available", 
+					getResourceLogger(), null);
 		}
 		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, network);
 		String jsonString = null;
@@ -404,7 +414,12 @@ public abstract class AbstractResource {
 			jsonString = stream.toString("UTF-8");
 			stream.close();
 		} catch (Exception e) {
-			throw getError("Could not serialize network into JSON.", e, Response.Status.PRECONDITION_FAILED);
+			//throw getError("Could not serialize network into JSON.", e, Response.Status.PRECONDITION_FAILED);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					serializationErrorCode, 
+					"Could not serialize network into JSON.", 
+					getResourceLogger(), e);
 		}
 		
 		return jsonString;

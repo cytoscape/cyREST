@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.EdgeBundler;
@@ -94,6 +95,9 @@ public class AlgorithmicResource extends AbstractResource {
 	}
 	
 	private static final int NOT_FOUND_ERROR= 1;
+	private static final int ALGORITHM_EXECUTION_ERROR = 2;
+	private static final int INVALID_PARAMETER_ERROR = 3;
+	private static final int ILLEGAL_Y_FILES_ACCESS_ERROR  = 4;
 	
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
@@ -136,8 +140,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not apply layout.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not apply layout.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not apply layout.", 
+					getResourceLogger(), e);
 		}
 	
 		return new MessageModel("Layout finished.");		
@@ -165,8 +174,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			params = getLayoutDetails(layout);
 		} catch (Exception e) {
-			throw getError("Could not get layout parameters.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get layout parameters.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not get layout parameters.", 
+					getResourceLogger(), e);
 		}
 		return Response.status(Response.Status.OK)
 				.entity(params)
@@ -194,8 +208,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			params = getLayoutParameterDetails(layout);
 		} catch (Exception e) {
-			throw getError("Could not get layout parameters.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get layout parameters.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not get layout parameters.", 
+					getResourceLogger(), e);
 		}
 		
 		return Response.status(Response.Status.OK)
@@ -286,10 +305,15 @@ public class AlgorithmicResource extends AbstractResource {
 			}
 			
 		} catch (Exception e) {
-			throw getError(
-					"Could not parse the input JSON for updating view because: "
-							+ e.getMessage(), e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError(
+			//		"Could not parse the input JSON for updating view because: "
+			//				+ e.getMessage(), e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse input JSON.", 
+					getResourceLogger(), e);
 		}
 		
 		return Response.status(Response.Status.OK)
@@ -409,8 +433,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			fit.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not fit content.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not fit content.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not fit content.", 
+					getResourceLogger(), e);
 		}
 		return new MessageModel("Fit content success.");
 	}
@@ -439,8 +468,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			bundler.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not finish edge bundling.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not finish edge bundling.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not finish edge bundling.", 
+					getResourceLogger(), e);
 		}
 
 		return new MessageModel("Edge bundling success.");
@@ -485,8 +519,13 @@ public class AlgorithmicResource extends AbstractResource {
 	
 	private void throw404ifYFiles(String algorithmName) {
 		if (isYFiles(algorithmName)) {
-			throw getError("No such layout: " + algorithmName,
-					new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
+			//throw getError("No such layout: " + algorithmName,
+			//		new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					ILLEGAL_Y_FILES_ACCESS_ERROR, 
+					"No such layout: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 	}
 	

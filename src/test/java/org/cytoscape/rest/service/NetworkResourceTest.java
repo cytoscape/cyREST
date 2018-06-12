@@ -145,19 +145,39 @@ public class NetworkResourceTest extends BasicResourceTest {
 	
 	@Test
 	public void testGetNetworksQueryNullProducesError() throws Exception {
-		Response result = target("/v1/networks").queryParam("column", "dummy").request().get();
-		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		Response response = target("/v1/networks").queryParam("column", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
 	
-		errorReverseCompatibility(result, "Query parameter is missing.");
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:2", errorNode.get("type").asText());
 	}
 	
 	@Test
 	public void testGetNetworksColumnNullProducesError() throws Exception {
-		Response result = target("/v1/networks").queryParam("query", "dummy").request().get();
-		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		Response response = target("/v1/networks").queryParam("query", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
 	
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:2", errorNode.get("type").asText());
+		
 	}
 	
 

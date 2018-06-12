@@ -7,6 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
@@ -59,23 +60,18 @@ public class NetworkFullResource extends AbstractResource {
 		if (column == null && query == null) {
 			networks = networkManager.getNetworkSet();
 		} else {
-			if(column == null || column.length() == 0) {
-				//throw getError("Column name parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+			try {
+				networks = getNetworksByQuery(INVALID_PARAMETER_ERROR, query, column);
+			} catch(WebApplicationException e) {
+				throw(e);
+			} catch (Exception e) {
+				//throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
 				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 						getResourceURI(), 
-						INVALID_PARAMETER_ERROR, 
-						"Column name parameter is missing.", 
-						getResourceLogger(), null);
+						INTERNAL_METHOD_ERROR, 
+						"Error executing Network query.", 
+						getResourceLogger(), e);
 			}
-			if(query == null || query.length() == 0) {
-				//throw getError("Query parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
-				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
-						getResourceURI(), 
-						INVALID_PARAMETER_ERROR, 
-						"Query parameter is missing.", 
-						getResourceLogger(), null);
-			}
-			networks = getNetworksByQuery(query, column);
 		}
 		
 		return getNetworksAsString(networks);

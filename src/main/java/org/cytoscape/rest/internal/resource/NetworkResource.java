@@ -34,6 +34,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.WebApplicationException;
 
 import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.io.read.AbstractCyNetworkReader;
@@ -302,17 +303,17 @@ public class NetworkResource extends AbstractResource {
 		if (column == null && query == null) {
 			networks = networkManager.getNetworkSet();
 		} else {
-			if(column == null || column.length() == 0) {
-				throw getError("Column name parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
-			}
-			if(query == null || query.length() == 0) {
-				throw getError("Query parameter is missing.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
-			}
-
 			try {
-				networks = getNetworksByQuery(query, column);
-			} catch(Exception e) {
-				throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				networks = getNetworksByQuery(INVALID_PARAMETER_ERROR, query, column);
+			} catch(WebApplicationException e) {
+				throw(e);
+			} catch (Exception e) {
+				//throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"Error executing Network query.", 
+						getResourceLogger(), e);
 			}
 		}
 
@@ -394,7 +395,12 @@ public class NetworkResource extends AbstractResource {
 				output.add(suid.longValue());
 			}
 			else {
-				throw getError("SUID " + suid + " cannot be found in table.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("SUID " + suid + " cannot be found in table.", new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"SUID " + suid + " cannot be found in table.", 
+						getResourceLogger(), null);
 			}
 		}
 		return output;
@@ -515,7 +521,12 @@ public class NetworkResource extends AbstractResource {
 		final CyEdge edge = network.getEdge(edgeId);
 
 		if (edge == null) {
-			throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Edge. SUID: " + edgeId, 
+					getResourceLogger(), null);
 		}
 
 		Long nodeSUID = null;
@@ -540,7 +551,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find edge: " + edgeId, new RuntimeException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Edge. SUID: " + edgeId, 
+					getResourceLogger(), null);
 		}
 		return edge.isDirected();
 	}
@@ -570,7 +586,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNode node = getNode(network, nodeId);
 		final CyNetwork pointer = node.getNetworkPointer();
 		if (pointer == null) {
-			throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Network pointer", 
+					getResourceLogger(), null);
 		}
 
 		return new NetworkSUIDModel(pointer.getSUID());
@@ -627,7 +648,12 @@ public class NetworkResource extends AbstractResource {
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException e) {
-			throw getError("Could not JSON root node.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not JSON root node.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse input JSON", 
+					getResourceLogger(), e);
 		}
 
 		// Single or multiple
@@ -654,14 +680,24 @@ public class NetworkResource extends AbstractResource {
 				result = stream.toString("UTF-8");
 				stream.close();
 				updateViews(network);
-			} catch (Exception e) {
-				throw getError("Could not create node list.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			} catch (IOException e) {
+				//throw getError("Could not create node list.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						SERIALIZATION_ERROR, 
+						"Could not create node list.", 
+						getResourceLogger(), e);
 			}
 
 			return Response.status(Response.Status.CREATED).entity(result).build();
 		} else {
-			throw getError("Need to post as array.", new IllegalArgumentException(),
-					Response.Status.PRECONDITION_FAILED);
+			//throw getError("Need to post as array.", new IllegalArgumentException(),
+			//		Response.Status.PRECONDITION_FAILED);
+			throw this.getCIWebApplicationException(Status.PRECONDITION_FAILED.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Message body was not an array.", 
+					getResourceLogger(), null);
 		}
 	}
 
@@ -1024,13 +1060,23 @@ public class NetworkResource extends AbstractResource {
 				} else {
 				}
 			} catch (Exception e) {
-				throw getError("Could not create sub network from selection.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not create sub network from selection.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"Could not create sub network from selection.", 
+						getResourceLogger(), e);
 			}
 		}
 		try {
 			is.close();
 		} catch (IOException e) {
-			throw getError("Could not close the stream.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not close the stream.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not close input stream.", 
+					getResourceLogger(), e);
 		}
 
 		if (viewTask != null) {
@@ -1046,24 +1092,59 @@ public class NetworkResource extends AbstractResource {
 					}
 					return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.NETWORK_SUID, suid);
 				} else {
-					throw getError("viewTask returned no networks.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+					//throw getError("viewTask returned no networks.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+					throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+							getResourceURI(), 
+							INTERNAL_METHOD_ERROR, 
+							"viewTask returned no networks.", 
+							getResourceLogger(), null);
 				}
 			} catch (NoSuchMethodException e) {
-				throw getError("no method 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("no method 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"no method 'getResults(Class)' in viewTask.", 
+						getResourceLogger(), e);
 			} catch (SecurityException e) {
-				throw getError("security exeception accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("security exeception accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"security exeception accessing 'getResults(Class)' in viewTask.", 
+						getResourceLogger(), e);
 			} catch (IllegalAccessException e) {
-				throw getError("IllegalAccessException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("IllegalAccessException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"IllegalAccessException accessing 'getResults(Class)' in viewTask", 
+						getResourceLogger(), e);
 			} catch (IllegalArgumentException e) {
-				throw getError("IllegalArgumentException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("IllegalArgumentException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"IllegalArgumentException accessing 'getResults(Class)' in viewTask", 
+						getResourceLogger(), e);
 			} catch (InvocationTargetException e) {
-				throw getError("InvocationTargetException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("InvocationTargetException accessing 'getResults(Class)' in viewTask.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"InvocationTargetException accessing 'getResults(Class)' in viewTask.", 
+						getResourceLogger(), e);
 			}
 		} else {
 			System.err.println("viewTask was null");
 		}
 
-		throw getError("Could not get new network SUID.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+		//throw getError("Could not get new network SUID.", new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+		throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+				getResourceURI(), 
+				INTERNAL_METHOD_ERROR, 
+				"Could not get new network SUID", 
+				getResourceLogger(), null);
 	}
 
 	private final Map<String, Map<String, Object>> getNetworkProps(JsonNode root) {
@@ -1244,7 +1325,6 @@ public class NetworkResource extends AbstractResource {
 					generator.writeNumber(suid);
 				}
 				generator.writeEndArray();
-
 				generator.writeEndObject();
 			}
 			generator.writeEndArray();
@@ -1253,7 +1333,12 @@ public class NetworkResource extends AbstractResource {
 			result = stream.toString("UTF-8");
 			stream.close();
 		} catch (IOException e) {
-			throw getError("Could not create object count.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create object count.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not create object count.", 
+					getResourceLogger(), e);
 		}
 
 		return result;

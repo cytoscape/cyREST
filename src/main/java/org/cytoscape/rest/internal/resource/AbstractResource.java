@@ -1,5 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INVALID_PARAMETER_ERROR;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -369,7 +371,34 @@ public abstract class AbstractResource {
 		return result;
 	}
 	
-	protected final Set<CyNetwork> getNetworksByQuery(final String query, final String column) {
+	protected final Set<CyNetwork> getNetworksByQuery(int invalidParameterErrorCode, final String query, final String column) throws WebApplicationException {
+		
+		if (column == null && query == null) {
+			
+		} else {
+			if (column == null || column.length() == 0) {
+				//throw getError("Column name parameter is missing.",
+				//		new IllegalArgumentException(),
+				//		Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						invalidParameterErrorCode, 
+						"Column parameter is missing.", 
+						getResourceLogger(), null);
+			}
+			if (query == null || query.length() == 0) {
+				//throw getError("Query parameter is missing.",
+				//		new IllegalArgumentException(),
+				//		Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						invalidParameterErrorCode, 
+						"Query parameter is missing.", 
+						getResourceLogger(), null);
+			}
+			
+		}
+		
 		final Set<CyNetwork> networks = networkManager.getNetworkSet();
 		final Set<CyNetwork> matchedNetworks = new HashSet<>();
 

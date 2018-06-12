@@ -1122,22 +1122,4 @@ public class BasicResourceTest extends JerseyTest {
 			}
 		};
 	}
-	
-	protected void errorReverseCompatibility(Response response, String message) {
-		ObjectMapper mapper = new ObjectMapper();
-		final String body = response.readEntity(String.class);
-		//System.out.println("BODY: " + body);
-		try {
-			final JsonNode root = mapper.readTree(body);
-			assertNotNull(root.get("cause"));
-			assertNotNull(root.get("stackTrace"));
-			assertNotNull(root.get("classContext"));
-			assertNotNull(root.get("suppressed"));
-			assertEquals(message, root.get("message").asText());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new AssertionError("Result is invalid JSON");
-		}
-		
-	}
 }

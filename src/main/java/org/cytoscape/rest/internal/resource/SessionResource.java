@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.rest.internal.model.FileModel;
@@ -53,6 +54,8 @@ public class SessionResource extends AbstractResource {
 	public Logger getResourceLogger() {
 		return logger;
 	}
+	
+	public static final int INTERNAL_METHOD_ERROR = 1;
 	
 	@Inject
 	@NotNull
@@ -111,7 +114,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not delete current session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete current session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete current session.", 
+					logger, e);
 		}
 		return new MessageModel("New session created.");
 	}
@@ -133,7 +141,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not open session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not open session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not open session.", 
+					logger, e);
 		}
 		return new FileModel(sessionFile.getAbsolutePath());
 	}
@@ -155,7 +168,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not save session.", 
+					logger, e);
 		}
 	
 		return new FileModel(sessionFile.getAbsolutePath());

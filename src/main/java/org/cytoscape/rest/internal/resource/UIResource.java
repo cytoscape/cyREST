@@ -64,6 +64,8 @@ public class UIResource extends AbstractResource {
 		return logger;
 	}
 	
+	public static final int INTERNAL_METHOD_ERROR = 1;
+	
 	@Inject
 	@NotNull
 	protected CySwingApplication desktop;
@@ -106,8 +108,13 @@ public class UIResource extends AbstractResource {
 		try {
 			lod.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not toggle LOD.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not toggle LOD.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not toggle LOD.", 
+					logger, e);
 		}
 
 		return new MessageModel("Toggled Graphics level of details.");
@@ -127,7 +134,12 @@ public class UIResource extends AbstractResource {
 			.map(panel->getMap(panel))
 			.collect(Collectors.toList());
 		} catch(Exception ex) {
-			throw getError("Could not getpanel status", ex, Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not getpanel status", ex, Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get panel status.", 
+					logger, ex);
 		}
 	}
 

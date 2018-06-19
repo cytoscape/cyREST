@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
@@ -57,30 +58,32 @@ import io.swagger.annotations.ApiResponses;
 @Path("/v1/networks/{networkId}/tables")
 public class TableResource extends AbstractResource {
 
-	private static final int NOT_FOUND_ERROR= 1;
-	
+	static final int NOT_FOUND_ERROR= 1;
+	static final int INVALID_PARAMETER_ERROR = 2;
+	static final int SERIALIZATION_ERROR = 3;
+
 	static final String RESOURCE_URN = "networks:tables";
 
 	@Override
 	public String getResourceURI() {
 		return RESOURCE_URN;
 	}
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(TableResource.class);
-	
+
 	@Override
 	public Logger getResourceLogger() {
 		return logger;
 	}
-	
+
 	public final static String ROW_EXAMPLE="A row contains one or more entries of column names to values.\n\n"
 			+ "```json\n{\n" 
 			+ "  \"SUID\": 101,\n"  
 			+ "  \"gene_name\": \"brca1\",\n" 
 			+ "  \"exp\": 0.1\n" 
 			+ "}\n```";
-			
-	
+
+
 	public final static String ROW_ARRAY_EXAMPLE="```\n[\n" 
 			+ "  {\n" 
 			+ "    \"SUID\": 101,\n"  
@@ -94,8 +97,8 @@ public class TableResource extends AbstractResource {
 			+ "  }\n"
 			+ "]\n"
 			+ "```";
-	
-	
+
+
 	private static enum TableType {
 		DEFAULT_NODE("defaultnode"), DEFAULT_EDGE("defaultedge"), DEFAULT_NETWORK("defaultnetwork");
 
@@ -122,12 +125,12 @@ public class TableResource extends AbstractResource {
 		this.tableSerializer = new CyTableSerializer();
 	}
 
-	
+
 	@POST
 	@Path("/{tableType}/columns")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create new column(s) in the table", notes="Creates a new, empty column in the table specified by the `tableType` parameter, in the network specified by the `networkId` parameter.\n\n"
-	 + "This resource can also accept an array of new columns to create multiple columns.")
+			+ "This resource can also accept an array of new columns to create multiple columns.")
 	@ApiImplicitParams( value= {
 			@ApiImplicitParam(value="New Column Info", dataType="org.cytoscape.rest.internal.model.NewColumnParameterModel", paramType="body", required=true),
 	})
@@ -142,25 +145,33 @@ public class TableResource extends AbstractResource {
 		final CyTable table = getTableByType(network, tableType, null);
 		final CyTable localTable = getTableByType(
 				network, tableType, JsonTags.COLUMN_IS_LOCAL);
-		
+
 		final ObjectMapper objMapper = new ObjectMapper();
+		JsonNode rootNode = null;
 		try {
-			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			if(rootNode.isArray()) {
-				for(JsonNode node: rootNode) {
-					tableMapper.createNewColumn(node, table, localTable);
-				}
-			} else {
-				tableMapper.createNewColumn(rootNode, table, localTable);
-			}
-			
-			// Use 201 for created resource
-			return Response.status(Response.Status.CREATED).build();
-			
+			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (Exception e) {
-			throw getError("Could not process column JSON.", 
-					e, Response.Status.PRECONDITION_FAILED);
+			//throw getError("Could not process column JSON.", 
+			//		e, Response.Status.PRECONDITION_FAILED);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not process column JSON.", 
+					logger, e);
 		}
+
+		if(rootNode.isArray()) {
+			for(JsonNode node: rootNode) {
+				tableMapper.createNewColumn(node, table, localTable);
+			}
+		} else {
+			tableMapper.createNewColumn(rootNode, table, localTable);
+		}
+
+		// Use 201 for created resource
+		return Response.status(Response.Status.CREATED).build();
+
+
 	}
 
 	@DELETE
@@ -177,7 +188,7 @@ public class TableResource extends AbstractResource {
 			return Response.ok().build();
 		} else {
 			logger.error("Failed to delete a column. (Missing table?)");
-			
+
 			throw new NotFoundException("Could not find the table.  (This should not happen!)");
 		}
 	}
@@ -196,14 +207,19 @@ public class TableResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final ObjectMapper objMapper = new ObjectMapper();
-		
+
 		try {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			tableMapper.updateColumnName(rootNode, table);
 			return Response.ok().build();
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating "
-					+ "column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not parse the input JSON for updating "
+			//		+ "column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating column name.", 
+					logger, e);
 		}
 	}
 
@@ -229,14 +245,21 @@ public class TableResource extends AbstractResource {
 			tableMapper.updateAllColumnValues(defaultValue, table, columnName);
 		} else {
 			final ObjectMapper objMapper = new ObjectMapper();
+			JsonNode rootNode = null;
 			try {
-				final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-				tableMapper.updateColumnValues(rootNode, table, columnName);
+				rootNode = objMapper.readValue(is, JsonNode.class);
+				
 			} catch (IOException e) {
-				throw getError(
-						"Could not parse the input JSON for updating column values.",
-						e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError(
+				//		"Could not parse the input JSON for updating column values.",
+				//		e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						RESOURCE_URN, 
+						INVALID_PARAMETER_ERROR, 
+						"Could not parse the input JSON for updating column values.", 
+						logger, e);
 			}
+			tableMapper.updateColumnValues(rootNode, table, columnName);
 		}
 		return Response.ok().build();
 	}
@@ -245,13 +268,13 @@ public class TableResource extends AbstractResource {
 	@Path("/{tableType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Update default node/edge/network data table",
-			notes="Updates the table specified by the `tableType` and `networkId` parameters.  New columns will be created if they "
+	notes="Updates the table specified by the `tableType` and `networkId` parameters.  New columns will be created if they "
 			+ "do not exist in the target table.\n"
 			+ "\n"
-	+ "Current limitations:\n"
-	+ "* Numbers are handled as Double\n"
-	+ "* List column is not supported in this version\n"
-	)
+			+ "Current limitations:\n"
+			+ "* Numbers are handled as Double\n"
+			+ "* List column is not supported in this version\n"
+			)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTableModel", paramType="body", required=true)
 			)
@@ -261,22 +284,25 @@ public class TableResource extends AbstractResource {
 			@ApiParam(allowableValues="local", required=false) @QueryParam("class") String tableClass,
 			@ApiParam(hidden=true) final InputStream is
 			) {
-		
+
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, tableClass);
 		final ObjectMapper objMapper = new ObjectMapper();
-
+		JsonNode rootNode = null;
 		try {
 			// This should be an JSON array.
-			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			tableMapper.updateTableValues(rootNode, table);
+			rootNode = objMapper.readValue(is, JsonNode.class);
+			
 		} catch (Exception e) {
-			
 			e.printStackTrace();
-			
-			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating table because: " + e.getMessage(), 
+					logger, e);
 		}
-		
+		tableMapper.updateTableValues(rootNode, table);
 		return Response.ok().build();
 	}
 
@@ -300,8 +326,13 @@ public class TableResource extends AbstractResource {
 		try {
 			return this.serializer.serializeRow(row);
 		} catch (IOException e) {
-			throw getError("Could not serialize a row with primary key: " + primaryKey, e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize a row with primary key: " + primaryKey, e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize a row with primary key: " + primaryKey, 
+					logger, e);
 		}
 	}
 
@@ -361,7 +392,12 @@ public class TableResource extends AbstractResource {
 		try {
 			return this.serializer.serializeAllRows(table.getAllRows());
 		} catch (IOException e) {
-			throw getError("Could not serialize rows.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize rows.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize rows.", 
+					logger, e);
 		}
 	}
 
@@ -377,7 +413,12 @@ public class TableResource extends AbstractResource {
 		try {
 			return this.serializer.serializeColumns(table.getColumns());
 		} catch (IOException e) {
-			throw getError("Could not serialize column names.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize column names.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize column names.", 
+					logger, e);
 		}
 	}
 
@@ -397,7 +438,12 @@ public class TableResource extends AbstractResource {
 		try {
 			return this.serializer.serializeColumnValues(column, values);
 		} catch (IOException e) {
-			throw getError("Could not serialize column values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize column values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize column names.", 
+					logger, e);
 		}
 	}
 
@@ -410,13 +456,18 @@ public class TableResource extends AbstractResource {
 		try {
 			return tableObjectMapper.writeValueAsString(tables);
 		} catch (IOException e) {
-			throw getError("Could not serialize tables.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize tables.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize tables.", 
+					logger, e);
 		}
 	}
 
 	private final CyTable getTableByType(final CyNetwork network, 
 			final String tableType, final String tableClass) {
-		
+
 		// Check local or not
 		final Boolean isLocal;
 		if(tableClass == null || tableClass.isEmpty()) {
@@ -426,7 +477,7 @@ public class TableResource extends AbstractResource {
 		} else {
 			isLocal = false;
 		}
-		
+
 		CyTable table;
 		if (tableType.equals(TableType.DEFAULT_NODE.getType())) {
 			if(isLocal) {
@@ -466,7 +517,12 @@ public class TableResource extends AbstractResource {
 		try {
 			return this.tableObjectMapper.writeValueAsString(table);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize table.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize table.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize table.", 
+					logger, e);
 		}
 	}
 
@@ -479,7 +535,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
 		return getTableString(networkId, tableType, ",");
 	}
-	
+
 	@GET
 	@Path("/{tableType}.tsv")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -489,8 +545,8 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
 		return getTableString(networkId, tableType, "\t");
 	}
-	
-	
+
+
 	/**
 	 * Actual function to generate CSV/TSV
 	 * 
@@ -508,7 +564,12 @@ public class TableResource extends AbstractResource {
 			final String result = tableSerializer.toCSV(table, separator);
 			return result;
 		} catch (Exception e) {
-			throw getError("Could not serialize table into CSV.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize table into CSV.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not serialize table into CSV.", 
+					logger, e);
 		}
 	}
 }

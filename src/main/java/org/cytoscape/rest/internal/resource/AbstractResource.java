@@ -1,7 +1,5 @@
 package org.cytoscape.rest.internal.resource;
 
-import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INVALID_PARAMETER_ERROR;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -12,11 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.CyApplicationManager;
@@ -42,7 +37,6 @@ import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
-import org.cytoscape.rest.internal.serializer.ExceptionSerializer;
 import org.cytoscape.rest.internal.serializer.GraphObjectSerializer;
 import org.cytoscape.rest.internal.task.CyRESTPort;
 import org.cytoscape.rest.internal.task.CytoscapeJsReaderFactory;
@@ -59,9 +53,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Inject;
 
 /**
@@ -84,43 +75,6 @@ public abstract class AbstractResource {
 	public abstract String getResourceURI();
 	
 	public abstract Logger getResourceLogger();
-	
-	/**
-	 * Create a informative error message instead of plain 500.
-	 * 
-	 * @param errorMessage
-	 * @param ex
-	 * @param status
-	 * @return
-	 */
-	protected final WebApplicationException getError(final String errorMessage, final Exception ex, final Status status) {
-		// This is necessary to avoid threading issues.
-//		final Exception cause = new Exception(ex.getMessage());
-//		cause.setStackTrace(ex.getStackTrace());
-		final Exception wrapped = new IllegalStateException(errorMessage, ex);
-		ObjectMapper mapper = new ObjectMapper();
-		 
-		SimpleModule module = new SimpleModule();
-		module.addSerializer(Exception.class, new ExceptionSerializer());
-		mapper.registerModule(module);
-		String serialized;
-		try {
-			serialized = mapper.writeValueAsString(wrapped);
-		} catch (JsonProcessingException e) {
-			serialized = "Exception processing Error.";
-			e.printStackTrace();
-		}
-		
-		if (status == Response.Status.INTERNAL_SERVER_ERROR) {
-			// Otherwise, 500.
-			return new InternalServerErrorException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(serialized ).build());
-		} else {
-			// All other types
-			return new WebApplicationException(Response.status(status).type(MediaType.APPLICATION_JSON)
-					.entity(serialized ).build());
-		}
-	}
 
 	@Inject
 	@NotNull

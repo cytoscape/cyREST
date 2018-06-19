@@ -1,5 +1,7 @@
 package org.cytoscape.rest.internal.resource;
 
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INVALID_PARAMETER_ERROR;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -111,6 +113,9 @@ public class NetworkViewResource extends AbstractResource {
 	static final int NO_VIEWS_FOR_NETWORK_ERROR = 3;
 	static final int NO_VISUAL_LEXICON_ERROR = 4;
 	static final int SERIALIZATION_ERROR = 5;
+	public static final int INTERNAL_METHOD_ERROR = 6;
+	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 7;
+	public static final int VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR = 8;
 	
 	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
 	
@@ -215,8 +220,13 @@ public class NetworkViewResource extends AbstractResource {
 
 			return Response.ok().build();
 		} catch (Exception e) {
-			throw getError("Could not delete network views for network with SUID: " + networkId, e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete network views for network with SUID: " + networkId, e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete network views for network with SUID: " + networkId, 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -314,8 +324,13 @@ public class NetworkViewResource extends AbstractResource {
 			final CyNetworkViewWriterFactory cxWriterFactory = 
 					viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
 			if(cxWriterFactory == null) {
-				throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
-						new RuntimeException(), Status.NOT_IMPLEMENTED);
+				//throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
+				//		new RuntimeException(), Status.NOT_IMPLEMENTED);
+				throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), 
+						getResourceURI(), 
+						CX_SERVICE_UNAVAILABLE_ERROR, 
+						"CX writer is not available.  Please install CX Support App to use this API.", 
+						getResourceLogger(), null);
 			} else {
 				return Response.ok(getNetworkViewStringAsCX(targetView)).build();
 			}
@@ -333,7 +348,12 @@ public class NetworkViewResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not save network file.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not save network file.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not save network file.", 
+					logger, e);
 		}
 
 		final Map<String, String> message = new HashMap<>();
@@ -438,8 +458,13 @@ public class NetworkViewResource extends AbstractResource {
 	private final Response getImage(String fileType, Long networkId, int height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		if (views.isEmpty()) {
-			throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
-					Response.Status.NOT_FOUND);
+			//throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
+			//		Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NO_VIEWS_FOR_NETWORK_ERROR, 
+					"Could not create image. No views available for network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 
 		final PresentationWriterFactory factory = graphicsWriterManager.getFactory(fileType);
@@ -515,7 +540,12 @@ public class NetworkViewResource extends AbstractResource {
 				re = renderingEngineManager.getRenderingEngines(view);
 			}
 		} catch (InterruptedException e) {	
-			throw getError("Image generation interrupted", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Image generation interrupted", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Image generation interrupted", 
+					getResourceLogger(), e);
 		}
 		if (re.isEmpty()) {
 			throw new IllegalArgumentException("No rendering engine for {\"network\":" + view.getModel().getSUID() +", \"view\":" + view.getSUID() + "}");
@@ -530,7 +560,12 @@ public class NetworkViewResource extends AbstractResource {
 				}
 			}
 			if (engine == null) {
-				throw getError("No DING rendering engine available", new Exception(), Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("No DING rendering engine available", new Exception(), Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"No DING rendering engine available", 
+						getResourceLogger(), null);
 			}
 
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -570,7 +605,12 @@ public class NetworkViewResource extends AbstractResource {
 			return Response.ok(new ByteArrayInputStream(imageData)).build();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not create image.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create image.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not create image.", 
+					getResourceLogger(), e);
 		}
 	}
 	
@@ -582,17 +622,27 @@ public class NetworkViewResource extends AbstractResource {
 
 		// This error throw is left over from a previous implementation, and persists to ensure backward compatibility. 
 		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
-			throw getError("Method not supported.",
-					new IllegalStateException(),
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Method not supported.",
+			//		new IllegalStateException(),
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+			          RESOURCE_URN,  
+			          NOT_FOUND_ERROR,  
+			          "Object type not recognized:" + objectType,  
+			          logger, null); 
 		}
 
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if (view == null) {
-			throw getError("Could not find view.",
-					new IllegalArgumentException(),
-					Response.Status.NOT_FOUND);
+			//throw getError("Could not find view.",
+			//		new IllegalArgumentException(),
+			//		Response.Status.NOT_FOUND);
+			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+			          RESOURCE_URN,  
+			          NOT_FOUND_ERROR,  
+			          "Could not find view.",  
+			          logger, null); 
 		}
 		styleMapper.updateView(view, viewNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 	}
@@ -645,10 +695,15 @@ public class NetworkViewResource extends AbstractResource {
 			// Repaint
 			networkView.updateView();
 		} catch (Exception e) {
-			throw getError(
-					"Could not parse the input JSON for updating view because: "
-							+ e.getMessage(), e,
-							Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError(
+			//		"Could not parse the input JSON for updating view because: "
+			//				+ e.getMessage(), e,
+			//				Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating view because: " + e.getMessage(), 
+					logger, e);
 		}
 		return Response.ok().build();
 	}
@@ -686,7 +741,12 @@ public class NetworkViewResource extends AbstractResource {
 		}*/
 
 		if(view == null) {
-			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view.", 
+					logger, null);
 		}
 
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -700,7 +760,12 @@ public class NetworkViewResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			styleMapper.updateView(view, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating view because: " + e.getMessage(), 
+					logger, e);
 		}
 		// Repaint
 		networkView.updateView();
@@ -734,7 +799,12 @@ public class NetworkViewResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			styleMapper.updateView(networkView, rootNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not parse the input JSON for updating view because: " + e.getMessage(), e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON for updating view because: " + e.getMessage(), 
+					logger, e);
 		}
 		// Repaint
 		networkView.updateView();
@@ -776,13 +846,23 @@ public class NetworkViewResource extends AbstractResource {
 		Collection<VisualProperty<?>> lexicon = getVisualProperties(objectType);
 
 		if(view == null) {
-			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view.", 
+					logger, null);
 		}
 
 		try {
 			return styleSerializer.serializeView(view, lexicon);
 		} catch (IOException e) {
-			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize the view object.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -835,14 +915,24 @@ public class NetworkViewResource extends AbstractResource {
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
-			throw getError("Object type " + objectType + " not recognized", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			//throw getError("Object type " + objectType + " not recognized", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Object type not recognized:" + objectType, 
+					logger, null);
 		}
 
 		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if(view == null) {
-			throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view.", 
+					logger, null);
 		}
 
 		return getSingleVp(visualProperty, view, vps);
@@ -937,10 +1027,10 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		if(targetVp == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Could not find bypass visual property: " + visualProperty, 
-					logger, null);
+					getResourceURI(), 
+					VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR, 
+					"Bypass Visual Property does not exist: " + visualProperty, 
+					getResourceLogger(), null);
 		}
 		return targetVp;
 	}
@@ -1153,13 +1243,23 @@ public class NetworkViewResource extends AbstractResource {
 			}
 		}
 		if(targetVp == null) {
-			throw getError("Could not find such Visual Property: " + visualProperty , new NotFoundException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find such Visual Property: " + visualProperty , new NotFoundException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR, 
+					"Visual Property does not exist: " + visualProperty, 
+					getResourceLogger(), null);
 		}
 
 		try {
 			return styleSerializer.serializeSingleVisualProp(view, targetVp);
 		} catch (IOException e) {
-			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize the view object.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -1200,17 +1300,32 @@ public class NetworkViewResource extends AbstractResource {
 			try {
 				return styleSerializer.serializeView(networkView, vps);
 			} catch (IOException e) {
-				throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						SERIALIZATION_ERROR, 
+						"Could not serialize the view object.", 
+						getResourceLogger(), e);
 			}
 		} 
 
 		if(graphObjects == null || graphObjects.isEmpty()) {
-			throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			//throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
+			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+			          RESOURCE_URN,  
+			          NOT_FOUND_ERROR,  
+			          "Could not find views.",  
+			          logger, null); 
 		}
 		try {
 			return styleSerializer.serializeViews(graphObjects, vps);
 		} catch (IOException e) {
-			throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize the view object.", 
+					getResourceLogger(), e);
 		}
 	}	
 
@@ -1231,7 +1346,12 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		if(vp == null) {
-			throw getError("Visual Property does not exist: " + visualPropertyName, new NotFoundException(), Response.Status.NOT_FOUND);
+			//throw getError("Visual Property does not exist: " + visualPropertyName, new NotFoundException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR, 
+					"Visual Property does not exist: " + visualPropertyName, 
+					getResourceLogger(), null);
 		}
 
 		vps.add(vp);

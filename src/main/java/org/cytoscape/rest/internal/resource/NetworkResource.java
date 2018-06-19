@@ -535,7 +535,12 @@ public class NetworkResource extends AbstractResource {
 		} else if (type.equals(JsonTags.TARGET)) {
 			nodeSUID = edge.getTarget().getSUID();
 		} else {
-			throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Invalid parameter for edge: " + type, 
+					getResourceLogger(), null);
 		}
 		return getNumberObjectString(SERIALIZATION_ERROR, type, nodeSUID);
 	}

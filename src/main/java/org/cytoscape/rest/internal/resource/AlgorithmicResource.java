@@ -118,15 +118,25 @@ public class AlgorithmicResource extends AbstractResource {
 		final Collection<CyNetworkView> views = 
 				this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Could not find view for the network with SUID: " 
-					+ networkId);
+			//throw new NotFoundException(
+			//		"Could not find view for the network with SUID: " 
+			//		+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find view for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 
 		final CyNetworkView view = views.iterator().next();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		String columnForLayout = column;
@@ -167,7 +177,12 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		Map<String, Object> params;
@@ -201,7 +216,12 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		final List<Map<String, Object>> params;
@@ -238,7 +258,12 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 		final Map<String, Set<String>> result = getCompatibleTypes(layout);
 		return Response.status(Response.Status.OK)
@@ -296,7 +321,12 @@ public class AlgorithmicResource extends AbstractResource {
 				final Class<?> type = params.get(parameterName);
 				
 				if(type == null) {
-					throw new NotFoundException("No such parameter: " + parameterName);
+					//throw new NotFoundException("No such parameter: " + parameterName);
+					throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+							getResourceURI(), 
+							NOT_FOUND_ERROR, 
+							"No such parameter: " + parameterName, 
+							getResourceLogger(), null);
 				}
 				
 				final JsonNode val = entry.get("value");
@@ -389,16 +419,26 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 
 		if (targetStyle == null) {
-			throw new NotFoundException("Visual Style does not exist: "
-					+ styleName);
+			//throw new NotFoundException("Visual Style does not exist: "
+			//		+ styleName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Visual Style does not exist: "	+ styleName, 
+					getResourceLogger(), null);
 		}
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 
 		final CyNetworkView view = views.iterator().next();
@@ -424,9 +464,14 @@ public class AlgorithmicResource extends AbstractResource {
 				.getNetworkViews(network);
 		
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 		CyNetworkView view = views.iterator().next();
 		TaskIterator fit = fitContent.createTaskIterator(view);
@@ -459,9 +504,14 @@ public class AlgorithmicResource extends AbstractResource {
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 		final TaskIterator bundler = edgeBundler.getBundlerTF()
 				.createTaskIterator(network);

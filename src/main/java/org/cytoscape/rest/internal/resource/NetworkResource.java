@@ -478,7 +478,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new NotFoundException("Could not find node with SUID: " + nodeId);
+			//throw new NotFoundException("Could not find node with SUID: " + nodeId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Node with SUID: " + nodeId, 
+					getResourceLogger(), null);
 		}
 		return getGraphObject(SERIALIZATION_ERROR, network, node);
 	}
@@ -493,7 +498,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw new NotFoundException("Could not find edge with SUID: " + edgeId);
+			//throw new NotFoundException("Could not find edge with SUID: " + edgeId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Edge with SUID: " + edgeId, 
+					getResourceLogger(), null);
 		}
 		return getGraphObject(SERIALIZATION_ERROR, network, edge);
 	}
@@ -573,7 +583,7 @@ public class NetworkResource extends AbstractResource {
 	notes = "Returns a list of connected edges as SUIDs for the node specified by the `nodeId` and `networkId` parameters.")
 	public Collection<Long> getAdjEdges(@ApiParam(value="SUID of the network containing the node")@PathParam("networkId") Long networkId, @ApiParam(value="SUID of the node")@PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
-		final CyNode node = getNode(network, nodeId);
+		final CyNode node = getNode(NOT_FOUND_ERROR, network, nodeId);
 		final List<CyEdge> edges = network.getAdjacentEdgeList(node, Type.ANY);
 		return getGraphObjectArray(edges);
 	}
@@ -588,7 +598,7 @@ public class NetworkResource extends AbstractResource {
 			@ApiParam("SUID of the network containing the node") @PathParam("networkId") Long networkId, 
 			@ApiParam("SUID of the node") @PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
-		final CyNode node = getNode(network, nodeId);
+		final CyNode node = getNode(NOT_FOUND_ERROR, network, nodeId);
 		final CyNetwork pointer = node.getNetworkPointer();
 		if (pointer == null) {
 			//throw getError("Could not find network pointer.", new RuntimeException(), Response.Status.NOT_FOUND);
@@ -612,7 +622,7 @@ public class NetworkResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the node.") @PathParam("networkId") Long networkId, 
 			@ApiParam("SUID of the node")@PathParam("nodeId") Long nodeId) {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
-		final CyNode node = getNode(network, nodeId);
+		final CyNode node = getNode(NOT_FOUND_ERROR, network, nodeId);
 		final List<CyNode> nodes = network.getNeighborList(node, Type.ANY);
 
 		return getGraphObjectArray(nodes);
@@ -867,7 +877,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new NotFoundException("Node does not exist.");
+			//throw new NotFoundException("Node does not exist.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Node with SUID: " + nodeId, 
+					getResourceLogger(), null);
 		}
 		final List<CyNode> nodes = new ArrayList<CyNode>();
 		nodes.add(node);
@@ -886,7 +901,12 @@ public class NetworkResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyEdge edge = network.getEdge(edgeId);
 		if (edge == null) {
-			throw new NotFoundException("Edge does not exist.");
+			//throw new NotFoundException("Edge does not exist.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Edge with SUID: " + edgeId, 
+					getResourceLogger(), null);
 		}
 		final List<CyEdge> edges = new ArrayList<CyEdge>();
 		edges.add(edge);

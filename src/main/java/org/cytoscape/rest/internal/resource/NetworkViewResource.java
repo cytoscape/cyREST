@@ -1,7 +1,5 @@
 package org.cytoscape.rest.internal.resource;
 
-import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INVALID_PARAMETER_ERROR;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -241,7 +239,12 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="A path to a file relative to the current directory. " + VIEW_FILE_PARAMETER_NOTES, required=false)@QueryParam("file") String file) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		if (views.isEmpty()) {
-			throw new NotFoundException("Could not find view for the network: " + networkId);
+			//throw new NotFoundException("Could not find view for the network: " + networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find view for the network: " + networkId, 
+					logger, null);
 		}
 		final CyNetworkView view = views.iterator().next();
 		return getNetworkView(networkId, view.getSUID(), file);
@@ -526,7 +529,12 @@ public class NetworkViewResource extends AbstractResource {
 			}
 		}
 
-		throw new NotFoundException("Could not find view for the network: " + networkId);
+		//throw new NotFoundException("Could not find view for the network: " + networkId);
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				NOT_FOUND_ERROR, 
+				"Could not find view for the network: " + networkId, 
+				logger, null);
 	}
 
 	private final Response imageGenerator(final String fileType, PresentationWriterFactory factory, 
@@ -1367,6 +1375,11 @@ public class NetworkViewResource extends AbstractResource {
 				return view;
 			}
 		}
-		throw new NotFoundException("Could not find view: " + viewId);
+		//throw new NotFoundException("Could not find view: " + viewId);
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				NOT_FOUND_ERROR, 
+				"Could not find view: " + viewId, 
+				logger, null);
 	}
 }

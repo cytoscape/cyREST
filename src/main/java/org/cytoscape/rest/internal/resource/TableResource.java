@@ -61,7 +61,8 @@ public class TableResource extends AbstractResource {
 	static final int NOT_FOUND_ERROR= 1;
 	static final int INVALID_PARAMETER_ERROR = 2;
 	static final int SERIALIZATION_ERROR = 3;
-
+	static final int INTERNAL_METHOD_ERROR = 4;
+	
 	static final String RESOURCE_URN = "networks:tables";
 
 	@Override
@@ -207,12 +208,10 @@ public class TableResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final ObjectMapper objMapper = new ObjectMapper();
-
+		JsonNode rootNode = null;
 		try {
-			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
-			tableMapper.updateColumnName(rootNode, table);
-			return Response.ok().build();
-		} catch (Exception e) {
+			rootNode = objMapper.readValue(is, JsonNode.class);
+		} catch (IOException e) {
 			//throw getError("Could not parse the input JSON for updating "
 			//		+ "column name.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
@@ -221,6 +220,23 @@ public class TableResource extends AbstractResource {
 					"Could not parse the input JSON for updating column name.", 
 					logger, e);
 		}
+		try {
+			tableMapper.updateColumnName(rootNode, table);
+		} catch (IllegalArgumentException e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
+		
+		return Response.ok().build();
 	}
 
 	@PUT

@@ -202,10 +202,15 @@ public abstract class AbstractResource {
 		return views;
 	}
 
-	protected final CyNode getNode(final CyNetwork network, final Long nodeId) {
+	protected final CyNode getNode(int nodeNotFoundErrorCode, final CyNetwork network, final Long nodeId) {
 		final CyNode node = network.getNode(nodeId);
 		if (node == null) {
-			throw new NotFoundException("Could not find node with SUID: " + nodeId);
+			//throw new NotFoundException("Could not find node with SUID: " + nodeId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					nodeNotFoundErrorCode, 
+					"Could not find Node with SUID: " + nodeId, 
+					getResourceLogger(), null);
 		}
 		return node;
 	}

@@ -12,6 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
@@ -40,6 +41,8 @@ public class MiscResource extends AbstractResource {
 	
 	private static final String RESOURCE_URN = "";
 
+	public static final int NOT_FOUND_ERROR= 1;
+	
 	@Override
 	public String getResourceURI() {
 		return RESOURCE_URN;
@@ -100,7 +103,12 @@ public class MiscResource extends AbstractResource {
 		if (versionNumber != null) {
 			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
-			throw new NotFoundException("Could not find Cytoscape version number property.");
+			//throw new NotFoundException("Could not find Cytoscape version number property.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Cytoscape version number property.", 
+					getResourceLogger(), null);
 		}
 	}
 
@@ -121,7 +129,12 @@ public class MiscResource extends AbstractResource {
 		if (versionNumber != null) {
 			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
-			throw new NotFoundException("Could not find Cytoscape version number property.");
+			//throw new NotFoundException("Could not find Cytoscape version number property.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NOT_FOUND_ERROR, 
+					"Could not find Cytoscape version number property.", 
+					getResourceLogger(), null);
 		}
 	}
 }

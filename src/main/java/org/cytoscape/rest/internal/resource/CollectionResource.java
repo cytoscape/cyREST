@@ -153,12 +153,22 @@ public class CollectionResource extends AbstractResource {
 			// Return parent collection's SUID
 			final CyNetwork subnetwork = networkManager.getNetwork(subsuid);
 			if(subnetwork == null) {
-				throw new NotFoundException();
+				//throw new NotFoundException();
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						NOT_FOUND_ERROR, 
+						"Could not find Network with SUID: " + subsuid, 
+						getResourceLogger(), null);
 			}
 			
 			final CyRootNetwork root = cyRootNetworkManager.getRootNetwork(subnetwork);
 			if(root == null) {
-				throw new NotFoundException();
+				//throw new NotFoundException();
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						NOT_FOUND_ERROR, 
+						"Could not find Root Network for Network with SUID: " + subsuid, 
+						getResourceLogger(), null);
 			} else {
 				final List<Long> rootId = new ArrayList<>();
 				rootId.add(root.getSUID());
@@ -319,10 +329,10 @@ public class CollectionResource extends AbstractResource {
 					"No such Table type: " + tableType, 
 					getResourceLogger(), null);
 		}
-		
+		JsonNode rootNode = null;
 		try {
-			final JsonNode rootNode = mapper.readValue(is, JsonNode.class);
-			tableMapper.updateTableValues(rootNode, table);
+			rootNode = mapper.readValue(is, JsonNode.class);
+			
 		} catch (Exception e) {
 			//throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), 
 			//		e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -332,6 +342,7 @@ public class CollectionResource extends AbstractResource {
 					"Could not parse the input JSON", 
 					getResourceLogger(), e);
 		}
+		tableMapper.updateTableValues(rootNode, table);
 		return Response.ok().build();
 	}
 

@@ -246,7 +246,12 @@ public class GroupResource extends AbstractResource {
 				return group;
 			}
 		}
-		throw new NotFoundException("Could not find group.");
+		//throw new NotFoundException("Could not find group.");
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				getResourceURI(), 
+				NOT_FOUND_ERROR, 
+				"Could not find group.", 
+				getResourceLogger(), null);
 	}
 
 	@POST

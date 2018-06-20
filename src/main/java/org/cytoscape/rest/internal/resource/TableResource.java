@@ -190,7 +190,12 @@ public class TableResource extends AbstractResource {
 		} else {
 			logger.error("Failed to delete a column. (Missing table?)");
 
-			throw new NotFoundException("Could not find the table.  (This should not happen!)");
+			//throw new NotFoundException("Could not find the table.  (This should not happen!)");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find the table.  (This should not happen!)", 
+					logger, null);
 		}
 	}
 
@@ -231,7 +236,7 @@ public class TableResource extends AbstractResource {
 		} catch (NotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					INTERNAL_METHOD_ERROR, 
+					NOT_FOUND_ERROR, 
 					e.getMessage(), 
 					logger, e);
 		}
@@ -333,8 +338,13 @@ public class TableResource extends AbstractResource {
 		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
-			throw new NotFoundException("Could not find the row "
-					+ "with primary key: " + primaryKey);
+			//throw new NotFoundException("Could not find the row "
+			//		+ "with primary key: " + primaryKey);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find the row with primary key: " + primaryKey, 
+					logger, null);
 		}
 
 		final CyRow row = table.getRow(primaryKey);
@@ -365,12 +375,22 @@ public class TableResource extends AbstractResource {
 
 		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
-			throw new NotFoundException("Could not find the row with promary key: " + primaryKey);
+			//throw new NotFoundException("Could not find the row with promary key: " + primaryKey);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find the row with primary key: " + primaryKey, 
+					logger, null);
 		}
 
 		final CyColumn column = table.getColumn(columnName);
 		if (column == null) {
-			throw new NotFoundException("Could not find the column: " + columnName);
+			//throw new NotFoundException("Could not find the column: " + columnName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find the column: " + columnName, 
+					logger, null);
 		}
 
 		final CyRow row = table.getRow(primaryKey);
@@ -378,14 +398,24 @@ public class TableResource extends AbstractResource {
 		if (column.getType() == List.class) {
 			List<?> listCell = row.getList(columnName, column.getListElementType());
 			if (listCell == null) {
-				throw new NotFoundException("Could not find list value.");
+				//throw new NotFoundException("Could not find list value.");
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						RESOURCE_URN, 
+						NOT_FOUND_ERROR, 
+						"Could not find list value.", 
+						logger, null);
 			} else {
 				return listCell;
 			}
 		} else {
 			final Object cell = row.get(columnName, column.getType());
 			if (cell == null) {
-				throw new NotFoundException("Could not find value.");
+				//throw new NotFoundException("Could not find value.");
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						RESOURCE_URN, 
+						NOT_FOUND_ERROR, 
+						"Could not find value.", 
+						logger, null);
 			}
 
 			if (column.getType() == String.class) {
@@ -515,7 +545,12 @@ public class TableResource extends AbstractResource {
 			}
 		} else {
 			// No such table.
-			throw new NotFoundException("No such table type: " + tableType);
+			//throw new NotFoundException("No such table type: " + tableType);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"No such table type: " + tableType, 
+					logger, null);
 		}
 		return table;
 	}

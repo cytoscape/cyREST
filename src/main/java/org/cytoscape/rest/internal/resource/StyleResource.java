@@ -90,6 +90,7 @@ public class StyleResource extends AbstractResource {
 	static final int INTERNAL_METHOD_ERROR = 2;
 	static final int SERIALIZATION_ERROR = 3;
 	static final int INVALID_PARAMETER_ERROR = 4;
+	static final int NOT_FOUND_ERROR = 5;
 	
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
@@ -194,7 +195,12 @@ public class StyleResource extends AbstractResource {
 		final VisualStyle style = getStyleByName(name);
 		final VisualProperty<?> vp = getVisualProperty(vpName);
 		if(vp == null) {
-			throw new NotFoundException("Could not find Visual Property: " + vpName);
+			//throw new NotFoundException("Could not find Visual Property: " + vpName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find Visual Property: " + vpName, 
+					logger, null);
 		}
 		final VisualMappingFunction<?,?> mapping = style.getVisualMappingFunction(vp);
 		if(mapping == null) {
@@ -345,7 +351,12 @@ public class StyleResource extends AbstractResource {
 			}
 		}
 		if (visualProp == null) {
-			throw new NotFoundException("Could not find VisualProperty: " + vp);
+			//throw new NotFoundException("Could not find VisualProperty: " + vp);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find VisualProperty: " + vp, 
+					logger, null);
 		}
 		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
 		
@@ -406,7 +417,12 @@ public class StyleResource extends AbstractResource {
 						logger, e);
 			}
 		} else {
-			throw new NotFoundException("Range object is not available for " + vpName);
+			//throw new NotFoundException("Range object is not available for " + vpName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Range object is not available for " + vpName, 
+					logger, null);
 		}
 	}
 
@@ -698,7 +714,12 @@ public class StyleResource extends AbstractResource {
 			}
 		}
 
-		throw new NotFoundException("Could not find Visual Style: " + name);
+		//throw new NotFoundException("Could not find Visual Style: " + name);
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				NOT_FOUND_ERROR, 
+				"Could not find Visual Style: " + name, 
+				logger, null);
 	}
 
 	@GET

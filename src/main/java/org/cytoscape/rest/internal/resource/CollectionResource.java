@@ -342,7 +342,21 @@ public class CollectionResource extends AbstractResource {
 					"Could not parse the input JSON", 
 					getResourceLogger(), e);
 		}
-		tableMapper.updateTableValues(rootNode, table);
+		try {
+			tableMapper.updateTableValues(rootNode, table);
+		} catch (IllegalArgumentException e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+				RESOURCE_URN, 
+				INVALID_PARAMETER_ERROR, 
+				e.getMessage(), 
+				logger, e);
+		} catch (NotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				NOT_FOUND_ERROR, 
+				e.getMessage(), 
+				logger, e);
+		}
 		return Response.ok().build();
 	}
 

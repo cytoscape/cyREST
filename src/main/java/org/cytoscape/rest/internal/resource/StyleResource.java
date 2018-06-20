@@ -204,7 +204,12 @@ public class StyleResource extends AbstractResource {
 		}
 		final VisualMappingFunction<?,?> mapping = style.getVisualMappingFunction(vp);
 		if(mapping == null) {
-			throw new NotFoundException("Could not find mapping for: " + vpName);
+			//throw new NotFoundException("Could not find mapping for: " + vpName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find mapping for: " + vpName, 
+					logger, null);
 		}
 		style.removeVisualMappingFunction(vp);
 		
@@ -361,7 +366,12 @@ public class StyleResource extends AbstractResource {
 		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
 		
 		if(mapping == null) {
-			throw new NotFoundException("Could not find visual mapping function for " + vp);
+			//throw new NotFoundException("Could not find visual mapping function for " + vp);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Could not find visual mapping function for " + vp, 
+					logger, null);
 		}
 		
 		return mapping;

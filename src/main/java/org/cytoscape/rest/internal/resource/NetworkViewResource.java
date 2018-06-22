@@ -90,6 +90,7 @@ public class NetworkViewResource extends AbstractResource {
 	// Filter rendering engine by ID.
 	private static final String DING_ID = "org.cytoscape.ding";
 
+	private static final String DEF_WIDTH = "600";
 	private static final String DEF_HEIGHT = "600";
 
 	static final String RESOURCE_URN = "networks:views";
@@ -389,9 +390,10 @@ public class NetworkViewResource extends AbstractResource {
 	})
 	public Response getFirstImageAsPng(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
-			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(required=false, value="Width of the image.") @DefaultValue(DEF_WIDTH) @QueryParam("w") int width,
+			@ApiParam(required=false, value="Height of the image.") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
-		return getImage("png", networkId, height);
+		return getImage("png", networkId, height, width);
 	}
 
 	@GET
@@ -403,7 +405,7 @@ public class NetworkViewResource extends AbstractResource {
 	})
 	public Response getFirstImageAsSvg(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
-			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(hidden=true, required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 
 		return getImage("svg", networkId, height);
@@ -418,12 +420,16 @@ public class NetworkViewResource extends AbstractResource {
 	})
 	public Response getFirstImageAsPdf(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
-			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(hidden=true, required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImage("pdf", networkId, height);
 	}
 
 	private final Response getImage(String fileType, Long networkId, int height) {
+		return getImage(fileType, networkId, height, height);
+	}
+	
+	private final Response getImage(String fileType, Long networkId, int height, int width) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		if (views.isEmpty()) {
 			throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
@@ -433,7 +439,7 @@ public class NetworkViewResource extends AbstractResource {
 		final PresentationWriterFactory factory = graphicsWriterManager.getFactory(fileType);
 		final CyNetworkView view = views.iterator().next();
 
-		return imageGenerator(fileType, factory, view, height, height);
+		return imageGenerator(fileType, factory, view, height, width);
 	}
 
 	@GET
@@ -446,9 +452,10 @@ public class NetworkViewResource extends AbstractResource {
 	public Response getImageAsPng(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(required=true, value="SUID of the Network View") @PathParam("viewId") Long viewId,
-			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(required=false, value="Width of the image.") @DefaultValue(DEF_WIDTH) @QueryParam("w") int width,
+			@ApiParam(required=false, value="Height of the image.") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
-		return getImageForView("png", networkId, viewId, height);
+		return getImageForView("png", networkId, viewId, height, width);
 	}
 
 	@GET
@@ -461,7 +468,7 @@ public class NetworkViewResource extends AbstractResource {
 	public Response getImageAsSvg(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(required=true, value="SUID of the Network View") @PathParam("viewId") Long viewId,
-			@ApiParam(required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(hidden=true, required=false, value="Height of the image. Width is set automatically") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
 			) {
 		return getImageForView("svg", networkId, viewId, height);
 	}
@@ -480,6 +487,18 @@ public class NetworkViewResource extends AbstractResource {
 		return getImageForView("pdf", networkId, viewId, 500);
 	}
 
+	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height, Integer width) {
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
+		for (final CyNetworkView view : views) {
+			final Long vid = view.getSUID();
+			if (vid.equals(viewId)) {
+				return getImage(fileType, networkId, height, width);
+			}
+		}
+
+		throw new NotFoundException("Could not find view for the network: " + networkId);
+	}
+	
 	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(networkId);
 		for (final CyNetworkView view : views) {
@@ -539,6 +558,7 @@ public class NetworkViewResource extends AbstractResource {
 				try {
 					// This is for 3.4 and below
 					writer.getClass().getMethod("setHeightInPixels", int.class).invoke(writer, height);
+					writer.getClass().getMethod("setWidthInPixels", int.class).invoke(writer, width);
 				} catch(Exception e) {
 					// For 3.5+					
 					try {
@@ -547,6 +567,8 @@ public class NetworkViewResource extends AbstractResource {
 						method.invoke(units, "pixels");
 						final Double doubleHeight = ((Integer)height).doubleValue();
 						writer.getClass().getMethod("setHeight", Double.class).invoke(writer, doubleHeight);
+						final Double doubleWidth = ((Integer)width).doubleValue();
+						writer.getClass().getMethod("setWidth", Double.class).invoke(writer, doubleWidth);
 					} catch(Exception e2) {
 						e2.printStackTrace();
 					}

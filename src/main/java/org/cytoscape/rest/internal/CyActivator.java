@@ -421,7 +421,7 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
 
-		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
+		//cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, netMan, netViewMan, netFact, taskFactoryManagerManager,

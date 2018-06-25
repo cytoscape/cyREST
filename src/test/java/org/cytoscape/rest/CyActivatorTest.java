@@ -117,7 +117,7 @@ public class CyActivatorTest {
 		when(configAdmin.getConfiguration("org.ops4j.pax.web", null)).thenReturn(configuration);
 		when(configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null)).thenReturn(configuration);
 		Dictionary<String,Object> dictionary = new Hashtable<String, Object>();
-		dictionary.put("log4j.appender.file.File", "dummyLogLocation");
+		dictionary.put("org.cytoscape.logging.file", "dummyLogLocation");
 		when(configuration.getProperties()).thenReturn(dictionary);
 		
 		when(bc.createFilter(anyString())).thenReturn(mock(Filter.class));

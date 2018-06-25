@@ -236,9 +236,10 @@ public class BasicResourceTest extends JerseyTest {
 	protected GraphicsWriterManager graphicsWriterManager;
 
 	protected ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
-
 	protected PresentationWriterFactory presentationWriterFactory;
-
+	protected DummyCyWriter dummyCyWriter = mock(DummyCyWriter.class);
+	
+	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
@@ -269,6 +270,7 @@ public class BasicResourceTest extends JerseyTest {
 		public BoundedDouble getZoom();
 		public ListSingleSelection<String> getUnits();
 		public void setHeight(Double height);
+		public void setWidth(Double height);
 	}
 
 	public BasicResourceTest() {
@@ -535,15 +537,17 @@ public class BasicResourceTest extends JerseyTest {
 
 		presentationWriterFactory = mock(PresentationWriterFactory.class);
 
-		DummyCyWriter cyWriter = mock(DummyCyWriter.class);
+		
+	
+		
 		BoundedDouble boundedDouble = new BoundedDouble(0d,1d,10d, true, true);
 
 		ListSingleSelection<String> listSingleSelection =  new ListSingleSelection<String>();
 
-		when(cyWriter.getUnits()).thenReturn(listSingleSelection);
-		when(cyWriter.getZoom()).thenReturn(boundedDouble);
+		when(dummyCyWriter.getUnits()).thenReturn(listSingleSelection);
+		when(dummyCyWriter.getZoom()).thenReturn(boundedDouble);
 
-		when(presentationWriterFactory.createWriter(anyObject(), anyObject())).thenReturn(cyWriter);
+		when(presentationWriterFactory.createWriter(anyObject(), anyObject())).thenReturn(dummyCyWriter);
 
 		when(graphicsWriterManager.getFactory(anyString())).thenReturn(presentationWriterFactory);
 

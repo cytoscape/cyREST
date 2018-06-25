@@ -2,12 +2,11 @@ package org.cytoscape.rest.service;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.StreamSupport;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -146,10 +145,20 @@ public class TableResourceTest extends BasicResourceTest {
 		assertEquals("local1", root_local1.get("name").asText());
 		JsonNode valueNode = root_local1.get("values");
 		assertEquals(Integer.valueOf(4), Integer.valueOf(valueNode.size()));
-		assertEquals(Double.valueOf(1), Double.valueOf(valueNode.get(0).asDouble()));
-		assertTrue(valueNode.get(1).isNull());
-		assertEquals(Double.valueOf(3), Double.valueOf(valueNode.get(2).asDouble()));
-		assertEquals(Double.valueOf(4), Double.valueOf(valueNode.get(3).asDouble()));
+	    ArrayList<Double> arrayList = new ArrayList<Double>(4); 
+	    for (int i = 0; i < valueNode.size();i++) { 
+	      if (valueNode.get(i).isNull()) { 
+	       
+	        arrayList.add(i, null); 
+	      } else { 
+	        arrayList.add(i, valueNode.get(i).asDouble()); 
+	      } 
+	    } 
+	     
+	    assertTrue(arrayList.contains(1d)); 
+	    assertTrue(arrayList.contains(null)); 
+	    assertTrue(arrayList.contains(3d));  
+	    assertTrue(arrayList.contains(4d)); 
 	}
 
 

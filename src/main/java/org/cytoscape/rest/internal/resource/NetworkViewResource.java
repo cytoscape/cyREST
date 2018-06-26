@@ -383,16 +383,26 @@ public class NetworkViewResource extends AbstractResource {
 
 	@GET
 	@Path("/first.png")
-	@Produces("image/png")
-	@ApiOperation(value="Get PNG image of the first available network view", notes="Returns a PNG image of the first available Network View for the Network specified by the `networkId` parameter.\n\nDefault size is 600 px")
+	@Produces({"image/png", "application/json"})
+	@ApiOperation(value="Get PNG image of the first available network view", notes="Returns a PNG image of the first available Network View for the Network specified by the `networkId` parameter.\n\nSetting the `h` or `w` parameter will resize the image. Only one of these parameters can be used at a time; the remaining dimension of the image will be calculated automatically. Using both will result in an error.\n\n Default size is 600 px.\n\n")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PNG image stream."),
 	})
 	public Response getFirstImageAsPng(
 			@ApiParam(required=true, value="SUID of the Network") @PathParam("networkId") Long networkId,
-			@ApiParam(required=false, value="Width of the image.") @DefaultValue(DEF_WIDTH) @QueryParam("w") int width,
-			@ApiParam(required=false, value="Height of the image.") @DefaultValue(DEF_HEIGHT) @QueryParam("h") int height
+			@ApiParam(required=false, value="Width of the image.") @QueryParam("w") Integer width,
+			@ApiParam(required=false, value="Height of the image.") @QueryParam("h") Integer height
 			) {
+		if (width != null && height != null) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Height and Width are both non-null. Use only one of these parameters.", 
+					logger, null);
+		}
+		else if (width == null && height == null) {
+			height = 600;
+		}
 		return getImage("png", networkId, height, width);
 	}
 
@@ -445,7 +455,8 @@ public class NetworkViewResource extends AbstractResource {
 	@GET
 	@Path("/{viewId}.png")
 	@Produces({"image/png", "application/json"})
-	@ApiOperation(value="Get PNG image of a network view", notes="Returns a PNG image of the Network View specified by the `viewId` and `networkId` parameters.\n\nSetting the `h` or `w` parameter will resize the image. Only one of these parameters can be used at a time; the remaining dimension of the image will be calculated automatically. Using both will result in an error.\n\n Default size is 600 px.\n\n ")
+	@ApiOperation(value="Get PNG image of a network view", 
+		notes="Returns a PNG image of the Network View specified by the `viewId` and `networkId` parameters.\n\nSetting the `h` or `w` parameter will resize the image. Only one of these parameters can be used at a time; the remaining dimension of the image will be calculated automatically. Using both will result in an error.\n\n Default size is 600 px.\n\n ")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "PNG image stream."),
 	})

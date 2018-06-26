@@ -317,15 +317,87 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		verify(graphicsWriterManager, never()).getFactory("png");
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
-		Response result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".png").queryParam("w", 400).request().get();
+		Response result = target("/v1/networks/" + suid.toString() + "/views/"+ viewSuid.toString() +".png").queryParam("h", 400).request().get();
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 		verify(graphicsWriterManager).getFactory("png");
 		verify(presentationWriterFactory, times(1)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
-		verify(dummyCyWriter, never()).setHeight(eq(400d));
-		verify(dummyCyWriter, times(1)).setWidth(any());
+		verify(dummyCyWriter, times(1)).setHeight(eq(400d));
+		verify(dummyCyWriter, never()).setWidth(any());
 	}
 
+	@Test
+	public void testFirstPNGImageHeightAndWidth() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		final Long suid = network.getSUID();
+	
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").queryParam("w", 400).queryParam("h",  400).request().get();
+		assertEquals(500, result.getStatus());
+		assertNotNull(result);
+		String body = result.readEntity(String.class);
+		System.out.println("Result = " + result);
+
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		root.get("data");
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		JsonNode error = errorsNode.get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:2", error.get("type").asText());
+		
+		
+		
+		assertEquals(500, result.getStatus());
+		verify(graphicsWriterManager, never()).getFactory("png");
+		verify(presentationWriterFactory, never()).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		verify(dummyCyWriter, never()).setHeight(any());
+		verify(dummyCyWriter, never()).setWidth(any());
+	}
+
+	@Test
+	public void testFirstPNGImageNoWidthOrHeight() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("png");
+		verify(presentationWriterFactory, times(1)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		verify(dummyCyWriter, times(1)).setHeight(eq(600d));
+	}
+	
+	@Test
+	public void testFirstPNGImageWidth() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		final Long suid = network.getSUID();
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").queryParam("w", 400).request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("png");
+		verify(presentationWriterFactory, times(1)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		verify(dummyCyWriter, never()).setHeight(any());
+		verify(dummyCyWriter, times(1)).setWidth(eq(400d));
+	}
+	
+	@Test
+	public void testFirstPNGImageHeight() throws Exception {
+		
+		verify(graphicsWriterManager, never()).getFactory("png");
+		final Long suid = network.getSUID();
+
+		Response result = target("/v1/networks/" + suid.toString() + "/views/first.png").queryParam("h", 400).request().get();
+		assertNotNull(result);
+		assertEquals(200, result.getStatus());
+		verify(graphicsWriterManager).getFactory("png");
+		verify(presentationWriterFactory, times(1)).createWriter(any(ByteArrayOutputStream.class), eq(renderingEngine));
+		verify(dummyCyWriter, times(1)).setHeight(eq(400d));
+		verify(dummyCyWriter, never()).setWidth(any());
+	}
+
+	
 	@Test
 	public void testGetFirstView() throws Exception {
 		

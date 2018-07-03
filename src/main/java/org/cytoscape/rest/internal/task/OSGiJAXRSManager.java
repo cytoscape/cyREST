@@ -167,6 +167,14 @@ public class OSGiJAXRSManager
 
 			Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
 			dictionary.put("org.osgi.service.http.port", port);
+			//dictionary.put("org.osgi.service.http.enabled", false);
+;			dictionary.put("org.osgi.service.http.port.secure", "1235");
+			dictionary.put("org.osgi.service.http.secure.enabled", "true");
+			
+			dictionary.put("org.ops4j.pax.web.ssl.keystore", "/media/davidotasek/skynet/IN/2018_07_03 CyREST HTTPS/keystore.jks");
+			dictionary.put("org.ops4j.pax.web.ssl.keystore.type", "JKS");
+			dictionary.put("org.ops4j.pax.web.ssl.password", "123456");
+			dictionary.put("org.ops4j.pax.web.ssl.keypassword", "123456");
 			//Set session timeout to infinite (while Cytoscape is running)
 			dictionary.put("org.ops4j.pax.web.session.timeout", "0");
 

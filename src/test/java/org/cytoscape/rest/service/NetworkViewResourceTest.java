@@ -401,8 +401,38 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
-	public void testGetViewVisualPropertyBypassGivesNotFound() throws Exception {
+	public void testGetViewVisualPropertyBypassGivesNetworkNotFound() throws Exception {
+		final Long suid = 0l;
+		final CyNode node = network.getNodeList().iterator().next();
 		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + suid.toString() + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassGivesNetworkViewNotFound() throws Exception {
+		final Long suid = network.getSUID();
+		Long viewSuid = 0l;
+		final CyNode node = network.getNodeList().iterator().next();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid.toString() + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+	}
+	
+	@Test
+	public void testGetViewVisualPropertyBypassGivesVPNotFound() throws Exception {	
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
 		final CyNode node = network.getNodeList().iterator().next();
@@ -410,10 +440,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + node.getSUID() + "/NODE_BORDER_PAINT/bypass").request().get();
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
-		
 		assertEquals(404, result.getStatus());
-		
-	
 	}
 	
 	@Test
@@ -580,7 +607,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
-	public void testGetViewVisualPropertyBypassPut() throws Exception {
+	public void testPutViewVisualPropertyBypass() throws Exception {
 		
 		Collection<? extends VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		VisualProperty<?> vp = null;
@@ -613,6 +640,52 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		
 		
 	}
+	
+	@Test
+	public void testPutViewVisualPropertyBypassObjectViewNotFound() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		final String newVal = "{"
+				+ "\"visualProperty\": \"NOT_A_VALID_OBJECT_PROPERTY\","
+				+ "\"value\": \"cyan\" }";
+		
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + suid + "/NOT_A_VALID_OBJECT_PROPERTY/bypass").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+	}
+	
+	@Test
+	public void testPutViewVisualPropertyBypassNetworkViewNotFound() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = 0l;
+		
+		final String newVal = "{"
+				+ "\"visualProperty\": \"NODE_BORDER_PAINT\","
+				+ "\"value\": \"cyan\" }";
+		
+		Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/" + suid + "/NODE_BORDER_PAINT/bypass").request().put(entity);
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+	}
+	
+	
 	
 	
 	@Test

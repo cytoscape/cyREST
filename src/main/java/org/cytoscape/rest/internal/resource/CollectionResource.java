@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -350,7 +349,7 @@ public class CollectionResource extends AbstractResource {
 				INVALID_PARAMETER_ERROR, 
 				e.getMessage(), 
 				logger, e);
-		} catch (NotFoundException e) {
+		} catch (TableMapper.ColumnNotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 				RESOURCE_URN, 
 				NOT_FOUND_ERROR, 

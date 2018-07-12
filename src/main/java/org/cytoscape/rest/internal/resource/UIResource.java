@@ -187,7 +187,12 @@ public class UIResource extends AbstractResource {
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException e) {
-			throw new InternalServerErrorException("Could not parse input JSON.", e);
+			//throw new InternalServerErrorException("Could not parse input JSON.", e);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not parse input JSON.", 
+					logger, null);
 		}
 		
 		for (final JsonNode entry : rootNode) {

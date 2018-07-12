@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ws.rs.NotFoundException;
-
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyRow;
@@ -21,8 +19,15 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  */
 public class TableMapper {
-
-	public void updateColumnName(final JsonNode rootNode, final CyTable table) {
+	
+	@SuppressWarnings("serial")
+	public final class ColumnNotFoundException extends Exception {
+		public ColumnNotFoundException(String string) {
+			super(string);
+		}
+	}
+	
+	public void updateColumnName(final JsonNode rootNode, final CyTable table) throws ColumnNotFoundException {
 		final JsonNode currentNameTag = rootNode.get(JsonTags.COLUMN_NAME_OLD);
 		if(currentNameTag == null) {
 			throw new IllegalArgumentException("Original column name is missing.");
@@ -44,7 +49,8 @@ public class TableMapper {
 
 		final CyColumn column = table.getColumn(currentName);
 		if (column == null) {
-			throw new NotFoundException("Column does not exist.");
+			// Caught in TableResource.updateColumnName()
+			throw new ColumnNotFoundException("Column does not exist.");
 		}
 		column.setName(newName);
 	}
@@ -127,11 +133,11 @@ public class TableMapper {
 	private static final String DATA_KEY = "dataKey";
 	private static final String DATA = "data";
 
-	public void updateTableValues(final JsonNode rootNode, final CyTable table) {
+	public void updateTableValues(final JsonNode rootNode, final CyTable table) throws ColumnNotFoundException {
 		// Validate body
 		final JsonNode data = rootNode.get(DATA);
 		if(data == null) {
-			throw new NotFoundException("Data array is missing.");
+			throw new IllegalArgumentException("Data array is missing.");
 		}
 		if(!data.isArray()) {
 			throw new IllegalArgumentException("Data should be an array.");
@@ -149,7 +155,7 @@ public class TableMapper {
 		// Check such column exists or not.
 		final CyColumn col = table.getColumn(keyColName);
 		if(col == null) {
-			throw new NotFoundException("No such column in the table: " + keyColName);
+			throw new ColumnNotFoundException("No such column in the table: " + keyColName);
 		}
 
 		final JsonNode dataKeyCol = rootNode.get(DATA_KEY);

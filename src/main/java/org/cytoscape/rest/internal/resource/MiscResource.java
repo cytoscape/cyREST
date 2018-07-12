@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -42,6 +41,7 @@ public class MiscResource extends AbstractResource {
 	private static final String RESOURCE_URN = "";
 
 	public static final int NOT_FOUND_ERROR= 1;
+	public static final int INTERNAL_METHOD_ERROR = 2;
 	
 	@Override
 	public String getResourceURI() {
@@ -95,7 +95,12 @@ public class MiscResource extends AbstractResource {
 	public CytoscapeVersionModel getCytoscapeVersion() {
 
 		if (props == null) {
-			throw new InternalServerErrorException("Could not find CyProperty object.");
+			//throw new InternalServerErrorException("Could not find CyProperty object.");
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not find CyProperty object.", 
+					logger, null);
 		}
 		
 		final Properties properties = (Properties) this.props.getProperties();
@@ -121,7 +126,12 @@ public class MiscResource extends AbstractResource {
 	public CytoscapeVersionModel updateShowGraphicsDetailsOption() {
 
 		if (props == null) {
-			throw new InternalServerErrorException("Could not find CyProperty object.");
+			//throw new InternalServerErrorException("Could not find CyProperty object.");
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not find CyProperty object.", 
+					logger, null);
 		}
 
 		final Properties property = (Properties) this.props.getProperties();

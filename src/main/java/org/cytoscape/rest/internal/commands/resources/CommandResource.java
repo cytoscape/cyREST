@@ -440,6 +440,7 @@ public class CommandResource
 		return jsonResultBuilder.toString();
 	}
 
+	@SuppressWarnings("serial")
 	public class CustomNotFoundException extends WebApplicationException {
 		public CustomNotFoundException() {
 			super(404);
@@ -451,14 +452,5 @@ public class CommandResource
 		}
 	}
 
-	public class CustomFailureException extends WebApplicationException {
-		public CustomFailureException() {
-			super(500);
-		}
-
-		public CustomFailureException(String message) {
-			super(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-					.entity(message).type("text/plain").build());
-		}
-	}
+	
 }

@@ -505,6 +505,7 @@ public class NetworkViewResource extends AbstractResource {
 		else if (width == null && height == null) {
 			height = 600;
 		}
+		
 		return getImageForView("png", networkId, viewId, height, width);
 	}
 
@@ -545,8 +546,13 @@ public class NetworkViewResource extends AbstractResource {
 				return getImage(fileType, networkId, height, width);
 			}
 		}
-
-		throw new NotFoundException("Could not find view for the network: " + networkId);
+		//throw new NotFoundException("Could not find view for the network: " + networkId);
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				NOT_FOUND_ERROR, 
+				"Could not find view for the network: " + networkId, 
+				logger, null);
+		
 	}
 	
 	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height) {

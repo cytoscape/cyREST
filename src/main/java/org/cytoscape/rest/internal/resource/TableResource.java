@@ -9,7 +9,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -27,6 +26,7 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.datamapper.TableMapper;
+import org.cytoscape.rest.internal.datamapper.TableMapper.ColumnNotFoundException;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyColumnValuesModel;
 import org.cytoscape.rest.internal.model.CyRowModel;
@@ -233,7 +233,7 @@ public class TableResource extends AbstractResource {
 					INVALID_PARAMETER_ERROR, 
 					e.getMessage(), 
 					logger, e);
-		} catch (NotFoundException e) {
+		} catch (TableMapper.ColumnNotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
 					NOT_FOUND_ERROR, 
@@ -323,7 +323,21 @@ public class TableResource extends AbstractResource {
 					"Could not parse the input JSON for updating table because: " + e.getMessage(), 
 					logger, e);
 		}
-		tableMapper.updateTableValues(rootNode, table);
+		try {
+			tableMapper.updateTableValues(rootNode, table);
+		} catch (IllegalArgumentException e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		} catch (ColumnNotFoundException e) {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					e.getMessage(), 
+					logger, e);
+		}
 		return Response.ok().build();
 	}
 

@@ -640,6 +640,26 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals("#ffffff".toUpperCase(), val.toUpperCase());
 	}
 
+	@Test
+	public void testGetNodeViewVP() throws Exception {
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		final String vp = "NODE_LABEL_POSITION";
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/nodes/").queryParam("visualProperty", vp).request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		final JsonNode root = mapper.readTree(result.readEntity(String.class));
+		assertNotNull(root);
+		System.out.println(root);
+		assertTrue(root.isArray());
+		
+	}
+	
 
 	@Test
 	public void testUpdateNetworkViewVP() throws Exception {

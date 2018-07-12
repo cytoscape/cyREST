@@ -781,6 +781,21 @@ public class NetworkResourceTest extends BasicResourceTest {
 
 
 	@Test
+	public void testCreateNetworkFromSelected() throws Exception {
+		
+		final String newVal = createNetworkJson();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + network.getSUID()).queryParam("title","network from selection").request().post(entity);
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
 	public void testGetNeighbours() throws Exception {
 		final Long suid = network.getSUID();
 		
@@ -836,6 +851,17 @@ public class NetworkResourceTest extends BasicResourceTest {
 		
 		assertNull(network.getNode(edgeSuid));
 		assertEquals(edgeCount-1, network.getEdgeCount());
+	}
+	
+	@Test
+	public void testDeleteEdge404() throws Exception {
+		final Long suid = network.getSUID();
+		
+		assertFalse(network.getEdgeList().contains(665l));
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/edges/" + 665).request().delete();
+		assertNotNull(result);
+		assertEquals(404, result.getStatus());
 	}
 	
 	@Test

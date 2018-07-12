@@ -107,6 +107,7 @@ import org.cytoscape.rest.internal.task.CyPropertyListener;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
+import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
@@ -480,6 +481,36 @@ public class BasicResourceTest extends JerseyTest {
 		}).when(cyPropertyListener).getCyProperty(eq("dummy.properties"));
 		
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		TaskIterator newNetworkSelectedNodesAndEdgesTaskIterator = new TaskIterator();
+		class DummyNetworkCollectionTask extends AbstractNetworkCollectionTask implements ObservableTask {
+
+			public DummyNetworkCollectionTask(Collection<CyNetwork> networks) {
+				super(networks);
+			}
+
+			@Override
+			public <R> R getResults(Class<? extends R> type) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void run(TaskMonitor taskMonitor) throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
+		}
+		DummyNetworkCollectionTask newNetworkSelectedNodesAndEdgesTask = mock(DummyNetworkCollectionTask.class);
+		Collection<CyNetworkView> dummyCollection = new ArrayList<CyNetworkView>();
+		
+		CyNetworkView newNetworkViewFromSelected = mock(CyNetworkView.class);
+		when(newNetworkViewFromSelected.getModel()).thenReturn(cySubNetwork);
+		dummyCollection.add(newNetworkViewFromSelected);
+		
+		when(newNetworkSelectedNodesAndEdgesTask.getResults(Collection.class)).thenReturn(dummyCollection);
+		newNetworkSelectedNodesAndEdgesTaskIterator.append(newNetworkSelectedNodesAndEdgesTask);
+		when (networkSelectedNodesAndEdgesTaskFactory.createTaskIterator(network)).thenReturn(newNetworkSelectedNodesAndEdgesTaskIterator);
+		
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);
 
 		InputStreamTaskFactory cytoscapeJsReaderFactory = mock(InputStreamTaskFactory.class);

@@ -481,6 +481,10 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		System.out.println("res: " + result.toString());
 		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:8", ci.get("errors").get(0).get("type").asText());
+	
 	}
 	
 	@Test

@@ -546,9 +546,10 @@ public class NetworkResource extends AbstractResource {
 			nodeSUID = edge.getTarget().getSUID();
 		} else {
 			//throw getError("Invalid parameter for edge: " + type, new IllegalArgumentException(), Response.Status.INTERNAL_SERVER_ERROR);
-			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+			//The above was incorrectly treating a path param as a query; it should return 404
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					INVALID_PARAMETER_ERROR, 
+					NOT_FOUND_ERROR, 
 					"Invalid parameter for edge: " + type, 
 					getResourceLogger(), null);
 		}

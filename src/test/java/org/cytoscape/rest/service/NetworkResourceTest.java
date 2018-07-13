@@ -552,6 +552,75 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(false, (Boolean)data.get("selected").asBoolean());
 	}
 	
+	@Test
+	public void testGetEdgeSource() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode source = edge1.getSource();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/source").request().get(
+				String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+
+		System.out.println(result);
+		assertNotNull(root);
+		assertEquals(source.getSUID().toString(), root.get("source").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeSourceInvalidEdge() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode source = edge1.getSource();
+		
+		Response  response = target("/v1/networks/" + suid.toString() + "/edges/" + 0l + "/source").request().get();
+			
+		assertEquals(404, response.getStatus());
+		JsonNode ci = mapper.readTree(response.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:1", ci.get("errors").get(0).get("type").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeInvalidType() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		
+		Response response = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/invalid_type").request().get();
+		
+		assertEquals(404, response.getStatus());
+		JsonNode ci = mapper.readTree(response.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:1", ci.get("errors").get(0).get("type").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeTarget() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode target = edge1.getTarget();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/target").request().get(
+				String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+
+		System.out.println(result);
+		assertNotNull(root);
+		assertEquals(target.getSUID().toString(), root.get("target").asText());
+	
+	}
+	
 	
 	@Test
 	public void testCreateNode() throws Exception {

@@ -87,17 +87,76 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 	@Test
 	public void testFailsYFilesParametersPut() throws Exception {
 		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
+		System.out.println(result.getEntity());
 		assertEquals(404, result.getStatus());
 		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
 		assertEquals(404, result.getStatus());
 	}
 	
+	
+	@Test
+	public void testLayoutParametersPutInvalidJson() throws Exception {
+		Response result = target("/v1/apply/layouts/grid/parameters").request().put(Entity.entity("", MediaType.APPLICATION_JSON_TYPE));
+		String body = result.readEntity(String.class);
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		root.get("data");
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		JsonNode error = errorsNode.get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:3", error.get("type").asText());
+		assertEquals(500, result.getStatus());
+	}
+	
+	@Test
+	public void testLayoutParametersPut() throws Exception {
+		Response result = target("/v1/apply/layouts/grid/parameters").request().put(Entity.entity("[{\"name\": \"size\", \"value\": \"1\"}]", MediaType.APPLICATION_JSON_TYPE));
+		System.out.println(result.getEntity());
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
+	public void testLayoutParametersPutInvalidType() throws Exception {
+		Response result = target("/v1/apply/layouts/grid/parameters").request().put(Entity.entity("[{\"name\": \"invalid_name\", \"value\": \"1\"}]", MediaType.APPLICATION_JSON_TYPE));
+		String body = result.readEntity(String.class);
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		root.get("data");
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		JsonNode error = errorsNode.get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:3", error.get("type").asText());
+		assertEquals(500, result.getStatus());
+	}
+	
 	@Test
 	public void testFailsYFilesColumnTypes() throws Exception {
-		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columnTypes").request().get();
+		Response result = target("/v1/apply/layouts/com.yworks.yfiles.layout.DummyYFilesLayout/columntypes").request().get();
 		assertEquals(404, result.getStatus());
-		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/columnTypes").request().get();
+		System.out.println("Result = " + result);
+		String body = result.readEntity(String.class);
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		root.get("data");
+		JsonNode errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		JsonNode error = errorsNode.get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:4", error.get("type").asText());
+		
+		
+		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/columntypes").request().get();
+		System.out.println(result);
 		assertEquals(404, result.getStatus());
+		
+		body = result.readEntity(String.class);
+		root = mapper.readTree(body);
+		assertNotNull(root);
+		root.get("data");
+		errorsNode = root.get("errors");
+		assertEquals(1, errorsNode.size());
+		error = errorsNode.get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:4", error.get("type").asText());
+		
 	}
 	
 	@Test

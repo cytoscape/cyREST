@@ -379,7 +379,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 
 	@Test
-	public void testGetViewVisualProperty() throws Exception {
+	public void testGetNodeViewVisualProperty() throws Exception {
 		
 		final Long suid = network.getSUID();
 		final Long viewSuid = view.getSUID();
@@ -399,6 +399,46 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals("#000000", n.get("value").asText());
 	
 	}
+	
+	@Test
+	public void testGetEdgeViewVisualProperty() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyEdge edge = network.getEdgeList().iterator().next();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/edges/" + edge.getSUID() + "/EDGE_PAINT").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		JsonNode n = mapper.readTree(result.readEntity(String.class));
+		assertNotNull(n);
+		System.out.println(n);
+		
+		assertEquals("EDGE_PAINT", n.get("visualProperty").asText());
+		assertEquals("#808080", n.get("value").asText());
+	
+	}
+	
+	@Test
+	public void testGetInvalidVisualProperty() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		final CyEdge edge = network.getEdgeList().iterator().next();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/invalid_object_type/" + edge.getSUID() + "/EDGE_PAINT").request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		assertEquals(404, result.getStatus());
+		JsonNode ci = mapper.readTree(result.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+	
+	}
+	
 	
 	@Test
 	public void testGetViewVisualPropertyBypassGivesNetworkNotFound() throws Exception {

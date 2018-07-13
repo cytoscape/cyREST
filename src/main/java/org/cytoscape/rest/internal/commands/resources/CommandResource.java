@@ -14,7 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -60,6 +60,12 @@ import io.swagger.annotations.ApiParam;
 public class CommandResource
 {
 	private static final Logger logger = LoggerFactory.getLogger(CommandResource.class);
+	
+	public final class CommandWebApplicationException extends javax.ws.rs.WebApplicationException {
+		public CommandWebApplicationException(int status) {
+			super(status);
+		}
+	}
 	
 	@Inject
 	@LogLocation
@@ -140,7 +146,7 @@ public class CommandResource
 		final List<String> commands = available.getCommands(namespace);
 
 		if (commands == null || commands.size() == 0)
-			throw new WebApplicationException(404);
+			throw new CommandWebApplicationException(404);
 
 		handler.appendCommand("Available commands for '" + namespace + "':");
 		for (final String command : commands) {
@@ -167,7 +173,7 @@ public class CommandResource
 		final List<String> commands = available.getCommands(namespace);
 
 		if (commands == null || commands.size() == 0)
-			throw new WebApplicationException(404);
+			throw new CommandWebApplicationException(404);
 
 		handler.appendCommand("Available commands for '" + namespace + "':");
 		for (final String command : commands) {
@@ -284,7 +290,7 @@ public class CommandResource
 	private final String handleCommand(final String namespace, final String command,
 			final MultivaluedMap<String, String> queryParameters,
 			final MessageHandler handler
-			) throws WebApplicationException {
+			) throws javax.ws.rs.WebApplicationException {
 
 		final List<String> args = available.getArguments(namespace, command);
 
@@ -306,7 +312,7 @@ public class CommandResource
 			final String namespace, final String command,
 			final MultivaluedMap<String, String> args,
 			final MessageHandler handler
-			) throws WebApplicationException {
+			) throws javax.ws.rs.WebApplicationException {
 
 		final List<String> commands = available.getCommands(namespace);
 		if (commands == null || commands.size() == 0) {
@@ -351,7 +357,7 @@ public class CommandResource
 			final String namespace, final String command,
 			final Map<String, Object> args,
 			final MessageHandler handler,
-			CommandResourceTaskObserver taskObserver) throws WebApplicationException {
+			CommandResourceTaskObserver taskObserver) throws javax.ws.rs.WebApplicationException {
 
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);
@@ -441,7 +447,7 @@ public class CommandResource
 	}
 
 	@SuppressWarnings("serial")
-	public class CustomNotFoundException extends WebApplicationException {
+	public class CustomNotFoundException extends javax.ws.rs.WebApplicationException {
 		public CustomNotFoundException() {
 			super(404);
 		}

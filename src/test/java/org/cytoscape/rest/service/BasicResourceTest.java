@@ -40,6 +40,7 @@ import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.NetworkViewTestSupport;
 import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
@@ -122,6 +123,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineFactory;
@@ -153,6 +155,7 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.Tunable;
 import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
@@ -273,18 +276,24 @@ public class BasicResourceTest extends JerseyTest {
 		public void setHeight(Double height);
 		public void setWidth(Double height);
 	}
-
+	
+	public abstract class DummyLayoutContext {
+		@Tunable(description = "DummyDescription", longDescription="DummyLongDescription", exampleStringValue="0.1")
+		public Integer size;
+	}
+	
 	public BasicResourceTest() {
 		allAppsStartedListener = mock(AllAppsStartedListener.class);
 		
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
-		Object context = new Object();
-		when(def.createLayoutContext()).thenReturn(context);
-		when(def.getDefaultLayoutContext()).thenReturn(context);
+		DummyLayoutContext dummyLayoutContext = mock(DummyLayoutContext.class);
+		when(def.createLayoutContext()).thenReturn(dummyLayoutContext);
+		when(def.getDefaultLayoutContext()).thenReturn(dummyLayoutContext);
 		when(def.getName()).thenReturn("grid");
 		
 		CyLayoutAlgorithm def2 = mock(CyLayoutAlgorithm.class);
 		
+		Object context = new Object();
 		when(def2.createLayoutContext()).thenReturn(context);
 		when(def2.getDefaultLayoutContext()).thenReturn(context);
 		when(def2.getName()).thenReturn("com.yworks.yfiles.layout.DummyYFilesLayout");
@@ -310,6 +319,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(layouts.getLayout("com.yworks.yfiles.layout.DummyYFilesLayout")).thenReturn(def2);
 		when(layouts.getLayout("yfiles.DummyYFilesLayout")).thenReturn(def3);
 
+		
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
 		this.network = createNetwork("network1");
 		this.view = nvts.getNetworkViewFactory().createNetworkView(network);

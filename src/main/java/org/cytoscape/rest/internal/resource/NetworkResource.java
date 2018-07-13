@@ -973,8 +973,6 @@ public class NetworkResource extends AbstractResource {
 				return loadNetworks(format, collection, is);
 			} catch (Exception e) {
 
-				e.printStackTrace();
-
 				//throw getError("Could not load networks from given locations.", e,
 				//		Response.Status.INTERNAL_SERVER_ERROR);
 				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 

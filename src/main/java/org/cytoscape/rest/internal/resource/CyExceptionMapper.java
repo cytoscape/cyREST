@@ -31,9 +31,9 @@ public class CyExceptionMapper implements ExceptionMapper<Throwable> {
 		if (ex instanceof WebApplicationException) {
 			//System.out.println("Identified WebApplicationException");
 			WebApplicationException webApplicationException = (WebApplicationException) ex;
-			Response response = webApplicationException.getResponse();
-			Object entity = response.getEntity();
-			System.out.println("Identified WebApplicationException with entity: "+ entity);
+			//Response response = webApplicationException.getResponse();
+			//Object entity = response.getEntity();
+			logger.error(ex.getMessage(), ex);
 			return webApplicationException.getResponse();
 		} else {
 			CIResponse<Object> ciResponse = new CIResponse<Object>();

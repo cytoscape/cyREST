@@ -313,6 +313,9 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		try {
 			final Map<String, Class<?>> params = getParameterTypes(layout);
+			
+		
+			
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			for (final JsonNode entry : rootNode) {

@@ -99,14 +99,14 @@ public class NetworkViewResource extends AbstractResource {
 	public String getResourceURI() {
 		return RESOURCE_URN;
 	}
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(NetworkViewResource.class);
-		
+
 	@Override
 	public Logger getResourceLogger() {
 		return logger;
 	}
-	
+
 	static final int NOT_FOUND_ERROR = 1;
 	static final int INVALID_PARAMETER_ERROR = 2;
 	static final int NO_VIEWS_FOR_NETWORK_ERROR = 3;
@@ -115,9 +115,9 @@ public class NetworkViewResource extends AbstractResource {
 	public static final int INTERNAL_METHOD_ERROR = 6;
 	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 7;
 	public static final int VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR = 8;
-	
+
 	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
-	
+
 	private static final String VIEW_FILE_PARAMETER_NOTES = "The format of the file written is defined by the file extension.\n\n"  
 			+ "| Extension   | Details    |\n"
 			+ "| ----------- | -----------|\n"
@@ -126,7 +126,7 @@ public class NetworkViewResource extends AbstractResource {
 			+ "| .nnf        | [NNF]("+CyRESTConstants.NNF_FILE_FORMAT_LINK+") format |\n"
 			+ "| .sif        | [SIF]("+CyRESTConstants.SIF_FILE_FORMAT_LINK+") format |\n"
 			+ "| .cyjs       | [Cytoscape.js]("+CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK+") format |\n";
-	
+
 	private static final String VIEW_FILE_OPERATION_NOTES = "If the `file` parameter is left unspecified, the response will contain data in [Cytoscape.js]("+ CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK +") format.\n\n"
 			+ "If the `file` parameter is specified, the Network View will be written to a file, and the response will contain the location of the file in the following format:\n\n"
 			+ "```\n\n"
@@ -135,10 +135,10 @@ public class NetworkViewResource extends AbstractResource {
 			+ "}\n"
 			+ "```\n\n"
 			+ "The format of the output file is defined by the extension of the `file` parameter.";
-	
+
 	private static final String BYPASS_NOTES = "Note that this sets the Visual Properties temporarily unless the `bypass` parameter is set to `true`. If the `bypass` parameter is set to `true`, the Visual Style will be overridden by these Visual Property values. If the `bypass` parameter is not used or is set to `false`, any Visual Properties set will return "
 			+ "to those defined in the Visual Style if the Network View is updated.\n";
-	
+
 	@Inject
 	@NotNull
 	private RenderingEngineManager renderingEngineManager;
@@ -181,7 +181,7 @@ public class NetworkViewResource extends AbstractResource {
 
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Create a new Network View",
-			notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
+	notes="Creates a new Network View for the Network specified by the `networkId` parameter.")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Network View SUID", response = NetworkViewSUIDModel.class),
 	})
@@ -197,7 +197,7 @@ public class NetworkViewResource extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get number of views for the given network model",
 	notes = "Returns a count of the Network Views available for the Network specified by the `networkId` parameter.\n\n" + FIRST_VIEWS_NOTE,
-			response = CountModel.class)
+	response = CountModel.class)
 	public String getNetworkViewCount(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(NOT_FOUND_ERROR, networkId)).size());
@@ -205,7 +205,7 @@ public class NetworkViewResource extends AbstractResource {
 
 
 	@DELETE
-	
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Delete all Network Views", notes="Deletes all Network Views available in the Network specified by the `networkId` parameter. " + FIRST_VIEWS_NOTE + "\n\n")
 	public Response deleteAllNetworkViews(
@@ -255,7 +255,7 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/first")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Delete the first available view",
-			notes="Deletes the first available Network View for the Network specified by the `networkId` parameter. "  + FIRST_VIEWS_NOTE)
+	notes="Deletes the first available Network View for the Network specified by the `networkId` parameter. "  + FIRST_VIEWS_NOTE)
 	public Response deleteFirstNetworkView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
@@ -271,8 +271,8 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a Network View (as JSON or a file)", 
-			notes="Gets the Network View specified by the `viewId` and `networkId` parameters.\n\n"
-					+ VIEW_FILE_OPERATION_NOTES
+	notes="Gets the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+			+ VIEW_FILE_OPERATION_NOTES
 			)
 	public Response getNetworkView(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId, 
@@ -304,8 +304,8 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}.cx")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get a Network View in CX format", 
-		notes="Returns the Network View specified by the `viewId` and `networkId` parameters "
-				+ "in [CX format]("+CyRESTConstants.CX_FILE_FORMAT_LINK+")")
+	notes="Returns the Network View specified by the `viewId` and `networkId` parameters "
+			+ "in [CX format]("+CyRESTConstants.CX_FILE_FORMAT_LINK+")")
 	public Response getNetworkViewAsCx(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
@@ -364,9 +364,9 @@ public class NetworkViewResource extends AbstractResource {
 		message.put("file", networkFile.getAbsolutePath());
 		return message;
 	}
-	
+
 	@GET
-	
+
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all Network Views", notes="Returns an array of all network views belonging to the network specified by the `networkId` paramter. The response is a list of Network SUIDs.")
 	@ApiResponses(value = { 
@@ -463,9 +463,9 @@ public class NetworkViewResource extends AbstractResource {
 	private final Response getImage(String fileType, Long networkId, int height) {
 		return getImage(fileType, networkId, height, height);
 	}
-	
+
 	private final Response getImage(String fileType, Long networkId, Integer height, Integer width) {
-	    final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId); 
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId); 
 		if (views.isEmpty()) {
 			//throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
 			//		Response.Status.NOT_FOUND);
@@ -505,7 +505,7 @@ public class NetworkViewResource extends AbstractResource {
 		else if (width == null && height == null) {
 			height = 600;
 		}
-		
+
 		return getImageForView("png", networkId, viewId, height, width);
 	}
 
@@ -552,9 +552,9 @@ public class NetworkViewResource extends AbstractResource {
 				NOT_FOUND_ERROR, 
 				"Could not find view for the network: " + networkId, 
 				logger, null);
-		
+
 	}
-	
+
 	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		for (final CyNetworkView view : views) {
@@ -666,7 +666,7 @@ public class NetworkViewResource extends AbstractResource {
 					getResourceLogger(), e);
 		}
 	}
-	
+
 	private void setVisualProperty(CyNetworkView networkView, String objectType, long objectId, JsonNode viewNode, boolean bypass) {
 
 		if(viewNode == null) {
@@ -678,11 +678,11 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Method not supported.",
 			//		new IllegalStateException(),
 			//		Response.Status.INTERNAL_SERVER_ERROR);
-			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
-			          RESOURCE_URN,  
-			          NOT_FOUND_ERROR,  
-			          "Object type not recognized:" + objectType,  
-			          logger, null); 
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+					RESOURCE_URN,  
+					NOT_FOUND_ERROR,  
+					"Object type not recognized:" + objectType,  
+					logger, null); 
 		}
 
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
@@ -691,11 +691,11 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Could not find view.",
 			//		new IllegalArgumentException(),
 			//		Response.Status.NOT_FOUND);
-			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
-			          RESOURCE_URN,  
-			          NOT_FOUND_ERROR,  
-			          "Could not find view.",  
-			          logger, null); 
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+					RESOURCE_URN,  
+					NOT_FOUND_ERROR,  
+					"Could not find view.",  
+					logger, null); 
 		}
 		styleMapper.updateView(view, viewNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
 	}
@@ -710,11 +710,11 @@ public class NetworkViewResource extends AbstractResource {
 			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLES + "\n" 
 			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLES + "\n\n"
 			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
-			 + BYPASS_NOTES
+			+ BYPASS_NOTES
 			)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of Objects with Visual Properties.", 
-				dataType="[Lorg.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;", paramType="body", required=true)
+			dataType="[Lorg.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;", paramType="body", required=true)
 			)
 	public Response updateViews(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId,
@@ -773,10 +773,10 @@ public class NetworkViewResource extends AbstractResource {
 			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n\n"
 			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
 			+ BYPASS_NOTES
-		)
+			)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
-		)
+			)
 	public Response updateView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
@@ -834,7 +834,7 @@ public class NetworkViewResource extends AbstractResource {
 			+ BYPASS_NOTES)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A list of Visual Properties and their values.", dataType="[Lorg.cytoscape.rest.internal.model.VisualPropertyValueModel;", paramType="body", required=true)
-		)
+			)
 	public Response updateNetworkView(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
@@ -870,8 +870,8 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/network")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the Visual Properties for a Network View", 
-			notes="Returns a list of the Visual Properties for the Network View specified by the `viewId` and `networkId` parameters.\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+	notes="Returns a list of the Visual Properties for the Network View specified by the `viewId` and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
 			response=VisualPropertyValueModel.class, responseContainer="List")
 	public Response getNetworkVisualProps(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -883,10 +883,10 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get the Visual Properties for a Node or Edge Object",
-			notes="Gets a list of Visual Properties for the Object specified by the `objectId` "
-					+ "and `objectType` parameters in the Network View specified by the "
-					+ "`viewId` and `networkId` parameters.\n\n"
-					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
+	notes="Gets a list of Visual Properties for the Object specified by the `objectId` "
+			+ "and `objectType` parameters in the Network View specified by the "
+			+ "`viewId` and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
 			response=VisualPropertyValueModel.class, responseContainer="List")
 	public String getView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -940,11 +940,24 @@ public class NetworkViewResource extends AbstractResource {
 		View<? extends CyIdentifiable> view = null;
 
 		if(objectType.equals("nodes")) {
-			view = networkView.getNodeView(networkView.getModel().getNode(objectId));
+			CyNode cyNode = networkView.getModel().getNode(objectId);
+			if (cyNode != null) {
+				view = networkView.getNodeView(cyNode);
+			}
 		} else if(objectType.equals("edges")) {
-			view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
+			CyEdge cyEdge = networkView.getModel().getEdge(objectId);
+			if (cyEdge != null) {
+				view = networkView.getEdgeView(networkView.getModel().getEdge(objectId));
+			}
 		} else if (objectType.equals("network")) {
 			view = networkView;
+		} else {
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					NOT_FOUND_ERROR, 
+					"Object type not recognized: " + objectType, 
+					logger, null);
+
 		}
 		return view;
 	}
@@ -953,11 +966,11 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a Visual Property for an Object",
-			notes="Gets the Visual Property specificed by the `visualProperty` parameter for the"
-				+ " node or edge specified by the `objectId` parameter in the Network View "
-				+ "specified by the `viewId` and `networkId` parameters.\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
-				,
+	notes="Gets the Visual Property specificed by the `visualProperty` parameter for the"
+			+ " node or edge specified by the `objectId` parameter in the Network View "
+			+ "specified by the `viewId` and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n"
+			,
 			response=VisualPropertyValueModel.class)
 	public String getSingleVisualPropertyValue(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
@@ -997,13 +1010,13 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get the Visual Properties a Visual Style is bypassed with",
-			notes = "Gets the bypass Visual Property specified by the `visualProperty` parameter from "
-					+ "the object specified by the `objectId` and `objectType` parameters in the Network "
-					+ "View Specified by the `viewId` and `networkId` parameters. The response is the "
-					+ "Visual Property that is used in place of the definition provided by the Visual "
-					+ "Style.\n\n"
-					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
-	response=SingleVisualPropertyResponse.class
+	notes = "Gets the bypass Visual Property specified by the `visualProperty` parameter from "
+			+ "the object specified by the `objectId` and `objectType` parameters in the Network "
+			+ "View Specified by the `viewId` and `networkId` parameters. The response is the "
+			+ "Visual Property that is used in place of the definition provided by the Visual "
+			+ "Style.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES +"\n\n",
+			response=SingleVisualPropertyResponse.class
 			)
 	public Response getSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
@@ -1013,7 +1026,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
-		
+
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if (view == null) {
@@ -1024,13 +1037,7 @@ public class NetworkViewResource extends AbstractResource {
 					logger, null);
 		}
 
-		if (objectType == null || (!objectType.equals("nodes") && !objectType.equals("edges"))) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Object type not recognized: " + objectType, 
-					logger, null);
-		}
+
 
 		VisualProperty<Object> targetVp = (VisualProperty<Object>) getTargetVisualPropertyCI(view, objectType, visualProperty, true);
 
@@ -1061,7 +1068,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return networkView;
 	}
-	
+
 	private VisualProperty<?> getTargetVisualPropertyCI(View<? extends CyIdentifiable> view, String objectType, String visualProperty, boolean mustExist) throws WebApplicationException {
 		Collection<VisualProperty<?>> vps = getVisualProperties(objectType);
 
@@ -1087,23 +1094,23 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return targetVp;
 	}
-	
+
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Bypass a Visual Style with a set Visual Property",
-			notes="Bypasses the Visual Style of the object specified by the `objectId` and "
-				+ "`objectType` parameters, in the Network View specified by the `viewId` and "
-				+ "`networkId` parameters. The Visual Property included in the message body "
-				+ "will be used instead of the definition provided by the Visual Style.\n\n"
-				+ "Examples of Visual Properties:\n\n" 
-				+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
-				+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
-				+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
+	notes="Bypasses the Visual Style of the object specified by the `objectId` and "
+			+ "`objectType` parameters, in the Network View specified by the `viewId` and "
+			+ "`networkId` parameters. The Visual Property included in the message body "
+			+ "will be used instead of the definition provided by the Visual Style.\n\n"
+			+ "Examples of Visual Properties:\n\n" 
+			+ ModelConstants.NODE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.EDGE_VISUAL_PROPERTY_EXAMPLE + "\n" 
+			+ ModelConstants.NETWORK_VISUAL_PROPERTY_EXAMPLE + "\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
-		)
+			)
 	public Response putSingleVisualPropertyValueBypass(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Network View SUID") @PathParam("viewId") Long viewId,
@@ -1113,9 +1120,9 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(hidden= true)final InputStream inputStream) {
 
 		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
-		
+
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
-		
+
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
@@ -1123,9 +1130,9 @@ public class NetworkViewResource extends AbstractResource {
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
-		
+
 		getTargetVisualPropertyCI(view, objectType, visualProperty, false);
-		
+
 		try {
 			final ObjectMapper objMapper = new ObjectMapper();
 			final JsonNode rootNode = objMapper.readValue(inputStream, JsonNode.class);
@@ -1159,7 +1166,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Property")@PathParam("visualProperty") String visualProperty) {
 
 		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
-		
+
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
 
 		if (view == null) {
@@ -1182,8 +1189,8 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/network/{visualProperty}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get a network Visual Property",
-			notes="Gets the Network Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
+	notes="Gets the Network Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES)
 	public String getNetworkVisualProp(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
@@ -1195,17 +1202,17 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return getSingleVp(visualProperty, networkView, networkLexicon);
 	}
-	
+
 	@PUT
 	@Path("/{viewId}/network/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Bypass the Network Visual Style with a set Visual Property",
-			notes="Bypasses the Visual Style of the Network with the Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
-				response=CIResponse.class )
+	notes="Bypasses the Visual Style of the Network with the Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+			response=CIResponse.class )
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="A Visual Property and its value.", dataType="org.cytoscape.rest.internal.model.VisualPropertyValueModel", paramType="body", required=true)
-		)
+			)
 	public Response putNetworkVisualPropBypass(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
@@ -1216,7 +1223,7 @@ public class NetworkViewResource extends AbstractResource {
 		if(nodeLexicon == null) {
 			initLexicon();
 		}
-		
+
 		getTargetVisualPropertyCI(networkView, "network", visualProperty, false);
 
 		try {
@@ -1232,45 +1239,45 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return Response.ok().entity(ciResponseFactory.getCIResponse(new Object())).build();
 	}
-	
+
 	@DELETE
 	@Path("/{viewId}/network/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Deletes the Visual Property the Network Visual Style is bypassed with",
-			notes="Deletes the bypass Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters. When this is done, the " + 
-				    "Visual Property will be defined by the Visual Style\n\n" + 
-							ModelConstants.VISUAL_PROPERTIES_REFERENCES,
-					response=CIResponse.class 
-					)
+	notes="Deletes the bypass Visual Property specificed by the `visualProperty`, `viewId`, and `networkId` parameters. When this is done, the " + 
+			"Visual Property will be defined by the Visual Style\n\n" + 
+			ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+			response=CIResponse.class 
+			)
 	public Response deleteNetworkVisualProp(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty) {
 		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
-		
+
 		VisualProperty<?> targetVp = getTargetVisualPropertyCI(networkView, "network", visualProperty, true);
 
 		networkView.clearValueLock(targetVp);
 
 		return Response.ok().entity(ciResponseFactory.getCIResponse(new Object())).build();
 	}
-	
+
 	@GET
 	@Path("/{viewId}/network/{visualProperty}/bypass")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get the Visual Property the Network Visual Style is bypassed with",
-			notes="Gets the bypass Visual Property specified by the `visualProperty`, `viewId`, and `networkId` parameters. " + 
-					" The response is the Visual Property that is used in place of the definition provided by the Visual "
-					+ "Style.\n\n"
-					+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+	notes="Gets the bypass Visual Property specified by the `visualProperty`, `viewId`, and `networkId` parameters. " + 
+			" The response is the Visual Property that is used in place of the definition provided by the Visual "
+			+ "Style.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
 			response=SingleVisualPropertyResponse.class
-	)
+			)
 	public Response getNetworkVisualPropBypass(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(value="Name of the Visual Property") @PathParam("visualProperty") String visualProperty) {
 		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
-		
+
 		VisualProperty<Object> targetVp = (VisualProperty<Object>) getTargetVisualPropertyCI(networkView, "network", visualProperty, true);
 
 		VisualPropertyValueModel entity = new VisualPropertyValueModel();
@@ -1285,7 +1292,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
 	}
-	
+
 	private String getSingleVp(final String visualProperty, final View<? extends CyIdentifiable> view, 
 			final Collection<VisualProperty<?>> vps) {
 		VisualProperty<?> targetVp = null;
@@ -1320,11 +1327,11 @@ public class NetworkViewResource extends AbstractResource {
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="Get all set values for a specific Visual Property",
-		notes="Returns a list of all Visual Property values for the Visual Property specified by "
-				+ "the `visualProperty` and `objectType` parameters, in the Network View specified by the "
-				+ "`viewId` and `networkId` parameters.\n\n"
-				+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
-		response=ObjectVisualPropertyValueModel.class, responseContainer="List")
+	notes="Returns a list of all Visual Property values for the Visual Property specified by "
+			+ "the `visualProperty` and `objectType` parameters, in the Network View specified by the "
+			+ "`viewId` and `networkId` parameters.\n\n"
+			+ ModelConstants.VISUAL_PROPERTIES_REFERENCES,
+			response=ObjectVisualPropertyValueModel.class, responseContainer="List")
 	public Response getViews(
 			@ApiParam(value="SUID of the Network")@PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
@@ -1364,11 +1371,11 @@ public class NetworkViewResource extends AbstractResource {
 
 		if(graphObjects == null || graphObjects.isEmpty()) {
 			//throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
-			 throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
-			          RESOURCE_URN,  
-			          NOT_FOUND_ERROR,  
-			          "Could not find views.",  
-			          logger, null); 
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
+					RESOURCE_URN,  
+					NOT_FOUND_ERROR,  
+					"Could not find views.",  
+					logger, null); 
 		}
 		try {
 			return styleSerializer.serializeViews(graphObjects, vps);

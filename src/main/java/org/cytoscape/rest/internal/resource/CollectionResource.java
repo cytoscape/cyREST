@@ -69,10 +69,13 @@ public class CollectionResource extends AbstractResource {
 	}
 	
 	public static final int INTERNAL_METHOD_ERROR = 1;
-	public static final int NOT_FOUND_ERROR= 2;
-	public static final int SERIALIZATION_ERROR = 3;
-	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 4;
-	private static final int INVALID_PARAMETER_ERROR = 5;
+	public static final int SUB_NETWORK_NOT_FOUND_ERROR = 2;
+	public static final int ROOT_NETWORK_NOT_FOUND_ERROR = 3;
+	public static final int TABLE_NOT_FOUND_ERROR = 4;
+	//public static final int NOT_FOUND_ERROR= 2;
+	public static final int SERIALIZATION_ERROR = 5;
+	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 6;
+	private static final int INVALID_PARAMETER_ERROR = 7;
 	
 	private static final String COLLECTION_ASCII_ART =
 			"Cytoscape can contain multiple Root Networks, each with their own Sub-Networks\n```\n" + 
@@ -155,7 +158,7 @@ public class CollectionResource extends AbstractResource {
 				//throw new NotFoundException();
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						getResourceURI(), 
-						NOT_FOUND_ERROR, 
+						SUB_NETWORK_NOT_FOUND_ERROR, 
 						"Could not find Network with SUID: " + subsuid, 
 						getResourceLogger(), null);
 			}
@@ -165,7 +168,7 @@ public class CollectionResource extends AbstractResource {
 				//throw new NotFoundException();
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						getResourceURI(), 
-						NOT_FOUND_ERROR, 
+						ROOT_NETWORK_NOT_FOUND_ERROR, 
 						"Could not find Root Network for Network with SUID: " + subsuid, 
 						getResourceLogger(), null);
 			} else {
@@ -269,7 +272,7 @@ public class CollectionResource extends AbstractResource {
 			//		new NullPointerException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					TABLE_NOT_FOUND_ERROR, 
 					"No such Table type: " + tableType, 
 					getResourceLogger(), null);
 		}
@@ -324,7 +327,7 @@ public class CollectionResource extends AbstractResource {
 			//throw getError("No such table type", new NullPointerException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					TABLE_NOT_FOUND_ERROR, 
 					"No such Table type: " + tableType, 
 					getResourceLogger(), null);
 		}
@@ -350,9 +353,9 @@ public class CollectionResource extends AbstractResource {
 				e.getMessage(), 
 				logger, e);
 		} catch (TableMapper.ColumnNotFoundException e) {
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 				RESOURCE_URN, 
-				NOT_FOUND_ERROR, 
+				INVALID_PARAMETER_ERROR, 
 				e.getMessage(), 
 				logger, e);
 		}
@@ -385,7 +388,7 @@ public class CollectionResource extends AbstractResource {
 				//		Response.Status.NOT_FOUND);
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						getResourceURI(), 
-						NOT_FOUND_ERROR, 
+						SUB_NETWORK_NOT_FOUND_ERROR, 
 						"Network not found: "+ networkId, 
 						getResourceLogger(), null);
 			}
@@ -398,7 +401,7 @@ public class CollectionResource extends AbstractResource {
 				//		new IllegalArgumentException("Collection does not exist"), Response.Status.NOT_FOUND);
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						getResourceURI(), 
-						NOT_FOUND_ERROR, 
+						ROOT_NETWORK_NOT_FOUND_ERROR, 
 						"Collection not found: "+ networkId, 
 						getResourceLogger(), null);
 			}

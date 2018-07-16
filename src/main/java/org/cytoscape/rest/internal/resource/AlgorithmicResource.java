@@ -93,10 +93,14 @@ public class AlgorithmicResource extends AbstractResource {
 		return logger;
 	}
 	
-	private static final int NOT_FOUND_ERROR= 1;
-	private static final int ALGORITHM_EXECUTION_ERROR = 2;
-	private static final int INVALID_PARAMETER_ERROR = 3;
-	private static final int ILLEGAL_Y_FILES_ACCESS_ERROR  = 4;
+	private static final int NETWORK_NOT_FOUND_ERROR= 1;
+	private static final int NETWORK_VIEW_NOT_FOUND_ERROR = 2;
+	private static final int LAYOUT_ALGORITHM_NOT_FOUND_ERROR = 3;
+	private static final int STYLE_NOT_FOUND_ERROR = 4;
+	
+	private static final int ALGORITHM_EXECUTION_ERROR = 5;
+	private static final int INVALID_PARAMETER_ERROR = 6;
+	private static final int ILLEGAL_Y_FILES_ACCESS_ERROR  = 7;
 	
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
@@ -113,7 +117,7 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		throw404ifYFiles(algorithmName);
 		
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Collection<CyNetworkView> views = 
 				this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
@@ -122,7 +126,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//		+ networkId);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
 					"Could not find view for the network with SUID: " + networkId, 
 					getResourceLogger(), null);
 		}
@@ -133,7 +137,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
 					"No such layout algorithm: " + algorithmName, 
 					getResourceLogger(), null);
 		}
@@ -179,7 +183,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
 					"No such layout algorithm: " + algorithmName, 
 					getResourceLogger(), null);
 		}
@@ -218,7 +222,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
 					"No such layout algorithm: " + algorithmName, 
 					getResourceLogger(), null);
 		}
@@ -260,7 +264,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
 					"No such layout algorithm: " + algorithmName, 
 					getResourceLogger(), null);
 		}
@@ -324,9 +328,10 @@ public class AlgorithmicResource extends AbstractResource {
 				
 				if(type == null) {
 					//throw new NotFoundException("No such parameter: " + parameterName);
-					throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					//Was a 404 above, but params are not in the path, so this was changed below to 500
+					throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 							getResourceURI(), 
-							NOT_FOUND_ERROR, 
+							INVALID_PARAMETER_ERROR, 
 							"No such parameter: " + parameterName, 
 							getResourceLogger(), null);
 				}
@@ -409,7 +414,7 @@ public class AlgorithmicResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId
 			) {
 
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		VisualStyle targetStyle = null;
 		for (final VisualStyle style : styles) {
@@ -425,7 +430,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//		+ styleName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					STYLE_NOT_FOUND_ERROR, 
 					"Visual Style does not exist: "	+ styleName, 
 					getResourceLogger(), null);
 		}
@@ -438,7 +443,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//				+ networkId);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
 					"Network view does not exist for the network with SUID: " + networkId, 
 					getResourceLogger(), null);
 		}
@@ -460,7 +465,7 @@ public class AlgorithmicResource extends AbstractResource {
 		notes="Fit the first available Network View for the Network specified by the `networkId` parameter to the current window.")
 	public MessageModel fitContent(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
@@ -471,7 +476,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//				+ networkId);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
 					"Network view does not exist for the network with SUID: " + networkId, 
 					getResourceLogger(), null);
 		}
@@ -501,7 +506,7 @@ public class AlgorithmicResource extends AbstractResource {
 			)
 	public MessageModel bundleEdge(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
@@ -511,7 +516,7 @@ public class AlgorithmicResource extends AbstractResource {
 			//				+ networkId);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
 					"Network view does not exist for the network with SUID: " + networkId, 
 					getResourceLogger(), null);
 		}

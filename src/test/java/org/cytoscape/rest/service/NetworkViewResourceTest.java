@@ -271,7 +271,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		JsonNode errorsNode = root.get("errors");
 		assertEquals(1, errorsNode.size());
 		JsonNode error = errorsNode.get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:2", error.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:5", error.get("type").asText());
 		
 		
 		
@@ -435,7 +435,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		JsonNode ci = mapper.readTree(result.readEntity(String.class));
 		assertEquals(1, ci.get("errors").size());
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:3", ci.get("errors").get(0).get("type").asText());
 	
 	}
 	
@@ -468,7 +468,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		JsonNode ci = mapper.readTree(result.readEntity(String.class));
 		assertEquals(1, ci.get("errors").size());
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:2", ci.get("errors").get(0).get("type").asText());
 	}
 	
 	@Test
@@ -483,7 +483,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		JsonNode ci = mapper.readTree(result.readEntity(String.class));
 		assertEquals(1, ci.get("errors").size());
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:8", ci.get("errors").get(0).get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:11", ci.get("errors").get(0).get("type").asText());
 	
 	}
 	
@@ -704,7 +704,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		JsonNode ci = mapper.readTree(result.readEntity(String.class));
 		assertEquals(1, ci.get("errors").size());
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:4", ci.get("errors").get(0).get("type").asText());
 	}
 	
 	@Test
@@ -726,7 +726,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertEquals(404, result.getStatus());
 		JsonNode ci = mapper.readTree(result.readEntity(String.class));
 		assertEquals(1, ci.get("errors").size());
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:1", ci.get("errors").get(0).get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:views:errors:2", ci.get("errors").get(0).get("type").asText());
 	}
 	
 	

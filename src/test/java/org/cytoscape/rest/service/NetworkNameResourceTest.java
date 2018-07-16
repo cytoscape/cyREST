@@ -55,7 +55,7 @@ public class NetworkNameResourceTest extends BasicResourceTest {
 		assertTrue(root.has("errors"));
 		assertEquals(1,root.get("errors").size());
 		final JsonNode errorNode = root.get("errors").get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:2", errorNode.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
 	}
 	
 	@Test
@@ -73,6 +73,6 @@ public class NetworkNameResourceTest extends BasicResourceTest {
 		assertTrue(root.has("errors"));
 		assertEquals(1,root.get("errors").size());
 		final JsonNode errorNode = root.get("errors").get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:2", errorNode.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
 	}
 }

@@ -58,10 +58,14 @@ import io.swagger.annotations.ApiResponses;
 @Path("/v1/networks/{networkId}/tables")
 public class TableResource extends AbstractResource {
 
-	static final int NOT_FOUND_ERROR= 1;
-	static final int INVALID_PARAMETER_ERROR = 2;
-	static final int SERIALIZATION_ERROR = 3;
-	static final int INTERNAL_METHOD_ERROR = 4;
+	static final int NETWORK_NOT_FOUND_ERROR= 1;
+	static final int TABLE_NOT_FOUND_ERROR = 2;
+	static final int COLUMN_NOT_FOUND_ERROR = 3;
+	static final int ROW_NOT_FOUND_ERROR = 4;
+	
+	static final int INVALID_PARAMETER_ERROR = 5;
+	static final int SERIALIZATION_ERROR = 6;
+	static final int INTERNAL_METHOD_ERROR = 7;
 	
 	static final String RESOURCE_URN = "networks:tables";
 
@@ -142,7 +146,7 @@ public class TableResource extends AbstractResource {
 	public Response createColumn(@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(hidden=true) final InputStream is) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final CyTable localTable = getTableByType(
 				network, tableType, JsonTags.COLUMN_IS_LOCAL);
@@ -182,7 +186,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the table from which to delete the column") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="Table Type from which to delete the column", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Name of the column to delete") @PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		if (table != null) {
 			table.deleteColumn(columnName);
@@ -193,7 +197,7 @@ public class TableResource extends AbstractResource {
 			//throw new NotFoundException("Could not find the table.  (This should not happen!)");
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					TABLE_NOT_FOUND_ERROR, 
 					"Could not find the table.  (This should not happen!)", 
 					logger, null);
 		}
@@ -210,7 +214,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(hidden=true) final InputStream is) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode = null;
@@ -236,7 +240,7 @@ public class TableResource extends AbstractResource {
 		} catch (TableMapper.ColumnNotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					COLUMN_NOT_FOUND_ERROR, 
 					e.getMessage(), 
 					logger, e);
 		}
@@ -259,7 +263,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="Name of the column in which to set values") @PathParam("columnName") String columnName,
 			@ApiParam(value="Default Value. If this value is provided, all cells will be set to this.", required=false) @QueryParam("default") String defaultValue, 
 			@ApiParam(hidden=true) final InputStream is) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 
 		if (defaultValue != null) {
@@ -306,7 +310,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(hidden=true) final InputStream is
 			) {
 
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, tableClass);
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode = null;
@@ -334,7 +338,7 @@ public class TableResource extends AbstractResource {
 		} catch (ColumnNotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					COLUMN_NOT_FOUND_ERROR, 
 					e.getMessage(), 
 					logger, e);
 		}
@@ -349,14 +353,14 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Primary key of the row Object, normally an SUID") @PathParam("primaryKey") Long primaryKey) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
 			//throw new NotFoundException("Could not find the row "
 			//		+ "with primary key: " + primaryKey);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					ROW_NOT_FOUND_ERROR, 
 					"Could not find the row with primary key: " + primaryKey, 
 					logger, null);
 		}
@@ -385,14 +389,14 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Primary key of the row Object, normally an SUID") @PathParam("primaryKey") Long primaryKey,
 			@ApiParam(value="Name of the Column") @PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 
 		final CyTable table = getTableByType(network, tableType, null);
 		if (!table.rowExists(primaryKey)) {
 			//throw new NotFoundException("Could not find the row with promary key: " + primaryKey);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					ROW_NOT_FOUND_ERROR, 
 					"Could not find the row with primary key: " + primaryKey, 
 					logger, null);
 		}
@@ -402,7 +406,7 @@ public class TableResource extends AbstractResource {
 			//throw new NotFoundException("Could not find the column: " + columnName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					COLUMN_NOT_FOUND_ERROR, 
 					"Could not find the column: " + columnName, 
 					logger, null);
 		}
@@ -415,8 +419,8 @@ public class TableResource extends AbstractResource {
 				//throw new NotFoundException("Could not find list value.");
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						RESOURCE_URN, 
-						NOT_FOUND_ERROR, 
-						"Could not find list value.", 
+						ROW_NOT_FOUND_ERROR, 
+						"Could not find list value for row with primary key: " + primaryKey, 
 						logger, null);
 			} else {
 				return listCell;
@@ -427,8 +431,8 @@ public class TableResource extends AbstractResource {
 				//throw new NotFoundException("Could not find value.");
 				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 						RESOURCE_URN, 
-						NOT_FOUND_ERROR, 
-						"Could not find value.", 
+						ROW_NOT_FOUND_ERROR, 
+						"Could not find value for row with primary key: " + primaryKey, 
 						logger, null);
 			}
 
@@ -447,7 +451,7 @@ public class TableResource extends AbstractResource {
 	public String getRows(
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			return this.serializer.serializeAllRows(table.getAllRows());
@@ -468,7 +472,7 @@ public class TableResource extends AbstractResource {
 	public String getColumnNames(
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table Type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			return this.serializer.serializeColumns(table.getColumns());
@@ -490,7 +494,7 @@ public class TableResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Type of Table", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType,
 			@ApiParam(value="Name of the Column") @PathParam("columnName") String columnName) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		final CyColumn column = table.getColumn(columnName);
 		final List<Object> values = column.getValues(column.getType());
@@ -562,7 +566,7 @@ public class TableResource extends AbstractResource {
 			//throw new NotFoundException("No such table type: " + tableType);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					TABLE_NOT_FOUND_ERROR, 
 					"No such table type: " + tableType, 
 					logger, null);
 		}
@@ -576,7 +580,7 @@ public class TableResource extends AbstractResource {
 	public String getTable(
 			@ApiParam(value="SUID of the network containing the table") @PathParam("networkId") Long networkId,
 			@ApiParam(value="Table type", allowableValues="defaultnode,defaultedge,defaultnetwork") @PathParam("tableType") String tableType) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 
 		try {
@@ -623,7 +627,7 @@ public class TableResource extends AbstractResource {
 	private final String getTableString(final Long networkId, 
 			final String tableType, final String separator) {
 
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyTable table = getTableByType(network, tableType, null);
 		try {
 			final String result = tableSerializer.toCSV(table, separator);

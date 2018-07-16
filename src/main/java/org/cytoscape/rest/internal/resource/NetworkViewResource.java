@@ -107,14 +107,18 @@ public class NetworkViewResource extends AbstractResource {
 		return logger;
 	}
 
-	static final int NOT_FOUND_ERROR = 1;
-	static final int INVALID_PARAMETER_ERROR = 2;
-	static final int NO_VIEWS_FOR_NETWORK_ERROR = 3;
-	static final int NO_VISUAL_LEXICON_ERROR = 4;
-	static final int SERIALIZATION_ERROR = 5;
-	public static final int INTERNAL_METHOD_ERROR = 6;
-	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 7;
-	public static final int VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR = 8;
+	static final int NETWORK_NOT_FOUND_ERROR = 1;
+	static final int NETWORK_VIEW_NOT_FOUND_ERROR = 2;
+	static final int OBJECT_TYPE_NOT_FOUND_ERROR = 3;
+	static final int OBJECT_VIEW_NOT_FOUND_ERROR = 4;
+	
+	static final int INVALID_PARAMETER_ERROR = 5;
+	static final int NO_VIEWS_FOR_NETWORK_ERROR = 6;
+	static final int NO_VISUAL_LEXICON_ERROR = 7;
+	static final int SERIALIZATION_ERROR = 8;
+	public static final int INTERNAL_METHOD_ERROR = 9;
+	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 10;
+	public static final int VISUAL_PROPERTY_DOES_NOT_EXIST_ERROR = 11;
 
 	private static final String FIRST_VIEWS_NOTE = "Cytoscape can have multiple views per network model, but this feature is not exposed in the Cytoscape GUI. GUI access is limited to the first available view only.";
 
@@ -186,7 +190,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiResponse(code = 201, message = "Network View SUID", response = NetworkViewSUIDModel.class),
 	})
 	public Response createNetworkView(@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(NOT_FOUND_ERROR, networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyNetworkView view = networkViewFactory.createNetworkView(network);
 		networkViewManager.addNetworkView(view);
 		return Response.status(Response.Status.CREATED).entity(new NetworkViewSUIDModel(view.getSUID())).build();
@@ -200,7 +204,7 @@ public class NetworkViewResource extends AbstractResource {
 	response = CountModel.class)
 	public String getNetworkViewCount(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(NOT_FOUND_ERROR, networkId)).size());
+		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.COUNT, networkViewManager.getNetworkViews(getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId)).size());
 	}
 
 
@@ -211,7 +215,7 @@ public class NetworkViewResource extends AbstractResource {
 	public Response deleteAllNetworkViews(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		try {
-			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(NOT_FOUND_ERROR, networkId));
+			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId));
 			final Set<CyNetworkView> toBeDestroyed = new HashSet<CyNetworkView>(views);
 			for (final CyNetworkView view : toBeDestroyed) {
 				networkViewManager.destroyNetworkView(view);
@@ -238,15 +242,7 @@ public class NetworkViewResource extends AbstractResource {
 	public Response getFirstNetworkView(
 			@ApiParam(value="SUID of the Network" )@PathParam("networkId") Long networkId, 
 			@ApiParam(value="A path to a file relative to the current directory. " + VIEW_FILE_PARAMETER_NOTES, required=false)@QueryParam("file") String file) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
-		if (views.isEmpty()) {
-			//throw new NotFoundException("Could not find view for the network: " + networkId);
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
-					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Could not find view for the network: " + networkId, 
-					logger, null);
-		}
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		final CyNetworkView view = views.iterator().next();
 		return getNetworkView(networkId, view.getSUID(), file);
 	}
@@ -258,7 +254,7 @@ public class NetworkViewResource extends AbstractResource {
 	notes="Deletes the first available Network View for the Network specified by the `networkId` parameter. "  + FIRST_VIEWS_NOTE)
 	public Response deleteFirstNetworkView(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		if (views.isEmpty() == false) {
 			networkViewManager.destroyNetworkView(views.iterator().next());
 		}
@@ -278,7 +274,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View", required=true) @PathParam("viewId") Long viewId,
 			@ApiParam(value="A path to a file relative to the current directory. " + VIEW_FILE_PARAMETER_NOTES, required=false) @QueryParam("file") String file) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 
 		CyNetworkView targetView = null;
 		for (final CyNetworkView view : views) {
@@ -310,7 +306,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 
 		CyNetworkView targetView = null;
 		for (final CyNetworkView view : views) {
@@ -322,6 +318,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		if(targetView == null) {
+			//FIXME This should likely be an error.
 			return Response.ok("{}").build();
 		} else {
 
@@ -374,7 +371,7 @@ public class NetworkViewResource extends AbstractResource {
 	})
 	public Collection<Long> getAllNetworkViews(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		final Collection<Long> suids = new HashSet<Long>();
 
 		for (final CyNetworkView view : views) {
@@ -465,7 +462,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	private final Response getImage(String fileType, Long networkId, Integer height, Integer width) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId); 
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId); 
 		if (views.isEmpty()) {
 			//throw getError("Could not create image.", new NotFoundException("Could not find view for the network: " + networkId),
 			//		Response.Status.NOT_FOUND);
@@ -539,7 +536,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height, Integer width) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		for (final CyNetworkView view : views) {
 			final Long vid = view.getSUID();
 			if (vid.equals(viewId)) {
@@ -549,14 +546,14 @@ public class NetworkViewResource extends AbstractResource {
 		//throw new NotFoundException("Could not find view for the network: " + networkId);
 		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 				RESOURCE_URN, 
-				NOT_FOUND_ERROR, 
+				NETWORK_VIEW_NOT_FOUND_ERROR, 
 				"Could not find view for the network: " + networkId, 
 				logger, null);
 
 	}
 
 	private Response getImageForView(String fileType, Long networkId, Long viewId, Integer height) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		for (final CyNetworkView view : views) {
 			final Long vid = view.getSUID();
 			if (vid.equals(viewId)) {
@@ -567,7 +564,7 @@ public class NetworkViewResource extends AbstractResource {
 		//throw new NotFoundException("Could not find view for the network: " + networkId);
 		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 				RESOURCE_URN, 
-				NOT_FOUND_ERROR, 
+				NETWORK_VIEW_NOT_FOUND_ERROR, 
 				"Could not find view for the network: " + networkId, 
 				logger, null);
 	}
@@ -680,7 +677,7 @@ public class NetworkViewResource extends AbstractResource {
 			//		Response.Status.INTERNAL_SERVER_ERROR);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
 					RESOURCE_URN,  
-					NOT_FOUND_ERROR,  
+					OBJECT_TYPE_NOT_FOUND_ERROR,  
 					"Object type not recognized:" + objectType,  
 					logger, null); 
 		}
@@ -693,8 +690,8 @@ public class NetworkViewResource extends AbstractResource {
 			//		Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
 					RESOURCE_URN,  
-					NOT_FOUND_ERROR,  
-					"Could not find view.",  
+					OBJECT_VIEW_NOT_FOUND_ERROR,  
+					"Could not find view for object: " + objectId,  
 					logger, null); 
 		}
 		styleMapper.updateView(view, viewNode, getLexicon(NO_VISUAL_LEXICON_ERROR), bypass);
@@ -797,8 +794,8 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Could not find view.", 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
+					"Could not find view for object: " + objectId, 
 					logger, null);
 		}
 
@@ -902,8 +899,8 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Could not find view.", 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
+					"Could not find view for object: " + objectId, 
 					logger, null);
 		}
 
@@ -954,8 +951,8 @@ public class NetworkViewResource extends AbstractResource {
 		} else {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Object type not recognized: " + objectType, 
+					OBJECT_TYPE_NOT_FOUND_ERROR, 
+					"Object type not found: " + objectType, 
 					logger, null);
 
 		}
@@ -984,8 +981,8 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Object type " + objectType + " not recognized", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
-					"Object type not recognized:" + objectType, 
+					OBJECT_TYPE_NOT_FOUND_ERROR, 
+					"Object type not found:" + objectType, 
 					logger, null);
 		}
 
@@ -996,7 +993,7 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
 					"Could not find view.", 
 					logger, null);
 		}
@@ -1032,7 +1029,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
@@ -1062,7 +1059,7 @@ public class NetworkViewResource extends AbstractResource {
 		} catch(NotFoundException e) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
 					e.getMessage(), 
 					logger, e);
 		}
@@ -1126,7 +1123,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
@@ -1172,7 +1169,7 @@ public class NetworkViewResource extends AbstractResource {
 		if (view == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					OBJECT_VIEW_NOT_FOUND_ERROR, 
 					"Could not find object view: " + objectId, 
 					logger, null);
 		}
@@ -1373,7 +1370,7 @@ public class NetworkViewResource extends AbstractResource {
 			//throw getError("Could not find views.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(),  
 					RESOURCE_URN,  
-					NOT_FOUND_ERROR,  
+					OBJECT_VIEW_NOT_FOUND_ERROR,  
 					"Could not find views.",  
 					logger, null); 
 		}
@@ -1420,7 +1417,7 @@ public class NetworkViewResource extends AbstractResource {
 	}
 
 	private final CyNetworkView getView(Long networkId, Long viewId) {
-		final Collection<CyNetworkView> views = this.getCyNetworkViews(NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
+		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 		for (final CyNetworkView view : views) {
 			final Long vid = view.getSUID();
 			if (vid.equals(viewId)) {
@@ -1430,8 +1427,8 @@ public class NetworkViewResource extends AbstractResource {
 		//throw new NotFoundException("Could not find view: " + viewId);
 		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 				RESOURCE_URN, 
-				NOT_FOUND_ERROR, 
-				"Could not find view: " + viewId, 
+				NETWORK_VIEW_NOT_FOUND_ERROR, 
+				"Could not find network view: " + viewId, 
 				logger, null);
 	}
 }

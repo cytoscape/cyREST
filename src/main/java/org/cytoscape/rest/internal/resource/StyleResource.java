@@ -85,11 +85,16 @@ public class StyleResource extends AbstractResource {
 		return logger;
 	}
 	
-	static final int NO_VISUAL_LEXICON_ERROR = 1;
-	static final int INTERNAL_METHOD_ERROR = 2;
-	static final int SERIALIZATION_ERROR = 3;
-	static final int INVALID_PARAMETER_ERROR = 4;
-	static final int NOT_FOUND_ERROR = 5;
+	static final int VISUAL_PROPERTY_NOT_FOUND_ERROR = 1;
+	static final int VISUAL_MAPPING_NOT_FOUND_ERROR = 2;
+	static final int VISUAL_STYLE_NOT_FOUND_ERROR = 3;
+	
+	static final int NO_VISUAL_LEXICON_ERROR = 4;
+	
+	static final int INTERNAL_METHOD_ERROR = 5;
+	static final int SERIALIZATION_ERROR = 6;
+	static final int INVALID_PARAMETER_ERROR = 7;
+	
 	
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
@@ -197,7 +202,7 @@ public class StyleResource extends AbstractResource {
 			//throw new NotFoundException("Could not find Visual Property: " + vpName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					VISUAL_PROPERTY_NOT_FOUND_ERROR, 
 					"Could not find Visual Property: " + vpName, 
 					logger, null);
 		}
@@ -206,7 +211,7 @@ public class StyleResource extends AbstractResource {
 			//throw new NotFoundException("Could not find mapping for: " + vpName);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					VISUAL_MAPPING_NOT_FOUND_ERROR, 
 					"Could not find mapping for: " + vpName, 
 					logger, null);
 		}
@@ -358,7 +363,7 @@ public class StyleResource extends AbstractResource {
 			//throw new NotFoundException("Could not find VisualProperty: " + vp);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					VISUAL_PROPERTY_NOT_FOUND_ERROR, 
 					"Could not find VisualProperty: " + vp, 
 					logger, null);
 		}
@@ -368,7 +373,7 @@ public class StyleResource extends AbstractResource {
 			//throw new NotFoundException("Could not find visual mapping function for " + vp);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					VISUAL_MAPPING_NOT_FOUND_ERROR, 
 					"Could not find visual mapping function for " + vp, 
 					logger, null);
 		}
@@ -427,9 +432,10 @@ public class StyleResource extends AbstractResource {
 			}
 		} else {
 			//throw new NotFoundException("Range object is not available for " + vpName);
-			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+			//Above, this was a 404. Technically, it has been found, but cannot produce a range.
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					INTERNAL_METHOD_ERROR, 
 					"Range object is not available for " + vpName, 
 					logger, null);
 		}
@@ -726,7 +732,7 @@ public class StyleResource extends AbstractResource {
 		//throw new NotFoundException("Could not find Visual Style: " + name);
 		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 				RESOURCE_URN, 
-				NOT_FOUND_ERROR, 
+				VISUAL_STYLE_NOT_FOUND_ERROR, 
 				"Could not find Visual Style: " + name, 
 				logger, null);
 	}

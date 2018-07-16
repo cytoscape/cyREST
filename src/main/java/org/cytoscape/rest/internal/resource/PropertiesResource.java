@@ -55,9 +55,11 @@ public class PropertiesResource extends AbstractResource {
 		return logger;
 	}
 	
-	static final int NOT_FOUND_ERROR = 1;
-
-	static final int INVALID_PARAMETER_ERROR = 2;
+	static final int NAMESPACE_NOT_FOUND_ERROR = 1;
+	static final int NAMESPACE_IS_EMPTY_ERROR = 2;
+	static final int PROPERTY_NOT_FOUND_ERROR = 3;
+	
+	static final int INVALID_PARAMETER_ERROR = 4;
 
 	
 	
@@ -76,7 +78,7 @@ public class PropertiesResource extends AbstractResource {
 		if (cyPropertyListener.getCyProperty(namespace) == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					NAMESPACE_NOT_FOUND_ERROR, 
 					"Could not find property namespace: " + namespace, 
 					logger, null);
 		}
@@ -84,7 +86,7 @@ public class PropertiesResource extends AbstractResource {
 		if (properties == null) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					NAMESPACE_IS_EMPTY_ERROR, 
 					"Property namespace does not contain properties: " + namespace, 
 					logger, null);
 		}
@@ -121,7 +123,7 @@ public class PropertiesResource extends AbstractResource {
 		if (!properties.containsKey(propertyKey)) {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					PROPERTY_NOT_FOUND_ERROR, 
 					"Property namespace \"" + namespace + "\" does not contain property: " + propertyKey, 
 					logger, null);
 		}
@@ -149,7 +151,7 @@ public class PropertiesResource extends AbstractResource {
 		else {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					PROPERTY_NOT_FOUND_ERROR, 
 					"Property namespace \"" + namespace + "\" does not contain property: " + propertyKey, 
 					logger, null);
 		}
@@ -172,7 +174,7 @@ public class PropertiesResource extends AbstractResource {
 		else {
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					RESOURCE_URN, 
-					NOT_FOUND_ERROR, 
+					PROPERTY_NOT_FOUND_ERROR, 
 					"Property namespace \"" + namespace + "\" does not contain property: " + propertyKey, 
 					logger, null);
 		}

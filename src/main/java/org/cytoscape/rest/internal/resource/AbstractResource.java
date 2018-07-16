@@ -231,9 +231,9 @@ public abstract class AbstractResource {
 		}
 	}
 
-	protected final Collection<Long> getByQuery(int couldNotFindNetworkErrorCode, int invalidObjectTypeErrorCode, int invalidParameterErrorCode, final Long id, final String objType, final String column,
+	protected final Collection<Long> getByQuery(int networkNotFoundErrorCode, int invalidObjectTypeErrorCode, int invalidParameterErrorCode, final Long id, final String objType, final String column,
 			final String query) {
-		final CyNetwork network = getCyNetwork(couldNotFindNetworkErrorCode, id);
+		final CyNetwork network = getCyNetwork(networkNotFoundErrorCode, id);
 		CyTable table = null;
 
 		List<? extends CyIdentifiable> graphObjects;

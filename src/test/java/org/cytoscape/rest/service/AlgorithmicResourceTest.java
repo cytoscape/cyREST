@@ -104,7 +104,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		JsonNode errorsNode = root.get("errors");
 		assertEquals(1, errorsNode.size());
 		JsonNode error = errorsNode.get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:3", error.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:6", error.get("type").asText());
 		assertEquals(500, result.getStatus());
 	}
 	
@@ -125,7 +125,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		JsonNode errorsNode = root.get("errors");
 		assertEquals(1, errorsNode.size());
 		JsonNode error = errorsNode.get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:3", error.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:6", error.get("type").asText());
 		assertEquals(500, result.getStatus());
 	}
 	
@@ -141,7 +141,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		JsonNode errorsNode = root.get("errors");
 		assertEquals(1, errorsNode.size());
 		JsonNode error = errorsNode.get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:4", error.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:7", error.get("type").asText());
 		
 		
 		result = target("/v1/apply/layouts/yfiles.DummyYFilesLayout/columntypes").request().get();
@@ -155,7 +155,7 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 		errorsNode = root.get("errors");
 		assertEquals(1, errorsNode.size());
 		error = errorsNode.get(0);
-		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:4", error.get("type").asText());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:apply:errors:7", error.get("type").asText());
 		
 	}
 	

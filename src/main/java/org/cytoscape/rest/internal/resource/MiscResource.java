@@ -40,7 +40,7 @@ public class MiscResource extends AbstractResource {
 	
 	private static final String RESOURCE_URN = "";
 
-	public static final int NOT_FOUND_ERROR= 1;
+	public static final int API_VERSION_NOT_FOUND_ERROR= 1;
 	public static final int INTERNAL_METHOD_ERROR = 2;
 	
 	@Override
@@ -111,7 +111,7 @@ public class MiscResource extends AbstractResource {
 			//throw new NotFoundException("Could not find Cytoscape version number property.");
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					API_VERSION_NOT_FOUND_ERROR, 
 					"Could not find Cytoscape version number property.", 
 					getResourceLogger(), null);
 		}
@@ -142,7 +142,7 @@ public class MiscResource extends AbstractResource {
 			//throw new NotFoundException("Could not find Cytoscape version number property.");
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
-					NOT_FOUND_ERROR, 
+					API_VERSION_NOT_FOUND_ERROR, 
 					"Could not find Cytoscape version number property.", 
 					getResourceLogger(), null);
 		}

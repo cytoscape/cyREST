@@ -1014,7 +1014,7 @@ public class NetworkResource extends AbstractResource {
 			throw this.getCIWebApplicationException(Status.PRECONDITION_FAILED.getStatusCode(), 
 					getResourceURI(), 
 					INVALID_PARAMETER_ERROR, 
-					"Could not parse the given network JSON", 
+					"Could not parse the given network JSON: " + e.getMessage(), 
 					getResourceLogger(), e);
 		}
 

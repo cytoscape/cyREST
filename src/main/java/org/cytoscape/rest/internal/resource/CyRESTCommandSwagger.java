@@ -507,7 +507,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		public void afterScan(Reader reader, Swagger swagger)
 		{
-
+		
 		}
 	}
 

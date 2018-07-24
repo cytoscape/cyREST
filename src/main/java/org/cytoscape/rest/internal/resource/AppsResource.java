@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.AppModel;
 import org.cytoscape.rest.internal.model.CountModel;
@@ -38,8 +39,8 @@ public class AppsResource extends AbstractResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Get installed Automation Accessible Cytoscape Apps",
-	notes="Returns installed Cytoscape Apps that have CyREST accessible Functions or Commands.")
-	public List<AppModel> getAppList(@ApiParam(value = "Bundle state of app", required = false) @QueryParam("bundleState") Integer bundleState) {
+	notes="Returns installed Cytoscape Apps that have CyREST accessible Functions or Commands. If the `bundleState` parameter is used, this operation will only return Apps with an OSGi bundle state matching the passed parameter.")
+	public List<AppModel> getAppList(@ApiParam(value=AppModel.OSGI_BUNDLE_STATUS_DESCRIPTION, allowableValues = AppModel.OSGI_BUNDLE_STATUS_ALLOWABLE_VALUES, required = false) @QueryParam("bundleState") Integer bundleState) {
 		ArrayList<AppModel> list = new ArrayList<AppModel>();
 		for (Bundle bundle : appTracker.getAppBundles()) {
 			AppModel appModel = new AppModel();
@@ -62,10 +63,15 @@ public class AppsResource extends AbstractResource {
 	@Path("/count")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@ApiOperation(value="Get the number of Automation Accessible Cytoscape Apps",
-	notes="Returns the number of installed Cytoscape Apps that have CyREST accessible Functions or Commands.")
-	public CountModel getAppCount(@ApiParam(value = "Bundle state of app", required = false) @QueryParam("bundleState") Integer bundleState) {
-		CountModel entity = new CountModel(new Integer(appTracker.getAppBundles().size()).longValue());
-		return entity;
-	
+	notes="Returns the number of installed Cytoscape Apps that have CyREST accessible Functions or Commands.  If the `bundleState` parameter is used, this operation will only count Apps with an OSGi bundle state matching the passed parameter.")
+	public CIResponse<CountModel> getAppCount(@ApiParam(value=AppModel.OSGI_BUNDLE_STATUS_DESCRIPTION, allowableValues = AppModel.OSGI_BUNDLE_STATUS_ALLOWABLE_VALUES, required=false) @QueryParam("bundleState") Integer bundleState) {
+		long count = 0l;
+		for (Bundle bundle : appTracker.getAppBundles()) {
+			if (bundleState == null || bundle.getState() == bundleState) {
+				count++;
+			}
+		}
+		CountModel data = new CountModel(count);
+		return ciResponseFactory.getCIResponse(data);
 	}
 }

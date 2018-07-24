@@ -395,14 +395,26 @@ public class BasicResourceTest extends JerseyTest {
 
 		AutomationAppTracker automationAppTracker = mock(AutomationAppTracker.class);
 		Set<Bundle> automationAppBundles = new HashSet<Bundle>();
-		Bundle dummyAutomationAppBundle = mock(Bundle.class);
-		when(dummyAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyautomationapp");
-		when(dummyAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
-		when(dummyAutomationAppBundle.getState()).thenReturn(1);
-		Hashtable<String, String> dummyAutomationAppBundleHeaders = new Hashtable<String, String>();
-		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy automation bundle");
-		when(dummyAutomationAppBundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
-		automationAppBundles.add(dummyAutomationAppBundle);
+		
+		Bundle dummyActiveAutomationAppBundle = mock(Bundle.class);
+		when(dummyActiveAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyactiveautomationapp");
+		when(dummyActiveAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
+		when(dummyActiveAutomationAppBundle.getState()).thenReturn(Bundle.ACTIVE);
+		Hashtable<String, String> dummyActiveAutomationAppBundleHeaders = new Hashtable<String, String>();
+		dummyActiveAutomationAppBundleHeaders.put("Bundle-Name", "dummy active automation bundle");
+		when(dummyActiveAutomationAppBundle.getHeaders()).thenReturn(dummyActiveAutomationAppBundleHeaders);
+		
+		Bundle dummyUninstalledAutomationAppBundle = mock(Bundle.class);
+		when(dummyUninstalledAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyuninstalledautomationapp");
+		when(dummyUninstalledAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
+		when(dummyUninstalledAutomationAppBundle.getState()).thenReturn(Bundle.UNINSTALLED);
+		Hashtable<String, String> dummyUninstalledAutomationAppBundleHeaders = new Hashtable<String, String>();
+		dummyUninstalledAutomationAppBundleHeaders.put("Bundle-Name", "dummy uninstalled automation bundle");
+		when(dummyUninstalledAutomationAppBundle.getHeaders()).thenReturn(dummyUninstalledAutomationAppBundleHeaders);
+		
+		automationAppBundles.add(dummyActiveAutomationAppBundle);
+		automationAppBundles.add(dummyUninstalledAutomationAppBundle);
+		
 		when(automationAppTracker.getAppBundles()).thenReturn(automationAppBundles);
 		
 		WriterListener writerListsner = mock(WriterListener.class);
@@ -536,9 +548,6 @@ public class BasicResourceTest extends JerseyTest {
 		graphicsWriterManager = mock(GraphicsWriterManager.class);
 
 		presentationWriterFactory = mock(PresentationWriterFactory.class);
-
-		
-	
 		
 		BoundedDouble boundedDouble = new BoundedDouble(0d,1d,10d, true, true);
 

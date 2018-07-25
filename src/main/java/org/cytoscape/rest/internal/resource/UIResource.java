@@ -32,6 +32,8 @@ import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +50,22 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/ui")
 public class UIResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "ui";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(UIResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	public static final int INTERNAL_METHOD_ERROR = 1;
+	
 	@Inject
 	@NotNull
 	protected CySwingApplication desktop;
@@ -90,8 +108,13 @@ public class UIResource extends AbstractResource {
 		try {
 			lod.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not toggle LOD.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not toggle LOD.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not toggle LOD.", 
+					logger, e);
 		}
 
 		return new MessageModel("Toggled Graphics level of details.");
@@ -111,7 +134,12 @@ public class UIResource extends AbstractResource {
 			.map(panel->getMap(panel))
 			.collect(Collectors.toList());
 		} catch(Exception ex) {
-			throw getError("Could not getpanel status", ex, Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not getpanel status", ex, Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get panel status.", 
+					logger, ex);
 		}
 	}
 
@@ -159,7 +187,12 @@ public class UIResource extends AbstractResource {
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException e) {
-			throw new InternalServerErrorException("Could not parse input JSON.", e);
+			//throw new InternalServerErrorException("Could not parse input JSON.", e);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not parse input JSON.", 
+					logger, null);
 		}
 		
 		for (final JsonNode entry : rootNode) {

@@ -12,6 +12,8 @@ import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.AppModel;
 import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -31,6 +33,20 @@ public class AppsResource extends AbstractResource {
 	
 	@Inject
 	AutomationAppTracker appTracker;
+	
+	private static final String RESOURCE_URN = "apps";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(AppsResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

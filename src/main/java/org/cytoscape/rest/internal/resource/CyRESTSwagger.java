@@ -17,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.ci.CISwaggerConstants;
 import org.cytoscape.rest.internal.task.ResourceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -44,6 +46,20 @@ import io.swagger.util.Json;
 @Singleton
 public class CyRESTSwagger extends AbstractResource
 {
+	private static final String RESOURCE_URN = "swagger";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(CollectionResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	private String swaggerDefinition;
 
 	final Set<Class<?>> classes = new HashSet<Class<?>>();

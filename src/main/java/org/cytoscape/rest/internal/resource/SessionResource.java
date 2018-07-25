@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.rest.internal.model.MessageModel;
 import org.cytoscape.rest.internal.model.FileModel;
@@ -26,6 +27,8 @@ import org.cytoscape.task.write.SaveSessionAsTaskFactory;
 import org.cytoscape.task.write.SaveSessionTaskFactory;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -38,6 +41,22 @@ import io.swagger.annotations.ApiParam;
 @Path("/v1/session")
 public class SessionResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "session";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(SessionResource.class);
+		
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	public static final int INTERNAL_METHOD_ERROR = 1;
+	
 	@Inject
 	@NotNull
 	private CySessionManager sessionManager;
@@ -95,7 +114,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not delete current session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete current session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete current session.", 
+					logger, e);
 		}
 		return new MessageModel("New session created.");
 	}
@@ -117,7 +141,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not open session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not open session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not open session.", 
+					logger, e);
 		}
 		return new FileModel(sessionFile.getAbsolutePath());
 	}
@@ -139,7 +168,12 @@ public class SessionResource extends AbstractResource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not save session.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not save session.", 
+					logger, e);
 		}
 	
 		return new FileModel(sessionFile.getAbsolutePath());

@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -36,6 +35,8 @@ import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.CyColumnModel;
 import org.cytoscape.rest.internal.model.CyTableWithRowsModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +54,29 @@ public class CollectionResource extends AbstractResource {
 	private final ObjectMapper mapper;
 	private final TableMapper tableMapper;
 
+	private static final String RESOURCE_URN = "collections";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(CollectionResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	public static final int INTERNAL_METHOD_ERROR = 1;
+	public static final int SUB_NETWORK_NOT_FOUND_ERROR = 2;
+	public static final int ROOT_NETWORK_NOT_FOUND_ERROR = 3;
+	public static final int TABLE_NOT_FOUND_ERROR = 4;
+	//public static final int NOT_FOUND_ERROR= 2;
+	public static final int SERIALIZATION_ERROR = 5;
+	public static final int CX_SERVICE_UNAVAILABLE_ERROR = 6;
+	private static final int INVALID_PARAMETER_ERROR = 7;
+	
 	private static final String COLLECTION_ASCII_ART =
 			"Cytoscape can contain multiple Root Networks, each with their own Sub-Networks\n```\n" + 
 			"── Root Network 1\n" + 
@@ -98,7 +122,12 @@ public class CollectionResource extends AbstractResource {
 		try {
 			result = mapper.writeValueAsString(val);
 		} catch (Exception e) {
-			throw getError("Could not serialize result: " + val, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize result: " + val, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize result: " + val, 
+					getResourceLogger(), e);
 		}
 		return Response.ok(result).build();
 
@@ -126,12 +155,22 @@ public class CollectionResource extends AbstractResource {
 			// Return parent collection's SUID
 			final CyNetwork subnetwork = networkManager.getNetwork(subsuid);
 			if(subnetwork == null) {
-				throw new NotFoundException();
+				//throw new NotFoundException();
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						SUB_NETWORK_NOT_FOUND_ERROR, 
+						"Could not find Network with SUID: " + subsuid, 
+						getResourceLogger(), null);
 			}
 			
 			final CyRootNetwork root = cyRootNetworkManager.getRootNetwork(subnetwork);
 			if(root == null) {
-				throw new NotFoundException();
+				//throw new NotFoundException();
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						ROOT_NETWORK_NOT_FOUND_ERROR, 
+						"Could not find Root Network for Network with SUID: " + subsuid, 
+						getResourceLogger(), null);
 			} else {
 				final List<Long> rootId = new ArrayList<>();
 				rootId.add(root.getSUID());
@@ -220,12 +259,22 @@ public class CollectionResource extends AbstractResource {
 			try {
 				table.deleteColumn(columnName);
 			} catch(Exception e) {
-				throw getError("Could not delete column: " + columnName, e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not delete column: " + columnName, e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"Could not delete column: " + columnName, 
+						getResourceLogger(), e);
 			}
 			return Response.ok().build();
 		} else {
-			throw getError("No such table type: " + tableType, 
-					new NullPointerException(), Response.Status.NOT_FOUND);
+			//throw getError("No such table type: " + tableType, 
+			//		new NullPointerException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					TABLE_NOT_FOUND_ERROR, 
+					"No such Table type: " + tableType, 
+					getResourceLogger(), null);
 		}
 	}
 	
@@ -241,8 +290,13 @@ public class CollectionResource extends AbstractResource {
 			final String result = this.serializer.serializeColumns(table.getColumns());
 			return Response.ok(result).build();
 		} catch (Exception e) {
-			throw getError("Could not serialize column names.", 
-					e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize column names.", 
+			//		e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize column names.", 
+					getResourceLogger(), null);
 		}
 	}
 	
@@ -270,15 +324,40 @@ public class CollectionResource extends AbstractResource {
 			@ApiParam(hidden=true) final InputStream is) {
 		final CyTable table = getTable(networkId, tableType);
 		if(table == null) {
-			throw getError("No such table type", new NullPointerException(), Response.Status.NOT_FOUND);
+			//throw getError("No such table type", new NullPointerException(), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					TABLE_NOT_FOUND_ERROR, 
+					"No such Table type: " + tableType, 
+					getResourceLogger(), null);
 		}
-		
+		JsonNode rootNode = null;
 		try {
-			final JsonNode rootNode = mapper.readValue(is, JsonNode.class);
-			tableMapper.updateTableValues(rootNode, table);
+			rootNode = mapper.readValue(is, JsonNode.class);
+			
 		} catch (Exception e) {
-			throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), 
-					e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not parse the input JSON for updating table because: " + e.getMessage(), 
+			//		e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse the input JSON", 
+					getResourceLogger(), e);
+		}
+		try {
+			tableMapper.updateTableValues(rootNode, table);
+		} catch (IllegalArgumentException e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+				RESOURCE_URN, 
+				INVALID_PARAMETER_ERROR, 
+				e.getMessage(), 
+				logger, e);
+		} catch (TableMapper.ColumnNotFoundException e) {
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+				RESOURCE_URN, 
+				INVALID_PARAMETER_ERROR, 
+				e.getMessage(), 
+				logger, e);
 		}
 		return Response.ok().build();
 	}
@@ -289,8 +368,13 @@ public class CollectionResource extends AbstractResource {
 				viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
 		
 		if (cxWriterFactory == null) {
-			throw getError("CX writer is not supported.  Please install CX Support App to use this API.",
-					new RuntimeException(), Status.NOT_IMPLEMENTED);
+			//throw getError("CX writer is not supported.  Please install CX Support App to use this API.",
+			//		new RuntimeException(), Status.NOT_IMPLEMENTED);
+			throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), 
+					getResourceURI(), 
+					CX_SERVICE_UNAVAILABLE_ERROR, 
+					"No CX Writer available. Please install CX Support App to use this API.", 
+					getResourceLogger(), null);
 		}
 		
 		CyRootNetwork root = null;
@@ -300,16 +384,26 @@ public class CollectionResource extends AbstractResource {
 			// Try find one
 			final CyNetwork subNet = networkManager.getNetwork(networkId);
 			if (subNet == null) {
-				throw getError("No such network: " + networkId, new IllegalArgumentException("Network does not exist"),
-						Response.Status.NOT_FOUND);
+				//throw getError("No such network: " + networkId, new IllegalArgumentException("Network does not exist"),
+				//		Response.Status.NOT_FOUND);
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						SUB_NETWORK_NOT_FOUND_ERROR, 
+						"Network not found: "+ networkId, 
+						getResourceLogger(), null);
 			}
 			root = cyRootNetworkManager.getRootNetwork(subNet);
 
 		} else {
 			root = getRootNetwork(networkId);
 			if (root == null) {
-				throw getError("No such Collection: " + networkId,
-						new IllegalArgumentException("Collection does not exist"), Response.Status.NOT_FOUND);
+				//throw getError("No such Collection: " + networkId,
+				//		new IllegalArgumentException("Collection does not exist"), Response.Status.NOT_FOUND);
+				throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+						getResourceURI(), 
+						ROOT_NETWORK_NOT_FOUND_ERROR, 
+						"Collection not found: "+ networkId, 
+						getResourceLogger(), null);
 			}
 		}
 		return Response.ok(getNetworkViewsAsCX(root)).build();
@@ -327,7 +421,12 @@ public class CollectionResource extends AbstractResource {
 			jsonString = stream.toString("UTF-8");
 			stream.close();
 		} catch (Exception e) {
-			throw getError("Failed to serialize network into CX: " + root, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Failed to serialize network into CX: " + root, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Failed to serialize network into CX: " + root, 
+					getResourceLogger(), e);
 		}
 		return jsonString;
 	}

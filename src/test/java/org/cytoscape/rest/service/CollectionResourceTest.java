@@ -8,6 +8,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.subnetwork.CySubNetwork;
+import org.cytoscape.rest.internal.resource.AppsResource;
 import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -20,6 +21,12 @@ public class CollectionResourceTest extends BasicResourceTest {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
+	@Test
+	public void resourceURITest() {
+		CollectionResource resource = new CollectionResource();
+		assertEquals("collections", resource.getResourceURI());
+	}
+	
 	@Override
 	protected Application configure() {
 		return new ResourceConfig(CollectionResource.class);

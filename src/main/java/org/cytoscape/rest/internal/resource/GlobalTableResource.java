@@ -13,6 +13,8 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.serializer.TableModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -25,6 +27,20 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.TABLES_TAG})
 public class GlobalTableResource extends AbstractResource {
 
+	private static final String RESOURCE_URN = "tables";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(GlobalTableResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	private CyTableFactory tableFactory;

@@ -66,6 +66,18 @@ public class CyRESTCommandSwagger extends AbstractResource
 {
 	private static final Logger logger = LoggerFactory.getLogger(CyRESTCommandSwagger.class);
 	
+	private static final String RESOURCE_URN = "commands:swagger";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	AutomationAppTracker appTracker;

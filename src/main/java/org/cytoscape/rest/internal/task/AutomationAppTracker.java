@@ -24,9 +24,13 @@ import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutomationAppTracker extends ServiceTracker implements BundleListener
 {
+	private final static Logger logger = LoggerFactory.getLogger(AutomationAppTracker.class);
+	
 	Map<Bundle, Set<Object>> bundles;
 	Map<String, Map<String, Bundle>> commandBundles;
 
@@ -51,7 +55,30 @@ public class AutomationAppTracker extends ServiceTracker implements BundleListen
 		}
 	}
 	
-	
+	public String getMarkdownReport() {
+		int runningAutomationBundles = 0;
+		int totalAutomationBundles = 0;
+		try {
+			Set<Bundle> automationBundles = getAppBundles();
+			totalAutomationBundles = automationBundles.size();
+			for (Bundle bundle : automationBundles) {
+				if (bundle.getState() == Bundle.ACTIVE) {
+					runningAutomationBundles++;
+				}
+			}
+		}
+		catch (Throwable e) {
+			logger.error("Error reporting running automation bundles.", e);
+			return "_Error reporting running automation bundles. This document may not be complete._";
+		}
+		String summary;
+		if (runningAutomationBundles == totalAutomationBundles) {
+			summary = "";
+		} else {
+			summary = " Some API may not be listed. Try reloading this page. If this condition persists, check the Cytoscape error log for possible causes.";
+		}
+		return "_" + runningAutomationBundles + "/" + totalAutomationBundles  + " Automation Apps started." + summary + "_";
+	}
 	
 	@Override
 	public Object addingService( ServiceReference reference ) {

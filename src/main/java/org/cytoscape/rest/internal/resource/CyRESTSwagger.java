@@ -10,18 +10,22 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.cytoscape.ci.CISwaggerConstants;
+import org.cytoscape.rest.internal.task.AutomationAppTracker;
 import org.cytoscape.rest.internal.task.ResourceManager;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.inject.Inject;
 
 import io.swagger.annotations.ExternalDocs;
 import io.swagger.annotations.Info;
@@ -46,6 +50,10 @@ import io.swagger.util.Json;
 @Singleton
 public class CyRESTSwagger extends AbstractResource
 {
+	@Inject
+	@NotNull
+	AutomationAppTracker appTracker;
+	
 	private static final String RESOURCE_URN = "swagger";
 
 	@Override
@@ -110,6 +118,9 @@ public class CyRESTSwagger extends AbstractResource
 
 		Swagger swagger = beanConfig.getSwagger();
 
+		String automationAppReport = appTracker.getMarkdownReport(); 
+		swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION + automationAppReport);
+		
 		wrapCIResponses(swagger);
 		addCommandLinks(swagger);
 
@@ -221,6 +232,9 @@ public class CyRESTSwagger extends AbstractResource
 		return swaggerDefinition;
 	}
 
+	private static final String SWAGGER_INFO_DESCRIPTION =  "A RESTful service for accessing Cytoscape 3.\n\n";
+	
+	
 	@SwaggerDefinition(
 			info = @Info(
 					description = "A RESTful service for accessing Cytoscape 3.",
@@ -290,7 +304,7 @@ public class CyRESTSwagger extends AbstractResource
 
 		public void afterScan(Reader reader, Swagger swagger)
 		{
-
+			
 		}
 	}
 

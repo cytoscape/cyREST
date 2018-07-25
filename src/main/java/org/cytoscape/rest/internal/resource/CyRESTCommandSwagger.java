@@ -66,6 +66,10 @@ public class CyRESTCommandSwagger extends AbstractResource
 {
 	private static final Logger logger = LoggerFactory.getLogger(CyRESTCommandSwagger.class);
 	
+	private static final String SWAGGER_INFO_DESCRIPTION =  "An API to offer access to Cytoscape command line commands through a REST-like service."
+			+ "\n\nIn Cytoscape 3.6, this section is upgraded with support for POST access to Cytoscape commands, offering enhanced documentation as well as JSON output for some commands. **The JSON currently provided by commands in this release may be expanded or revised in future releases.**"
+			+ "\n\nAll commands are still available via GET requests, the syntax of which is described in the [Command resources](#!/Commands).\n\n";
+	
 	@Inject
 	@NotNull
 	AutomationAppTracker appTracker;
@@ -110,6 +114,9 @@ public class CyRESTCommandSwagger extends AbstractResource
 		commandBeanConfig.setPrettyPrint(true);
 
 		Swagger swagger = commandBeanConfig.getSwagger();
+		
+		String automationAppReport = appTracker.getMarkdownReport(); 
+		swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION + automationAppReport);
 		
 		Map<String, Model> ciResponseModels = ModelConverters.getInstance().read(CIResponse.class);
 		ciResponseModel = ciResponseModels.get("CIResponse");
@@ -467,9 +474,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 	@SwaggerDefinition(
 			info = @Info(
-					description = "An API to offer access to Cytoscape command line commands through a REST-like service."
-							+ "\n\nIn Cytoscape 3.6, this section is upgraded with support for POST access to Cytoscape commands, offering enhanced documentation as well as JSON output for some commands. **The JSON currently provided by commands in this release may be expanded or revised in future releases.**"
-							+ "\n\nAll commands are still available via GET requests, the syntax of which is described in the [Command resources](#!/Commands).",
+					description = SWAGGER_INFO_DESCRIPTION,
 					version = "V2.0.0",
 					title = "CyREST Command API"
 					//termsOfService = "http://theweatherapi.io/terms.html",

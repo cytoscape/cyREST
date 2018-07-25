@@ -102,20 +102,8 @@ public class CyRESTSwagger extends AbstractResource
 
 		Swagger swagger = beanConfig.getSwagger();
 
-		int runningAutomationBundles = 0;
-		try {
-			Set<Bundle> automationBundles = appTracker.getAppBundles();
-			for (Bundle bundle : automationBundles) {
-				if (bundle.getState() == Bundle.ACTIVE) {
-					runningAutomationBundles++;
-				}
-			}
-			swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION + "_" + runningAutomationBundles + "/" + automationBundles.size()  + " Automation Apps started_");
-		} catch (Throwable e) {
-			e.printStackTrace();
-			swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION);
-		}
-
+		String automationAppReport = appTracker.getMarkdownReport(); 
+		swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION + automationAppReport);
 		
 		wrapCIResponses(swagger);
 		addCommandLinks(swagger);

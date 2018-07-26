@@ -1226,7 +1226,7 @@ public class NetworkResource extends AbstractResource {
 			final Map<String, Map<String, Object>> netProps, 
 			final Map<Long, CyRootNetwork> sub2roots) throws IOException {
 
-		System.out.println("******* Loading: " + sourceUrl);
+		//System.out.println("******* Loading: " + sourceUrl);
 
 		final List<CyNetwork> cxNetworks = new ArrayList<>();
 
@@ -1257,7 +1257,7 @@ public class NetworkResource extends AbstractResource {
 					}
 					reader.run(new HeadlessTaskMonitor());
 				} else {
-					System.out.println("\n\n******************* EXTRA TASK*********** " + task.toString());
+					//System.out.println("\n\n******************* EXTRA TASK*********** " + task.toString());
 					task.run(new HeadlessTaskMonitor());
 				}
 			} catch (Exception e) {
@@ -1279,7 +1279,7 @@ public class NetworkResource extends AbstractResource {
 		for (final CyNetwork network : networks) {
 			sub2roots.put(network.getSUID(), cyRootNetworkManager.getRootNetwork(network));
 
-			System.out.println("******!! Network: " + network.getRow(network).get(CyNetwork.NAME, String.class));
+			//System.out.println("******!! Network: " + network.getRow(network).get(CyNetwork.NAME, String.class));
 
 			suids[counter] = network.getSUID();
 

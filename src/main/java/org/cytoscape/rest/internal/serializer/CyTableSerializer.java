@@ -14,7 +14,7 @@ public class CyTableSerializer {
 	public String toCSV(final CyTable table, final String sep) throws Exception {
 
 		String separator = sep;
-		System.out.println(separator);
+		//System.out.println(separator);
 		if(separator == null) {
 			separator = SEP;
 		}

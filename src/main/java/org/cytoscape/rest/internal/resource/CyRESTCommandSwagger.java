@@ -215,7 +215,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		}
 		else
 		{
-			System.out.println("CyRESTCommandSwagger availableCommands is null");
+			logger.error("CyRESTCommandSwagger availableCommands is null");
 		}
 	}
 

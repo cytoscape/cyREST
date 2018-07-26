@@ -365,7 +365,7 @@ public class CommandResource
 		synchronized (taskObserver) {
 			try{
 				while (!taskObserver.isFinished()) {
-					System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
+					//System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
 					taskObserver.wait();
 				}
 			}catch(InterruptedException e){

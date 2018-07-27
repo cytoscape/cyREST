@@ -20,6 +20,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -769,6 +770,17 @@ public class NetworkViewResource extends AbstractResource {
 		return Response.ok().build();
 	}
 
+	@PATCH
+	@Path("/{viewId}/{objectType}/patch")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Patch the Visual Properties of an Object",
+	notes="Patch patch patch")
+	public Response patchView() {
+		System.out.println("Patch patch patch.");
+		return Response.ok().build();
+	}
+	
+	
 	@PUT
 	@Path("/{viewId}/{objectType}/{objectId}")
 	@Consumes(MediaType.APPLICATION_JSON)

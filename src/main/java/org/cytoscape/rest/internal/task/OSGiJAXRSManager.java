@@ -38,41 +38,13 @@ public class OSGiJAXRSManager
 	private String port;
 
 	
-	private static final String JERSEY_VERSION = "2.23";
-	private static final String HK2_PATH = "hk2/";
+	private static final String JERSEY_VERSION = "2.27";
 
-	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0.jar",
-			HK2_PATH + "hk2-locator-2.4.0.jar",
-			HK2_PATH + "hk2-utils-2.4.0.jar",
-			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
+	private static final String JERSEY_MIN_PATH = "jersey-min/";
 
-	};
-
-	private static final String GLASSFISH_JERSEY_PATH = "glassfish-jersey/";
-
-	private static final String[] GLASSFISH_JERSEY_BUNDLES = {
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-" + JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-sse-" + JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-" + JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-" + JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-common-"+ JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-guava-"+ JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-server-"+ JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-client-"+ JERSEY_VERSION +".jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-"+ JERSEY_VERSION +".jar"
-
-	};
-
-	private static final String JERSEY_MISC_PATH = "jersey-misc/";
-
-	private static final String[] JERSEY_MISC_BUNDLES = {
-			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
-			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
-			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
-			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
+	private static final String[] JERSEY_MIN_BUNDLES = {
+			
+			JERSEY_MIN_PATH + "jersey-min-"+JERSEY_VERSION+".jar"
 	};
 
 	private static final String OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH = "osgi-jax-rs-connector/";
@@ -105,9 +77,7 @@ public class OSGiJAXRSManager
 		setPortConfig(context);
 		setRootResourceConfig(context);
 
-		installBundlesFromResources(bundleContext, JERSEY_MISC_BUNDLES);
-		installBundlesFromResources(bundleContext, HK2_BUNDLES);
-		installBundlesFromResources(bundleContext, GLASSFISH_JERSEY_BUNDLES);
+		installBundlesFromResources(bundleContext, JERSEY_MIN_BUNDLES);
 		installBundlesFromResources(bundleContext, OSGI_JAX_RS_CONNECTOR_BUNDLES);
 
 	}

@@ -36,80 +36,12 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class OSGiJAXRSConnectorIntegrationTest 
 {
-	
-	private static final String PAX_JETTY_PATH = "pax-jetty/";
 
-	private static final String[] PAX_JETTY_BUNDLES = {
-			PAX_JETTY_PATH + "org.apache.servicemix.specs.activation-api-1.1-2.2.0.jar",
-			PAX_JETTY_PATH + "geronimo-servlet_3.0_spec-1.0.jar",
-			PAX_JETTY_PATH + "mail-1.4.4.jar",
-			PAX_JETTY_PATH + "geronimo-jta_1.1_spec-1.1.1.jar",
-			PAX_JETTY_PATH + "geronimo-annotation_1.1_spec-1.0.1.jar",
-			PAX_JETTY_PATH + "geronimo-jaspic_1.0_spec-1.1.jar",
-			PAX_JETTY_PATH + "asm-all-5.0.2.jar",
-			PAX_JETTY_PATH + "jetty-all-server-8.1.15.v20140411.jar"
-	};
+	private static final String JERSEY_MIN_PATH = "jersey-min/";
 
-	private static final String PAX_HTTP_PATH = "pax-http/";
-
-	private static final String[] PAX_HTTP_BUNDLES = {
-			PAX_HTTP_PATH + "ops4j-base-lang-1.4.0.jar",
-			PAX_HTTP_PATH + "pax-swissbox-core-1.7.0.jar",
-			PAX_HTTP_PATH + "xbean-bundleutils-3.18.jar",
-			PAX_HTTP_PATH + "xbean-reflect-3.18.jar",
-			PAX_HTTP_PATH + "xbean-finder-3.18.jar",
-			PAX_HTTP_PATH + "pax-web-api-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-spi-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-runtime-3.1.4.jar",
-			PAX_HTTP_PATH + "pax-web-jetty-3.1.4.jar"
-	};
-
-	private static final String KARAF_SCR_PATH = "karaf-scr/";
-
-	private static final String[] KARAF_SCR_BUNDLES = {
-			KARAF_SCR_PATH + "org.apache.felix.scr-2.0.12.jar"
-	};
-
-	private static final String KARAF_HTTP_PATH = "karaf-http/";
-
-	private static final String[] KARAF_HTTP_BUNDLES = {
-			KARAF_HTTP_PATH + "org.apache.karaf.http.core-4.2.0-SNAPSHOT.jar"
-	};
-
-	private static final String HK2_PATH = "hk2/";
-
-	private static final String[] HK2_BUNDLES = {
-			HK2_PATH + "hk2-api-2.4.0.jar",
-			HK2_PATH + "hk2-locator-2.4.0.jar",
-			HK2_PATH + "hk2-utils-2.4.0.jar",
-			HK2_PATH + "osgi-resource-locator-1.0.1.jar",
-			HK2_PATH + "javax.inject-2.4.0.jar",
-			HK2_PATH + "aopalliance-repackaged-2.4.0.jar",
-
-	};
-
-	private static final String GLASSFISH_JERSEY_PATH = "glassfish-jersey/";
-
-	private static final String[] GLASSFISH_JERSEY_BUNDLES = {
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-sse-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-multipart-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-container-servlet-core-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-common-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-guava-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-server-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-client-2.23.jar",
-			GLASSFISH_JERSEY_PATH + "jersey-media-jaxb-2.23.jar"
-
-	};
-
-	private static final String JERSEY_MISC_PATH = "jersey-misc/";
-
-	private static final String[] JERSEY_MISC_BUNDLES = {
+	private static final String[] JERSEY_MIN_BUNDLES = {
 			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
-			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
-			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
-			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
+			JERSEY_MIN_PATH + "jersey-min-2.27.jar"
 	};
 
 	private static final String OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH = "osgi-jax-rs-connector/";
@@ -127,9 +59,9 @@ public class OSGiJAXRSConnectorIntegrationTest
 			//PAX_HTTP_BUNDLES,
 			//KARAF_SCR_BUNDLES,
 			//KARAF_HTTP_BUNDLES,
-			JERSEY_MISC_BUNDLES,
-			HK2_BUNDLES,
-			GLASSFISH_JERSEY_BUNDLES,
+			JERSEY_MIN_BUNDLES,
+			
+			
 			OSGI_JAX_RS_CONNECTOR_BUNDLES
 	};
 

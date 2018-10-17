@@ -21,7 +21,7 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>3.7.0-SNAPSHOT</cytoscape.api.version>
+		<cytoscape.api.version>3.7.0</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>

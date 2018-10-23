@@ -15,8 +15,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
@@ -26,6 +26,8 @@ import org.cytoscape.rest.internal.model.CountModel;
 import org.cytoscape.rest.internal.model.GroupModel;
 import org.cytoscape.rest.internal.model.GroupSUIDModel;
 import org.cytoscape.rest.internal.serializer.GroupModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,7 +47,26 @@ import io.swagger.annotations.ApiResponses;
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.GROUPS_TAG})
 public class GroupResource extends AbstractResource {
 
+	private static final String RESOURCE_URN = "networks:groups";
 
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(GroupResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+
+	private static final int NETWORK_NOT_FOUND_ERROR= 1;
+	private static final int GROUP_NOT_FOUND_ERROR = 2;
+	public static final int  SERIALIZATION_ERROR = 3;
+	private static final int INVALID_PARAMETER_ERROR = 4;
+	public static final int INTERNAL_METHOD_ERROR = 5;
+	
 	private final GroupMapper mapper;
 
 	@Inject
@@ -68,14 +89,19 @@ public class GroupResource extends AbstractResource {
 			)
 	public String getAllGroups(
 			@ApiParam(value="Network SUID") @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
 			ObjectMapper groupMapper = new ObjectMapper();
 			groupMapper.registerModule(new GroupModule(network));
 			return groupMapper.writeValueAsString(groups);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize groups.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize groups.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -88,7 +114,7 @@ public class GroupResource extends AbstractResource {
 			)
 	public CountModel getGroupCount(
 			@ApiParam(value="Network SUID")@PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		return new CountModel(Integer.valueOf(groupManager.getGroupSet(network).size()).longValue());
 	}
 
@@ -102,14 +128,19 @@ public class GroupResource extends AbstractResource {
 	public String getGroup(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Node representing the Group") @PathParam("groupNodeId") Long groupNodeId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final CyGroup group = getGroupById(networkId, groupNodeId);
 		try {
 			ObjectMapper groupMapper = new ObjectMapper();
 			groupMapper.registerModule(new GroupModule(network));
 			return groupMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					SERIALIZATION_ERROR, 
+					"Could not serialize group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -119,14 +150,19 @@ public class GroupResource extends AbstractResource {
 			notes="Deletes all groups in the network specified by `networkId` parameter. The nodes and edges that the groups contained will remain present in the network, however the nodes used to identify the Groups will be deleted.")
 	public void deleteAllGroups(
 			@ApiParam(value = "SUID of the Network") @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Set<CyGroup> groups = groupManager.getGroupSet(network);
 		try {
 			for (final CyGroup group : groups) {
 				groupManager.destroyGroup(group);
 			}
 		} catch (Exception e) {
-			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -141,7 +177,12 @@ public class GroupResource extends AbstractResource {
 		try {
 			groupManager.destroyGroup(group);
 		} catch (Exception e) {
-			throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not delete group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not delete group.", 
+					getResourceLogger(), e);
 		}
 	}
 
@@ -175,7 +216,7 @@ public class GroupResource extends AbstractResource {
 
 	private final Response toggle(final Long networkId, final Long suid, boolean collapse) {
 		final CyGroup group = getGroupById(networkId, suid);
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		try {
 			if (collapse) {
 				group.collapse(network);
@@ -183,14 +224,19 @@ public class GroupResource extends AbstractResource {
 				group.expand(network);
 			}
 		} catch (Exception e) {
-			throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not toggle group state. Collapse: " + collapse, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Could not toggle group state. State: " + collapse, 
+					getResourceLogger(), e);
 		}
 		return Response.noContent().build();
 	}
 
 	private final CyGroup getGroupById(final Long networkId, final Long suid) {
 	
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 	
 		//Fun fact: we need to scan the group set to get the group from an SUID, because an un-collapsed group node 
 		//won't be found in the the network. This works whether the group is collapsed or not. 
@@ -201,7 +247,12 @@ public class GroupResource extends AbstractResource {
 				return group;
 			}
 		}
-		throw new NotFoundException("Could not find group.");
+		//throw new NotFoundException("Could not find group.");
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				getResourceURI(), 
+				GROUP_NOT_FOUND_ERROR, 
+				"Could not find group.", 
+				getResourceLogger(), null);
 	}
 
 	@POST
@@ -216,20 +267,30 @@ public class GroupResource extends AbstractResource {
 	public String createGroup(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(hidden=true) final InputStream is) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final ObjectMapper objMapper = new ObjectMapper();
 
 		JsonNode rootNode = null;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
 		} catch (IOException ex) {
-			throw getError("Could not create JSON root node.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create JSON root node.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not create JSON root node.", 
+					getResourceLogger(), ex);
 		}
 		try {
 			final CyGroup newGroup = mapper.createGroup(rootNode, groupFactory, network);
-			return getNumberObjectString("groupSUID", newGroup.getGroupNode().getSUID());
+			return getNumberObjectString(SERIALIZATION_ERROR, "groupSUID", newGroup.getGroupNode().getSUID());
 		} catch (Exception e) {
-			throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create group.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INTERNAL_METHOD_ERROR, 
+					"Error creating group.", 
+					getResourceLogger(), e);
 		}
 	}
 }

@@ -4,6 +4,7 @@ package org.cytoscape.rest.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
-
+import org.apache.karaf.features.FeaturesService;
+import org.cytoscape.app.event.AppsFinishedStartingEvent;
 import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
@@ -82,10 +84,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Module;
 
-public class CyActivator extends AbstractCyActivator {
-	
+public class CyActivator extends AbstractCyActivator implements AppsFinishedStartingListener{
+
 	private static final Logger logger = LoggerFactory.getLogger(CyActivator.class);
-	
+
+	private BundleContext bc;
+
 	public class WriterListener {
 
 		private VizmapWriterFactory jsFactory;
@@ -109,45 +113,56 @@ public class CyActivator extends AbstractCyActivator {
 
 	private String cyRESTPort = null;
 	private URI logLocation = null;
-	
+
 	private ServiceTracker cytoscapeJsWriterFactory = null;
 	private ServiceTracker cytoscapeJsReaderFactory = null;
-	
+
+	private AllAppsStartedListener allAppsStartedListener = null;
+
+	private FeaturesService featuresService = null;
+
+	private CyPropertyListener cyPropertyListener = null;
+	private CyProperty<Properties> cyPropertyServiceRef = null;
+
 	private OSGiJAXRSManager osgiJAXRSManager = null;
 	private ResourceManager resourceManager = null;
 
-	
+	private AutomationAppTracker automationAppTracker = null;
+
 	public CyActivator() {
 		super();
 	}
 
 	public void start(BundleContext bc) throws InvalidSyntaxException {
-
+		this.bc = bc;
 		try {
 			this.logLocation = this.getLogLocation(bc);
 		} catch (IOException e1) {
 			this.logLocation = null;
 			logger.warn("CyREST is unable to find the Karaf log");
 		}
-		
+
 		serverState = ServerState.STARTING;
 
-		CyPropertyListener cyPropertyListener = new CyPropertyListener();
-		
+		allAppsStartedListener =  new AllAppsStartedListener();
+		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
+
+		cyPropertyListener = new CyPropertyListener();
+
+		featuresService = getService(bc, FeaturesService.class);
+
 		registerServiceListener(bc, cyPropertyListener::addCyProperty, cyPropertyListener::removeCyProperty, CyProperty.class);
-		
-		
+
+
 		// Get any command line arguments. The "-R" is ours
-		@SuppressWarnings("unchecked")
-		CyProperty<Properties> cyPropertyServiceRef =  getService(bc, CyProperty.class,	"(cyPropertyName=cytoscape3.props)");
-		
+		//@SuppressWarnings("unchecked")
+		cyPropertyServiceRef =  getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
+
 		@SuppressWarnings("unchecked")
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
 
 		final Properties clProps = commandLineProps.getProperties();
-		
-		
-		
+
 		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
 
 		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
@@ -158,39 +173,25 @@ public class CyActivator extends AbstractCyActivator {
 		}
 
 		this.cyRESTPort = restPortNumber;
-		
-		logger.info("Initializing cyREST API server...");
-		long start = System.currentTimeMillis();
-		
-		osgiJAXRSManager = new OSGiJAXRSManager();
 
-		final ExecutorService service = Executors.newSingleThreadExecutor();
-		service.submit(()-> {
-			try {
-				
-				if (suggestRestart(bc)) {
-					final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
-					if (swingApplication != null && swingApplication.getJFrame() != null) {
-					JOptionPane.showMessageDialog(swingApplication.getJFrame(), "CyREST requires a restart of Cytoscape "
-							+ "for changes to take effect.", "Restart required", JOptionPane.WARNING_MESSAGE);
-					}
-					serverState = ServerState.SUGGEST_RESTART;
-					logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
-					
-				} else {
-					this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
-					osgiJAXRSManager.installOSGiJAXRSBundles(bc, this.cyRESTPort);
-					resourceManager.registerResourceServices();
-					serverState = ServerState.STARTED;
-					logger.info("cyREST API Server initialized: " + (System.currentTimeMillis() - start) + " msec.");
-				}
-			} 
-			catch (Exception e) {
-				e.printStackTrace();
-				logger.error("Failed to initialize cyREST server.", e);
-				serverState = ServerState.FAILED_INITIALIZATION;
+
+
+
+
+		if (suggestRestart(bc)) {
+			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
+			if (swingApplication != null && swingApplication.getJFrame() != null) {
+				JOptionPane.showMessageDialog(swingApplication.getJFrame(), "CyREST requires a restart of Cytoscape "
+						+ "for changes to take effect.", "Restart required", JOptionPane.WARNING_MESSAGE);
 			}
-		});
+			serverState = ServerState.SUGGEST_RESTART;
+			logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
+
+		} else {
+			registerService(bc, this, AppsFinishedStartingListener.class);
+		}
+
+
 	}
 
 	private final URI getLogLocation(BundleContext bc) throws IOException {
@@ -198,31 +199,46 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Extract Karaf's log file location
 		ConfigurationAdmin configurationAdmin = getService(bc, ConfigurationAdmin.class);
-		
-		if (configurationAdmin != null) {
-			Configuration config = configurationAdmin.getConfiguration("org.ops4j.pax.logging");
 
-			Dictionary<?,?> dictionary = config.getProperties();
-			Object logObject = dictionary.get("log4j.appender.file.File");
-			if (logObject != null && logObject instanceof String) {
-				logLocation = (String) logObject;
+		if (configurationAdmin != null) {
+			Configuration config = configurationAdmin.getConfiguration("org.cytoscape");
+			if (config != null) {
+
+				Dictionary<?,?> dictionary = config.getProperties();
+				Object logObject = dictionary.get("org.cytoscape.logging.file");
+				if (logObject != null && logObject instanceof String) {
+					logLocation = (String) logObject;
+				}
+				else {
+					logLocation = null;
+				}
 			}
-			else {
+			else
+			{
 				logLocation = null;
 			}
 		}
 		else {
 			logLocation = null;
 		}
-		return (new File(logLocation)).toURI();
+		if (logLocation != null) {
+			return (new File(logLocation)).toURI();
+		} else {
+			try {
+				return new URI("");
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
 	}
-	
+
 	private ServerState serverState = ServerState.STOPPED;
-	
+
 	public ServerState getServerState() {
 		return serverState;
 	}
-	
+
 	public enum ServerState{
 		STARTING,
 		STARTED,
@@ -231,12 +247,12 @@ public class CyActivator extends AbstractCyActivator {
 		FAILED_STOP,
 		STOPPED
 	}
-	
+
 	private boolean suggestRestart(BundleContext bc) {
 		Bundle defaultBundle = bc.getBundle();	
 		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class,
 				"(cyPropertyName=cytoscape3.props)");
-		
+
 		Object cyRESTVersion = cyProperties.getProperties().get("cyrest.version");
 		if (!defaultBundle.getVersion().toString().equals(cyRESTVersion)) {
 			logger.info("CyREST [" + defaultBundle.getVersion().toString() + "] discovered previous CyREST Version: " + cyRESTVersion);
@@ -246,22 +262,57 @@ public class CyActivator extends AbstractCyActivator {
 			return false;
 		}
 	}
-	
+
+	private void startCyREST() throws Exception {
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		service.submit(()-> {
+			try {
+				logger.info("Initializing cyREST API server...");
+				long start = System.currentTimeMillis();
+
+				osgiJAXRSManager = new OSGiJAXRSManager();
+				this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
+				osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
+				resourceManager.registerResourceServices();
+				serverState = ServerState.STARTED;
+				long startTime = System.currentTimeMillis() - start;
+				logger.info("cyREST API Server initialized in " + startTime + "msec");
+			} 
+			catch (Exception e) {
+				e.printStackTrace();
+				logger.error("Failed to initialize cyREST server.", e);
+				serverState = ServerState.FAILED_INITIALIZATION;
+			}
+		}
+
+				);
+	}
+
+	@Override
+	public void handleEvent(AppsFinishedStartingEvent event)  {
+		try {
+			startCyREST();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Unable to start CyREST", e);
+		}
+	}
+
 	private final void initDependencies(final BundleContext bc, final CyPropertyListener cyPropertyListener, final CyProperty<Properties> cyPropertyServiceRef, final String restPortNumber) throws Exception {
-		
+
 		CIResponseFactory ciResponseFactory = new CIResponseFactoryImpl();
 		CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(this.logLocation);
 		CIExceptionFactory ciExceptionFactory = new CIExceptionFactoryImpl();
-		
+
 		this.registerService(bc, ciResponseFactory, CIResponseFactory.class, new Properties());
 		this.registerService(bc, ciExceptionFactory, CIExceptionFactory.class, new Properties());
-	
+
 		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
 		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
-		
-		final AllAppsStartedListener allAppsStartedListener =  new AllAppsStartedListener();
-		registerService(bc, allAppsStartedListener, AppsFinishedStartingListener.class);
-		
+
+
+
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 		registerServiceListener(bc, mappingFactoryManager::addFactory, mappingFactoryManager::removeFactory,
@@ -275,10 +326,10 @@ public class CyActivator extends AbstractCyActivator {
 		registerServiceListener(bc, viewWriterManager::addFactory, viewWriterManager::removeFactory,
 				CyNetworkViewWriterFactory.class);
 
-		AutomationAppTracker automationAppTracker = new AutomationAppTracker(bc, bc.createFilter(CyRESTConstants.ANY_SERVICE_FILTER));
+		automationAppTracker = new AutomationAppTracker(bc, bc.createFilter(CyRESTConstants.ANY_SERVICE_FILTER));
 		automationAppTracker.open();
 		bc.addBundleListener(automationAppTracker);
-		
+
 
 		final TaskMonitor headlessTaskMonitor = new HeadlessTaskMonitor();
 		final CyNetworkFactory netFact = getService(bc, CyNetworkFactory.class);
@@ -307,25 +358,23 @@ public class CyActivator extends AbstractCyActivator {
 		final CommandExecutorTaskFactory ceTaskFactory = getService(bc, CommandExecutorTaskFactory.class);
 		final SynchronousTaskManager<?> synchronousTaskManager = getService(bc, SynchronousTaskManager.class);
 
-	
 		// Set Port number
-		
 		final CyServiceRegistrar serviceRegistrar = getService(bc, CyServiceRegistrar.class);
-		
+
 		CyRESTCoreSwaggerAction swaggerCoreAction = new CyRESTCoreSwaggerAction(serviceRegistrar, this.cyRESTPort);
 		registerService(bc, swaggerCoreAction, CyAction.class, new Properties());
-		
+
 		CyRESTCommandSwaggerAction swaggerCommandAction = new CyRESTCommandSwaggerAction(serviceRegistrar, this.cyRESTPort);
 		registerService(bc, swaggerCommandAction, CyAction.class, new Properties());
-		
+
 		CyAutomationAction automationAction = new CyAutomationAction(serviceRegistrar);
 		registerService(bc, automationAction, CyAction.class, new Properties());
-		
+
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);
 
-		
+
 		//CyNetworkViewWriterFactory cxWriterFactory = null;
 
 		cytoscapeJsWriterFactory = new ServiceTracker(bc, bc.createFilter("(&(objectClass=org.cytoscape.io.write.CyNetworkViewWriterFactory)(id=cytoscapejsNetworkWriterFactory))"), null);
@@ -371,9 +420,9 @@ public class CyActivator extends AbstractCyActivator {
 
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
-		
-		cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
-		
+
+		//cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
+
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, netMan, netViewMan, netFact, taskFactoryManagerManager,
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, 
@@ -396,6 +445,8 @@ public class CyActivator extends AbstractCyActivator {
 	@Override
 	public void shutDown() {
 		logger.info("Shutting down REST server...");
+
+		automationAppTracker.close();
 
 		if (resourceManager != null) {
 			resourceManager.unregisterResourceServices();

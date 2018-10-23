@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.commands.resources.CommandResource;
+import org.cytoscape.rest.internal.resource.AppsResource;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
 import org.cytoscape.view.model.CyNetworkView;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -40,6 +41,12 @@ import io.swagger.models.parameters.QueryParameter;
 public class CyRESTCommandSwaggerTest extends SwaggerResourceTest
 {
 	private ObjectMapper mapper = new ObjectMapper();
+	
+	@Test
+	public void resourceURITest() {
+		CyRESTCommandSwagger resource = new CyRESTCommandSwagger();
+		assertEquals("commands:swagger", resource.getResourceURI());
+	}
 	
 	@Override
 	protected Application configure() {

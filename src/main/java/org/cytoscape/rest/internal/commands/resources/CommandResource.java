@@ -14,7 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -35,7 +35,7 @@ import org.cytoscape.rest.internal.commands.handlers.TextPlainHandler;
 import org.cytoscape.rest.internal.resource.CyRESTSwagger;
 import org.cytoscape.rest.internal.task.LogLocation;
 import org.cytoscape.work.SynchronousTaskManager;
-import org.glassfish.grizzly.http.util.HttpStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +60,12 @@ import io.swagger.annotations.ApiParam;
 public class CommandResource
 {
 	private static final Logger logger = LoggerFactory.getLogger(CommandResource.class);
+	
+	public final class CommandWebApplicationException extends javax.ws.rs.WebApplicationException {
+		public CommandWebApplicationException(int status) {
+			super(status);
+		}
+	}
 	
 	@Inject
 	@LogLocation
@@ -140,7 +146,7 @@ public class CommandResource
 		final List<String> commands = available.getCommands(namespace);
 
 		if (commands == null || commands.size() == 0)
-			throw new WebApplicationException(404);
+			throw new CommandWebApplicationException(404);
 
 		handler.appendCommand("Available commands for '" + namespace + "':");
 		for (final String command : commands) {
@@ -167,7 +173,7 @@ public class CommandResource
 		final List<String> commands = available.getCommands(namespace);
 
 		if (commands == null || commands.size() == 0)
-			throw new WebApplicationException(404);
+			throw new CommandWebApplicationException(404);
 
 		handler.appendCommand("Available commands for '" + namespace + "':");
 		for (final String command : commands) {
@@ -274,7 +280,7 @@ public class CommandResource
 
 		if (jsonTaskObserver.succeeded == false) {
 			ciErrorList.add(ciErrorFactory.getCIError(
-					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI, 2), 
 					"Successful response was not returned."));
 		}
@@ -284,7 +290,7 @@ public class CommandResource
 	private final String handleCommand(final String namespace, final String command,
 			final MultivaluedMap<String, String> queryParameters,
 			final MessageHandler handler
-			) throws WebApplicationException {
+			) throws javax.ws.rs.WebApplicationException {
 
 		final List<String> args = available.getArguments(namespace, command);
 
@@ -306,7 +312,7 @@ public class CommandResource
 			final String namespace, final String command,
 			final MultivaluedMap<String, String> args,
 			final MessageHandler handler
-			) throws WebApplicationException {
+			) throws javax.ws.rs.WebApplicationException {
 
 		final List<String> commands = available.getCommands(namespace);
 		if (commands == null || commands.size() == 0) {
@@ -351,7 +357,7 @@ public class CommandResource
 			final String namespace, final String command,
 			final Map<String, Object> args,
 			final MessageHandler handler,
-			CommandResourceTaskObserver taskObserver) throws WebApplicationException {
+			CommandResourceTaskObserver taskObserver) throws javax.ws.rs.WebApplicationException {
 
 		taskManager.execute(ceTaskFactory.createTaskIterator(namespace,
 				command, args, taskObserver), taskObserver);
@@ -359,7 +365,7 @@ public class CommandResource
 		synchronized (taskObserver) {
 			try{
 				while (!taskObserver.isFinished()) {
-					System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
+					//System.out.println("Waiting for all tasks to finish at "+System.currentTimeMillis());
 					taskObserver.wait();
 				}
 			}catch(InterruptedException e){
@@ -399,7 +405,7 @@ public class CommandResource
 			
 			CIErrorFactory ciErrorFactory = new CIErrorFactoryImpl(logLocation);
 			CIError jsonSyntaxError = ciErrorFactory.getCIError(
-					HttpStatus.INTERNAL_SERVER_ERROR_500.getStatusCode(), 
+					Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
 					CyRESTConstants.getErrorURI(JSON_COMMAND_RESOURCE_URI,3), 
 					"Task returned invalid json.");
 			errors.add(jsonSyntaxError);
@@ -440,7 +446,8 @@ public class CommandResource
 		return jsonResultBuilder.toString();
 	}
 
-	public class CustomNotFoundException extends WebApplicationException {
+	@SuppressWarnings("serial")
+	public class CustomNotFoundException extends javax.ws.rs.WebApplicationException {
 		public CustomNotFoundException() {
 			super(404);
 		}
@@ -451,14 +458,5 @@ public class CommandResource
 		}
 	}
 
-	public class CustomFailureException extends WebApplicationException {
-		public CustomFailureException() {
-			super(500);
-		}
-
-		public CustomFailureException(String message) {
-			super(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-					.entity(message).type("text/plain").build());
-		}
-	}
+	
 }

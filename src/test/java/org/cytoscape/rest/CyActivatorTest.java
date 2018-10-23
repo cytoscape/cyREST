@@ -21,6 +21,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import org.cytoscape.app.event.AppsFinishedStartingEvent;
+import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyActivator.ServerState;
@@ -114,8 +116,8 @@ public class CyActivatorTest {
 		when(configAdmin.getConfiguration("org.ops4j.pax.logging")).thenReturn(configuration);
 		when(configAdmin.getConfiguration("org.ops4j.pax.web", null)).thenReturn(configuration);
 		when(configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null)).thenReturn(configuration);
-		Dictionary<String,String> dictionary = new Hashtable<String, String>();
-		dictionary.put("log4j.appender.file.File", "dummyLogLocation");
+		Dictionary<String,Object> dictionary = new Hashtable<String, Object>();
+		dictionary.put("org.cytoscape.logging.file", "dummyLogLocation");
 		when(configuration.getProperties()).thenReturn(dictionary);
 		
 		when(bc.createFilter(anyString())).thenReturn(mock(Filter.class));
@@ -192,7 +194,7 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		cyActivator.handleEvent(new AppsFinishedStartingEvent(new Object()));
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {
@@ -213,7 +215,9 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		//never(registerService(bc, this, AppsFinishedStartingListener.class);
+		
+		//cyActivator.handleEvent(new AppsFinishedStartingEvent(new Object()));
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {
@@ -234,7 +238,7 @@ public class CyActivatorTest {
 
 		assertEquals(CyActivator.ServerState.STOPPED, cyActivator.getServerState());
 		cyActivator.start(bc);
-
+		
 		while(cyActivator.getServerState() == ServerState.STARTING || cyActivator.getServerState() == ServerState.STOPPED)
 		{
 			try {

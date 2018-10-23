@@ -40,6 +40,7 @@ import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.NetworkViewTestSupport;
 import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
@@ -107,6 +108,7 @@ import org.cytoscape.rest.internal.task.CyPropertyListener;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
+import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.NetworkTaskFactory;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
@@ -121,6 +123,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineFactory;
@@ -152,6 +155,7 @@ import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.Tunable;
 import org.cytoscape.work.json.JSONResult;
 import org.cytoscape.work.util.BoundedDouble;
 import org.cytoscape.work.util.ListSingleSelection;
@@ -236,9 +240,10 @@ public class BasicResourceTest extends JerseyTest {
 	protected GraphicsWriterManager graphicsWriterManager;
 
 	protected ExportNetworkViewTaskFactory exportNetworkViewTaskFactory;
-
 	protected PresentationWriterFactory presentationWriterFactory;
-
+	protected DummyCyWriter dummyCyWriter = mock(DummyCyWriter.class);
+	
+	
 	protected MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();
 
 	protected final String DUMMY_NAMESPACE = "dummyNamespace";
@@ -269,19 +274,26 @@ public class BasicResourceTest extends JerseyTest {
 		public BoundedDouble getZoom();
 		public ListSingleSelection<String> getUnits();
 		public void setHeight(Double height);
+		public void setWidth(Double height);
 	}
-
+	
+	public abstract class DummyLayoutContext {
+		@Tunable(description = "DummyDescription", longDescription="DummyLongDescription", exampleStringValue="0.1")
+		public Integer size;
+	}
+	
 	public BasicResourceTest() {
 		allAppsStartedListener = mock(AllAppsStartedListener.class);
 		
 		CyLayoutAlgorithm def = mock(CyLayoutAlgorithm.class);
-		Object context = new Object();
-		when(def.createLayoutContext()).thenReturn(context);
-		when(def.getDefaultLayoutContext()).thenReturn(context);
+		DummyLayoutContext dummyLayoutContext = mock(DummyLayoutContext.class);
+		when(def.createLayoutContext()).thenReturn(dummyLayoutContext);
+		when(def.getDefaultLayoutContext()).thenReturn(dummyLayoutContext);
 		when(def.getName()).thenReturn("grid");
 		
 		CyLayoutAlgorithm def2 = mock(CyLayoutAlgorithm.class);
 		
+		Object context = new Object();
 		when(def2.createLayoutContext()).thenReturn(context);
 		when(def2.getDefaultLayoutContext()).thenReturn(context);
 		when(def2.getName()).thenReturn("com.yworks.yfiles.layout.DummyYFilesLayout");
@@ -307,6 +319,7 @@ public class BasicResourceTest extends JerseyTest {
 		when(layouts.getLayout("com.yworks.yfiles.layout.DummyYFilesLayout")).thenReturn(def2);
 		when(layouts.getLayout("yfiles.DummyYFilesLayout")).thenReturn(def3);
 
+		
 		CyNetworkFactory netFactory = nts.getNetworkFactory();
 		this.network = createNetwork("network1");
 		this.view = nvts.getNetworkViewFactory().createNetworkView(network);
@@ -393,14 +406,26 @@ public class BasicResourceTest extends JerseyTest {
 
 		AutomationAppTracker automationAppTracker = mock(AutomationAppTracker.class);
 		Set<Bundle> automationAppBundles = new HashSet<Bundle>();
-		Bundle dummyAutomationAppBundle = mock(Bundle.class);
-		when(dummyAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyautomationapp");
-		when(dummyAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
-		when(dummyAutomationAppBundle.getState()).thenReturn(1);
-		Hashtable<String, Object> dummyAutomationAppBundleHeaders = new Hashtable<String, Object>();
-		dummyAutomationAppBundleHeaders.put("Bundle-Name", "dummy automation bundle");
-		when(dummyAutomationAppBundle.getHeaders()).thenReturn(dummyAutomationAppBundleHeaders);
-		automationAppBundles.add(dummyAutomationAppBundle);
+		
+		Bundle dummyActiveAutomationAppBundle = mock(Bundle.class);
+		when(dummyActiveAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyactiveautomationapp");
+		when(dummyActiveAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
+		when(dummyActiveAutomationAppBundle.getState()).thenReturn(Bundle.ACTIVE);
+		Hashtable<String, String> dummyActiveAutomationAppBundleHeaders = new Hashtable<String, String>();
+		dummyActiveAutomationAppBundleHeaders.put("Bundle-Name", "dummy active automation bundle");
+		when(dummyActiveAutomationAppBundle.getHeaders()).thenReturn(dummyActiveAutomationAppBundleHeaders);
+		
+		Bundle dummyUninstalledAutomationAppBundle = mock(Bundle.class);
+		when(dummyUninstalledAutomationAppBundle.getSymbolicName()).thenReturn("org.dummyorg.dummyuninstalledautomationapp");
+		when(dummyUninstalledAutomationAppBundle.getVersion()).thenReturn(new Version(6,0,0));
+		when(dummyUninstalledAutomationAppBundle.getState()).thenReturn(Bundle.UNINSTALLED);
+		Hashtable<String, String> dummyUninstalledAutomationAppBundleHeaders = new Hashtable<String, String>();
+		dummyUninstalledAutomationAppBundleHeaders.put("Bundle-Name", "dummy uninstalled automation bundle");
+		when(dummyUninstalledAutomationAppBundle.getHeaders()).thenReturn(dummyUninstalledAutomationAppBundleHeaders);
+		
+		automationAppBundles.add(dummyActiveAutomationAppBundle);
+		automationAppBundles.add(dummyUninstalledAutomationAppBundle);
+		
 		when(automationAppTracker.getAppBundles()).thenReturn(automationAppBundles);
 		
 		WriterListener writerListsner = mock(WriterListener.class);
@@ -478,6 +503,36 @@ public class BasicResourceTest extends JerseyTest {
 		}).when(cyPropertyListener).getCyProperty(eq("dummy.properties"));
 		
 		NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = mock(NewNetworkSelectedNodesAndEdgesTaskFactory.class);
+		TaskIterator newNetworkSelectedNodesAndEdgesTaskIterator = new TaskIterator();
+		class DummyNetworkCollectionTask extends AbstractNetworkCollectionTask implements ObservableTask {
+
+			public DummyNetworkCollectionTask(Collection<CyNetwork> networks) {
+				super(networks);
+			}
+
+			@Override
+			public <R> R getResults(Class<? extends R> type) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void run(TaskMonitor taskMonitor) throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
+		}
+		DummyNetworkCollectionTask newNetworkSelectedNodesAndEdgesTask = mock(DummyNetworkCollectionTask.class);
+		Collection<CyNetworkView> dummyCollection = new ArrayList<CyNetworkView>();
+		
+		CyNetworkView newNetworkViewFromSelected = mock(CyNetworkView.class);
+		when(newNetworkViewFromSelected.getModel()).thenReturn(cySubNetwork);
+		dummyCollection.add(newNetworkViewFromSelected);
+		
+		when(newNetworkSelectedNodesAndEdgesTask.getResults(Collection.class)).thenReturn(dummyCollection);
+		newNetworkSelectedNodesAndEdgesTaskIterator.append(newNetworkSelectedNodesAndEdgesTask);
+		when (networkSelectedNodesAndEdgesTaskFactory.createTaskIterator(network)).thenReturn(newNetworkSelectedNodesAndEdgesTaskIterator);
+		
 		EdgeListReaderFactory edgeListReaderFactory = mock(EdgeListReaderFactory.class);
 
 		InputStreamTaskFactory cytoscapeJsReaderFactory = mock(InputStreamTaskFactory.class);
@@ -534,16 +589,15 @@ public class BasicResourceTest extends JerseyTest {
 		graphicsWriterManager = mock(GraphicsWriterManager.class);
 
 		presentationWriterFactory = mock(PresentationWriterFactory.class);
-
-		DummyCyWriter cyWriter = mock(DummyCyWriter.class);
+		
 		BoundedDouble boundedDouble = new BoundedDouble(0d,1d,10d, true, true);
 
 		ListSingleSelection<String> listSingleSelection =  new ListSingleSelection<String>();
 
-		when(cyWriter.getUnits()).thenReturn(listSingleSelection);
-		when(cyWriter.getZoom()).thenReturn(boundedDouble);
+		when(dummyCyWriter.getUnits()).thenReturn(listSingleSelection);
+		when(dummyCyWriter.getZoom()).thenReturn(boundedDouble);
 
-		when(presentationWriterFactory.createWriter(anyObject(), anyObject())).thenReturn(cyWriter);
+		when(presentationWriterFactory.createWriter(anyObject(), anyObject())).thenReturn(dummyCyWriter);
 
 		when(graphicsWriterManager.getFactory(anyString())).thenReturn(presentationWriterFactory);
 
@@ -1121,23 +1175,5 @@ public class BasicResourceTest extends JerseyTest {
 
 			}
 		};
-	}
-	
-	protected void errorReverseCompatibility(Response response, String message) {
-		ObjectMapper mapper = new ObjectMapper();
-		final String body = response.readEntity(String.class);
-		//System.out.println("BODY: " + body);
-		try {
-			final JsonNode root = mapper.readTree(body);
-			assertNotNull(root.get("cause"));
-			assertNotNull(root.get("stackTrace"));
-			assertNotNull(root.get("classContext"));
-			assertNotNull(root.get("suppressed"));
-			assertEquals(message, root.get("message").asText());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new AssertionError("Result is invalid JSON");
-		}
-		
 	}
 }

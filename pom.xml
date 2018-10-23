@@ -12,13 +12,16 @@
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 		<maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
-		<osgi.api.version>4.2.0</osgi.api.version>
+		<osgi.api.version>6.0.0</osgi.api.version>
+    	<osgi.compendium.version>5.0.0</osgi.compendium.version>
+ 
+ 		<karaf.version>4.2.0</karaf.version>
 		<junit.version>4.12</junit.version>
 		<jersey.version>2.23</jersey.version>
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>3.6.1</cytoscape.api.version>
+		<cytoscape.api.version>3.7.0</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -81,176 +84,6 @@
 					are all necessary for the OSGi JAX RS connector to function. -->
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>install-pax-jetty</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<!-- PAX Web Features -->
-								<!-- pax-jetty -->
-								<artifactItem>
-									<groupId>org.apache.servicemix.specs</groupId>
-									<artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-									<version>2.2.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-servlet_3.0_spec</artifactId>
-									<version>1.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.mail</groupId>
-									<artifactId>mail</artifactId>
-									<version>1.4.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-jta_1.1_spec</artifactId>
-									<version>1.1.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-annotation_1.1_spec</artifactId>
-									<version>1.0.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.geronimo.specs</groupId>
-									<artifactId>geronimo-jaspic_1.0_spec</artifactId>
-									<version>1.1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ow2.asm</groupId>
-									<artifactId>asm-all</artifactId>
-									<version>5.0.2</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.eclipse.jetty.aggregate</groupId>
-									<artifactId>jetty-all-server</artifactId>
-									<version>8.1.15.v20140411</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>src/main/resources/pax-jetty</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-pax-http</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<!-- pax-http -->
-								<artifactItem>
-									<groupId>org.ops4j.base</groupId>
-									<artifactId>ops4j-base-lang</artifactId>
-									<version>1.4.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.swissbox</groupId>
-									<artifactId>pax-swissbox-core</artifactId>
-									<version>1.7.0</version>
-								</artifactItem>
-								<!-- This is repeated in pax-http for some reason. Likely not necessary 
-									<artifactItem> <groupId>org.ow2.asm</groupId> <artifactId>asm-all</artifactId> 
-									<version>5.0.2</version> </artifactItem> -->
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-bundleutils</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-reflect</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.xbean</groupId>
-									<artifactId>xbean-finder</artifactId>
-									<version>3.18</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-api</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-spi</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-runtime</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.web</groupId>
-									<artifactId>pax-web-jetty</artifactId>
-									<version>3.1.4</version>
-								</artifactItem>
-
-							</artifactItems>
-							<outputDirectory>src/main/resources/pax-http</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-karaf-scr</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.metatype</artifactId>
-									<version>1.0.10</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.scr</artifactId>
-									<version>1.8.2</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.karaf.scr</groupId>
-									<artifactId>org.apache.karaf.scr.command</artifactId>
-									<version>3.0.3</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>src/main/resources/karaf-scr</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>install-karaf-http</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.apache.karaf.http</groupId>
-									<artifactId>org.apache.karaf.http.core</artifactId>
-									<version>3.0.3</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.apache.karaf.http</groupId>
-									<artifactId>org.apache.karaf.http.command</artifactId>
-									<version>3.0.3</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>src/main/resources/karaf-http</outputDirectory>
-							<stripVersion>false</stripVersion>
-						</configuration>
-					</execution>
 					<execution>
 						<id>install-hk2</id>
 						<phase>process-resources</phase>
@@ -416,7 +249,7 @@
 								<artifactItem>
 									<groupId>com.eclipsesource.jaxrs</groupId>
 									<artifactId>provider-gson</artifactId>
-									<version>2.2</version>
+									<version>2.3</version>
 								</artifactItem>
 							</artifactItems>
 							<outputDirectory>src/main/resources/osgi-jax-rs-connector</outputDirectory>
@@ -469,7 +302,7 @@
 						<Bundle-Activator>${bundle.namespace}.internal.CyActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation, org.cytoscape.work.json, org.cytoscape.ci, org.cytoscape.ci.model</Export-Package>
+						<Export-Package>io.swagger.annotations, com.google.gson, com.google.gson.annotations, com.fasterxml.jackson.annotation</Export-Package>
 						<Import-Package>*;resolution:=optional</Import-Package>
 						<Cytoscape-App-Dependencies>CX Support;2.1.0</Cytoscape-App-Dependencies>
 					</instructions>
@@ -662,26 +495,38 @@
 			<scope>provided</scope>
 		</dependency>
 	
+	 <dependency>
+	 	  <groupId>org.apache.karaf.features</groupId>
+    	 <artifactId>org.apache.karaf.features.core</artifactId>
+    	  <version>${karaf.version}</version>
+    	  <scope>provided</scope>
+	 </dependency>
+	
 		<!-- Guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-multibindings</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
-			<version>4.0</version>
+			<version>4.2.0</version>
+			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>25.0-jre</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- OSGi core dependency -->
@@ -694,7 +539,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>${osgi.api.version}</version>
+		 	<version>${osgi.compendium.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -704,14 +549,14 @@
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0</version>
+			<version>2.1</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
+			<version>2.0.1.Final</version>
 		</dependency>
 
 
@@ -724,12 +569,14 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-grizzly2-http</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -754,26 +601,26 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>1.5.3</version>
+			<version>1.10.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-service</artifactId>
-			<version>1.5.3</version>
+			<version>1.10.1</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.18</version>
+			<version>1.5.19</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
-			<version>1.5.18</version>
+			<version>1.5.19</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

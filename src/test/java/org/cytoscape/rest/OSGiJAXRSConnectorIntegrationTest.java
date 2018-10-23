@@ -23,6 +23,7 @@ import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.karaf.features.FeaturesService;
 import org.cytoscape.rest.internal.task.OSGiJAXRSManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class OSGiJAXRSConnectorIntegrationTest 
 {
+	
 	private static final String PAX_JETTY_PATH = "pax-jetty/";
 
 	private static final String[] PAX_JETTY_BUNDLES = {
@@ -65,16 +67,13 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String KARAF_SCR_PATH = "karaf-scr/";
 
 	private static final String[] KARAF_SCR_BUNDLES = {
-			KARAF_SCR_PATH + "org.apache.felix.metatype-1.0.10.jar",
-			KARAF_SCR_PATH + "org.apache.felix.scr-1.8.2.jar",
-			KARAF_SCR_PATH + "org.apache.karaf.scr.command-3.0.3.jar"
+			KARAF_SCR_PATH + "org.apache.felix.scr-2.0.12.jar"
 	};
 
 	private static final String KARAF_HTTP_PATH = "karaf-http/";
 
 	private static final String[] KARAF_HTTP_BUNDLES = {
-			KARAF_HTTP_PATH + "org.apache.karaf.http.core-3.0.3.jar",
-			KARAF_HTTP_PATH + "org.apache.karaf.http.command-3.0.3.jar"
+			KARAF_HTTP_PATH + "org.apache.karaf.http.core-4.2.0-SNAPSHOT.jar"
 	};
 
 	private static final String HK2_PATH = "hk2/";
@@ -107,7 +106,7 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String JERSEY_MISC_PATH = "jersey-misc/";
 
 	private static final String[] JERSEY_MISC_BUNDLES = {
-			JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
+			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
 			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
 			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
 			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
@@ -116,16 +115,18 @@ public class OSGiJAXRSConnectorIntegrationTest
 	private static final String OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH = "osgi-jax-rs-connector/";
 
 	private static final String[] OSGI_JAX_RS_CONNECTOR_BUNDLES = {
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "javax.servlet-api-3.1.0.jar",
+			
+			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
-			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.2.jar",
+			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
 	private static final String[][] allBundles = {
-			PAX_JETTY_BUNDLES,
-			PAX_HTTP_BUNDLES,
-			KARAF_SCR_BUNDLES,
-			KARAF_HTTP_BUNDLES,
+			//PAX_JETTY_BUNDLES,
+			//PAX_HTTP_BUNDLES,
+			//KARAF_SCR_BUNDLES,
+			//KARAF_HTTP_BUNDLES,
 			JERSEY_MISC_BUNDLES,
 			HK2_BUNDLES,
 			GLASSFISH_JERSEY_BUNDLES,
@@ -198,15 +199,17 @@ public class OSGiJAXRSConnectorIntegrationTest
 		for (String[] resourceGroup : allBundles) {
 			for (String resource : resourceGroup) {
 				File f = new File("./src/main/resources/" + resource);
-				assertTrue(f.exists());
+				assertTrue("File does not exist: " + f.getAbsolutePath(), f.exists());
 			}
 		}
 	}
 
 	@Test
 	public void testBundleInstallation() throws Exception {
+		
 		OSGiJAXRSManager manager = new OSGiJAXRSManager();
-		manager.installOSGiJAXRSBundles(bc, "6666");
+		FeaturesService featuresService = mock(FeaturesService.class);
+		manager.installOSGiJAXRSBundles(bc, featuresService, "6666");
 		for (String[] resourceGroup : allBundles) {
 			for (String resource : resourceGroup) {
 				verify(bundle).getResource(resource);
@@ -217,6 +220,8 @@ public class OSGiJAXRSConnectorIntegrationTest
 	@Test 
 	public void testBundleUninstallation() throws Exception {
 		OSGiJAXRSManager manager = new OSGiJAXRSManager();	
+		FeaturesService featuresService = mock(FeaturesService.class);
+	
 		final List<Bundle> bundleList = new ArrayList<Bundle>();
 		
 		doAnswer( new Answer<Bundle>() {
@@ -227,7 +232,8 @@ public class OSGiJAXRSConnectorIntegrationTest
 		    	return bundle;
 		    	}
 		    }).when(bc).installBundle(anyString(), any(InputStream.class) );
-		manager.installOSGiJAXRSBundles(bc, "6666");
+		
+		manager.installOSGiJAXRSBundles(bc, featuresService, "6666");
 		manager.uninstallOSGiJAXRSBundles();
 		
 		for (Bundle bundle : bundleList) {

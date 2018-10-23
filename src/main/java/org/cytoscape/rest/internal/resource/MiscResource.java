@@ -6,17 +6,18 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.rest.internal.model.CytoscapeVersionModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -36,7 +37,24 @@ import io.swagger.annotations.ApiResponse;
 @Singleton
 @Path("/v1")
 public class MiscResource extends AbstractResource {
+	
+	private static final String RESOURCE_URN = "";
 
+	public static final int API_VERSION_NOT_FOUND_ERROR= 1;
+	public static final int INTERNAL_METHOD_ERROR = 2;
+	
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(MiscResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	@Inject
 	@NotNull
 	private AllAppsStartedListener allAppsStartedListener;
@@ -77,7 +95,12 @@ public class MiscResource extends AbstractResource {
 	public CytoscapeVersionModel getCytoscapeVersion() {
 
 		if (props == null) {
-			throw new InternalServerErrorException("Could not find CyProperty object.");
+			//throw new InternalServerErrorException("Could not find CyProperty object.");
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not find CyProperty object.", 
+					logger, null);
 		}
 		
 		final Properties properties = (Properties) this.props.getProperties();
@@ -85,7 +108,12 @@ public class MiscResource extends AbstractResource {
 		if (versionNumber != null) {
 			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
-			throw new NotFoundException("Could not find Cytoscape version number property.");
+			//throw new NotFoundException("Could not find Cytoscape version number property.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					API_VERSION_NOT_FOUND_ERROR, 
+					"Could not find Cytoscape version number property.", 
+					getResourceLogger(), null);
 		}
 	}
 
@@ -98,7 +126,12 @@ public class MiscResource extends AbstractResource {
 	public CytoscapeVersionModel updateShowGraphicsDetailsOption() {
 
 		if (props == null) {
-			throw new InternalServerErrorException("Could not find CyProperty object.");
+			//throw new InternalServerErrorException("Could not find CyProperty object.");
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not find CyProperty object.", 
+					logger, null);
 		}
 
 		final Properties property = (Properties) this.props.getProperties();
@@ -106,7 +139,12 @@ public class MiscResource extends AbstractResource {
 		if (versionNumber != null) {
 			return new CytoscapeVersionModel(API_VERSION, versionNumber.toString());
 		} else {
-			throw new NotFoundException("Could not find Cytoscape version number property.");
+			//throw new NotFoundException("Could not find Cytoscape version number property.");
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					API_VERSION_NOT_FOUND_ERROR, 
+					"Could not find Cytoscape version number property.", 
+					getResourceLogger(), null);
 		}
 	}
 }

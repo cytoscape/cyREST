@@ -12,21 +12,41 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.model.SUIDNameModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.*;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
 @Path("/v1/networks.names")
 public class NetworkNameResource extends AbstractResource {
 
+	private static final String RESOURCE_URN = "networks";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(NetworkNameResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
 	public NetworkNameResource() {
 		super();
 	}
@@ -44,17 +64,18 @@ public class NetworkNameResource extends AbstractResource {
 		if (column == null && query == null) {
 			networks = networkManager.getNetworkSet();
 		} else {
-			if (column == null || column.length() == 0) {
-				throw getError("Column name parameter is missing.",
-						new IllegalArgumentException(),
-						Response.Status.INTERNAL_SERVER_ERROR);
+			try {
+				networks = getNetworksByQuery(INVALID_PARAMETER_ERROR, query, column);
+			} catch(WebApplicationException e) {
+				throw(e);
+			} catch (Exception e) {
+				//throw getError("Could not get networks.", e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						getResourceURI(), 
+						INTERNAL_METHOD_ERROR, 
+						"Error executing Network query.", 
+						getResourceLogger(), e);
 			}
-			if (query == null || query.length() == 0) {
-				throw getError("Query parameter is missing.",
-						new IllegalArgumentException(),
-						Response.Status.INTERNAL_SERVER_ERROR);
-			}
-			networks = getNetworksByQuery(query, column);
 		}
 
 		return getNetworksAsSimpleList(networks);

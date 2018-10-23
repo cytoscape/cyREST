@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.resource.NetworkResource;
@@ -24,7 +25,7 @@ public class NetworkNameResourceTest extends BasicResourceTest {
 	}
 
 	@Test
-	public void testGetNetworks() throws Exception {
+	public void testGetNetworkNames() throws Exception {
 		String result = target("/v1/networks.names").request().get(String.class);
 		assertNotNull(result);
 		final JsonNode root = mapper.readTree(result);
@@ -37,5 +38,41 @@ public class NetworkNameResourceTest extends BasicResourceTest {
 		
 		assertNotNull(firstEntry.get("name").asText());
 		assertNotNull(firstEntry.get("SUID").asLong());
+	}
+	
+	@Test
+	public void testGetNetworkNamesColumnNullProducesError() throws Exception {
+		Response response = target("/v1/networks.names").queryParam("query", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
+	
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
+	}
+	
+	@Test
+	public void testGetNetworkNamesQueryNullProducesError() throws Exception {
+		Response response = target("/v1/networks.names").queryParam("column", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
+	
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
 	}
 }

@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -22,6 +21,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
@@ -49,6 +50,8 @@ import org.cytoscape.view.vizmap.VisualPropertyDependency;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.view.vizmap.VisualStyleFactory;
 import org.cytoscape.work.TaskMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,6 +71,31 @@ import io.swagger.annotations.ExampleProperty;
 @Path("/v1/styles")
 public class StyleResource extends AbstractResource {
 
+	static final String RESOURCE_URN = "styles";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(StyleResource.class);
+		
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	static final int VISUAL_PROPERTY_NOT_FOUND_ERROR = 1;
+	static final int VISUAL_MAPPING_NOT_FOUND_ERROR = 2;
+	static final int VISUAL_STYLE_NOT_FOUND_ERROR = 3;
+	
+	static final int NO_VISUAL_LEXICON_ERROR = 4;
+	
+	static final int INTERNAL_METHOD_ERROR = 5;
+	static final int SERIALIZATION_ERROR = 6;
+	static final int INVALID_PARAMETER_ERROR = 7;
+	
+	
 	private final VisualStyleSerializer styleSerializer = new VisualStyleSerializer();
 
 	@Inject
@@ -112,7 +140,12 @@ public class StyleResource extends AbstractResource {
 		try {
 			return getNames(styleNames);
 		} catch (IOException e) {
-			throw getError("Could not get style names.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get style names.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get style names.", 
+					logger, e);
 		}
 
 	}
@@ -166,11 +199,21 @@ public class StyleResource extends AbstractResource {
 		final VisualStyle style = getStyleByName(name);
 		final VisualProperty<?> vp = getVisualProperty(vpName);
 		if(vp == null) {
-			throw new NotFoundException("Could not find Visual Property: " + vpName);
+			//throw new NotFoundException("Could not find Visual Property: " + vpName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					VISUAL_PROPERTY_NOT_FOUND_ERROR, 
+					"Could not find Visual Property: " + vpName, 
+					logger, null);
 		}
 		final VisualMappingFunction<?,?> mapping = style.getVisualMappingFunction(vp);
 		if(mapping == null) {
-			throw new NotFoundException("Could not find mapping for: " + vpName);
+			//throw new NotFoundException("Could not find mapping for: " + vpName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					VISUAL_MAPPING_NOT_FOUND_ERROR, 
+					"Could not find mapping for: " + vpName, 
+					logger, null);
 		}
 		style.removeVisualMappingFunction(vp);
 		
@@ -236,7 +279,12 @@ public class StyleResource extends AbstractResource {
 		try {
 			return styleSerializer.serializeVisualProperty(vp);
 		} catch (IOException e) {
-			throw getError("Could not serialize Visual Properties.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Visual Properties.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize Visual Properties.", 
+					logger, e);
 		}
 	}
 
@@ -259,10 +307,20 @@ public class StyleResource extends AbstractResource {
 			return styleMapper.writeValueAsString(mappings);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
-			throw getError("Could not serialize Mappings.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Mappings.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize Mappings.", 
+					logger, e);
 		} catch(Exception ex) {
 			ex.printStackTrace();
-			throw getError("Could not serialize Mappings.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Mappings.", ex, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize Mappings.", 
+					logger, ex);
 		}
 	}
 
@@ -282,12 +340,17 @@ public class StyleResource extends AbstractResource {
 		try {
 			return styleMapper.writeValueAsString(mapping);
 		} catch (JsonProcessingException e) {
-			throw getError("Could not serialize Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize Mapping.", 
+					logger, e);
 		}
 	}
 	
 	private final VisualMappingFunction<?, ?> getMappingFunction(final String vp, final VisualStyle style) {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Set<VisualProperty<?>> allVp = lexicon.getAllVisualProperties();
 		VisualProperty<?> visualProp = null;
 		for (VisualProperty<?> curVp : allVp) {
@@ -297,12 +360,22 @@ public class StyleResource extends AbstractResource {
 			}
 		}
 		if (visualProp == null) {
-			throw new NotFoundException("Could not find VisualProperty: " + vp);
+			//throw new NotFoundException("Could not find VisualProperty: " + vp);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					VISUAL_PROPERTY_NOT_FOUND_ERROR, 
+					"Could not find VisualProperty: " + vp, 
+					logger, null);
 		}
 		final VisualMappingFunction<?, ?> mapping = style.getVisualMappingFunction(visualProp);
 		
 		if(mapping == null) {
-			throw new NotFoundException("Could not find visual mapping function for " + vp);
+			//throw new NotFoundException("Could not find visual mapping function for " + vp);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					RESOURCE_URN, 
+					VISUAL_MAPPING_NOT_FOUND_ERROR, 
+					"Could not find visual mapping function for " + vp, 
+					logger, null);
 		}
 		
 		return mapping;
@@ -310,12 +383,17 @@ public class StyleResource extends AbstractResource {
 
 	private final String serializeDefaultValues(String name) {
 		final VisualStyle style = getStyleByName(name);
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		try {
 			return styleSerializer.serializeDefaults(vps, style);
 		} catch (IOException e) {
-			throw getError("Could not serialize default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize default values.", 
+					logger, e);
 		}
 	}
 
@@ -326,7 +404,12 @@ public class StyleResource extends AbstractResource {
 		try {
 			return styleSerializer.serializeDefault(vp, style);
 		} catch (IOException e) {
-			throw getError("Could not serialize default value for " + vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not serialize default value for " + vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not serialize default value for " + vpName, 
+					logger, e);
 		}
 	}
 
@@ -339,21 +422,32 @@ public class StyleResource extends AbstractResource {
 			try {
 				return styleSerializer.serializeDiscreteRange(vp, discRange);
 			} catch (IOException e) {
-				throw getError("Could not serialize default value for "
-						+ vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+				//throw getError("Could not serialize default value for "
+				//		+ vpName, e, Response.Status.INTERNAL_SERVER_ERROR);
+				throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+						RESOURCE_URN, 
+						INTERNAL_METHOD_ERROR, 
+						"Could not serialize default value for " + vpName, 
+						logger, e);
 			}
 		} else {
-			throw new NotFoundException("Range object is not available for " + vpName);
+			//throw new NotFoundException("Range object is not available for " + vpName);
+			//Above, this was a 404. Technically, it has been found, but cannot produce a range.
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Range object is not available for " + vpName, 
+					logger, null);
 		}
 	}
 
 	private final Set<VisualProperty<?>> getAllVisualProperties() {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		return lexicon.getAllVisualProperties();
 	}
 
 	private final VisualProperty<?> getVisualProperty(String vpName) {
-		final VisualLexicon lexicon = getLexicon();
+		final VisualLexicon lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
 		final Collection<VisualProperty<?>> vps = lexicon.getAllVisualProperties();
 		for (VisualProperty<?> vp : vps) {
 			if (vp.getIdString().equals(vpName)) {
@@ -387,7 +481,12 @@ public class StyleResource extends AbstractResource {
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			updateVisualProperties(rootNode, style);
 		} catch (Exception e) {
-			throw getError("Could not update default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not update default values.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not update default values.", 
+					logger, e);
 		}
 		
 		return Response.ok().build();
@@ -418,8 +517,13 @@ public class StyleResource extends AbstractResource {
 	public String getStyle(
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		if(networkViewManager.getNetworkViewSet().isEmpty()) {
-			throw getError("You need at least one view object to use this feature."
-					, new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("You need at least one view object to use this feature."
+			//		, new IllegalStateException(), Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(),  
+			          RESOURCE_URN,  
+			          INVALID_PARAMETER_ERROR,  
+			          "You need at least one view object to use this feature.",  
+			          logger, null); 
 		}
 		final VisualStyle style = getStyleByName(name);
 		final VizmapWriterFactory jsonVsFact = this.writerListener.getFactory();
@@ -433,7 +537,12 @@ public class StyleResource extends AbstractResource {
 			os.close();
 			return jsonString;
 		} catch (Exception e) {
-			throw getError("Could not get Visual Style in Cytoscape.js format.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get Visual Style in Cytoscape.js format.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					SERIALIZATION_ERROR, 
+					"Could not get Visual Style in Cytoscape.js format.", 
+					logger, e);
 		}
 	}
 
@@ -448,9 +557,14 @@ public class StyleResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name) {
 		final VisualStyle style = getStyleByName(name);
 		try {
-			return styleSerializer.serializeStyle(getLexicon().getAllVisualProperties(), style);
+			return styleSerializer.serializeStyle(getLexicon(NO_VISUAL_LEXICON_ERROR).getAllVisualProperties(), style);
 		} catch (IOException e) {
-			throw getError("Could not get Visual Style JSON.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get Visual Style JSON.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get Visual Style JSON.", 
+					logger, e);
 		}
 	}
 
@@ -468,7 +582,7 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(),
+			VisualStyle style = this.visualStyleMapper.buildVisualStyle(factoryManager, vsFactory, getLexicon(NO_VISUAL_LEXICON_ERROR),
 					rootNode);
 			vmm.addVisualStyle(style);
 			
@@ -477,7 +591,12 @@ public class StyleResource extends AbstractResource {
 			
 			return Response.status(Response.Status.CREATED).entity(result).build();
 		} catch (Exception e) {
-			throw getError("Could not create new Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create new Visual Style.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not create new Visual Style.", 
+					logger, e);
 		}
 	}
 
@@ -526,10 +645,15 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(NO_VISUAL_LEXICON_ERROR),rootNode);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not create new Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not create new Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not create new Mapping.", 
+					logger, e);
 		}
 		return Response.status(Response.Status.CREATED).build();
 	}
@@ -550,10 +674,15 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.updateStyleName(style, getLexicon(), rootNode);
 		} catch (Exception e) {
-			throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not update Visual Style title.", 
+					logger, e);
 		}
+		this.visualStyleMapper.updateStyleName(style, getLexicon(NO_VISUAL_LEXICON_ERROR), rootNode);
 	}
 
 	@PUT
@@ -577,10 +706,15 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(),rootNode);
+			this.visualStyleMapper.buildMappings(style, factoryManager, getLexicon(NO_VISUAL_LEXICON_ERROR),rootNode);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw getError("Could not update Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not update Mapping.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not update Mapping.", 
+					logger, e);
 		}
 		
 		return Response.ok().build();
@@ -595,7 +729,12 @@ public class StyleResource extends AbstractResource {
 			}
 		}
 
-		throw new NotFoundException("Could not find Visual Style: " + name);
+		//throw new NotFoundException("Could not find Visual Style: " + name);
+		throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+				RESOURCE_URN, 
+				VISUAL_STYLE_NOT_FOUND_ERROR, 
+				"Could not find Visual Style: " + name, 
+				logger, null);
 	}
 
 	@GET
@@ -612,7 +751,12 @@ public class StyleResource extends AbstractResource {
 		try {
 			return visualStyleSerializer.serializeDependecies(dependencies);
 		} catch (IOException e) {
-			throw getError("Could not get Visual Property denendencies.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get Visual Property denendencies.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get Visual Property dependencies.", 
+					logger, e);
 		}
 	}
 
@@ -635,9 +779,14 @@ public class StyleResource extends AbstractResource {
 		JsonNode rootNode;
 		try {
 			rootNode = objMapper.readValue(is, JsonNode.class);
-			this.visualStyleMapper.updateDependencies(style, rootNode);
 		} catch (Exception e) {
-			throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not update Visual Style title.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INVALID_PARAMETER_ERROR, 
+					"Could not update Visual Style title.", 
+					logger, e);
 		}
+		this.visualStyleMapper.updateDependencies(style, rootNode);
 	}
 }

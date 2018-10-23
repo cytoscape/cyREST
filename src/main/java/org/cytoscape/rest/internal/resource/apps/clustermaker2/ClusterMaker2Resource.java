@@ -118,7 +118,7 @@ public class ClusterMaker2Resource
 		CIError error= new CIError();
 		error.type = CyRESTConstants.getErrorURI(resourcePath, code);
 			
-		System.out.println("Current Thread: " + Thread.currentThread().getName());
+		//System.out.println("Current Thread: " + Thread.currentThread().getName());
 	
 		if (e != null)
 		{

@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -23,6 +22,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.EdgeBundler;
@@ -39,6 +39,8 @@ import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,6 +79,29 @@ public class AlgorithmicResource extends AbstractResource {
 	@NotNull
 	private EdgeBundler edgeBundler;
 
+	private static final String RESOURCE_URN = "apply";
+
+	@Override
+	public String getResourceURI() {
+		return RESOURCE_URN;
+	}
+	
+	private final static Logger logger = LoggerFactory.getLogger(AlgorithmicResource.class);
+	
+	@Override
+	public Logger getResourceLogger() {
+		return logger;
+	}
+	
+	private static final int NETWORK_NOT_FOUND_ERROR= 1;
+	private static final int NETWORK_VIEW_NOT_FOUND_ERROR = 2;
+	private static final int LAYOUT_ALGORITHM_NOT_FOUND_ERROR = 3;
+	private static final int STYLE_NOT_FOUND_ERROR = 4;
+	
+	private static final int ALGORITHM_EXECUTION_ERROR = 5;
+	private static final int INVALID_PARAMETER_ERROR = 6;
+	private static final int ILLEGAL_Y_FILES_ACCESS_ERROR  = 7;
+	
 	@GET
 	@Path("/layouts/{algorithmName}/{networkId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -92,19 +117,29 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		throw404ifYFiles(algorithmName);
 		
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Collection<CyNetworkView> views = 
 				this.networkViewManager.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Could not find view for the network with SUID: " 
-					+ networkId);
+			//throw new NotFoundException(
+			//		"Could not find view for the network with SUID: " 
+			//		+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
+					"Could not find view for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 
 		final CyNetworkView view = views.iterator().next();
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		String columnForLayout = column;
@@ -118,8 +153,13 @@ public class AlgorithmicResource extends AbstractResource {
 		try {
 			itr.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not apply layout.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not apply layout.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not apply layout.", 
+					getResourceLogger(), e);
 		}
 	
 		return new MessageModel("Layout finished.");		
@@ -140,15 +180,25 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		Map<String, Object> params;
 		try {
 			params = getLayoutDetails(layout);
 		} catch (Exception e) {
-			throw getError("Could not get layout parameters.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get layout parameters.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not get layout parameters.", 
+					getResourceLogger(), e);
 		}
 		return Response.status(Response.Status.OK)
 				.entity(params)
@@ -169,15 +219,25 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 
 		final List<Map<String, Object>> params;
 		try {
 			params = getLayoutParameterDetails(layout);
 		} catch (Exception e) {
-			throw getError("Could not get layout parameters.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not get layout parameters.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not get layout parameters.", 
+					getResourceLogger(), e);
 		}
 		
 		return Response.status(Response.Status.OK)
@@ -201,7 +261,12 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		final CyLayoutAlgorithm layout = this.layoutManager.getLayout(algorithmName);
 		if (layout == null) {
-			throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			//throw new NotFoundException("No such layout algorithm: " + algorithmName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					LAYOUT_ALGORITHM_NOT_FOUND_ERROR, 
+					"No such layout algorithm: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 		final Map<String, Set<String>> result = getCompatibleTypes(layout);
 		return Response.status(Response.Status.OK)
@@ -252,6 +317,9 @@ public class AlgorithmicResource extends AbstractResource {
 		
 		try {
 			final Map<String, Class<?>> params = getParameterTypes(layout);
+			
+		
+			
 			// This should be an JSON array.
 			final JsonNode rootNode = objMapper.readValue(is, JsonNode.class);
 			for (final JsonNode entry : rootNode) {
@@ -259,7 +327,13 @@ public class AlgorithmicResource extends AbstractResource {
 				final Class<?> type = params.get(parameterName);
 				
 				if(type == null) {
-					throw new NotFoundException("No such parameter: " + parameterName);
+					//throw new NotFoundException("No such parameter: " + parameterName);
+					//Was a 404 above, but params are not in the path, so this was changed below to 500
+					throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+							getResourceURI(), 
+							INVALID_PARAMETER_ERROR, 
+							"No such parameter: " + parameterName, 
+							getResourceLogger(), null);
 				}
 				
 				final JsonNode val = entry.get("value");
@@ -268,10 +342,15 @@ public class AlgorithmicResource extends AbstractResource {
 			}
 			
 		} catch (Exception e) {
-			throw getError(
-					"Could not parse the input JSON for updating view because: "
-							+ e.getMessage(), e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError(
+			//		"Could not parse the input JSON for updating view because: "
+			//				+ e.getMessage(), e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					INVALID_PARAMETER_ERROR, 
+					"Could not parse input JSON.", 
+					getResourceLogger(), e);
 		}
 		
 		return Response.status(Response.Status.OK)
@@ -335,7 +414,7 @@ public class AlgorithmicResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId
 			) {
 
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 		final Set<VisualStyle> styles = vmm.getAllVisualStyles();
 		VisualStyle targetStyle = null;
 		for (final VisualStyle style : styles) {
@@ -347,16 +426,26 @@ public class AlgorithmicResource extends AbstractResource {
 		}
 
 		if (targetStyle == null) {
-			throw new NotFoundException("Visual Style does not exist: "
-					+ styleName);
+			//throw new NotFoundException("Visual Style does not exist: "
+			//		+ styleName);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					STYLE_NOT_FOUND_ERROR, 
+					"Visual Style does not exist: "	+ styleName, 
+					getResourceLogger(), null);
 		}
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 
 		final CyNetworkView view = views.iterator().next();
@@ -376,23 +465,33 @@ public class AlgorithmicResource extends AbstractResource {
 		notes="Fit the first available Network View for the Network specified by the `networkId` parameter to the current window.")
 	public MessageModel fitContent(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
 		
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 		CyNetworkView view = views.iterator().next();
 		TaskIterator fit = fitContent.createTaskIterator(view);
 		try {
 			fit.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not fit content.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not fit content.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not fit content.", 
+					getResourceLogger(), e);
 		}
 		return new MessageModel("Fit content success.");
 	}
@@ -407,22 +506,32 @@ public class AlgorithmicResource extends AbstractResource {
 			)
 	public MessageModel bundleEdge(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
-		final CyNetwork network = getCyNetwork(networkId);
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
 
 		Collection<CyNetworkView> views = this.networkViewManager
 				.getNetworkViews(network);
 		if (views.isEmpty()) {
-			throw new NotFoundException(
-					"Network view does not exist for the network with SUID: "
-							+ networkId);
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
 		}
 		final TaskIterator bundler = edgeBundler.getBundlerTF()
 				.createTaskIterator(network);
 		try {
 			bundler.next().run(headlessTaskMonitor);
 		} catch (Exception e) {
-			throw getError("Could not finish edge bundling.", e,
-					Response.Status.INTERNAL_SERVER_ERROR);
+			//throw getError("Could not finish edge bundling.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not finish edge bundling.", 
+					getResourceLogger(), e);
 		}
 
 		return new MessageModel("Edge bundling success.");
@@ -467,10 +576,14 @@ public class AlgorithmicResource extends AbstractResource {
 	
 	private void throw404ifYFiles(String algorithmName) {
 		if (isYFiles(algorithmName)) {
-			throw getError("No such layout: " + algorithmName,
-					new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
+			//throw getError("No such layout: " + algorithmName,
+			//		new Exception("No such layout: " + algorithmName), Response.Status.NOT_FOUND);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					ILLEGAL_Y_FILES_ACCESS_ERROR, 
+					"No such layout: " + algorithmName, 
+					getResourceLogger(), null);
 		}
 	}
-	
 	
 }

@@ -25,7 +25,7 @@ public class CyPropertyListener {
 			cyPropertyMap.put(serviceCyPropertyName, property);
 			
 		} else {
-			System.out.println("Type: " + obj.getClass());
+			//System.out.println("Type: " + obj.getClass());
 		}
 		
 	}

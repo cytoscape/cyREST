@@ -145,19 +145,39 @@ public class NetworkResourceTest extends BasicResourceTest {
 	
 	@Test
 	public void testGetNetworksQueryNullProducesError() throws Exception {
-		Response result = target("/v1/networks").queryParam("column", "dummy").request().get();
-		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		Response response = target("/v1/networks").queryParam("column", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
 	
-		errorReverseCompatibility(result, "Query parameter is missing.");
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
 	}
 	
 	@Test
 	public void testGetNetworksColumnNullProducesError() throws Exception {
-		Response result = target("/v1/networks").queryParam("query", "dummy").request().get();
-		assertNotNull(result);
-		assertEquals(500, result.getStatus());
+		Response response = target("/v1/networks").queryParam("query", "dummy").request().get();
+		assertNotNull(response);
+		assertEquals(500, response.getStatus());
 	
+		String result = response.readEntity(String.class);
+		assertNotNull(result);
+		System.out.println(result);
+		final JsonNode root = mapper.readTree(result);
+		assertEquals(2, root.size());
+		assertTrue(root.has("data"));
+		assertTrue(root.has("errors"));
+		assertEquals(1,root.get("errors").size());
+		final JsonNode errorNode = root.get("errors").get(0);
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:7", errorNode.get("type").asText());
+		
 	}
 	
 
@@ -532,6 +552,75 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertEquals(false, (Boolean)data.get("selected").asBoolean());
 	}
 	
+	@Test
+	public void testGetEdgeSource() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode source = edge1.getSource();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/source").request().get(
+				String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+
+		System.out.println(result);
+		assertNotNull(root);
+		assertEquals(source.getSUID().toString(), root.get("source").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeSourceInvalidEdge() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode source = edge1.getSource();
+		
+		Response  response = target("/v1/networks/" + suid.toString() + "/edges/" + 0l + "/source").request().get();
+			
+		assertEquals(404, response.getStatus());
+		JsonNode ci = mapper.readTree(response.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:2", ci.get("errors").get(0).get("type").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeInvalidType() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		
+		Response response = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/invalid_type").request().get();
+		
+		assertEquals(404, response.getStatus());
+		JsonNode ci = mapper.readTree(response.readEntity(String.class));
+		assertEquals(1, ci.get("errors").size());
+		assertEquals("urn:cytoscape:ci:cyrest-core:v1:networks:errors:5", ci.get("errors").get(0).get("type").asText());
+	
+	}
+	
+	@Test
+	public void testGetEdgeTarget() throws Exception {
+		final Long suid = network.getSUID();
+		final List<CyEdge> edges = network.getEdgeList();
+		final CyEdge edge1 =  edges.get(0);
+		final CyNode target = edge1.getTarget();
+		
+		String result = target("/v1/networks/" + suid.toString() + "/edges/" + edge1.getSUID() + "/target").request().get(
+				String.class);
+		assertNotNull(result);
+		
+		final JsonNode root = mapper.readTree(result);
+
+		System.out.println(result);
+		assertNotNull(root);
+		assertEquals(target.getSUID().toString(), root.get("target").asText());
+	
+	}
+	
 	
 	@Test
 	public void testCreateNode() throws Exception {
@@ -761,6 +850,21 @@ public class NetworkResourceTest extends BasicResourceTest {
 
 
 	@Test
+	public void testCreateNetworkFromSelected() throws Exception {
+		
+		final String newVal = createNetworkJson();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks/" + network.getSUID()).queryParam("title","network from selection").request().post(entity);
+		assertNotNull(result);
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		System.out.println("res: " + result.toString());
+		
+		assertEquals(200, result.getStatus());
+	}
+	
+	@Test
 	public void testGetNeighbours() throws Exception {
 		final Long suid = network.getSUID();
 		
@@ -816,6 +920,17 @@ public class NetworkResourceTest extends BasicResourceTest {
 		
 		assertNull(network.getNode(edgeSuid));
 		assertEquals(edgeCount-1, network.getEdgeCount());
+	}
+	
+	@Test
+	public void testDeleteEdge404() throws Exception {
+		final Long suid = network.getSUID();
+		
+		assertFalse(network.getEdgeList().contains(665l));
+		
+		final Response result = target("/v1/networks/" + suid.toString() + "/edges/" + 665).request().delete();
+		assertNotNull(result);
+		assertEquals(404, result.getStatus());
 	}
 	
 	@Test

@@ -10,6 +10,7 @@ import static org.mockito.Matchers.anyObject;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -183,7 +184,7 @@ public class ResourceManagerTest
 		assertEquals(TestClass.class, instances.get(0).getClass());
 		TestClass testClassInstance = (TestClass) instances.get(0);
 		assertEquals("1234", testClassInstance.cyRestPort);
-		verify(context).registerService(TestClass.class.getName(), new TestClass(), new Properties());
+		verify(context).registerService(TestClass.class.getName(), new TestClass(), new Hashtable<String, Object>());
 	}
 	
 	@Test
@@ -194,7 +195,7 @@ public class ResourceManagerTest
 		assertEquals(TestShimClass.class, instances.get(1).getClass());
 		TestShimClass testShimClassInstance = (TestShimClass) instances.get(1);
 		assertEquals(new Float(0.13f), testShimClassInstance.injected);
-		verify(context).registerService(TestShimClass.class.getName(), new TestShimClass(), new Properties());
+		verify(context).registerService(TestShimClass.class.getName(), new TestShimClass(), new Hashtable<String, Object>());
 	}
 
 	@Test

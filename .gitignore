@@ -12,3 +12,5 @@ target
 /src/main/resources/osgi-jax-rs-connector/*
 /src/main/resources/pax-http/*
 /src/main/resources/pax-jetty/*
+
+src/main/resources/jersey-min/

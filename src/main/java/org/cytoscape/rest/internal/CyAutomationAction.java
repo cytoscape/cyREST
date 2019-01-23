@@ -19,7 +19,7 @@ public class CyAutomationAction extends AbstractCyAction{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		final OpenBrowser openBrowser = serviceRegistrar.getService(OpenBrowser.class);
-		openBrowser.openURL("https://github.com/cytoscape/cytoscape-automation");
+		openBrowser.openURL("http://automation.cytoscape.org");
 	}
 
 	

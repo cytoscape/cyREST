@@ -10,7 +10,7 @@
 		<bundle.symbolicName>org.cytoscape.rest.cy-rest</bundle.symbolicName>
 		<bundle.namespace>org.cytoscape.rest</bundle.namespace>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
 		<maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
 		<osgi.api.version>6.0.0</osgi.api.version>
     	<osgi.compendium.version>5.0.0</osgi.compendium.version>

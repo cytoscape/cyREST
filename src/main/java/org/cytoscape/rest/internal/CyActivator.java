@@ -162,20 +162,23 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		final CyProperty<Properties> commandLineProps = getService(bc, CyProperty.class, "(cyPropertyName=commandline.props)");
 
 		final Properties clProps = commandLineProps.getProperties();
-
-		String restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
-
-		if (clProps.getProperty(ResourceManager.PORT_NUMBER_PROP) != null)
-			restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
-
+		
+		// If the -R argument was used on startup, use it instead of the saved port.
+		String restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);;
+		
+		// If the -R argument wasn't used, attempt to get the saved port.
+		if (restPortNumber == null) {
+			restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
+		}
+		
+		// If the saved port wasn't found, pick the default port (1234), and then write it to the preferences.
 		if(restPortNumber == null) {
 			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
+			cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
+
 		}
 
 		this.cyRESTPort = restPortNumber;
-
-
-
 
 
 		if (suggestRestart(bc)) {
@@ -420,8 +423,6 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 		final Map<Class<?>, Module> shimResources = new HashMap<Class<?>, Module>();
 		shimResources.put(ClusterMaker2Resource.class, null);
-
-		//cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
 
 		// Start REST Server
 		final CoreServiceModule coreServiceModule = new CoreServiceModule(allAppsStartedListener, netMan, netViewMan, netFact, taskFactoryManagerManager,

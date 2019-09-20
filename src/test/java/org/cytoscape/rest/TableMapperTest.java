@@ -19,7 +19,7 @@ public class TableMapperTest {
 
 	@Test
 	public void testSanity() {
-
+		//System.out.println("Test sanity for tableMapper");
 	}
 
 	@Test

@@ -19,6 +19,7 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.rest.internal.resource.TableResource;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -477,6 +478,90 @@ public class TableResourceTest extends BasicResourceTest {
 		
 	}
 
+	@Test
+	public void testUpdateTableList() throws Exception {
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		
+		String newData = "{" +
+			 "\"key\":\"SUID\"," +
+			 "\"dataKey\": \"id\"," +
+			 "\"data\": [{" +
+			 "\"id\": " + node1.getSUID() + "," +
+			 "\"gene_name\": \"brca1\"," +
+			 "\"new\": [ 4.5 ]" +
+			 "}]}";
+		
+		Entity<String> entity = Entity.entity(newData, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target(
+				"/v1/networks/" + suid.toString() + "/tables/defaultnode")
+				.queryParam("class", "local")
+				.request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		assertEquals("brca1", 
+				network.getRow(node1).get("gene_name", String.class));
+		
+		final List<Double> newValue = network.getRow(node1).getList("new", Double.class);
+		
+		assertEquals(1, 
+				newValue.size());
+		assertEquals((Double)4.5, newValue.get(0));
+		
+		final CyTable localTable = network
+				.getTable(CyNode.class, CyNetwork.LOCAL_ATTRS);
+		Collection<CyColumn> cols = localTable.getColumns();
+		System.out.println("Columns: " + cols);
+		assertEquals(8, cols.size());
+		
+	}
+	
+	@Test
+	public void testFailUpdateBadTableList() throws Exception {
+		
+		// Pick SUID of some nodes
+		CyNode node1 = network.getNodeList().get(0);
+		
+		String newData = "{" +
+			 "\"key\":\"SUID\"," +
+			 "\"dataKey\": \"id\"," +
+			 "\"data\": [{" +
+			 "\"id\": " + node1.getSUID() + "," +
+			 "\"gene_name\": \"brca1\"," +
+			 "\"new\": [ 4.5, \"potrzebie\" ]" +
+			 "}]}";
+		
+		Entity<String> entity = Entity.entity(newData, MediaType.APPLICATION_JSON_TYPE);
+		final Long suid = network.getSUID();
+		
+		Response result = target(
+				"/v1/networks/" + suid.toString() + "/tables/defaultnode")
+				.queryParam("class", "local")
+				.request().put(entity);
+		assertNotNull(result);
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		assertEquals("brca1", 
+				network.getRow(node1).get("gene_name", String.class));
+		
+		final List<Double> newValue = network.getRow(node1).getList("new", Double.class);
+		
+		assertEquals(null, newValue);
+		
+		final CyTable localTable = network
+				.getTable(CyNode.class, CyNetwork.LOCAL_ATTRS);
+		Collection<CyColumn> cols = localTable.getColumns();
+		System.out.println("Columns: " + cols);
+		assertEquals(7, cols.size());
+		
+	}
+	
 
 	@Test
 	public void testUpdateColumnDefaultValues() throws Exception {

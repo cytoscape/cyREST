@@ -19,6 +19,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.BundleResourceProvider;
+import org.cytoscape.rest.internal.ClearAllEdgeBends;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -90,6 +91,7 @@ public class CoreServiceModule extends AbstractModule {
 	private final NetworkViewTaskFactory fitContent;
 	private final LevelOfDetails toggleLod;
 	private final EdgeBundler edgeBundler;
+	private final ClearAllEdgeBends clearAllEdgeBends;
 	private final RenderingEngineManager renderingEngineManager;
 	private final SaveSessionAsTaskFactory saveSessionAsTaskFactory;
 	private final OpenSessionTaskFactory openSessionTaskFactory;
@@ -131,7 +133,7 @@ public class CoreServiceModule extends AbstractModule {
 			final CyPropertyListener cyPropertyListener, final CyProperty<Properties> props,
 			final NewNetworkSelectedNodesAndEdgesTaskFactory newNetworkSelectedNodesAndEdgesTaskFactory, 
 			final EdgeListReaderFactory edgelistReaderFactory, final CyNetworkViewFactory networkViewFactory,
-			final CyTableFactory tableFactory, final NetworkViewTaskFactory fitContent, final EdgeBundler edgeBundler,
+			final CyTableFactory tableFactory, final NetworkViewTaskFactory fitContent, final EdgeBundler edgeBundler, final ClearAllEdgeBends clearAllEdgeBends,
 			final RenderingEngineManager renderingEngineManager, final CySessionManager sessionManager,
 			final SaveSessionAsTaskFactory saveSessionAsTaskFactory, final OpenSessionTaskFactory openSessionTaskFactory,
 			final NewSessionTaskFactory newSessionTaskFactory, final CySwingApplication desktop,
@@ -172,6 +174,7 @@ public class CoreServiceModule extends AbstractModule {
 		this.tableFactory = tableFactory;
 		this.fitContent = fitContent;
 		this.edgeBundler = edgeBundler;
+		this.clearAllEdgeBends = clearAllEdgeBends;
 		this.renderingEngineManager = renderingEngineManager;
 		this.sessionManager = sessionManager;
 		this.saveSessionAsTaskFactory = saveSessionAsTaskFactory;
@@ -226,6 +229,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(CyTableFactory.class).toInstance(tableFactory);
 		bind(NetworkViewTaskFactory.class).toInstance(fitContent);
 		bind(EdgeBundler.class).toInstance(edgeBundler);
+		bind(ClearAllEdgeBends.class).toInstance(clearAllEdgeBends);
 		bind(RenderingEngineManager.class).toInstance(renderingEngineManager);
 		bind(CySessionManager.class).toInstance(sessionManager);
 		bind(SaveSessionAsTaskFactory.class).toInstance(saveSessionAsTaskFactory);

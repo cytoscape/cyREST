@@ -51,8 +51,10 @@ import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
+import org.cytoscape.task.AbstractNetworkViewCollectionTaskFactory;
 import org.cytoscape.task.NetworkCollectionTaskFactory;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewCollectionTaskFactory;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
@@ -388,6 +390,7 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		// TODO: need ID for these services.
 		final NetworkViewTaskFactory fitContent = getService(bc, NetworkViewTaskFactory.class, "(title=Fit Content)");
 		final NetworkTaskFactory edgeBundler = getService(bc, NetworkTaskFactory.class, "(title=All Nodes and Edges)");
+		final NetworkViewCollectionTaskFactory clearEdgeBends = getService(bc, NetworkViewCollectionTaskFactory.class, "(id=clearAllEdgeBendsFactory)");
 		final NetworkViewTaskFactory showDetailsTaskFactory = getService(bc, NetworkViewTaskFactory.class, 
 				"(id=showGraphicsDetailsTaskFactory)");
 
@@ -432,7 +435,7 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
 				cyPropertyListener, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,
-				new EdgeBundlerImpl(edgeBundler), renderingEngineManager, sessionManager, 
+				new EdgeBundlerImpl(edgeBundler), new ClearAllEdgeBendsImpl(clearEdgeBends), renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, 
 				new LevelOfDetails(showDetailsTaskFactory), selectFirstNeighborsTaskFactory, graphicsWriterManager, 
 				exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewWriterManager, bundleResourceProvider, restPortNumber, logLocation, 
@@ -484,6 +487,22 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 	}
 
+	class ClearAllEdgeBendsImpl implements ClearAllEdgeBends {
+		private final NetworkViewCollectionTaskFactory clearAllEdgeBendsTF;
+
+		public ClearAllEdgeBendsImpl(final NetworkViewCollectionTaskFactory clearAllEdgeBendsTF) {
+			this.clearAllEdgeBendsTF = clearAllEdgeBendsTF;
+		}
+		
+		@Override
+		public NetworkViewCollectionTaskFactory getClearAllEdgeBendsTF() {
+			
+			return clearAllEdgeBendsTF;
+		}
+		
+		
+	}
+	
 	public class LevelOfDetails {
 
 		private final NetworkViewTaskFactory lod;

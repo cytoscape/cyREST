@@ -31,6 +31,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.BundleResourceProvider;
+import org.cytoscape.rest.internal.ClearAllEdgeBends;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.GraphicsWriterManager;
@@ -131,6 +132,7 @@ public class ResourceManagerTest
 		final CyTableFactory tableFactory = mock(CyTableFactory.class);
 		final NetworkViewTaskFactory fitContent = mock(NetworkViewTaskFactory.class);
 		final EdgeBundler edgeBundler = mock(EdgeBundler.class);
+		final ClearAllEdgeBends clearAllEdgeBends = mock(ClearAllEdgeBends.class);
 		final RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 		final CySessionManager sessionManager = mock(CySessionManager.class);
 		final SaveSessionAsTaskFactory saveSessionAsTaskFactory = mock(SaveSessionAsTaskFactory.class);
@@ -157,7 +159,7 @@ public class ResourceManagerTest
 		CoreServiceModule coreServiceModule = new CoreServiceModule(
 				allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
 				cyPropertyListener, props, 
-				newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
+				newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, clearAllEdgeBends, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,
 				cyRESTPort, logLocation,
 				ciResponseFactory,

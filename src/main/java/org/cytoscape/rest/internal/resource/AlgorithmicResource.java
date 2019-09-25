@@ -2,6 +2,7 @@ package org.cytoscape.rest.internal.resource;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
@@ -24,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
@@ -36,6 +39,7 @@ import org.cytoscape.view.layout.CyLayoutAlgorithm;
 import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.vizmap.VisualStyle;
+import org.cytoscape.work.ContainsTunables;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
@@ -67,6 +71,10 @@ public class AlgorithmicResource extends AbstractResource {
 	@NotNull
 	private TaskMonitor headlessTaskMonitor;
 
+	@Inject
+	@NotNull
+	private AvailableCommands available;
+	
 	@Inject
 	@NotNull
 	private CyLayoutAlgorithmManager layoutManager;
@@ -360,7 +368,8 @@ public class AlgorithmicResource extends AbstractResource {
 	
 	private final Map<String, Class<?>> getParameterTypes(final CyLayoutAlgorithm layout) {
 		final Object context = layout.getDefaultLayoutContext();
-		final List<Field> fields = Arrays.asList(context.getClass().getFields());
+		final List<Field> fields = Arrays.asList(layout.getDefaultLayoutContext().getClass().getFields());
+
 		return fields.stream()
 			.filter(field -> field.getAnnotation(Tunable.class) != null)
 			.collect(Collectors.toMap(Field::getName, Field::getType));
@@ -375,17 +384,43 @@ public class AlgorithmicResource extends AbstractResource {
 		return layoutInfo;
 	}
 	
+	private final List<Map<String, Object>> getAllTunables (Object object) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		final List<Field> fields = Arrays.asList(object.getClass().getFields());
+		for (Field field : fields) {
+			if (field.getAnnotation(ContainsTunables.class) != null) {
+				try {
+					result.addAll(getAllTunables(field.get(object)));
+				} catch (IllegalArgumentException e) {
+					
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			} else if (field.getAnnotation(Tunable.class) != null) {
+				result.add(buildLayoutParamEntry(object, field));
+			}
+		}
+		return result;
+	}
+	
 	private final List<Map<String, Object>> getLayoutParameterDetails(final CyLayoutAlgorithm layout) {
+		return getAllTunables(layout.getDefaultLayoutContext());
+		/*
+		final List<Field> fields = Arrays.asList(layout.getDefaultLayoutContext().getClass().getFields());
+
+		fields.stream().forEach(field -> { System.out.println(field.getName() + " containsTunables: " + field.getAnnotation(ContainsTunables.class));});
+
 		return Arrays.asList(
+				
 				layout.getDefaultLayoutContext().getClass().getFields()
 			).stream()
 				.filter(field -> field.getAnnotation(Tunable.class) != null)
-				.map(field -> buildLayoutParamEntry(layout, field))
+				.map(field -> buildLayoutParamEntry(layout.getDefaultLayoutContext(), field))
 				.collect(Collectors.toList());
-		
+		*/
 	}
 	
-	private final Map<String, Object> buildLayoutParamEntry(final CyLayoutAlgorithm layout, final Field field) {
+	private final Map<String, Object> buildLayoutParamEntry(final Object object, final Field field) {
 		final Map<String, Object> entryMap = new HashMap<>();
 		final Tunable tunable = field.getAnnotation(Tunable.class);
 		
@@ -393,7 +428,7 @@ public class AlgorithmicResource extends AbstractResource {
 		entryMap.put("description", tunable.description());
 		entryMap.put("type", field.getType().getSimpleName());
 		try {
-			entryMap.put("value", field.get(layout.getDefaultLayoutContext()));
+			entryMap.put("value", field.get(object));
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

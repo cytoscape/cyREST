@@ -153,7 +153,6 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 		registerServiceListener(bc, cyPropertyListener::addCyProperty, cyPropertyListener::removeCyProperty, CyProperty.class);
 
-
 		// Get any command line arguments. The "-R" is ours
 		//@SuppressWarnings("unchecked")
 		cyPropertyServiceRef =  getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
@@ -164,22 +163,18 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		final Properties clProps = commandLineProps.getProperties();
 		
 		// If the -R argument was used on startup, use it instead of the saved port.
-		String restPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);;
+		final String argumentPortNumber = clProps.getProperty(ResourceManager.PORT_NUMBER_PROP);
 		
-		// If the -R argument wasn't used, attempt to get the saved port.
-		if (restPortNumber == null) {
-			restPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
-		}
+		// Attempt to get the saved port.
+		String preferencesPortNumber = cyPropertyServiceRef.getProperties().getProperty(ResourceManager.PORT_NUMBER_PROP);
 		
 		// If the saved port wasn't found, pick the default port (1234), and then write it to the preferences.
-		if(restPortNumber == null) {
-			restPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
-			cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, restPortNumber);
-
+		if(preferencesPortNumber == null) {
+			preferencesPortNumber = ResourceManager.DEF_PORT_NUMBER.toString();
+			cyPropertyServiceRef.getProperties().setProperty(ResourceManager.PORT_NUMBER_PROP, preferencesPortNumber);
 		}
 
-		this.cyRESTPort = restPortNumber;
-
+		this.cyRESTPort = argumentPortNumber != null ? argumentPortNumber : preferencesPortNumber;
 
 		if (suggestRestart(bc)) {
 			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);

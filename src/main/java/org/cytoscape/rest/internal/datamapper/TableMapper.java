@@ -193,7 +193,7 @@ public class TableMapper {
 					if(value == null) {
 						continue;
 					}
-
+					
 					CyColumn column = null;
 					synchronized (this) {
 						column = table.getColumn(field);
@@ -201,11 +201,29 @@ public class TableMapper {
 							// Need to create new column.
 							final Class<?> type = getValueType(value);
 							if (type == List.class) {
-								// List is not supported.
-								continue;
+								boolean uniform = true;
+								Class<?> listType = null;
+								for (JsonNode element : value) {
+									if (listType == null) {
+										listType = getValueType(element);
+									} else {
+										if (!listType.equals(getValueType(element))) {
+											uniform = false;
+											continue;
+										}
+									}
+								}
+								if (listType != null && uniform) {
+									table.createListColumn(field, listType, false);
+									column = table.getColumn(field);
+								} else {
+									// List is unusable
+									continue;
+								}
+							} else {
+								table.createColumn(field, type, false);
+								column = table.getColumn(field);
 							}
-							table.createColumn(field, type, false);
-							column = table.getColumn(field);
 						}
 					}
 

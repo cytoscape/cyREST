@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.rest.internal.ClearAllEdgeBends;
 import org.cytoscape.rest.internal.EdgeBundler;
 import org.cytoscape.rest.internal.datamapper.MapperUtil;
 import org.cytoscape.rest.internal.model.LayoutColumnTypesModel;
@@ -78,6 +79,10 @@ public class AlgorithmicResource extends AbstractResource {
 	@Inject
 	@NotNull
 	private EdgeBundler edgeBundler;
+	
+	@Inject
+	@NotNull
+	private ClearAllEdgeBends clearAllEdgeBends;
 
 	private static final String RESOURCE_URN = "apply";
 
@@ -537,6 +542,47 @@ public class AlgorithmicResource extends AbstractResource {
 		return new MessageModel("Edge bundling success.");
 	}
 
+	@GET
+	@Path("/clearalledgebends/{networkId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(
+			value="Clear all edge bends in a network", 
+			tags={CyRESTSwagger.CyRESTSwaggerConfig.LAYOUTS_TAG},
+			notes="Clear all edge bends in the Network specified by the `networkId` parameter."
+			)
+	public MessageModel clearAllEdgeBends(
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId) {
+		final CyNetwork network = getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId);
+
+		Collection<CyNetworkView> views = this.networkViewManager
+				.getNetworkViews(network);
+		if (views.isEmpty()) {
+			//throw new NotFoundException(
+			//		"Network view does not exist for the network with SUID: "
+			//				+ networkId);
+			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
+					getResourceURI(), 
+					NETWORK_VIEW_NOT_FOUND_ERROR, 
+					"Network view does not exist for the network with SUID: " + networkId, 
+					getResourceLogger(), null);
+		}
+		final TaskIterator clearAllEdgeBendsTaskIterator = clearAllEdgeBends.getClearAllEdgeBendsTF()
+				.createTaskIterator(views);
+		try {
+			clearAllEdgeBendsTaskIterator.next().run(headlessTaskMonitor);
+		} catch (Exception e) {
+			//throw getError("Could not finish edge bundling.", e,
+			//		Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					getResourceURI(), 
+					ALGORITHM_EXECUTION_ERROR, 
+					"Could not finish clearing all edge bends.", 
+					getResourceLogger(), e);
+		}
+
+		return new MessageModel("Clear all edge bends success.");
+	}
+	
 	@GET
 	@Path("/layouts")
 	@Produces(MediaType.APPLICATION_JSON)

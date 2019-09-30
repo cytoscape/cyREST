@@ -71,6 +71,7 @@ import org.cytoscape.rest.internal.BundleResourceProvider;
 import org.cytoscape.rest.internal.CIErrorFactoryImpl;
 import org.cytoscape.rest.internal.CIExceptionFactoryImpl;
 import org.cytoscape.rest.internal.CIResponseFactoryImpl;
+import org.cytoscape.rest.internal.ClearAllEdgeBends;
 import org.cytoscape.rest.internal.CyActivator.LevelOfDetails;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
 import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
@@ -554,6 +555,8 @@ public class BasicResourceTest extends JerseyTest {
 		when(edgeBundlerTaskFactory.createTaskIterator(any(CyNetwork.class))).thenReturn(edgeBundlerTaskIterator);
 		when(edgeBundler.getBundlerTF()).thenReturn(edgeBundlerTaskFactory);
 
+		final ClearAllEdgeBends clearAllEdgeBends = mock(ClearAllEdgeBends.class);
+		
 		RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 
 		renderingEngine = mock(RenderingEngine.class);
@@ -849,7 +852,7 @@ public class BasicResourceTest extends JerseyTest {
 				cyPropertyListener, cyProps, 
 				networkSelectedNodesAndEdgesTaskFactory,
 				edgeListReaderFactory, viewFactory, tableFactory, fitContentTaskFactory,
-				edgeBundler, renderingEngineManager, sessionManager, 
+				edgeBundler, clearAllEdgeBends, renderingEngineManager, sessionManager, 
 				saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, 
 				desktop, lodTF, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory,
 				available, ceTaskFactory, synchronousTaskManager, viewWriterFactoryManager, 

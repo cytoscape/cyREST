@@ -195,6 +195,25 @@ public class AlgorithmicResourceTest extends BasicResourceTest {
 	}
 	
 	@Test
+	public void testClearEdgeBends() throws Exception {
+		
+		Long suid = view.getModel().getSUID();
+		final Response result = target("/v1/apply/clearalledgebends/" + suid).request().get();
+		assertNotNull(result);
+		System.out.println("res: " + result.toString());
+		final String body = result.readEntity(String.class);
+		System.out.println(body);
+		
+		assertFalse(result.getStatus() == 500);
+		assertEquals(200, result.getStatus());
+		
+		
+		final JsonNode root = mapper.readTree(body);
+		assertEquals("Clear all edge bends success.", root.get("message").asText());
+	}
+	
+	
+	@Test
 	public void testGetLayoutParameters() throws Exception {
 		final Response result = target("/v1/apply/layouts/grid/parameters").request().get();
 		assertNotNull(result);

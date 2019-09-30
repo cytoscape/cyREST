@@ -111,6 +111,7 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.CySessionManager;
 import org.cytoscape.task.AbstractNetworkCollectionTask;
 import org.cytoscape.task.NetworkTaskFactory;
+import org.cytoscape.task.NetworkViewCollectionTaskFactory;
 import org.cytoscape.task.NetworkViewTaskFactory;
 import org.cytoscape.task.create.NewNetworkSelectedNodesAndEdgesTaskFactory;
 import org.cytoscape.task.create.NewSessionTaskFactory;
@@ -556,6 +557,13 @@ public class BasicResourceTest extends JerseyTest {
 		when(edgeBundler.getBundlerTF()).thenReturn(edgeBundlerTaskFactory);
 
 		final ClearAllEdgeBends clearAllEdgeBends = mock(ClearAllEdgeBends.class);
+		NetworkViewCollectionTaskFactory clearAllEdgeBendsTaskFactory = mock(NetworkViewCollectionTaskFactory.class);
+		TaskIterator clearAllEdgeBendsTaskIterator = new TaskIterator();
+		clearAllEdgeBendsTaskIterator.append(mock(Task.class));
+		when(clearAllEdgeBendsTaskFactory.createTaskIterator(any(Collection.class))).thenReturn(clearAllEdgeBendsTaskIterator);
+		when(clearAllEdgeBends.getClearAllEdgeBendsTF()).thenReturn(clearAllEdgeBendsTaskFactory);
+
+		
 		
 		RenderingEngineManager renderingEngineManager = mock(RenderingEngineManager.class);
 

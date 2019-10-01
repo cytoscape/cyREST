@@ -298,7 +298,7 @@ public class TableResource extends AbstractResource {
 			+ "\n"
 			+ "Current limitations:\n"
 			+ "* Numbers are handled as Double\n"
-			+ "* List column is not supported in this version\n"
+			+ "* List columns must be valid, and of non-zero length, with no nulls or heterogenous content.\n"
 			)
 	@ApiImplicitParams(
 			@ApiImplicitParam(value="The data with which to update the table.", dataType="org.cytoscape.rest.internal.model.UpdateTableModel", paramType="body", required=true)

@@ -31,7 +31,7 @@ __An app to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://
 * [Cytoscape 3.5.0+](http://www.cytoscape.org/)
 
 ## Documentation
-* CyREST API docs are available within Cytoscape main menu through the Help &rarr; Automation sub-menu.
+* CyREST API docs are available within Cytoscape main menu through the `Help &rarr; Automation sub-menu`.
 * [cyREST Wiki](https://github.com/cytoscape/cyREST/wiki)
 
 ## Problems or Feature Requests?
@@ -51,3 +51,5 @@ And of course, pull requests are always welcome!
 &copy; 2014-2016 [Cytoscape Consortium](http://www.cytoscape.org/).
 
 Developed and maintained by [Keiichiro Ono](http://keiono.github.io/), [UCSD Trey Ideker Lab](http://idekerlab.ucsd.edu/Pages/default.aspx).
+
+```Note to repository maintainers: Please *DO NOT* move this page ... the Cytoscape Automation paper refers directly to it.```

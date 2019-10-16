@@ -1,6 +1,8 @@
 package org.cytoscape.rest.internal;
 
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +14,10 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.karaf.features.FeaturesService;
 import org.cytoscape.app.event.AppsFinishedStartingEvent;
@@ -181,8 +187,34 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		if (suggestRestart(bc)) {
 			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
 			if (swingApplication != null && swingApplication.getJFrame() != null) {
-				JOptionPane.showMessageDialog(swingApplication.getJFrame(), "CyREST requires a restart of Cytoscape "
-						+ "for changes to take effect.", "Restart required", JOptionPane.WARNING_MESSAGE);
+				
+				JOptionPane messagePane = new JOptionPane("CyREST requires a restart of Cytoscape "
+								+ "for changes to take effect.", JOptionPane.WARNING_MESSAGE);
+		
+				final JFrame frame = swingApplication.getJFrame();
+				final JDialog d2= new JDialog(frame,"Restart required");
+				d2.setModal(false);
+				d2.add(messagePane);
+				d2.pack();
+				d2.setLocationRelativeTo(frame);
+				
+				PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						final String prop = evt.getPropertyName();
+						final Object val = evt.getNewValue();
+				        if (prop.equals(JOptionPane.VALUE_PROPERTY) && val != null
+						     && val != JOptionPane.UNINITIALIZED_VALUE)
+						         {
+						d2.setVisible(false);
+						}
+					}
+					
+				};
+				
+				messagePane.addPropertyChangeListener(propertyChangeListener);
+				d2.setVisible(true);
 			}
 			serverState = ServerState.SUGGEST_RESTART;
 			logger.warn("Detected new installation. Restarting Cytoscape is recommended.");

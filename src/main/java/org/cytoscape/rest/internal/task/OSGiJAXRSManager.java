@@ -88,10 +88,9 @@ public class OSGiJAXRSManager
 
 	public void installOSGiJAXRSBundles(BundleContext bundleContext, FeaturesService featuresService, String port) throws Exception 
 	{
-		this.featuresService = featuresService;
 		context = bundleContext;
 		
-		installFeature(context, featuresService.getFeature("cytoscape-jetty"));
+		installFeature(context, featuresService.getFeature("jetty", "9.4.12.v20180830"));
 		installFeature(context, featuresService.getFeature("scr"));
 		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));

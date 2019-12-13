@@ -399,7 +399,9 @@ public class BasicResourceTest extends JerseyTest {
 		lex.add(lexicon);
 		when(vmm.getAllVisualLexicon()).thenReturn(lex);
 		when(vmm.getDefaultVisualStyle()).thenReturn(this.style);
-
+	
+		when(vmm.getVisualStyle(view)).thenReturn(mockStyle);
+		
 		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = mock(CyNetworkViewWriterFactory.class);
 		when(cytoscapeJsWriterFactory.createWriter(any(OutputStream.class), any(CyNetworkView.class))).thenReturn(mock(CyWriter.class));
 

@@ -48,6 +48,7 @@ import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
 import org.cytoscape.rest.internal.model.ObjectVisualPropertyValueModel;
 import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
+import org.cytoscape.rest.internal.model.VisualStyleModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
 import org.cytoscape.task.write.ExportNetworkViewTaskFactory;
@@ -58,6 +59,7 @@ import org.cytoscape.view.model.VisualProperty;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.util.BoundedDouble;
@@ -1331,6 +1333,36 @@ public class NetworkViewResource extends AbstractResource {
 		}
 	}
 
+
+	@GET
+	@Path("/{viewId}/currentStyle")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value="Get the current Visual Style for a Network View",
+	notes="Returns the current Visual Style used by the Network View specified by "
+			+ "the `networkId` and `viewId` parameters.",
+			response=VisualStyleModel.class,
+			tags = {CyRESTSwagger.CyRESTSwaggerConfig.VISUAL_STYLES_TAG})
+	public String getCurrentStyle(
+			@ApiParam(value="SUID of the Network")@PathParam("networkId") Long networkId, 
+			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId
+			) {
+
+		CyNetworkView networkView = getNetworkViewCI(networkId, viewId);
+		
+		VisualStyle style = vmm.getVisualStyle(networkView);
+		
+		try {
+			return styleSerializer.serializeStyle(getLexicon(NO_VISUAL_LEXICON_ERROR).getAllVisualProperties(), style);
+		} catch (IOException e) {
+			//throw getError("Could not get Visual Style JSON.", e, Response.Status.INTERNAL_SERVER_ERROR);
+			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
+					RESOURCE_URN, 
+					INTERNAL_METHOD_ERROR, 
+					"Could not get Visual Style JSON.", 
+					logger, e);
+		}
+	}
+	
 	@GET
 	@Path("/{viewId}/{objectType}")
 	@Produces(MediaType.APPLICATION_JSON)

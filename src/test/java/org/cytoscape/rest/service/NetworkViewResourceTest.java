@@ -97,6 +97,22 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 	}
 
 	@Test
+	public void testGetCurrentStyle() throws Exception {
+		
+		final Long suid = network.getSUID();
+		final Long viewSuid = view.getSUID();
+		
+		Response result = target("/v1/networks/" + suid.toString() + "/views/" + viewSuid + "/currentStyle").request().get();
+		assertNotNull(result);
+		String body = result.readEntity(String.class);
+		
+		JsonNode root = mapper.readTree(body);
+		assertNotNull(root);
+		assertTrue(root.isObject());
+		assertEquals("mock1", root.get("title").asText());
+	}
+	
+	@Test
 	public void testGetNetworkVisualProp() throws Exception {
 		
 		final Long suid = network.getSUID();

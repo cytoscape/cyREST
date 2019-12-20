@@ -1,13 +1,13 @@
 package org.cytoscape.rest.internal;
 
 import java.awt.event.ActionEvent;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.service.util.CyServiceRegistrar;
-import org.cytoscape.util.swing.OpenBrowser;
 
 public abstract class CyRESTSwaggerAction extends AbstractCyAction{
 
@@ -24,10 +24,9 @@ public abstract class CyRESTSwaggerAction extends AbstractCyAction{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		final OpenBrowser openBrowser = serviceRegistrar.getService(OpenBrowser.class);
 		try {
-			openBrowser.openURL(rootURL() + "?url=" + URLEncoder.encode("http://" + ResourceManager.HOST + ":" + this.cyRESTPort + "/" + swaggerPath(), "UTF-8"));
-		} catch (UnsupportedEncodingException e1) {
+			DesktopBrowseUtil.browse(rootURL() + "?url=" + URLEncoder.encode("http://" + ResourceManager.HOST + ":" + this.cyRESTPort + "/" + swaggerPath(), "UTF-8"));
+		} catch ( IOException | URISyntaxException e1) {
 			e1.printStackTrace();
 		}
 	}

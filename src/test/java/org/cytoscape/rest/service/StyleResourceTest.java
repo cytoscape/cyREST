@@ -84,11 +84,11 @@ public class StyleResourceTest extends BasicResourceTest {
 		final Response result = target("/v1/styles/vs1/defaults").request().get();
 		assertNotNull(result);
 		final String body = result.readEntity(String.class);
-		System.out.println(body);
+		System.out.println("testGetDefaultValues body:\n" + body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.get("defaults").isArray());
 		final JsonNode defaults = root.get("defaults");
-		assertEquals(110, defaults.size());
+		assertEquals(111, defaults.size());
 	}
 
 
@@ -135,7 +135,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isArray());
-		assertEquals(110, root.size());
+		assertEquals(111, root.size());
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		System.out.println(body1);
 		final JsonNode root1 = mapper.readTree(body1);
 		assertTrue(root1.isArray());
-		assertEquals(110, root1.size());
+		assertEquals(111, root1.size());
 
 		//assertEquals(root1, root);
 

@@ -1,9 +1,11 @@
 package org.cytoscape.rest.internal;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.service.util.CyServiceRegistrar;
-import org.cytoscape.util.swing.OpenBrowser;
 
 public class CyAutomationAction extends AbstractCyAction{
 
@@ -18,8 +20,12 @@ public class CyAutomationAction extends AbstractCyAction{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		final OpenBrowser openBrowser = serviceRegistrar.getService(OpenBrowser.class);
-		openBrowser.openURL("http://automation.cytoscape.org");
+	
+		try {
+			DesktopBrowseUtil.browse("http://automation.cytoscape.org");
+		} catch (IOException | URISyntaxException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	

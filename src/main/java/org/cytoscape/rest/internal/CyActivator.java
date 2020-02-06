@@ -185,8 +185,8 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
 			if (swingApplication != null && swingApplication.getJFrame() != null) {
 				
-				JOptionPane messagePane = new JOptionPane("CyREST requires a restart of Cytoscape "
-								+ "for changes to take effect.", JOptionPane.WARNING_MESSAGE);
+				JOptionPane messagePane = new JOptionPane("The running version of CyREST has changed. CyREST requires a restart of Cytoscape "
+								+ " to function correctly.\n\nThis may be caused by installing different versions of CyREST or switching between different versions of Cytoscape.", JOptionPane.WARNING_MESSAGE);
 		
 				final JFrame frame = swingApplication.getJFrame();
 				final JDialog d2= new JDialog(frame,"Restart required");
@@ -339,8 +339,6 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 		this.registerService(bc, ciErrorFactory, CIErrorFactory.class, new Properties());
 		this.registerService(bc, new CyJSONUtilImpl(), CyJSONUtil.class, new Properties());
-
-
 
 		// OSGi Service listeners
 		final MappingFactoryManager mappingFactoryManager = new MappingFactoryManager();

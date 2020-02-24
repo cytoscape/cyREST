@@ -243,6 +243,10 @@ public class TableMapper {
 
 
 	private final void setValue(final Class<?> type, final JsonNode value, final CyRow row, final String columnName) {
+		if (value.isNull()) {
+			row.set(columnName, null);
+			return;
+		}
 		if (type == String.class) {
 			row.set(columnName, value.asText());
 		} else if (type == Boolean.class) {

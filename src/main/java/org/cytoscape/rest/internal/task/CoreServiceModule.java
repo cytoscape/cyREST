@@ -10,6 +10,7 @@ import org.cytoscape.ci.CIExceptionFactory;
 import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.model.CyNetworkFactory;
@@ -69,6 +70,8 @@ public class CoreServiceModule extends AbstractModule {
 
 	private final WriterListener vizmapWriterFactoryListener;
 	private final VisualStyleFactory vsFactory;
+	
+	private final CyEventHelper cyEventHelper;
 
 	private final MappingFactoryManager mappingFactoryManager;
 	private final CyGroupFactory groupFactory;
@@ -127,6 +130,7 @@ public class CoreServiceModule extends AbstractModule {
 			final AutomationAppTracker automationAppTracker, final CyLayoutAlgorithmManager layoutManager,
 			final WriterListener vizmapWriterFactoryListener, final TaskMonitor headlessMonitor,
 			final CyTableManager tableManager, final VisualStyleFactory vsFactory,
+			final CyEventHelper cyEventHelper,
 			final MappingFactoryManager mappingFactoryManager, final CyGroupFactory groupFactory,
 			final CyGroupManager groupManager, final CyRootNetworkManager cyRootNetworkManager,
 			final LoadNetworkURLTaskFactory loadNetworkURLTaskFactory, 
@@ -161,6 +165,8 @@ public class CoreServiceModule extends AbstractModule {
 		this.headlessMonitor = headlessMonitor;
 		this.tableManager = tableManager;
 		this.vsFactory = vsFactory;
+		this.cyEventHelper = cyEventHelper;
+		
 		this.mappingFactoryManager = mappingFactoryManager;
 		this.groupFactory = groupFactory;
 		this.groupManager = groupManager;
@@ -215,6 +221,7 @@ public class CoreServiceModule extends AbstractModule {
 		bind(TaskMonitor.class).toInstance(headlessMonitor);
 		bind(CyTableManager.class).toInstance(tableManager);
 		bind(VisualStyleFactory.class).toInstance(vsFactory);
+		bind(CyEventHelper.class).toInstance(cyEventHelper);
 		bind(MappingFactoryManager.class).toInstance(mappingFactoryManager);
 		bind(CyGroupFactory.class).toInstance(groupFactory);
 		bind(CyGroupManager.class).toInstance(groupManager);

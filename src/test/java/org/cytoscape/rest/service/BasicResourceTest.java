@@ -378,7 +378,7 @@ public class BasicResourceTest extends JerseyTest {
 
 		inputStreamTaskIterator.append(inputStreamCXNetworkReader);
 
-		when(inputStreamCXTaskFactory.createTaskIterator(any(InputStream.class), eq("cx file"))).thenReturn(inputStreamTaskIterator);
+		when(inputStreamCXTaskFactory.createTaskIterator(any(InputStream.class), eq("cx collection"))).thenReturn(inputStreamTaskIterator);
 		when(tfManager.getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"))).thenReturn(inputStreamCXTaskFactory);
 		// End Mocks for CX URL Reading
 

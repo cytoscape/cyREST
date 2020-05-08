@@ -991,7 +991,13 @@ public class NetworkResource extends AbstractResource {
 		final TaskIterator it;
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
 			it = edgeListReaderFactory.createTaskIterator(is, collection);
+		} else if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+			// Special case: load as CX
+			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
+			it = readerFactory.createTaskIterator(is, collection);
+			
 		} else {
+			
 			InputStreamTaskFactory cytoscapeJsReaderFactory = (InputStreamTaskFactory) this.cytoscapeJsReaderFactory.getService();
 			if (cytoscapeJsReaderFactory == null)
 			{
@@ -1003,6 +1009,8 @@ public class NetworkResource extends AbstractResource {
 						getResourceLogger(), null);
 			}
 			it = cytoscapeJsReaderFactory.createTaskIterator(is, collection);
+			
+			
 		}
 
 		final CyNetworkReader reader = (CyNetworkReader) it.next();
@@ -1235,7 +1243,7 @@ public class NetworkResource extends AbstractResource {
 			// Special case: load as CX
 			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
 			final URL source = new URL(sourceUrl);
-			itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
+			itr = readerFactory.createTaskIterator(source.openStream(), "cx collection");
 		} else {
 			itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
 		}

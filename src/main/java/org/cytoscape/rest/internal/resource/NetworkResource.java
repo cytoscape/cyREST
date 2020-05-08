@@ -1243,7 +1243,7 @@ public class NetworkResource extends AbstractResource {
 			// Special case: load as CX
 			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
 			final URL source = new URL(sourceUrl);
-			itr = readerFactory.createTaskIterator(source.openStream(), "cx file");
+			itr = readerFactory.createTaskIterator(source.openStream(), "cx collection");
 		} else {
 			itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
 		}

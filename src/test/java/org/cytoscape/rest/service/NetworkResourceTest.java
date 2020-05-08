@@ -768,6 +768,20 @@ public class NetworkResourceTest extends BasicResourceTest {
 		return result;
 	}
 	
+	private final String createNetworkCX() throws Exception {
+		final JsonFactory factory = new JsonFactory();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		JsonGenerator generator = null;
+		generator = factory.createGenerator(stream);
+		generator.writeStartArray();
+		
+		generator.writeEndArray();
+		generator.close();
+		final String result = stream.toString("UTF-8");
+		stream.close();
+		return result;
+	}
+	
 	private final String createNetworkListJson(String sourceLocation) throws Exception {
 		final JsonFactory factory = new JsonFactory();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -811,7 +825,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 	@Test
 	public void testCreateNetworkFromUrlCx() throws Exception {
 		verify(tfManager, never()).getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"));
-		verify(inputStreamCXTaskFactory, never()).createTaskIterator(any(InputStream.class), eq("cx file"));
+		verify(inputStreamCXTaskFactory, never()).createTaskIterator(any(InputStream.class), eq("cx collection"));
 		verify(inputStreamCXNetworkReader, never()).getNetworks();
 		
 		
@@ -823,7 +837,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		assertNotNull(result);
 		assertEquals(200, result.getStatus());
 		verify(tfManager).getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"));
-		verify(inputStreamCXTaskFactory).createTaskIterator(any(InputStream.class), eq("cx file"));
+		verify(inputStreamCXTaskFactory).createTaskIterator(any(InputStream.class), eq("cx collection"));
 		verify(inputStreamCXNetworkReader).getNetworks();
 		//verify(rootNetworkManager).getRootNetwork(arg0);
 		final String body = result.readEntity(String.class);
@@ -848,7 +862,29 @@ public class NetworkResourceTest extends BasicResourceTest {
 //		assertEquals(201, result.getStatus());
 	}
 
-
+	@Test
+	public void testCreateNetworkCX() throws Exception {
+		
+		verify(tfManager, never()).getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"));
+		verify(inputStreamCXTaskFactory, never()).createTaskIterator(any(InputStream.class), eq("cx collection"));
+		verify(inputStreamCXNetworkReader, never()).getNetworks();
+		
+		final String newVal = createNetworkCX();
+		System.out.println("New values: " + newVal);
+		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);
+		Response result = target("/v1/networks").queryParam("format", "cx").queryParam("collection", "cx collection").request().post(entity);
+		assertNotNull(result);
+		
+		verify(tfManager).getInputStreamTaskFactory(eq("cytoscapeCxNetworkReaderFactory"));
+		verify(inputStreamCXTaskFactory).createTaskIterator(any(InputStream.class), eq("cx collection"));
+		verify(inputStreamCXNetworkReader).getNetworks();
+		
+		final String body = result.readEntity(String.class);
+		System.out.println("BODY: " + body);
+		System.out.println("res: " + result.toString());
+//		assertFalse(result.getStatus() == 500);
+//		assertEquals(201, result.getStatus());
+	}
 	@Test
 	public void testCreateNetworkFromSelected() throws Exception {
 		

@@ -441,6 +441,8 @@ public class BasicResourceTest extends JerseyTest {
 		VisualStyle emptyStyle = mock(VisualStyle.class);
 		when(vsFactory.createVisualStyle(anyString())).thenReturn(emptyStyle);
 
+		CyEventHelper cyEventHelper = mock(CyEventHelper.class);
+		
 		groupFactory = mock(CyGroupFactory.class);
 		cyGroup = mock(CyGroup.class);
 		when(cyGroup.getNodeList()).thenReturn(Collections.singletonList(network.getNodeList().get(0)));
@@ -857,6 +859,7 @@ public class BasicResourceTest extends JerseyTest {
 				automationAppTracker,
 				layouts, writerListsner,
 				headlessTaskMonitor, tableManager, vsFactory,
+				cyEventHelper,
 				mappingFactoryManager, groupFactory, groupManager,
 				rootNetworkManager, loadNetworkURLTaskFactory,
 				cyPropertyListener, cyProps, 

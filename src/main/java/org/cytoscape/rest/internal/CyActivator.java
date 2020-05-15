@@ -28,6 +28,7 @@ import org.cytoscape.ci.CIExceptionFactory;
 import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.io.BasicCyFileFilter;
@@ -387,6 +388,8 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 		// Set Port number
 		final CyServiceRegistrar serviceRegistrar = getService(bc, CyServiceRegistrar.class);
+		
+		final CyEventHelper cyEventHelper = getService(bc, CyEventHelper.class);
 
 		CyRESTCoreSwaggerAction swaggerCoreAction = new CyRESTCoreSwaggerAction(serviceRegistrar, this.cyRESTPort);
 		registerService(bc, swaggerCoreAction, CyAction.class, new Properties());
@@ -454,7 +457,7 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				applicationManager, visMan, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, 
 				automationAppTracker,
 				layoutManager,
-				writerListener, headlessTaskMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory,
+				writerListener, headlessTaskMonitor, tableManager, vsFactory, cyEventHelper, mappingFactoryManager, groupFactory,
 				groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
 				cyPropertyListener, cyPropertyServiceRef,
 				networkSelectedNodesAndEdgesTaskFactory, edgeListReaderFactory, netViewFact, tableFactory, fitContent,

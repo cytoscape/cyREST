@@ -7,13 +7,15 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 import org.cytoscape.ci.CIResponseFactory;
+import org.cytoscape.event.CyEventHelper;
+
 import com.google.inject.Inject;
 
 @Provider
 public class EventFlushResponseFilter implements ContainerResponseFilter {
 	
 	@Inject
-	protected CIResponseFactory ciResponseFactory;
+	protected CyEventHelper cyEventHelper;
 	
 	@Override
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
@@ -22,6 +24,7 @@ public class EventFlushResponseFilter implements ContainerResponseFilter {
 				|| "PATCH".equals(request.getMethod())
 				|| "DELETE".equals(request.getMethod())
 			) {
+			cyEventHelper.flushPayloadEvents();
 			System.out.println("Flushing events after model change.");
 		}
 		

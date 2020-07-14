@@ -821,9 +821,13 @@ public class NetworkResource extends AbstractResource {
 	@DELETE
 	@ApiOperation(value="Delete all networks in current session", notes="Delete all networks in the current session.")
 	public Response deleteAllNetworks() {
+		this.networkViewManager.getNetworkViewSet().stream()
+		.forEach(networkView -> this.networkViewManager.destroyNetworkView(networkView));
+		this.networkViewManager.reset();
+		
 		this.networkManager.getNetworkSet().stream()
 		.forEach(network->this.networkManager.destroyNetwork(network));
-
+		this.networkManager.reset();
 		return Response.ok().build();
 	}
 
@@ -1037,6 +1041,7 @@ public class NetworkResource extends AbstractResource {
 			}
 		}
 
+		//System.out.println("Adding network");
 		addNetwork(networks, reader, collectionName);
 
 		try {
@@ -1050,6 +1055,7 @@ public class NetworkResource extends AbstractResource {
 					getResourceLogger(), e);
 		}
 
+		//System.out.println("Returning response.");
 		// Return SUID-to-Original map
 		return getNumberObjectString(SERIALIZATION_ERROR, JsonTags.NETWORK_SUID, newNetwork.getSUID());
 	}
@@ -1416,7 +1422,9 @@ public class NetworkResource extends AbstractResource {
 
 
 				styleMap.put(view, style);
+				//System.out.println("Adding network view");
 				networkViewManager.addNetworkView(view);
+				
 				results.add(view);
 			} 
 

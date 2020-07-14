@@ -22,6 +22,7 @@ import org.cytoscape.ci.CIExceptionFactory;
 import org.cytoscape.ci.CIResponseFactory;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroupFactory;
 import org.cytoscape.group.CyGroupManager;
 import org.cytoscape.model.CyNetworkFactory;
@@ -119,6 +120,7 @@ public class ResourceManagerTest
 		final TaskMonitor headlessMonitor = mock(TaskMonitor.class);
 		final CyTableManager tableManager = mock(CyTableManager.class);
 		final VisualStyleFactory vsFactory = mock(VisualStyleFactory.class);
+		final CyEventHelper cyEventHelper = mock(CyEventHelper.class);
 		final MappingFactoryManager mappingFactoryManager = mock(MappingFactoryManager.class);
 		final CyGroupFactory groupFactory = mock(CyGroupFactory.class);
 		final CyGroupManager groupManager = mock(CyGroupManager.class);
@@ -157,7 +159,8 @@ public class ResourceManagerTest
 		final URI logLocation = URI.create("nowhere");
 
 		CoreServiceModule coreServiceModule = new CoreServiceModule(
-				allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
+				allAppsStartedListener, networkManager, networkViewManager, networkFactory, tfManager, applicationManager, vmm, cytoscapeJsWriterFactory, cytoscapeJsReaderFactory, automationAppTracker, layoutManager, vizmapWriterFactoryListener, headlessMonitor, tableManager, vsFactory,
+				cyEventHelper, mappingFactoryManager, groupFactory, groupManager, cyRootNetworkManager, loadNetworkURLTaskFactory, 
 				cyPropertyListener, props, 
 				newNetworkSelectedNodesAndEdgesTaskFactory, edgelistReaderFactory, networkViewFactory, tableFactory, fitContent, edgeBundler, clearAllEdgeBends, renderingEngineManager, sessionManager, saveSessionAsTaskFactory, openSessionTaskFactory, newSessionTaskFactory, desktop, toggleLod, selectFirstNeighborsTaskFactory, graphicsWriterManager, exportNetworkViewTaskFactory, available, ceTaskFactory, synchronousTaskManager, viewFactoryManager, 
 				bundleResourceProvider,

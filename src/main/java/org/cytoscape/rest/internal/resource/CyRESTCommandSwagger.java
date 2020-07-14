@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import org.cytoscape.ci.model.CIError;
 import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.SavePolicy;
@@ -59,61 +60,57 @@ import io.swagger.models.properties.StringProperty;
 import io.swagger.converter.ModelConverters;
 import io.swagger.util.Json;
 
-
 @Path("/v1/commands/swagger.json")
 @Singleton
-public class CyRESTCommandSwagger extends AbstractResource
-{
+public class CyRESTCommandSwagger extends AbstractResource {
 	private static final Logger logger = LoggerFactory.getLogger(CyRESTCommandSwagger.class);
-	
-	private static final String SWAGGER_INFO_DESCRIPTION =  "An API to offer access to Cytoscape command line commands through a REST-like service."
+
+	private static final String SWAGGER_INFO_DESCRIPTION = "An API to offer access to Cytoscape command line commands through a REST-like service."
 			+ "\n\nIn Cytoscape 3.6, this section is upgraded with support for POST access to Cytoscape commands, offering enhanced documentation as well as JSON output for some commands. **The JSON currently provided by commands in this release may be expanded or revised in future releases.**"
 			+ "\n\nAll commands are still available via GET requests, the syntax of which is described in the [Command resources](#!/Commands).\n\n";
-	
+
 	private static final String RESOURCE_URN = "commands:swagger";
 
 	@Override
 	public String getResourceURI() {
 		return RESOURCE_URN;
 	}
-	
+
 	@Override
 	public Logger getResourceLogger() {
 		return logger;
 	}
-	
+
 	@Inject
 	@NotNull
 	AutomationAppTracker appTracker;
-	
+
 	@Inject
 	@NotNull
 	private AvailableCommands available;
 
+	@Inject
+	protected CyEventHelper cyEventHelper;
+
 	private String swaggerDefinition;
-	
-	public CyRESTCommandSwagger()
-	{
+
+	public CyRESTCommandSwagger() {
 		updateSwagger();
 	}
 
-	protected void updateSwagger()
-	{
+	protected void updateSwagger() {
 		swaggerDefinition = null;
 	}
 
-	public boolean isSwaggerDefinitionNull()
-	{
+	public boolean isSwaggerDefinitionNull() {
 		return (swaggerDefinition == null);
-	}	
+	}
 
 	private Model ciResponseModel;
-	
-	protected void buildSwagger()
-	{
-		BeanConfig commandBeanConfig = new BeanConfig(){
-			public Set<Class<?>> classes()
-			{
+
+	protected void buildSwagger() {
+		BeanConfig commandBeanConfig = new BeanConfig() {
+			public Set<Class<?>> classes() {
 				Set<Class<?>> classes = new HashSet<Class<?>>();
 				classes.add(CommandResource.class);
 				classes.add(CyRESTCommandSwaggerConfig.class);
@@ -121,100 +118,83 @@ public class CyRESTCommandSwagger extends AbstractResource
 			}
 		};
 
-		commandBeanConfig.setHost(ResourceManager.HOST + ":" +  cyRESTPort);
+		commandBeanConfig.setHost(ResourceManager.HOST + ":" + cyRESTPort);
 		commandBeanConfig.setScan(true);
 		commandBeanConfig.setPrettyPrint(true);
 
 		Swagger swagger = commandBeanConfig.getSwagger();
-		
-		String automationAppReport = appTracker.getMarkdownReport(); 
+
+		String automationAppReport = appTracker.getMarkdownReport();
 		swagger.getInfo().setDescription(SWAGGER_INFO_DESCRIPTION + automationAppReport);
-		
+
 		Map<String, Model> ciResponseModels = ModelConverters.getInstance().read(CIResponse.class);
 		ciResponseModel = ciResponseModels.get("CIResponse");
-		
+
 		Map<String, Model> ciErrorModels = ModelConverters.getInstance().read(CIError.class);
 		Model ciErrorModel = ciErrorModels.get("CIError");
 		swagger.addDefinition("CIError", ciErrorModel);
-		
+
 		addCommandPaths(swagger);
 		// serialization of the Swagger definition
-		try 
-		{
+		try {
 			Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
 			this.swaggerDefinition = Json.mapper().writeValueAsString(swagger);
-		
+
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	/**
-	 * Scans the AvailableCommands service, translates available commands and parameters into their Swagger annotation 
-	 * equivalents, and adds them to the passed Swagger instance.
+	 * Scans the AvailableCommands service, translates available commands and
+	 * parameters into their Swagger annotation equivalents, and adds them to the
+	 * passed Swagger instance.
 	 * 
 	 * @param swagger
 	 */
-	private void addCommandPaths(Swagger swagger)
-	{
-		//Set<String> classes = new HashSet<String>();
+	private void addCommandPaths(Swagger swagger) {
+	
+		if (available != null) {
 
-		if (available != null)	{
-
+			boolean resetNetwork = setCurrentNetwork();
+			boolean resetView = setCurrentNetworkView();
 			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
+				for (String namespace : available.getNamespaces()) {
+					for (String command : available.getCommands(namespace)) {
+						io.swagger.models.Path testPath = new io.swagger.models.Path();
+						Operation operation = new Operation();
+						operation.addTag(namespace);
+						operation.setOperationId(namespace + "/" + command);
+						operation.setSummary(available.getDescription(namespace, command));
 
-						boolean resetNetwork = setCurrentNetwork();
-						boolean resetView = setCurrentNetworkView();
-						try {
-							for (String namespace : available.getNamespaces()) {
-								for (String command : available.getCommands(namespace)) {
-									io.swagger.models.Path testPath = new io.swagger.models.Path();
-									Operation operation = new Operation();
-									operation.addTag(namespace);
-									operation.setOperationId(namespace + "/" + command);
-									operation.setSummary(available.getDescription(namespace, command));
+						operation.setDescription(available.getLongDescription(namespace, command) + "\n\n_App: "
+								+ appTracker.getCommandSourceApp(namespace, command) + "_");
 
-									operation.setDescription(available.getLongDescription(namespace, command) + "\n\n_App: " + appTracker.getCommandSourceApp(namespace, command) + "_");
-									
-									Response response = new Response();
-									response.setDescription("successful operation");
+						Response response = new Response();
+						response.setDescription("successful operation");
 
-									boolean isJSONCapable = setSuccessfulResponse(namespace, command, available, response);
+						boolean isJSONCapable = setSuccessfulResponse(namespace, command, available, response);
 
-									operation.addResponse("200", response);
-									if (isJSONCapable) {
-										setPostParameters(namespace, command, available, operation);
-										operation.addConsumes(MediaType.APPLICATION_JSON);
-										operation.addProduces(MediaType.APPLICATION_JSON);
-										testPath.setPost(operation);
-									} else {
-										setGetParameters(namespace, command, available, operation);
-										operation.addProduces(MediaType.TEXT_PLAIN);
-										testPath.setGet(operation);
-									}
-									swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
-								
-								}
-							}
+						operation.addResponse("200", response);
+						if (isJSONCapable) {
+							setPostParameters(namespace, command, available, operation);
+							operation.addConsumes(MediaType.APPLICATION_JSON);
+							operation.addProduces(MediaType.APPLICATION_JSON);
+							testPath.setPost(operation);
+						} else {
+							setGetParameters(namespace, command, available, operation);
+							operation.addProduces(MediaType.TEXT_PLAIN);
+							testPath.setGet(operation);
 						}
-						finally
-						{
-							resetCurrentNetworkView(resetView);
-							resetCurrentNetwork(resetNetwork);
-						}
+						swagger.path("/v1/commands/" + namespace + "/" + command, testPath);
 					}
-				});
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} 
+				}
+			} finally {
+				resetCurrentNetworkView(resetView);
+				resetCurrentNetwork(resetNetwork);
+			}
 
-		}
-		else
-		{
+		} else {
 			logger.error("CyRESTCommandSwagger availableCommands is null");
 		}
 	}
@@ -223,49 +203,57 @@ public class CyRESTCommandSwagger extends AbstractResource
 	 * 
 	 * @return true if this command returns JSON.
 	 */
-	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available, Response response) {
+	private boolean setSuccessfulResponse(String namespace, String command, AvailableCommands available,
+			Response response) {
 
 		boolean isJSONCapable = available.getSupportsJSON(namespace, command);
-		
+
 		if (isJSONCapable) {
 
 			String jsonExample = available.getExampleJSON(namespace, command);
-			
+
 			ObjectProperty objectProperty = new ObjectProperty();
-		
+
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectProperty.setProperties(ciResponseModel.getProperties());
 			JsonNode jsonNode;
 			try {
-				jsonNode = objectMapper.readValue(CommandResource.getJSONResponse(Arrays.asList(jsonExample), new ArrayList<CIError>(), null), JsonNode.class);
+				jsonNode = objectMapper.readValue(
+						CommandResource.getJSONResponse(Arrays.asList(jsonExample), new ArrayList<CIError>(), null),
+						JsonNode.class);
 				if (!containsNull(jsonNode)) {
-					objectProperty.setExample(jsonNode); 
+					objectProperty.setExample(jsonNode);
 				} else {
-					reportJSONExampleError(new Exception("Swagger Definition Contained a null value: " + objectMapper.writeValueAsString(jsonNode)), namespace, command, "Invalid for Swagger (JSON contained null)", objectMapper, objectProperty);
+					reportJSONExampleError(
+							new Exception("Swagger Definition Contained a null value: "
+									+ objectMapper.writeValueAsString(jsonNode)),
+							namespace, command, "Invalid for Swagger (JSON contained null)", objectMapper,
+							objectProperty);
 				}
 			} catch (JsonParseException e) {
 				reportJSONExampleError(e, namespace, command, "JsonParseException", objectMapper, objectProperty);
-			} catch (JsonMappingException e) {			
+			} catch (JsonMappingException e) {
 				reportJSONExampleError(e, namespace, command, "JsonMappingException", objectMapper, objectProperty);
 			} catch (IOException e) {
 				reportJSONExampleError(e, namespace, command, "IOException", objectMapper, objectProperty);
 			}
 			response.setSchema(objectProperty);
-		}
-		else {
-			StringProperty stringProperty =  new StringProperty();
+		} else {
+			StringProperty stringProperty = new StringProperty();
 			stringProperty.setName("noName");
-			response.setSchema(stringProperty); 
+			response.setSchema(stringProperty);
 		}
 		return isJSONCapable;
 	}
 
-	private void reportJSONExampleError(Throwable e, String namespace, String command, String string, ObjectMapper objectMapper, ObjectProperty objectProperty) {
+	private void reportJSONExampleError(Throwable e, String namespace, String command, String string,
+			ObjectMapper objectMapper, ObjectProperty objectProperty) {
 		logger.error("Error creating json example for " + namespace + " " + command + " : " + string, e);
 		JsonNode jsonNode;
 		try {
-			jsonNode = objectMapper.readValue("\"ERROR. Example could not be included: " + string + "\"", JsonNode.class);
-			objectProperty.setExample(jsonNode); 
+			jsonNode = objectMapper.readValue("\"ERROR. Example could not be included: " + string + "\"",
+					JsonNode.class);
+			objectProperty.setExample(jsonNode);
 		} catch (JsonParseException e1) {
 			e1.printStackTrace();
 		} catch (JsonMappingException e1) {
@@ -273,12 +261,11 @@ public class CyRESTCommandSwagger extends AbstractResource
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-	 
+
 	}
-	
+
 	private void setGetParameters(String namespace, String command, AvailableCommands available, Operation operation) {
-		for (String argumentName : available.getArguments(namespace, command))
-		{
+		for (String argumentName : available.getArguments(namespace, command)) {
 			QueryParameter parameter = new QueryParameter();
 			parameter.setName(argumentName);
 
@@ -287,7 +274,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 			String longDescription = available.getArgLongDescription(namespace, command, argumentName);
 			if (longDescription == null || longDescription.length() == 0) {
 				String description = available.getArgDescription(namespace, command, argumentName);
-				if (description!= null && description.length() > 0) { 
+				if (description != null && description.length() > 0) {
 					longDescription = description;
 				} else {
 					longDescription = "";
@@ -308,7 +295,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 			}
 
 			Class<?> typeClass = available.getArgType(namespace, command, argumentName);
-			setParameterTypeAndFormatFromClass(parameter,typeClass);
+			setParameterTypeAndFormatFromClass(parameter, typeClass);
 
 			boolean required = available.getArgRequired(namespace, command, argumentName);
 			parameter.setRequired(required);
@@ -322,7 +309,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		parameter.setName("body");
 
 		CommandModel model = new CommandModel(namespace, command, available);
-		//parameter.setRequired(!model.properties.isEmpty());
+		// parameter.setRequired(!model.properties.isEmpty());
 		parameter.setSchema(model);
 		operation.addParameter(parameter);
 	}
@@ -331,7 +318,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 	CyNetworkView emptyView;
 
 	// This is a wrapper around appMgr.getCurrentNetwork() to make sure
-	// we *always* return a network.  If getCurrentNetwork is null, we return
+	// we *always* return a network. If getCurrentNetwork is null, we return
 	// the emptyNetwork.
 	private CyNetwork getNetwork() {
 		if (applicationManager.getCurrentNetwork() != null)
@@ -339,7 +326,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 		if (emptyNetwork == null) {
 			emptyNetwork = (networkFactory.createNetwork(SavePolicy.DO_NOT_SAVE));
-			//Note: DO NOT CHANGE THE NETWORK NAME FROM "cy:command_documentation_generation", it is necessary for a workaround.
+			// Note: DO NOT CHANGE THE NETWORK NAME FROM
+			// "cy:command_documentation_generation", it is necessary for a workaround.
 			emptyNetwork.getRow(emptyNetwork).set(CyNetwork.NAME, "cy:command_documentation_generation");
 		}
 		return emptyNetwork;
@@ -347,7 +335,6 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 	private boolean setCurrentNetwork() {
 		if (applicationManager.getCurrentNetwork() == null) {
-
 			getNetwork();
 			networkManager.addNetwork(emptyNetwork, true);
 			return true;
@@ -356,7 +343,8 @@ public class CyRESTCommandSwagger extends AbstractResource
 	}
 
 	private void resetCurrentNetwork(boolean reset) {
-		if (!reset) return;
+		if (!reset)
+			return;
 		applicationManager.setCurrentNetwork(null);
 		networkManager.destroyNetwork(emptyNetwork);
 		emptyNetwork = null;
@@ -367,6 +355,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 			return applicationManager.getCurrentNetworkView();
 
 		if (emptyView == null) {
+			cyEventHelper.silenceEventSource(networkViewManager);
 			emptyView = (networkViewFactory.createNetworkView(getNetwork()));
 		}
 		return emptyView;
@@ -385,7 +374,7 @@ public class CyRESTCommandSwagger extends AbstractResource
 		if (input.isNull()) {
 			return true;
 		} else {
-			for (JsonNode node :input) {
+			for (JsonNode node : input) {
 				if (containsNull(node)) {
 					return true;
 				}
@@ -393,69 +382,72 @@ public class CyRESTCommandSwagger extends AbstractResource
 		}
 		return false;
 	}
-	
+
 	private void resetCurrentNetworkView(boolean reset) {
-		if (!reset) return;
+		if (!reset)
+			return;
 		applicationManager.setCurrentNetworkView(null);
 		networkViewManager.destroyNetworkView(emptyView);
+		cyEventHelper.unsilenceEventSource(networkViewManager);
 		emptyView = null;
 	}
 
 	private final class CommandModel extends ModelImpl {
-		
+
 		public CommandModel(String namespace, String command, AvailableCommands available) {
 			super();
 			for (String argument : available.getArguments(namespace, command)) {
 				StringProperty property = new StringProperty();
-				
+
 				property.setName(argument);
 				String description = available.getArgLongDescription(namespace, command, argument);
-				
+
 				String defaultString = available.getArgExampleStringValue(namespace, command, argument);
 				if (defaultString != null && defaultString.length() > 0) {
 					property.setExample(defaultString);
 				}
-				
+
 				try {
 					Class<?> type = available.getArgType(namespace, command, argument);
-		
-					//FIXME This calls a deprecated method because any other way of getting the value of a tunable is 
+
+					// FIXME This calls a deprecated method because any other way of getting the
+					// value of a tunable is
 					// extremely complicated.
 					Object value = available.getArgValue(namespace, command, argument);
-						
+
 					if (type.equals(ListSingleSelection.class) && value != null) {
 						List<String> values = new ArrayList<String>();
-						for (Object entry : ((ListSingleSelection)value).getPossibleValues()) {
+						for (Object entry : ((ListSingleSelection) value).getPossibleValues()) {
 							values.add(entry.toString());
 						}
 						/*
-						if (values.contains(defaultString)) {
-							Collections.swap(values, 0, values.indexOf(defaultString));
-						}*/
+						 * if (values.contains(defaultString)) { Collections.swap(values, 0,
+						 * values.indexOf(defaultString)); }
+						 */
 						property.setEnum(values);
 					} else if (type.equals(ListMultipleSelection.class) && value != null) {
 						StringJoiner joiner = new StringJoiner(", ", " = [", "]");
-						for (Object entry : ((ListMultipleSelection)value).getPossibleValues()) {
+						for (Object entry : ((ListMultipleSelection) value).getPossibleValues()) {
 							joiner.add("'" + entry.toString() + "'");
 						}
 						description += joiner.toString();
-					} else if (type.equals(CyTable.class) ){
-						description += " [NodeTable -> Node:NetworkName , EdgeTable -> Edge:NetworkName , NetworkTable -> Network:NetworkName , " +
-								"UnassignedTable -> TableFileName]";
+					} else if (type.equals(CyTable.class)) {
+						description += " [NodeTable -> Node:NetworkName , EdgeTable -> Edge:NetworkName , NetworkTable -> Network:NetworkName , "
+								+ "UnassignedTable -> TableFileName]";
 					}
-					
+
 				} catch (Exception e) {
 					logger.error("Error handling command enum", e);
 				}
-			
+
 				property.setDescription(description);
-				
+
 				boolean required = available.getArgRequired(namespace, command, argument);
-				
+
 				this.addProperty(argument, property);
 				if (required) {
 					this.addRequired(argument);
-				} 
+				}
 			}
 		}
 
@@ -474,67 +466,54 @@ public class CyRESTCommandSwagger extends AbstractResource
 
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
-	public String get() throws JsonProcessingException 
-	{
+	public String get() throws JsonProcessingException {
 		updateSwagger();
-		if (swaggerDefinition == null)
-		{
+		if (swaggerDefinition == null) {
 			buildSwagger();
 		}
 		return swaggerDefinition;
 	}
 
-	@SwaggerDefinition(
-			info = @Info(
-					description = SWAGGER_INFO_DESCRIPTION,
-					version = "V2.0.0",
-					title = "CyREST Command API"
-					//termsOfService = "http://theweatherapi.io/terms.html",
-					// contact = @Contact(
-					//   name = "Rain Moore", 
-					//    email = "rain.moore@theweatherapi.io", 
-					//    url = "http://theweatherapi.io"
-					// ),
-					// license = @License(
-					//    name = "Apache 2.0", 
-					//    url = "http://www.apache.org/licenses/LICENSE-2.0"
-					// )
-					),
-			//Be wary of this host parameter if you are using BeanConfig; use one or the other, as they will
-			//cause conflicts.
-			//host = "localhost:1234",
-			basePath = "",
-			consumes = {"application/json", "application/xml"},
-			produces = {"application/json", "application/xml"},
-			schemes = {SwaggerDefinition.Scheme.HTTP},
-			tags = 
-		{
+	@SwaggerDefinition(info = @Info(description = SWAGGER_INFO_DESCRIPTION, version = "V2.0.0", title = "CyREST Command API"
+	// termsOfService = "http://theweatherapi.io/terms.html",
+	// contact = @Contact(
+	// name = "Rain Moore",
+	// email = "rain.moore@theweatherapi.io",
+	// url = "http://theweatherapi.io"
+	// ),
+	// license = @License(
+	// name = "Apache 2.0",
+	// url = "http://www.apache.org/licenses/LICENSE-2.0"
+	// )
+	),
+			// Be wary of this host parameter if you are using BeanConfig; use one or the
+			// other, as they will
+			// cause conflicts.
+			// host = "localhost:1234",
+			basePath = "", consumes = { "application/json", "application/xml" }, produces = { "application/json",
+					"application/xml" }, schemes = { SwaggerDefinition.Scheme.HTTP }, tags = {
 
-		}, 
-		externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/")
-	)
-	
-	public static class CyRESTCommandSwaggerConfig implements ReaderListener
-	{
+			}, externalDocs = @ExternalDocs(value = "Cytoscape", url = "http://cytoscape.org/"))
+
+	public static class CyRESTCommandSwaggerConfig implements ReaderListener {
 		@Override
-		public void beforeScan(Reader arg0, Swagger swagger) 
-		{
+		public void beforeScan(Reader arg0, Swagger swagger) {
 
 		}
 
-		public void afterScan(Reader reader, Swagger swagger)
-		{
-		
+		public void afterScan(Reader reader, Swagger swagger) {
+
 		}
 	}
 
 	/**
-	 * Sets the Type and Format for the passed QueryParameter based on the passed Class
-	 * produced by AvailableCommands
+	 * Sets the Type and Format for the passed QueryParameter based on the passed
+	 * Class produced by AvailableCommands
 	 * 
-	 * Note that this takes into account some basic primitives, plus String, but defaults
-	 * to a String type for any other class. This was done because more complex arguments
-	 * are generally translated from String using StringTunableHandler.
+	 * Note that this takes into account some basic primitives, plus String, but
+	 * defaults to a String type for any other class. This was done because more
+	 * complex arguments are generally translated from String using
+	 * StringTunableHandler.
 	 * 
 	 * @see org.cytoscape.command.AvailableCommands
 	 * @see org.cytoscape.command.StringTunableHandler
@@ -542,46 +521,31 @@ public class CyRESTCommandSwagger extends AbstractResource
 	 * @param parameter
 	 * @param clazz
 	 */
-	public static void setParameterTypeAndFormatFromClass(QueryParameter parameter, Class<?> clazz)
-	{
-		//FIXME This shouldn't be producing hard-coded strings here, but instead should 
-		//access some Swagger or JSON constant.
-		//These were extracted from the Swagger Specification (http://swagger.io/specification/)
-		if (int.class.equals(clazz))
-		{
+	public static void setParameterTypeAndFormatFromClass(QueryParameter parameter, Class<?> clazz) {
+		// FIXME This shouldn't be producing hard-coded strings here, but instead should
+		// access some Swagger or JSON constant.
+		// These were extracted from the Swagger Specification
+		// (http://swagger.io/specification/)
+		if (int.class.equals(clazz)) {
 			parameter.setType("integer");
 			parameter.setFormat("int32");
-		}
-		else if (long.class.equals(clazz))
-		{
+		} else if (long.class.equals(clazz)) {
 			parameter.setType("integer");
 			parameter.setFormat("int64");
-		}
-		else if (float.class.equals(clazz))
-		{
+		} else if (float.class.equals(clazz)) {
 			parameter.setType("number");
 			parameter.setFormat("int32");
-		}
-		else if (double.class.equals(clazz))
-		{
+		} else if (double.class.equals(clazz)) {
 			parameter.setType("number");
 			parameter.setFormat("int64");
-		}
-		else if (String.class.equals(clazz))
-		{
+		} else if (String.class.equals(clazz)) {
 			parameter.setType("string");
-		}
-		else if (byte.class.equals(clazz))
-		{
+		} else if (byte.class.equals(clazz)) {
 			parameter.setType("string");
 			parameter.setFormat("byte");
-		}
-		else if (boolean.class.equals(clazz))
-		{
+		} else if (boolean.class.equals(clazz)) {
 			parameter.setType("boolean");
-		}
-		else
-		{	
+		} else {
 			parameter.setType("string");
 		}
 	}

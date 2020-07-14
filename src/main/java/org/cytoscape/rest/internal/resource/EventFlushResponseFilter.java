@@ -25,7 +25,7 @@ public class EventFlushResponseFilter implements ContainerResponseFilter {
 				|| "DELETE".equals(request.getMethod())
 			) {
 			cyEventHelper.flushPayloadEvents();
-			System.out.println("Flushing events after model change.");
+			//System.out.println("Flushing events after model change: " + request.getMethod() + " "+  request.getUriInfo().getPath());
 		}
 		
 	}

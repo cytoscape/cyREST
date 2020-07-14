@@ -90,7 +90,7 @@ public class OSGiJAXRSManager
 	{
 		context = bundleContext;
 		
-		installFeature(context, featuresService.getFeature("jetty", "9.4.12.v20180830"));
+		installFeature(context, featuresService.getFeature("jetty", "9.4.22.v20191022"));
 		installFeature(context, featuresService.getFeature("scr"));
 		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));

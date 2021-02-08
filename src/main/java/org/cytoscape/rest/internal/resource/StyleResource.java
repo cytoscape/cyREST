@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.io.write.VizmapWriterFactory;
 import org.cytoscape.rest.internal.CyActivator.WriterListener;
@@ -33,14 +35,15 @@ import org.cytoscape.rest.internal.model.ModelConstants;
 import org.cytoscape.rest.internal.model.TitleModel;
 import org.cytoscape.rest.internal.model.VisualPropertyDependencyModel;
 import org.cytoscape.rest.internal.model.VisualPropertyModel;
+import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
+import org.cytoscape.rest.internal.model.VisualPropertyValuesModel;
 import org.cytoscape.rest.internal.model.VisualStyleDefaultsModel;
 import org.cytoscape.rest.internal.model.VisualStyleMappingModel;
 import org.cytoscape.rest.internal.model.VisualStyleModel;
-import org.cytoscape.rest.internal.model.VisualPropertyValueModel;
-import org.cytoscape.rest.internal.model.VisualPropertyValuesModel;
 import org.cytoscape.rest.internal.serializer.VisualStyleModule;
 import org.cytoscape.rest.internal.serializer.VisualStyleSerializer;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.DiscreteRange;
 import org.cytoscape.view.model.Range;
 import org.cytoscape.view.model.VisualLexicon;
@@ -109,6 +112,10 @@ public class StyleResource extends AbstractResource {
 
 	@Inject
 	private MappingFactoryManager factoryManager;
+	
+	@Inject
+	private CyEventHelper cyEventHelper;
+	
 
 	private final ObjectMapper styleMapper;
 	private final VisualStyleMapper visualStyleMapper;
@@ -641,6 +648,9 @@ public class StyleResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Style") @PathParam("name") String name,
 			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
+		
+		cyEventHelper.silenceEventSource(style);
+		
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {
@@ -655,9 +665,34 @@ public class StyleResource extends AbstractResource {
 					"Could not create new Mapping.", 
 					logger, e);
 		}
+		
+		Set<CyNetworkView> networkViews = findNetworkViewsWithStyles(Collections.singleton(style));
+		for(CyNetworkView view : networkViews) {
+			style.apply(view);
+			view.updateView();
+		}
+		
+		cyEventHelper.unsilenceEventSource(style);
 		return Response.status(Response.Status.CREATED).build();
 	}
 
+	
+	private Set<CyNetworkView> findNetworkViewsWithStyles(Set<VisualStyle> styles) {
+		Set<CyNetworkView> result = new HashSet<>();
+		if (styles == null || styles.isEmpty())
+			return result;
+		
+		// First, check current view.  If necessary, apply it.
+		Set<CyNetworkView> networkViews = networkViewManager.getNetworkViewSet();
+		
+		for (CyNetworkView view: networkViews) {
+			if (styles.contains(vmm.getVisualStyle(view)))
+				result.add(view);
+		}
+		return result;
+	}
+	
+	
 	@PUT
 	@Path("/{name}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -700,6 +735,9 @@ public class StyleResource extends AbstractResource {
 			@ApiParam(value="Name of the Visual Property that the Visual Mapping controls") @PathParam("vp") String vp, 
 			@ApiParam(hidden=true) InputStream is) {
 		final VisualStyle style = getStyleByName(name);
+		
+		cyEventHelper.silenceEventSource(style);
+		
 		final VisualMappingFunction<?, ?> currentMapping = getMappingFunction(vp, style);
 	
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -717,6 +755,13 @@ public class StyleResource extends AbstractResource {
 					logger, e);
 		}
 		
+		Set<CyNetworkView> networkViews = findNetworkViewsWithStyles(Collections.singleton(style));
+		for(CyNetworkView view : networkViews) {
+			style.apply(view);
+			view.updateView();
+		}
+		
+		cyEventHelper.unsilenceEventSource(style);
 		return Response.ok().build();
 	}
 

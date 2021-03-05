@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
 import org.apache.karaf.features.FeaturesService;
 import org.cytoscape.app.event.AppsFinishedStartingEvent;
 import org.cytoscape.app.event.AppsFinishedStartingListener;
@@ -186,8 +187,13 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
 			if (swingApplication != null && swingApplication.getJFrame() != null) {
 				
-				JOptionPane messagePane = new JOptionPane("The running version of CyREST has changed. CyREST requires a restart of Cytoscape "
-								+ " to function correctly.\n\nThis may be caused by installing different versions of CyREST or switching between different versions of Cytoscape.", JOptionPane.WARNING_MESSAGE);
+				JOptionPane messagePane = new JOptionPane(
+						"The running version of CyREST has changed.\n" +
+						"CyREST requires a restart of Cytoscape to function correctly.\n\n" +
+						"This may be caused by installing different versions of CyREST\n" +
+						"or switching between different versions of Cytoscape.",
+						JOptionPane.WARNING_MESSAGE
+				);
 		
 				final JFrame frame = swingApplication.getJFrame();
 				final JDialog d2= new JDialog(frame,"Restart required");

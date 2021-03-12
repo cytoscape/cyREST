@@ -738,8 +738,6 @@ public class StyleResource extends AbstractResource {
 		
 		cyEventHelper.silenceEventSource(style);
 		
-		final VisualMappingFunction<?, ?> currentMapping = getMappingFunction(vp, style);
-	
 		final ObjectMapper objMapper = new ObjectMapper();
 		JsonNode rootNode;
 		try {

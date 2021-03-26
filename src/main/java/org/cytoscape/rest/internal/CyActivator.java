@@ -45,6 +45,7 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
+import org.cytoscape.rest.internal.integrationtest.CyRESTTestAction;
 import org.cytoscape.rest.internal.reader.EdgeListReaderFactory;
 import org.cytoscape.rest.internal.resource.apps.clustermaker2.ClusterMaker2Resource;
 import org.cytoscape.rest.internal.task.AllAppsStartedListener;
@@ -135,6 +136,8 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 	private ResourceManager resourceManager = null;
 
 	private AutomationAppTracker automationAppTracker = null;
+	
+	private boolean enableTests = false;
 
 	public CyActivator() {
 		super();
@@ -183,7 +186,14 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 		this.cyRESTPort = argumentPortNumber != null ? argumentPortNumber : preferencesPortNumber;
 
-		if (suggestRestart(bc)) {
+		final Bundle defaultBundle = bc.getBundle();	
+		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class,
+				"(cyPropertyName=cytoscape3.props)");
+		
+		final Object cyRestTestProperty = cyProperties.getProperties().get("cyrest.test");
+		this.enableTests = cyRestTestProperty != null && Boolean.valueOf(cyRestTestProperty.toString()) ? true : false;
+		
+		if (suggestRestart(defaultBundle, cyProperties)) {
 			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
 			if (swingApplication != null && swingApplication.getJFrame() != null) {
 				
@@ -284,12 +294,9 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		STOPPED
 	}
 
-	private boolean suggestRestart(BundleContext bc) {
-		Bundle defaultBundle = bc.getBundle();	
-		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
-
-		Object cyRESTVersion = cyProperties.getProperties().get("cyrest.version");
+	private boolean suggestRestart(final Bundle defaultBundle, final CyProperty<Properties> cyProperties) {
+		
+		final Object cyRESTVersion = cyProperties.getProperties().get("cyrest.version");
 		if (!defaultBundle.getVersion().toString().equals(cyRESTVersion)) {
 			logger.info("CyREST [" + defaultBundle.getVersion().toString() + "] discovered previous CyREST Version: " + cyRESTVersion);
 			cyProperties.getProperties().put("cyrest.version", defaultBundle.getVersion().toString());
@@ -406,6 +413,11 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		CyAutomationAction automationAction = new CyAutomationAction(serviceRegistrar);
 		registerService(bc, automationAction, CyAction.class, new Properties());
 
+		if (enableTests) {
+			CyRESTTestAction cyTestAction = new CyRESTTestAction(serviceRegistrar);
+			registerService(bc, cyTestAction, CyAction.class, new Properties());
+		}
+		
 		// Task factories
 		final NewNetworkSelectedNodesAndEdgesTaskFactory networkSelectedNodesAndEdgesTaskFactory = getService(bc,
 				NewNetworkSelectedNodesAndEdgesTaskFactory.class);

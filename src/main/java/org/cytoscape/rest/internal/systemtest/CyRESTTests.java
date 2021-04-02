@@ -97,15 +97,11 @@ public class CyRESTTests {
 
 		String columnValues = resources.tableResource.getColumnValues(network, "defaultnode", "SUID");
 
-		//System.out.println("columnValues: " + columnValues);
-
 		final ObjectMapper objMapper = new ObjectMapper();
 
 		final JsonNode nodesJSON = objMapper.readValue(columnValues, JsonNode.class);
 
 		Long firstSuid = nodesJSON.get("values").get(0).asLong();
-
-		//System.out.println("node SUID: " + firstSuid);
 
 		String backgroundColor = resources.networkViewResource.getSingleVisualPropertyValue(network, networkView,
 				"nodes", firstSuid, "NODE_FILL_COLOR");
@@ -114,14 +110,10 @@ public class CyRESTTests {
 
 		String initialColor = colorJSON.get("value").asText();
 
-		//System.out.println("initialColor: " + initialColor);
-
 		String tableUpdateBody = "{\r\n" + "  \"key\": \"SUID\",\r\n" + "  \"dataKey\": \"SUID\",\r\n"
 				+ "  \"data\": [\r\n" + "    {\r\n" + "\"SUID\": 513,\r\n" + "\"passthrough_col\" : \"#FF0000\"\r\n"
 				+ "}]}";
 
-		//System.out.println("table body param: " + tableUpdateBody);
-		
 		InputStream tableInputStream = new ByteArrayInputStream(tableUpdateBody.getBytes());
 
 		resources.tableResource.updateTable(network, "defaultnode", null, tableInputStream);
@@ -138,8 +130,6 @@ public class CyRESTTests {
 		
 		String newColorResponse = resources.networkViewResource.getSingleVisualPropertyValue(network, networkView,
 				"nodes", firstSuid, "NODE_FILL_COLOR");
-		
-		//System.out.println("newBackgroundColor: " + newColorResponse);
 		
 		final JsonNode newColorJSON = objMapper.readValue(newColorResponse, JsonNode.class);
 

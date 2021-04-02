@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.integrationtest;
+package org.cytoscape.rest.internal.systemtest;
 
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +18,7 @@ public class CyRESTTestAction extends AbstractCyAction{
 	private final CyServiceRegistrar serviceRegistrar;
 	
 	public CyRESTTestAction(CyServiceRegistrar serviceRegistrar) {
-		super("Run CyREST integration tests");
+		super("Run CyREST system tests");
 		this.setPreferredMenu(CyRESTConstants.CY_REST_HELP_MENU_ANCHOR);
 		this.serviceRegistrar = serviceRegistrar;
 	
@@ -26,6 +26,12 @@ public class CyRESTTestAction extends AbstractCyAction{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		for (int i = 0; i < 1; i++) {
+			runTests();
+		}
+	}	
+	
+	private void runTests() {
 		CyRESTTests cyRESTTests;
 		try {
 			cyRESTTests = new CyRESTTests(serviceRegistrar);
@@ -65,7 +71,7 @@ public class CyRESTTestAction extends AbstractCyAction{
 		for (Method method : failedTests) {
 			System.out.println(method.getName() + " Failed");
 		}
-	}	
+	}
 	
 	private void afterEach() {
 		SessionResource sessionResource = serviceRegistrar.getService(SessionResource.class);

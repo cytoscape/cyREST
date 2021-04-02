@@ -1,4 +1,4 @@
-package org.cytoscape.rest.internal.integrationtest;
+package org.cytoscape.rest.internal.systemtest;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

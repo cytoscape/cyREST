@@ -77,8 +77,6 @@ public class CyRESTTests {
 
 		Collection<Long> allNetworks = resources.networkResource.getNetworksAsSUID(null, null);
 
-		cyEventHelper.flushPayloadEvents();
-
 		throwExceptionIfFalse("Only one network should be loaded.", allNetworks.size() == 1);
 
 		long network = (long) allNetworks.toArray()[0];
@@ -94,7 +92,8 @@ public class CyRESTTests {
 		InputStream columnInputStream = new ByteArrayInputStream(newColumn.getBytes());
 
 		resources.tableResource.createColumn(network, "defaultnode", columnInputStream);
-
+		cyEventHelper.flushPayloadEvents();
+		
 		String columnValues = resources.tableResource.getColumnValues(network, "defaultnode", "SUID");
 
 		final ObjectMapper objMapper = new ObjectMapper();
@@ -117,6 +116,7 @@ public class CyRESTTests {
 		InputStream tableInputStream = new ByteArrayInputStream(tableUpdateBody.getBytes());
 
 		resources.tableResource.updateTable(network, "defaultnode", null, tableInputStream);
+		cyEventHelper.flushPayloadEvents();
 		
 		String passthroughMappingBody = "[{ \"mappingType\": \"passthrough\",\r\n"
 				+ "  \"mappingColumn\": \"passthrough_col\",\r\n"
@@ -127,6 +127,7 @@ public class CyRESTTests {
 		InputStream passthroughMappingStream = new ByteArrayInputStream(passthroughMappingBody.getBytes());
 		
 		resources.styleResource.updateMapping("galFiltered Style", "NODE_FILL_COLOR", passthroughMappingStream);
+		cyEventHelper.flushPayloadEvents();
 		
 		String newColorResponse = resources.networkViewResource.getSingleVisualPropertyValue(network, networkView,
 				"nodes", firstSuid, "NODE_FILL_COLOR");

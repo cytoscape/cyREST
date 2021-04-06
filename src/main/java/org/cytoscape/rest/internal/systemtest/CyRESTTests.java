@@ -139,26 +139,4 @@ public class CyRESTTests {
 		throwExceptionIfFalse("New color should be #FF0000 and is " + newColor, "#FF0000".equals(newColor));
 	}
 
-	public static void main(String[] args) {
-		String vp = "{\r\n" + "			  \"visualProperty\" : \"NODE_FILL_COLOR\",\r\n"
-				+ "			  \"value\" : \"#F3F8FD\"\r\n" + "			}";
-
-		final ObjectMapper objMapper = new ObjectMapper();
-
-		JsonNode rootNode;
-		try {
-			rootNode = objMapper.readValue(vp, JsonNode.class);
-			System.out.println(rootNode.get("value").asText());
-
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

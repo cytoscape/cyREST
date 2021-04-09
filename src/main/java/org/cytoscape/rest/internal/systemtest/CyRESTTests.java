@@ -2,24 +2,18 @@ package org.cytoscape.rest.internal.systemtest;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.application.CyApplicationConfiguration;
-import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.event.CyEventHelper;
-import org.cytoscape.rest.internal.model.NetworkSUIDModel;
 import org.cytoscape.rest.internal.model.ServerStatusModel;
 import org.cytoscape.rest.internal.resource.MiscResource;
-import org.cytoscape.rest.internal.resource.NetworkResource;
-import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -70,20 +64,18 @@ public class CyRESTTests {
 
 	@CyRESTTest
 	public void loadGalFilteredApplyStyle() throws Exception {
-
+	
 		resources.sessionResource.getSessionFromFile(sampleDataDirectory.getAbsolutePath() + "/galFiltered.cys");
-
-		cyEventHelper.flushPayloadEvents();
-
+		
 		Collection<Long> allNetworks = resources.networkResource.getNetworksAsSUID(null, null);
 
-		throwExceptionIfFalse("Only one network should be loaded.", allNetworks.size() == 1);
+		throwExceptionIfFalse("Expected 1 network, got " + allNetworks.size(), allNetworks.size() == 1);
 
 		long network = (long) allNetworks.toArray()[0];
 
 		Collection<Long> allNetworkViews = resources.networkViewResource.getAllNetworkViews(network);
 
-		throwExceptionIfFalse("Only one network view should be loaded.", allNetworkViews.size() == 1);
+		throwExceptionIfFalse("Expected 1 network view, got . " + allNetworkViews.size(), allNetworkViews.size() == 1);
 
 		long networkView = (long) allNetworkViews.toArray()[0];
 
@@ -91,7 +83,9 @@ public class CyRESTTests {
 
 		InputStream columnInputStream = new ByteArrayInputStream(newColumn.getBytes());
 
-		resources.tableResource.createColumn(network, "defaultnode", columnInputStream);
+		Response createColumnResponse = resources.tableResource.createColumn(network, "defaultnode", columnInputStream);
+		throwExceptionIfFalse("Expected 201 and got " + createColumnResponse.getStatus(), createColumnResponse.getStatus() == Status.CREATED.getStatusCode());
+		
 		cyEventHelper.flushPayloadEvents();
 		
 		String columnValues = resources.tableResource.getColumnValues(network, "defaultnode", "SUID");
@@ -110,7 +104,7 @@ public class CyRESTTests {
 		String initialColor = colorJSON.get("value").asText();
 
 		String tableUpdateBody = "{\r\n" + "  \"key\": \"SUID\",\r\n" + "  \"dataKey\": \"SUID\",\r\n"
-				+ "  \"data\": [\r\n" + "    {\r\n" + "\"SUID\": 513,\r\n" + "\"passthrough_col\" : \"#FF0000\"\r\n"
+				+ "  \"data\": [\r\n" + "    {\r\n" + "\"SUID\": "+firstSuid+",\r\n" + "\"passthrough_col\" : \"#FF0000\"\r\n"
 				+ "}]}";
 
 		InputStream tableInputStream = new ByteArrayInputStream(tableUpdateBody.getBytes());

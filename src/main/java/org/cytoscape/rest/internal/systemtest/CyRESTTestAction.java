@@ -11,26 +11,31 @@ import org.cytoscape.rest.internal.resource.SessionResource;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
-public class CyRESTTestAction extends AbstractCyAction{
+public class CyRESTTestAction extends AbstractCyAction {
 
 	private final CyServiceRegistrar serviceRegistrar;
-	
+
 	public CyRESTTestAction(CyServiceRegistrar serviceRegistrar) {
 		super("Run CyREST system tests");
 		this.setPreferredMenu(CyRESTConstants.CY_REST_HELP_MENU_ANCHOR);
 		this.serviceRegistrar = serviceRegistrar;
-	
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		for (int i = 0; i < 1; i++) {
-			runTests();
-		}
-	}	
-	
+		Thread thread = new Thread(() -> {
+			for (int i = 0; i < 1; i++) {
+				runTests();
+			}
+		});
+		thread.start();
+	}
+
 	private void runTests() {
 		CyRESTTests cyRESTTests;
 		try {
@@ -39,40 +44,39 @@ public class CyRESTTestAction extends AbstractCyAction{
 			e2.printStackTrace();
 			return;
 		}
-		
-		long totalTestsRun = 0;
-		List<Method> failedTests = new ArrayList<Method>();
-		
+
+		LinkedHashMap<Method, Boolean> testsRun = new LinkedHashMap<Method, Boolean>();
 		Method[] methods = CyRESTTests.class.getMethods();
 		for (Method method : methods) {
 			if (method.getDeclaredAnnotationsByType(CyRESTTest.class).length > 0) {
-				System.out.print("Running: " + method.getName() + " ... ");
+				System.out.println("Running: " + method.getName() + " ... ");
 				try {
 					method.invoke(cyRESTTests);
-					System.out.println("PASS");
+					testsRun.put(method, true);
 				} catch (InvocationTargetException ex) {
-					System.out.println("");
 					ex.getCause().printStackTrace();
-					failedTests.add(method);
-				} catch (IllegalAccessException e1) {
+					testsRun.put(method, false);
+				} catch (Exception e1) {
 					e1.printStackTrace();
-				} catch (IllegalArgumentException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} finally {
-					totalTestsRun++;
 				}
 				afterEach();
 			}
 		}
-		
-		System.out.println("Tests completed: " + totalTestsRun);
-		System.out.println("Failures: " + failedTests.size());
-		for (Method method : failedTests) {
-			System.out.println(method.getName() + " Failed");
+
+		int failed = 0;
+		int passed = 0;
+		for (Map.Entry<Method, Boolean> entry : testsRun.entrySet()) {
+			System.out.println(entry.getKey().getName() + ":\t" + (entry.getValue() ? "PASSED" : "FAILED"));
+			failed += !entry.getValue() ? 1 : 0;
+			passed += entry.getValue() ? 1 : 0;
 		}
+		
+		System.out.println("Tests completed:\t" + testsRun.size());
+		System.out.println("Failed:\t" + failed);
+		System.out.println("Passed:\t" + passed);
+		
 	}
-	
+
 	private void afterEach() {
 		SessionResource sessionResource = serviceRegistrar.getService(SessionResource.class);
 		sessionResource.deleteSession();

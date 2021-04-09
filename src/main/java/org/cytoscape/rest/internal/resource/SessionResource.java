@@ -13,10 +13,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cytoscape.rest.internal.model.MessageModel;
+import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.rest.internal.model.FileModel;
 import org.cytoscape.rest.internal.model.SessionNameModel;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -43,6 +43,9 @@ public class SessionResource extends AbstractResource {
 
 	static final String RESOURCE_URN = "session";
 
+	@Inject
+	protected CyEventHelper cyEventHelper;
+	
 	@Override
 	public String getResourceURI() {
 		return RESOURCE_URN;
@@ -148,6 +151,7 @@ public class SessionResource extends AbstractResource {
 					"Could not open session.", 
 					logger, e);
 		}
+		cyEventHelper.flushPayloadEvents();
 		return new FileModel(sessionFile.getAbsolutePath());
 	}
 

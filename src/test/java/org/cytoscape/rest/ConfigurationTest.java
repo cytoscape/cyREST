@@ -12,6 +12,7 @@ import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
+import org.cytoscape.rest.internal.resource.EventFlushRequestFilter;
 import org.cytoscape.rest.internal.resource.EventFlushResponseFilter;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
@@ -62,12 +63,14 @@ public class ConfigurationTest
 
 		//For CORS
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,CORSFilter.class));
+		
+		assertTrue(contains(CyRESTConstants.coreResourceClasses,EventFlushRequestFilter.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses,EventFlushResponseFilter.class));
 		
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CIResponseFilter.class));
 		assertTrue(contains(CyRESTConstants.coreResourceClasses, CyExceptionMapper.class));
 		
-		assertEquals(23, CyRESTConstants.coreResourceClasses.length);
+		assertEquals(24, CyRESTConstants.coreResourceClasses.length);
 
 	}
 	

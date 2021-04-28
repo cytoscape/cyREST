@@ -18,6 +18,19 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+/**
+ * This class manages the installation of the OSGi JAX-RS Connector and its dependencies.
+ * 
+ * https://github.com/hstaudacher/osgi-jax-rs-connector
+ * 
+ * Unlike a standard JAR, this must be started and installed as an OSGi bundle.
+ * 
+ * Its dependencies are also bundles or collections of bundles called 'Features', which are included in Karaf's distribution.
+ * These bundles and features are installed and started first.
+ * 
+ * @author David Otasek
+ *
+ */
 public class OSGiJAXRSManager
 {
 	   private static final String SCHEMA_HTTP = "http";
@@ -69,7 +82,6 @@ public class OSGiJAXRSManager
 	private static final String JERSEY_MISC_PATH = "jersey-misc/";
 
 	private static final String[] JERSEY_MISC_BUNDLES = {
-			//JERSEY_MISC_PATH + "javax.annotation-api-1.2.jar",
 			JERSEY_MISC_PATH + "validation-api-1.1.0.Final.jar",
 			JERSEY_MISC_PATH + "javassist-3.18.1-GA.jar",
 			JERSEY_MISC_PATH + "mimepull-1.9.6.jar",
@@ -78,11 +90,7 @@ public class OSGiJAXRSManager
 	private static final String OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH = "osgi-jax-rs-connector/";
 
 	private static final String[] OSGI_JAX_RS_CONNECTOR_BUNDLES = {
-			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "javax.servlet-api-3.1.0.jar",
-			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "jersey-min-2.22.1.jar",
-			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "consumer-5.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "publisher-5.3.jar",
-			//OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "gson-2.3.jar",
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 

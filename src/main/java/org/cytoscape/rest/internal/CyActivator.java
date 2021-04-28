@@ -308,7 +308,10 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 
 				osgiJAXRSManager = new OSGiJAXRSManager();
 				this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
+				
+				
 				osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
+				
 				resourceManager.registerResourceServices();
 				serverState = ServerState.STARTED;
 				long startTime = System.currentTimeMillis() - start;

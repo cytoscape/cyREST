@@ -18,7 +18,5 @@ public class EventFlushRequestFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		cyEventHelper.flushPayloadEvents();
-		// System.out.println("Flushing events before model change: " +
-		// request.getMethod() + " "+ request.getUriInfo().getPath());
 	}
 }

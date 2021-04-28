@@ -18,10 +18,6 @@ public class EventFlushResponseFilter implements ContainerResponseFilter {
 
 	@Override
 	public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
-
 		cyEventHelper.flushPayloadEvents();
-		// System.out.println("Flushing events after model change: " +
-		// request.getMethod() + " "+ request.getUriInfo().getPath());
-
 	}
 }

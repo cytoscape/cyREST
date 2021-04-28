@@ -442,7 +442,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		result = target("/v1/styles/vs1/mappings/NODE_TOOLTIP").request().put(entity);
 		assertNotNull(result);
 		assertFalse(result.getStatus() == 500);
-		assertEquals(404, result.getStatus());
+		assertEquals(200, result.getStatus());
 		System.out.println("res: " + result.toString());
 	}
 

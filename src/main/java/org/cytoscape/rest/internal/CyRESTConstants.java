@@ -8,6 +8,7 @@ import org.cytoscape.rest.internal.resource.CORSFilter;
 import org.cytoscape.rest.internal.resource.CollectionResource;
 import org.cytoscape.rest.internal.resource.CyExceptionMapper;
 import org.cytoscape.rest.internal.resource.CyRESTCommandSwagger;
+import org.cytoscape.rest.internal.resource.EventFlushRequestFilter;
 import org.cytoscape.rest.internal.resource.EventFlushResponseFilter;
 import org.cytoscape.rest.internal.resource.GlobalTableResource;
 import org.cytoscape.rest.internal.resource.GroupResource;
@@ -56,6 +57,7 @@ public class CyRESTConstants {
 			CIResponseFilter.class,
 			
 			//For event flushing
+			EventFlushRequestFilter.class,
 			EventFlushResponseFilter.class,
 			
 			//For Error Handling

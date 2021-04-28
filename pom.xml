@@ -27,7 +27,7 @@
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
 
-	<version>3.12.1-SNAPSHOT</version>
+	<version>3.12.2-SNAPSHOT</version>
 
 	<packaging>bundle</packaging>
 	<name>cyREST</name>

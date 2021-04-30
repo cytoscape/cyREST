@@ -27,8 +27,16 @@ From Cytoscape 3.3.0, cyREST is a ___Core App___:
 __An app to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://www.rstudio.com/), [Jupyter Notebook](http://jupyter.org/), [Node.js](http://nodejs.org/) or other programming languages.__
 
 ## System Requirements
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* [Cytoscape 3.5.0+](http://www.cytoscape.org/)
+* [Java 11](https://adoptopenjdk.net/)
+* [Cytoscape 3.8.0+](http://www.cytoscape.org/)
+
+## Building CyREST
+
+CyREST can be built with Maven:
+
+```mvn clean install```
+
+Code coverage for tests is reported here: ```/target/site/jacoco/index.html```
 
 ## Documentation
 * CyREST API docs are available within Cytoscape main menu through the `Help &rarr; Automation sub-menu`.

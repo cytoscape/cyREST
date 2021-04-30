@@ -30,17 +30,13 @@ __An app to control [Cytoscape](http://www.cytoscape.org) from [RStudio](http://
 * [Java 11](https://adoptopenjdk.net/)
 * [Cytoscape 3.8.0+](http://www.cytoscape.org/)
 
-## Building CyREST
-
-CyREST can be built with Maven:
-
-```mvn clean install```
-
-Code coverage for tests is reported here: ```/target/site/jacoco/index.html```
-
 ## Documentation
 * CyREST API docs are available within Cytoscape main menu through the `Help &rarr; Automation sub-menu`.
 * [cyREST Wiki](https://github.com/cytoscape/cyREST/wiki)
+
+### For Developers and Maintainers
+
+Build instructions and notes are included in the [Developers Guide](https://github.com/cytoscape/cyREST/wiki/Developers-Guide)
 
 ## Problems or Feature Requests?
 Please send your feature requests to our [mailing list](https://groups.google.com/forum/#!forum/cytoscape-discuss).

@@ -546,6 +546,13 @@
 		<!-- 3rd party libraries -->
 		<!-- osgi jax-rs bundles -->
 
+		<!-- Important: javax.ws.rs-api must always have 'provided' scope in CyREST and in Cytoscape Apps. Provided dependencies are those that 
+		are available within the running OSGi context. This ensures CyREST and all apps will share the same dependency. With a different scope, 
+		javax.ws.rs-api classes will be , and class equalities will not function as intended, preventing CyREST from loading
+		services as REST endpoints.
+		
+		Should this need to be updated, the actual dependency is defined in \gui-distribution\features\src\main\resources\features.xml
+		 -->
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>

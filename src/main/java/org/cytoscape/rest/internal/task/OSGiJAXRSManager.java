@@ -94,11 +94,21 @@ public class OSGiJAXRSManager
 			OSGI_JAX_RS_CONNECTOR_BUNDLES_PATH + "provider-gson-2.3.jar",
 	};
 
+	/**
+	 * Installs and starts features and individual bundles required for the OSGi JAX-RS Connector.
+	 * 
+	 * @param bundleContext
+	 * @param featuresService
+	 * @param port
+	 * @throws Exception
+	 */
 	public void installOSGiJAXRSBundles(BundleContext bundleContext, FeaturesService featuresService, String port) throws Exception 
 	{
 		context = bundleContext;
 		
+		// There are two jetty features included in Karaf 4.2.8; we must specify the latest one.
 		installFeature(context, featuresService.getFeature("jetty", "9.4.22.v20191022"));
+		
 		installFeature(context, featuresService.getFeature("scr"));
 		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));
@@ -115,10 +125,27 @@ public class OSGiJAXRSManager
 		installBundlesFromResources(bundleContext, JERSEY_MISC_BUNDLES);
 		installBundlesFromResources(bundleContext, HK2_BUNDLES);
 		installBundlesFromResources(bundleContext, GLASSFISH_JERSEY_BUNDLES);
+		
+		// These are the main OSGi JAX-RS Connector bundles.
 		installBundlesFromResources(bundleContext, OSGI_JAX_RS_CONNECTOR_BUNDLES);
 
 	}
 
+	/**
+	 * This function installs a standard Karaf Feature, a collection of bundles defined in the Karaf framework in this file:
+	 * 
+	 * cytoscape\framework\system\org\apache\karaf\features\standard\4.2.8\standard-4.2.8-features.xml
+	 * 
+	 * Note that there is no requirement to use these Features; different combinations of Bundles might satisfy the same requirements 
+	 * and could be installed using the installBundlesFromResources(...) method. However, Karaf maintains these features from release to
+	 * release, so using them instead of composing them ourselves reduces our workload. Should we need fall back on installBundlesFromResources, 
+	 * the contents of the karaf features xml file could be used to compose our own features.
+	 * 
+	 * @param bc
+	 * @param feature 
+	 * @throws BundleException
+	 * @throws IOException
+	 */
 	private void installFeature(BundleContext bc, Feature feature) throws BundleException, IOException{
 		if (feature == null) {
 			return;
@@ -133,6 +160,12 @@ public class OSGiJAXRSManager
 		}
 	}
 	
+	/**
+	 * Configures the root path for the http server using the configuration for the OSGi JAX-RS Connector
+	 * 
+	 * @param context
+	 * @throws Exception
+	 */
 	private void setRootResourceConfig(BundleContext context) throws Exception
 	{
 		ServiceReference configurationAdminReference = 
@@ -187,6 +220,16 @@ public class OSGiJAXRSManager
 		}
 	}
 
+	/**
+	 * Installs and starts OSGi bundles, in order, from JAR files included as resources for the CyREST bundle.
+	 * 
+	 * Note that the order of bundle loading is extremely important. For some bundles to work, others must already be installed and started.
+	 * 
+	 * @param bundleContext
+	 * @param resources
+	 * @throws BundleException
+	 * @throws IOException
+	 */
 	private void installBundlesFromResources(BundleContext bundleContext, final String[] resources) throws BundleException, IOException
 	{	
 		List<Bundle> bundleList = new LinkedList<Bundle>();
@@ -204,6 +247,17 @@ public class OSGiJAXRSManager
 		}
 	}
 
+	/**
+	 * Install an OSGi bundle included as a resource in the main CyREST bundle.
+	 * 
+	 * These are added in the pom.xml file using the maven-dependency-plugin
+	 * 
+	 * @param bundleContext
+	 * @param resourceName
+	 * @return
+	 * @throws BundleException
+	 * @throws IOException
+	 */
 	private Bundle installBundleFromResource(BundleContext bundleContext, String resourceName) throws BundleException, IOException
 	{
 		Bundle bundle = null;

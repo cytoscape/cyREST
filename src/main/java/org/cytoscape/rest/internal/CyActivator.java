@@ -284,6 +284,18 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		STOPPED
 	}
 
+	/**
+	 * Checks against the cyrest.version property to see if this version of CyREST is different from the previous one installed.
+	 * 
+	 * This is necessary to ensure that only one version of CyREST is functional. Since Cytoscape Apps don't always release services,
+	 * bundles from older versions of CyREST occasionally do not stop or uninstall cleanly. This means that the running CyREST can't 
+	 * guarantee that dependencies are correct, and not dependencies from an older CyREST.
+	 * 
+	 * If an older version of CyREST is detected, Cytoscape will suggest a restart, and update the cyrest.version to the current version.
+	 * 
+	 * @param bc
+	 * @return true if the cyrest.version is different from the current version.
+	 */
 	private boolean suggestRestart(BundleContext bc) {
 		Bundle defaultBundle = bc.getBundle();	
 		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class,
@@ -309,7 +321,7 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				osgiJAXRSManager = new OSGiJAXRSManager();
 				this.initDependencies(bc, cyPropertyListener, cyPropertyServiceRef, this.cyRESTPort);
 				
-				
+				//Install the OSGi JAX-RS Connector and its dependencies.
 				osgiJAXRSManager.installOSGiJAXRSBundles(bc, featuresService, this.cyRESTPort);
 				
 				resourceManager.registerResourceServices();

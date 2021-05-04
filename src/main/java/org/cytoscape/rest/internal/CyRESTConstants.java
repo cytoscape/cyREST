@@ -56,7 +56,7 @@ public class CyRESTConstants {
 			//For CI
 			CIResponseFilter.class,
 			
-			//For event flushing
+			//These filters ensure CyREST is in sync with Cytoscape events.
 			EventFlushRequestFilter.class,
 			EventFlushResponseFilter.class,
 			

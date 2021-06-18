@@ -457,6 +457,7 @@ public class AlgorithmicResource extends AbstractResource {
 		vmm.setVisualStyle(targetStyle, view);
 		vmm.setCurrentVisualStyle(targetStyle);
 		targetStyle.apply(view);
+		view.updateView();
 
 		return new MessageModel("Visual Style applied.");
 	}

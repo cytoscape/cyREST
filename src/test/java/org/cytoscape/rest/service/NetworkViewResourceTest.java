@@ -454,7 +454,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(root);
 		System.out.println(root);
 		assertTrue(root.isArray());
-		assertEquals(lexicon.getAllDescendants(BasicVisualLexicon.NODE).size(), root.size());
+		assertEquals(lexicon.getAllDescendants(BasicVisualLexicon.NODE).size()-1, root.size());
 		
 		final Map<String, String> vps = new HashMap<>();
 		for(JsonNode n: root) {

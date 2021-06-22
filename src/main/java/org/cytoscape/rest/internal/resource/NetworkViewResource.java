@@ -92,7 +92,7 @@ public class NetworkViewResource extends AbstractResource {
 	// Filter rendering engine by ID.
 	private static final String DING_ID = "org.cytoscape.ding";
 
-	private static final String DEF_WIDTH = "600";
+	//private static final String DEF_WIDTH = "600";
 	private static final String DEF_HEIGHT = "600";
 
 	static final String RESOURCE_URN = "networks:views";
@@ -176,10 +176,14 @@ public class NetworkViewResource extends AbstractResource {
 	private final void initLexicon() {
 		// Prepare lexicon
 		this.lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
-		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
+		//remove node_size from the lexicon because it is not an actual visual property.
+		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE)
+				.stream()
+				.filter( x -> ! x.getIdString().equals(BasicVisualLexicon.NODE_SIZE.getIdString()))
+				.collect(Collectors.toCollection(HashSet::new));
 		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
 		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK).stream()
-				.filter(vp->vp.getIdString().startsWith("NETWORK")).collect(Collectors.toSet());;
+				.filter(vp->vp.getIdString().startsWith("NETWORK")).collect(Collectors.toSet());
 
 	}
 
@@ -218,7 +222,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		try {
 			final Collection<CyNetworkView> views = this.networkViewManager.getNetworkViews(getCyNetwork(NETWORK_NOT_FOUND_ERROR, networkId));
-			final Set<CyNetworkView> toBeDestroyed = new HashSet<CyNetworkView>(views);
+			final Set<CyNetworkView> toBeDestroyed = new HashSet<>(views);
 			for (final CyNetworkView view : toBeDestroyed) {
 				networkViewManager.destroyNetworkView(view);
 			}
@@ -374,7 +378,7 @@ public class NetworkViewResource extends AbstractResource {
 	public Collection<Long> getAllNetworkViews(
 			@ApiParam(value="SUID of the Network", required=true) @PathParam("networkId") Long networkId) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
-		final Collection<Long> suids = new HashSet<Long>();
+		final Collection<Long> suids = new HashSet<>();
 
 		for (final CyNetworkView view : views) {
 			final Long viewId = view.getSUID();
@@ -385,8 +389,8 @@ public class NetworkViewResource extends AbstractResource {
 
 	private final String getNetworkViewString(final CyNetworkView networkView) {
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CyNetworkViewWriterFactory cytoscapeJsWriterFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
-		CyWriter writer = cytoscapeJsWriterFactory.createWriter(stream, networkView);
+		CyNetworkViewWriterFactory cytoscapeJsWtrFactory = (CyNetworkViewWriterFactory) this.cytoscapeJsWriterFactory.getService();
+		CyWriter writer = cytoscapeJsWtrFactory.createWriter(stream, networkView);
 		String jsonString = null;
 		try {
 			writer.run(null);
@@ -906,7 +910,7 @@ public class NetworkViewResource extends AbstractResource {
 		final CyNetworkView networkView = getView(networkId, viewId);
 
 		View<? extends CyIdentifiable> view = getObjectView(networkView, objectType, objectId);
-		Collection<VisualProperty<?>> lexicon = getVisualProperties(objectType);
+		Collection<VisualProperty<?>> lex = getVisualProperties(objectType);
 
 		if(view == null) {
 			//throw getError("Could not find view.", new IllegalArgumentException(), Response.Status.NOT_FOUND);
@@ -918,7 +922,7 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		try {
-			return styleSerializer.serializeView(view, lexicon);
+			return styleSerializer.serializeView(view, lex);
 		} catch (IOException e) {
 			//throw getError("Could not serialize the view object.", e, Response.Status.INTERNAL_SERVER_ERROR);
 			throw this.getCIWebApplicationException(Status.INTERNAL_SERVER_ERROR.getStatusCode(), 
@@ -1065,7 +1069,7 @@ public class NetworkViewResource extends AbstractResource {
 
 	}
 
-	private CyNetworkView getNetworkViewCI(long networkId, long viewId) throws WebApplicationException {
+	private CyNetworkView getNetworkViewCI(Long networkId, Long viewId) throws WebApplicationException {
 		CyNetworkView networkView = null;
 		try {
 			networkView = getView(networkId, viewId);
@@ -1437,15 +1441,19 @@ public class NetworkViewResource extends AbstractResource {
 		}
 
 		final Collection<VisualProperty<?>> vps = new HashSet<>();
-		VisualProperty<?> vp = null;
+		//VisualProperty<?> vp = null;
 
 		if(objectType.equals("nodes")) {
-			vp = lexicon.lookup(CyNode.class, visualPropertyName);
+			if ( visualPropertyName.equals(BasicVisualLexicon.NODE_SIZE.getIdString())) {
+				vps.add(lexicon.lookup(CyNode.class, BasicVisualLexicon.NODE_WIDTH.getIdString()));
+				vps.add(lexicon.lookup(CyNode.class, BasicVisualLexicon.NODE_HEIGHT.getIdString()));
+			} else 
+				vps.add( lexicon.lookup(CyNode.class, visualPropertyName));
 		} else if(objectType.equals("edges")) {
-			vp = lexicon.lookup(CyEdge.class, visualPropertyName);
+			vps.add( lexicon.lookup(CyEdge.class, visualPropertyName));
 		}
 
-		if(vp == null) {
+		if(vps.size() == 0) {
 			//throw getError("Visual Property does not exist: " + visualPropertyName, new NotFoundException(), Response.Status.NOT_FOUND);
 			throw this.getCIWebApplicationException(Status.NOT_FOUND.getStatusCode(), 
 					getResourceURI(), 
@@ -1454,7 +1462,7 @@ public class NetworkViewResource extends AbstractResource {
 					getResourceLogger(), null);
 		}
 
-		vps.add(vp);
+		//vps.add(vp);
 		return getViewForVPList(networkId, viewId, objectType, vps);
 
 	}

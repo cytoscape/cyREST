@@ -4,7 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
 import java.awt.Paint;
@@ -14,12 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.never;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -454,7 +452,7 @@ public class NetworkViewResourceTest extends BasicResourceTest {
 		assertNotNull(root);
 		System.out.println(root);
 		assertTrue(root.isArray());
-		assertEquals(lexicon.getAllDescendants(BasicVisualLexicon.NODE).size()-1, root.size());
+		assertEquals(lexicon.getAllDescendants(BasicVisualLexicon.NODE).size(), root.size());
 		
 		final Map<String, String> vps = new HashMap<>();
 		for(JsonNode n: root) {

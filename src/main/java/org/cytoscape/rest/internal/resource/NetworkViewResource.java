@@ -176,11 +176,7 @@ public class NetworkViewResource extends AbstractResource {
 	private final void initLexicon() {
 		// Prepare lexicon
 		this.lexicon = getLexicon(NO_VISUAL_LEXICON_ERROR);
-		//remove node_size from the lexicon because it is not an actual visual property.
-		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE)
-				.stream()
-				.filter( x -> ! x.getIdString().equals(BasicVisualLexicon.NODE_SIZE.getIdString()))
-				.collect(Collectors.toCollection(HashSet::new));
+		nodeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NODE);
 		edgeLexicon = lexicon.getAllDescendants(BasicVisualLexicon.EDGE);
 		networkLexicon = lexicon.getAllDescendants(BasicVisualLexicon.NETWORK).stream()
 				.filter(vp->vp.getIdString().startsWith("NETWORK")).collect(Collectors.toSet());
@@ -1444,13 +1440,9 @@ public class NetworkViewResource extends AbstractResource {
 		//VisualProperty<?> vp = null;
 
 		if(objectType.equals("nodes")) {
-			if ( visualPropertyName.equals(BasicVisualLexicon.NODE_SIZE.getIdString())) {
-				vps.add(lexicon.lookup(CyNode.class, BasicVisualLexicon.NODE_WIDTH.getIdString()));
-				vps.add(lexicon.lookup(CyNode.class, BasicVisualLexicon.NODE_HEIGHT.getIdString()));
-			} else 
-				vps.add( lexicon.lookup(CyNode.class, visualPropertyName));
+			vps.add(lexicon.lookup(CyNode.class, visualPropertyName));
 		} else if(objectType.equals("edges")) {
-			vps.add( lexicon.lookup(CyEdge.class, visualPropertyName));
+			vps.add(lexicon.lookup(CyEdge.class, visualPropertyName));
 		}
 
 		if(vps.size() == 0) {

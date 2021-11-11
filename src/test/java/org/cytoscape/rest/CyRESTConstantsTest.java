@@ -25,7 +25,12 @@ public class CyRESTConstantsTest {
 		  This isn't as good as being able to set it directly via a maven property, but if this test fails,
 		  at least you can be directed to where you're diverging the code from the maven properties.
 		*/
-		assertEquals(System.getProperty("cytoscape.api.version"), CyRESTConstants.CYTOSCAPE_API_VERSION);
+		var prop = System.getProperty("cytoscape.api.version");
+		
+		// this property can be null when running the tests from inside eclipse
+		if(prop != null) {
+			assertEquals(prop, CyRESTConstants.CYTOSCAPE_API_VERSION);
+		}
 	}
 	
 }

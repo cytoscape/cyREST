@@ -328,15 +328,17 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				serverState = ServerState.STARTED;
 				long startTime = System.currentTimeMillis() - start;
 				logger.info("cyREST API Server initialized in " + startTime + "msec");
-			} 
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("Failed to initialize cyREST server.", e);
 				serverState = ServerState.FAILED_INITIALIZATION;
+			} catch (Error e) {
+				e.printStackTrace();
+				logger.error("Failed to initialize cyREST server.", e);
+				serverState = ServerState.FAILED_INITIALIZATION;
+				throw e;
 			}
-		}
-
-				);
+		});
 	}
 
 	@Override

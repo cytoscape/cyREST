@@ -43,7 +43,7 @@ import org.cytoscape.command.CommandExecutorTaskFactory;
 
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.NetworkViewTestSupport;
-import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
+import org.cytoscape.cg.model.CustomGraphicsManager;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
@@ -879,7 +879,7 @@ public class BasicResourceTest extends JerseyTest {
 
 	private VisualStyle initStyle() throws Exception {
 		final CustomGraphicsManager cgManager = mock(CustomGraphicsManager.class);
-		lexicon = new DVisualLexicon(cgManager);
+		lexicon = new DVisualLexicon();
 
 		final CyEventHelper eventHelper = mock(CyEventHelper.class);
 

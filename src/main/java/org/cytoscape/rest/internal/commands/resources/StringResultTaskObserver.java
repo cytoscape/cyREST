@@ -10,6 +10,7 @@ import org.cytoscape.work.TaskObserver;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.log.LogLevel;
 
 public class StringResultTaskObserver extends CommandResourceTaskObserver implements PaxAppender, TaskObserver {
 	
@@ -64,17 +65,18 @@ public class StringResultTaskObserver extends CommandResourceTaskObserver implem
 	}
 	
 	public void doAppend(PaxLoggingEvent event) {
-		// System.out.println(event.getLevel().toInt() + ": " + event.getMessage());
-		// Get prefix
-		// Handle levels
-		
-
-		PaxLevel level = event.getLevel();
-		if (level.toInt() == 40000)
-			messageHandler.appendError(event.getMessage());
-		else if (level.toInt() == 30000)
-			messageHandler.appendWarning(event.getMessage());
-		else
-			messageHandler.appendMessage(event.getMessage());
+		String message = event.getMessage();
+		switch(event.getLevel().toLevel()) {
+		case AUDIT:
+		case ERROR:
+			messageHandler.appendError(message);
+			break;
+		case WARN:
+			messageHandler.appendWarning(message);
+			break;
+		default:
+			messageHandler.appendMessage(message);
+			break;
+		}
 	}
 }

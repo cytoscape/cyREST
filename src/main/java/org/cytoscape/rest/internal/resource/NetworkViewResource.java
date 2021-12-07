@@ -307,7 +307,8 @@ public class NetworkViewResource extends AbstractResource {
 	public Response getNetworkViewAsCx(
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
-			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file) {
+			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file,
+			@ApiParam(value="CX version, either '1' or '2'") @DefaultValue("1") @QueryParam("version") String cxVersion ) {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 
 		CyNetworkView targetView = null;
@@ -318,14 +319,18 @@ public class NetworkViewResource extends AbstractResource {
 				break;
 			}
 		}
-
+	
+		boolean isCX2 = cxVersion.equals("2");
+		
 		if(targetView == null) {
 			//FIXME This should likely be an error.
 			return Response.ok("{}").build();
 		} else {
 
 			final CyNetworkViewWriterFactory cxWriterFactory = 
-					viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
+					viewWriterFactoryManager.getFactory(
+							( isCX2 ? CyNetworkViewWriterFactoryManager.CX2_WRITER_ID:
+							CyNetworkViewWriterFactoryManager.CX_WRITER_ID));
 			if(cxWriterFactory == null) {
 				//throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
 				//		new RuntimeException(), Status.NOT_IMPLEMENTED);
@@ -335,7 +340,7 @@ public class NetworkViewResource extends AbstractResource {
 						"CX writer is not available.  Please install CX Support App to use this API.", 
 						getResourceLogger(), null);
 			} else {
-				return Response.ok(getNetworkViewStringAsCX(targetView)).build();
+				return Response.ok(getNetworkViewStringAsCX(targetView, cxWriterFactory)).build();
 			}
 		}
 	}
@@ -398,9 +403,10 @@ public class NetworkViewResource extends AbstractResource {
 		return jsonString;
 	}
 
-	private final String getNetworkViewStringAsCX(final CyNetworkView networkView) {
-		final CyNetworkViewWriterFactory cxWriterFactory = 
-				viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);
+	private final static String getNetworkViewStringAsCX(final CyNetworkView networkView,
+			CyNetworkViewWriterFactory cxWriterFactory) {
+		/*final CyNetworkViewWriterFactory cxWriterFactory = 
+				viewWriterFactoryManager.getFactory(CyNetworkViewWriterFactoryManager.CX_WRITER_ID);*/
 
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		CyWriter writer = cxWriterFactory.createWriter(stream, networkView);

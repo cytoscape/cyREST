@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
@@ -308,7 +311,7 @@ public class NetworkViewResource extends AbstractResource {
 			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
 			@ApiParam(value="SUID of the Network View") @PathParam("viewId") Long viewId,
 			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file,
-			@ApiParam(value="CX version, either '1' or '2'") @DefaultValue("1") @QueryParam("version") String cxVersion ) {
+			@ApiParam(value="CX version, either '1' or '2'") @DefaultValue("1") @QueryParam("version") String cxVersion ) throws Exception {
 		final Collection<CyNetworkView> views = this.getCyNetworkViews(NETWORK_NOT_FOUND_ERROR, NO_VIEWS_FOR_NETWORK_ERROR, networkId);
 
 		CyNetworkView targetView = null;
@@ -325,13 +328,13 @@ public class NetworkViewResource extends AbstractResource {
 		if(targetView == null) {
 			//FIXME This should likely be an error.
 			return Response.ok("{}").build();
-		} else {
-
-			final CyNetworkViewWriterFactory cxWriterFactory = 
+		} 
+		
+		CyNetworkViewWriterFactory cxWriterFactory = 
 					viewWriterFactoryManager.getFactory(
 							( isCX2 ? CyNetworkViewWriterFactoryManager.CX2_WRITER_ID:
 							CyNetworkViewWriterFactoryManager.CX_WRITER_ID));
-			if(cxWriterFactory == null) {
+		if(cxWriterFactory == null) {
 				//throw getError("CX writer is not supported.  Please install CX Support App to use this API.", 
 				//		new RuntimeException(), Status.NOT_IMPLEMENTED);
 				throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), 
@@ -339,12 +342,52 @@ public class NetworkViewResource extends AbstractResource {
 						CX_SERVICE_UNAVAILABLE_ERROR, 
 						"CX writer is not available.  Please install CX Support App to use this API.", 
 						getResourceLogger(), null);
-			} else {
-				return Response.ok(getNetworkViewStringAsCX(targetView, cxWriterFactory)).build();
-			}
 		}
+		
+		PipedInputStream pin = new PipedInputStream();
+		PipedOutputStream out;
+		
+		try {
+			out = new PipedOutputStream(pin);
+		} catch (IOException e) {
+			try {
+				pin.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			throw new Exception("IOExcetion when creating the piped output stream: "+ e.getMessage());
+		}
+		
+		new CXWriterThread(out, targetView, cxWriterFactory).start();
+		return 	Response.ok().entity(pin).build();
+		//return Response.ok(getNetworkViewStringAsCX(targetView, cxWriterFactory)).build();
+		
 	}
 
+	private class CXWriterThread extends Thread {
+		
+		private OutputStream out;
+		private CyNetworkView targetView;
+		private CyNetworkViewWriterFactory cxWriterFactory;
+		
+		public CXWriterThread (OutputStream out, CyNetworkView targetView, CyNetworkViewWriterFactory cxWriterFactory) {
+			this.out = out;
+			this.targetView = targetView;
+			this.cxWriterFactory = cxWriterFactory;
+		}
+		
+		@Override
+		public void run() {
+			CyWriter writer = cxWriterFactory.createWriter(out, targetView);
+			try {
+				writer.run(null);
+			} catch (Exception e) {
+				//TODO: handle error properly
+				e.printStackTrace();
+			}
+		}	
+	}
+	
 	private final Map<String, String> writeNetworkFile(String file, CyNetworkView view) {
 		File networkFile = null;
 		try {

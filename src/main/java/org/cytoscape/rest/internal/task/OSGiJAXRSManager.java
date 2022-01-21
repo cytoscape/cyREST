@@ -107,7 +107,7 @@ public class OSGiJAXRSManager
 		context = bundleContext;
 		
 		// There are two jetty features included in Karaf 4.2.8; we must specify the latest one.
-		installFeature(context, featuresService.getFeature("jetty", "9.4.28.v20200408"));
+		installFeature(context, featuresService.getFeature("jetty", "9.4.22.v20191022"));
 		
 		installFeature(context, featuresService.getFeature("scr"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));

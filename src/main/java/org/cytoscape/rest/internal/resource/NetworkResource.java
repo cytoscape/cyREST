@@ -1,8 +1,23 @@
 package org.cytoscape.rest.internal.resource;
 
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.EDGE_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INTERNAL_METHOD_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.INVALID_PARAMETER_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.NETWORK_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.NETWORK_POINTER_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.NETWORK_VIEW_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.NODE_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.NODE_TYPE_NOT_FOUND_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.SERIALIZATION_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.SERVICE_UNAVAILABLE_ERROR;
+import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.URL_ERROR;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -21,25 +36,27 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.WebApplicationException;
 
 import org.cytoscape.ci.model.CIResponse;
 import org.cytoscape.io.read.AbstractCyNetworkReader;
 import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.io.read.InputStreamTaskFactory;
+import org.cytoscape.io.write.CyNetworkViewWriterFactory;
+import org.cytoscape.io.write.CyWriter;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyEdge.Type;
@@ -51,12 +68,13 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
+import org.cytoscape.rest.internal.CyNetworkViewWriterFactoryManager;
 import org.cytoscape.rest.internal.CyRESTConstants;
 import org.cytoscape.rest.internal.model.CountModel;
+import org.cytoscape.rest.internal.model.CreatedCyEdgeModel;
 import org.cytoscape.rest.internal.model.EdgeModel;
 import org.cytoscape.rest.internal.model.NetworkSUIDModel;
 import org.cytoscape.rest.internal.model.NetworkViewSUIDModel;
-import org.cytoscape.rest.internal.model.CreatedCyEdgeModel;
 import org.cytoscape.rest.internal.model.NodeModel;
 import org.cytoscape.rest.internal.model.SUIDNameModel;
 import org.cytoscape.rest.internal.task.HeadlessTaskMonitor;
@@ -83,8 +101,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
-import static org.cytoscape.rest.internal.resource.NetworkErrorConstants.*;
 
 @Api(tags = {CyRESTSwagger.CyRESTSwaggerConfig.NETWORKS_TAG})
 @Singleton
@@ -260,7 +276,77 @@ public class NetworkResource extends AbstractResource {
 		return Response.ok(ciResponseFactory.getCIResponse(entity)).build();
 	}
 	
+	@GET
+	@Path("/{networkId}.cx")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get a Network in CX format", 
+	notes="Returns the Network specified by the `networkId` parameters in [CX format]("+CyRESTConstants.CX_FILE_FORMAT_LINK+")")
+	public Response getNetworkAsCx(
+			@ApiParam(value="SUID of the Network") @PathParam("networkId") Long networkId, 
+			@ApiParam(hidden=true, value="File (unused)") @QueryParam("file") String file,
+			@ApiParam(value="CX version, either '1' or '2'") @DefaultValue("1") @QueryParam("version") String cxVersion ) throws Exception {
+		
+		final CyNetwork network = networkManager.getNetwork(networkId);
+	
+		boolean isCX2 = cxVersion.equals("2");
+	
+		CyNetworkViewWriterFactory cxWriterFactory = 
+				viewWriterFactoryManager.getFactory(
+						( isCX2 ? CyNetworkViewWriterFactoryManager.CX2_WRITER_ID:
+						CyNetworkViewWriterFactoryManager.CX_WRITER_ID));
+		if (cxWriterFactory == null) {
+			// throw getError("CX writer is not supported. Please install CX Support App to
+			// use this API.",
+			// new RuntimeException(), Status.NOT_IMPLEMENTED);
+			throw this.getCIWebApplicationException(Status.SERVICE_UNAVAILABLE.getStatusCode(), getResourceURI(),
+					NetworkViewResource.CX_SERVICE_UNAVAILABLE_ERROR,
+					"CX writer is not available.  Please install CX Support App to use this API.", getResourceLogger(),
+					null);
+		}
 
+		PipedInputStream pin = new PipedInputStream();
+		PipedOutputStream out;
+
+		try {
+			out = new PipedOutputStream(pin);
+		} catch (IOException e) {
+			try {
+				pin.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			throw new Exception("IOExcetion when creating the piped output stream: " + e.getMessage());
+		}
+
+		new CXSubNetWriterThread(out, network, cxWriterFactory).start();
+		return Response.ok().entity(pin).build();
+		
+	}
+	
+	private class CXSubNetWriterThread extends Thread {
+		
+		private OutputStream out;
+		private CyNetwork target;
+		private CyNetworkViewWriterFactory cxWriterFactory;
+		
+		public CXSubNetWriterThread (OutputStream out, CyNetwork targetSubNet, CyNetworkViewWriterFactory cxWriterFactory) {
+			this.out = out;
+			this.target = targetSubNet;
+			this.cxWriterFactory = cxWriterFactory;
+		}
+		
+		@Override
+		public void run() {
+			CyWriter writer = cxWriterFactory.createWriter(out, target);
+			try {
+				writer.run(null);
+			} catch (Exception e) {
+				//TODO: handle error properly
+				e.printStackTrace();
+			}
+		}	
+	}
+	
 	@GET
 	@Path("/{networkId}/nodes/count")
 	@Produces(MediaType.APPLICATION_JSON)

@@ -110,7 +110,9 @@ public class NetworkResource extends AbstractResource {
 	
 	
 	private static final String CX_READER_ID = "cytoscapeCxNetworkReaderFactory";
+	private static final String CX2_READER_ID = "cytoscapeCx2NetworkReaderFactory";
 	private static final String CX_FORMAT = "cx";
+	private static final String CX2_FORMAT = "cx2";
 
 	private static final String RESOURCE_URN = "networks";
 
@@ -1023,6 +1025,7 @@ public class NetworkResource extends AbstractResource {
 			+ "| -------- | -------    |\n"
 			+ "| edgeList | [SIF]("+CyRESTConstants.SIF_FILE_FORMAT_LINK+") format |\n"
 			+ "| cx       | [CX]("+CyRESTConstants.CX_FILE_FORMAT_LINK+") format |\n"
+			+ "| cx2      | [CX2]("+CyRESTConstants.CX_FILE_FORMAT_LINK+") format |\n"
 			+ "| json     | [Cytoscape.js]("+CyRESTConstants.CYTOSCAPE_JS_FILE_FORMAT_LINK+") format |\n"
 			+ "If the `source` parameter is left unspecified, the message body should contain data in the format specified by the `format` parameter.\n\n"
 			+ "\n"
@@ -1042,7 +1045,7 @@ public class NetworkResource extends AbstractResource {
 	public String createNetwork(
 			@ApiParam(value="The name of the network collection to add new networks to. If the collection does not exist, it will be created.") @QueryParam("collection") String collection,
 			@ApiParam(value="Set this to `url` to treat the message body as a list of urls.", allowableValues="url,", required=false) @QueryParam("source") String source, 
-			@ApiParam(value="The format of the source data." , allowableValues="edgelist,json,cx") @QueryParam("format") String format, 
+			@ApiParam(value="The format of the source data." , allowableValues="edgelist,json,cx,cx2") @QueryParam("format") String format, 
 			@ApiParam(value="Name of the new network. This is only used if the network name cannot be set directly in source data.") @QueryParam("title") String title,
 			@ApiParam(value="Source data. This is either the data to be loaded, or a list of URLs from which to load data." ) final InputStream is,
 			@Context HttpHeaders headers) {
@@ -1082,11 +1085,16 @@ public class NetworkResource extends AbstractResource {
 		if (format != null && format.trim().equals(JsonTags.FORMAT_EDGELIST)) {
 			it = edgeListReaderFactory.createTaskIterator(is, collection);
 		} else if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
-			// Special case: load as CX
+			//load as CX
 			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
 			it = readerFactory.createTaskIterator(is, collection);
 			
-		} else {
+		} else if (format != null && format.equalsIgnoreCase(CX2_FORMAT)) {
+			//load as CX2
+			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX2_READER_ID);
+			it = readerFactory.createTaskIterator(is, collection);
+			
+		}else {
 			
 			InputStreamTaskFactory cytoscapeJsReaderFactory = (InputStreamTaskFactory) this.cytoscapeJsReaderFactory.getService();
 			if (cytoscapeJsReaderFactory == null)
@@ -1332,11 +1340,16 @@ public class NetworkResource extends AbstractResource {
 
 		TaskIterator itr = null;
 		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
-			// Special case: load as CX
+			//load as CX
 			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX_READER_ID);
 			final URL source = new URL(sourceUrl);
 			itr = readerFactory.createTaskIterator(source.openStream(), "cx collection");
-		} else {
+		} else if (format != null && format.equalsIgnoreCase(CX2_FORMAT)) {
+			//load as CX
+			InputStreamTaskFactory readerFactory = tfManager.getInputStreamTaskFactory(CX2_READER_ID);
+			final URL source = new URL(sourceUrl);
+			itr = readerFactory.createTaskIterator(source.openStream(), "cx collection");
+		}  else {
 			itr = loadNetworkURLTaskFactory.loadCyNetworks(new URL(sourceUrl));
 		}
 
@@ -1396,13 +1409,13 @@ public class NetworkResource extends AbstractResource {
 		results.put(sourceUrl, suids);
 
 		// Special case: CX
-		if (format != null && format.equalsIgnoreCase(CX_FORMAT)) {
+		if (format != null && (format.equalsIgnoreCase(CX_FORMAT)|| format.equalsIgnoreCase(CX2_FORMAT))) {
 			final CyRootNetwork rootNetwork = ((CySubNetwork) cxNetworks.get(0)).getRootNetwork();
 			final String cxCollectionName = rootNetwork.getRow(rootNetwork).get(CyNetwork.NAME, String.class);
 
 			final CyNetwork[] cxArray = cxNetworks.toArray(new CyNetwork[0]);
 			styleMap = addNetwork(cxArray, reader, cxCollectionName, false);
-		}
+		} 
 
 		if(collectionName != null) {
 			final CyRootNetwork rootNetwork = ((CySubNetwork) networks[0]).getRootNetwork();

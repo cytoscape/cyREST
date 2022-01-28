@@ -76,14 +76,14 @@ public class CyRESTConstants {
 		return CY_REST_CI_ROOT + ":" + resourceURI + ":"+ CY_REST_CI_ERROR_ROOT + ":"+ code;
 	}
 	
-	public final static String CX_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
+	public final static String CX_FILE_FORMAT_LINK = "https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-cx";
 	
-	public final static String NNF_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#nnf";
-	public final static String SIF_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
-	public final static String XGMML_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html?highlight=xgmml#xgmml-format";
-	public final static String CYTOSCAPE_JS_FILE_FORMAT_LINK = "http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
+	public final static String NNF_FILE_FORMAT_LINK = "https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#nnf";
+	public final static String SIF_FILE_FORMAT_LINK = "https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format";
+	public final static String XGMML_FILE_FORMAT_LINK = "https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html?highlight=xgmml#xgmml-format";
+	public final static String CYTOSCAPE_JS_FILE_FORMAT_LINK = "https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#cytoscape-js-json";
 
-	public final static String CYTOSCAPE_JS_LINK = "http://cytoscape.github.io/cytoscape.js/";
+	public final static String CYTOSCAPE_JS_LINK = "https://cytoscape.github.io/cytoscape.js/";
 	
 	public static String BUNDLE_NAME = "Bundle-Name";
 }

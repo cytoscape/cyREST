@@ -334,9 +334,13 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				logger.error("Failed to initialize cyREST server.", e);
 				serverState = ServerState.FAILED_INITIALIZATION;
 			}
-		}
-
-				);
+			catch (Error e) {
+				e.printStackTrace();
+				logger.error("Failed to initialize cyREST server.", e);
+				serverState = ServerState.FAILED_INITIALIZATION;
+				throw e;
+			}
+		});
 	}
 
 	@Override

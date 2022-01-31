@@ -1,7 +1,5 @@
 package org.cytoscape.rest.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
@@ -33,17 +31,14 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.ws.rs.core.Response;
-
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.NetworkViewRenderer;
 import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.cg.model.CustomGraphicsManager;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.command.CommandExecutorTaskFactory;
-
 import org.cytoscape.ding.DVisualLexicon;
 import org.cytoscape.ding.NetworkViewTestSupport;
-import org.cytoscape.ding.customgraphics.CustomGraphicsManager;
 import org.cytoscape.event.CyEventHelper;
 import org.cytoscape.group.CyGroup;
 import org.cytoscape.group.CyGroupFactory;
@@ -125,7 +120,6 @@ import org.cytoscape.view.layout.CyLayoutAlgorithmManager;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.view.model.CyNetworkViewManager;
-import org.cytoscape.view.model.View;
 import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.presentation.RenderingEngine;
 import org.cytoscape.view.presentation.RenderingEngineFactory;
@@ -178,8 +172,6 @@ import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -879,7 +871,7 @@ public class BasicResourceTest extends JerseyTest {
 
 	private VisualStyle initStyle() throws Exception {
 		final CustomGraphicsManager cgManager = mock(CustomGraphicsManager.class);
-		lexicon = new DVisualLexicon(cgManager);
+		lexicon = new DVisualLexicon();
 
 		final CyEventHelper eventHelper = mock(CyEventHelper.class);
 

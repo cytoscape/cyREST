@@ -8,9 +8,9 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -110,8 +110,8 @@ public class OSGiJAXRSManager
 		installFeature(context, featuresService.getFeature("jetty", "9.4.22.v20191022"));
 		
 		installFeature(context, featuresService.getFeature("scr"));
-		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-jetty"));
+		installFeature(context, featuresService.getFeature("pax-web-core"));
 		installFeature(context, featuresService.getFeature("pax-http-jetty"));
 		installFeature(context, featuresService.getFeature("pax-http"));
 		installFeature(context, featuresService.getFeature("pax-http-service"));

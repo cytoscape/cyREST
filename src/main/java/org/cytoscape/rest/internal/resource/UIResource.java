@@ -214,6 +214,9 @@ public class UIResource extends AbstractResource {
 			}
 			
 			final CytoPanel panelObject = desktop.getCytoPanel(panel);
+			
+			if (state == CytoPanelState.HIDE && panelObject.getState() == CytoPanelState.FLOAT)
+				panelObject.setState(CytoPanelState.DOCK);
 			panelObject.setState(state);
 		}
 		

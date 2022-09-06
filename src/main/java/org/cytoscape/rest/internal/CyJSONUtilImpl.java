@@ -32,15 +32,15 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 
 	private JsonObject serialize(CyRow cyRow, CyColumn ... columns) {
 		JsonObject object = new JsonObject();
-		
+
 		Set<CyColumn> columnSet= new HashSet<CyColumn>(Arrays.asList(columns));
-		
+
 		for (Map.Entry<String, Object> entry : cyRow.getAllValues().entrySet()) {
 			if (columnSet.size() == 0 || columnSet.contains(cyRow.getTable().getColumn(entry.getKey()))) {
 				object.add(entry.getKey(), serializeCell(entry.getValue()));
 			}
 		}
-	
+
 		return object;
 	}
 
@@ -107,7 +107,7 @@ public class CyJSONUtilImpl implements CyJSONUtil{
 	@Override
 	public String toJson(CyNetwork cyNetwork) {
 		CyRow row = cyNetwork.getRow(cyNetwork);
-		return toJson(row);
+		return toJson(row, new CyColumn[0]);
 	}
 
 	@Override

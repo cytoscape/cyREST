@@ -687,7 +687,21 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
-			<version>2.36</version>
+			<version>2.36</version><!--$NO-MVN-MAN-VER$-->
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Java 17 removed the packaged JavaScript engine, using grallvm instead. -->
+		<dependency>
+			<groupId>org.graalvm.js</groupId>
+			<artifactId>js</artifactId>
+			<version>22.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.js</groupId>
+			<artifactId>js-scriptengine</artifactId>
+			<version>22.0.0</version>
 			<scope>test</scope>
 		</dependency>
 

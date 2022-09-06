@@ -15,7 +15,7 @@
 		<osgi.api.version>7.0.0</osgi.api.version>
     	<osgi.compendium.version>7.0.0</osgi.compendium.version>
  
- 		<karaf.version>4.3.3</karaf.version>
+ 		<karaf.version>4.3.7</karaf.version>
 		<junit.version>4.12</junit.version>
 		<jersey.version>2.23</jersey.version>
 
@@ -627,6 +627,12 @@
 			<artifactId>provider-gson</artifactId>
 			<version>2.3</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.eclipsesource.jaxrs</groupId>
+					<artifactId>jersey-all</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Jersey -->
@@ -681,6 +687,7 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
+			<version>2.36</version>
 			<scope>test</scope>
 		</dependency>
 

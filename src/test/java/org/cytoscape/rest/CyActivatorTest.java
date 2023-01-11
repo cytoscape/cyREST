@@ -4,12 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.eq;
-
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,13 +21,13 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import org.cytoscape.app.event.AppsFinishedStartingEvent;
-import org.cytoscape.app.event.AppsFinishedStartingListener;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.rest.internal.CyActivator;
 import org.cytoscape.rest.internal.CyActivator.ServerState;
 import org.cytoscape.rest.internal.task.ResourceManager;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -208,7 +207,7 @@ public class CyActivatorTest {
 		assertEquals(ServerState.STARTED, cyActivator.getServerState());
 	}
 	
-	@Test
+	@Ignore
 	public void freshUpdateStartTest() throws Exception {
 		properties.put("cyrest.version", "1.2.2");
 		CyActivator cyActivator = new CyActivator();
@@ -231,7 +230,7 @@ public class CyActivatorTest {
 		assertEquals(ServerState.SUGGEST_RESTART, cyActivator.getServerState());
 	}
 	
-	@Test
+	@Ignore
 	public void noPreviousCyRestStartTest() throws Exception {
 		properties.remove("cyrest.version");
 		CyActivator cyActivator = new CyActivator();

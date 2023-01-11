@@ -1,10 +1,6 @@
 package org.cytoscape.rest.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.awt.Paint;
@@ -40,6 +36,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class StyleResourceTest extends BasicResourceTest {
 
+	private static final int NUM_NETWORK_VIS_PROPS = 124;
+	
 	@Override
 	protected Application configure() {
 		return new ResourceConfig(StyleResource.class);
@@ -93,7 +91,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.get("defaults").isArray());
 		final JsonNode defaults = root.get("defaults");
-		assertEquals(116, defaults.size());
+		assertEquals(NUM_NETWORK_VIS_PROPS, defaults.size());
 	}
 
 
@@ -140,7 +138,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		System.out.println(body);
 		final JsonNode root = mapper.readTree(body);
 		assertTrue(root.isArray());
-		assertEquals(116, root.size());
+		assertEquals(NUM_NETWORK_VIS_PROPS, root.size());
 	}
 
 	@Test
@@ -152,7 +150,7 @@ public class StyleResourceTest extends BasicResourceTest {
 		System.out.println(body1);
 		final JsonNode root1 = mapper.readTree(body1);
 		assertTrue(root1.isArray());
-		assertEquals(116, root1.size());
+		assertEquals(NUM_NETWORK_VIS_PROPS, root1.size());
 
 		//assertEquals(root1, root);
 

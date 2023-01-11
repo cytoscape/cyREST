@@ -184,50 +184,12 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 		this.cyRESTPort = argumentPortNumber != null ? argumentPortNumber : preferencesPortNumber;
 
 		if (suggestRestart(bc)) {
-			final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
-			if (swingApplication != null && swingApplication.getJFrame() != null) {
-				
-				JOptionPane messagePane = new JOptionPane(
-						"The running version of CyREST has changed.\n" +
-						"CyREST requires a restart of Cytoscape to function correctly.\n\n" +
-						"This may be caused by installing different versions of CyREST\n" +
-						"or switching between different versions of Cytoscape.",
-						JOptionPane.WARNING_MESSAGE
-				);
-		
-				final JFrame frame = swingApplication.getJFrame();
-				final JDialog d2= new JDialog(frame,"Restart required");
-				d2.setModal(false);
-				d2.add(messagePane);
-				d2.pack();
-				d2.setLocationRelativeTo(frame);
-				
-				PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
-
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-						final String prop = evt.getPropertyName();
-						final Object val = evt.getNewValue();
-				        if (prop.equals(JOptionPane.VALUE_PROPERTY) && val != null
-						     && val != JOptionPane.UNINITIALIZED_VALUE)
-						         {
-						d2.setVisible(false);
-						}
-					}
-					
-				};
-				
-				messagePane.addPropertyChangeListener(propertyChangeListener);
-				d2.setVisible(true);
-			}
+			showRestartDialog();
 			serverState = ServerState.SUGGEST_RESTART;
 			logger.warn("Detected new installation. Restarting Cytoscape is recommended.");
-
 		} else {
 			registerService(bc, this, AppsFinishedStartingListener.class);
 		}
-
-
 	}
 
 	private final URI getLogLocation(BundleContext bc) throws IOException {
@@ -285,6 +247,10 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 	}
 
 	/**
+	 * As of Cytoscape 3.10 this method always returns false.
+	 * The logic to check for CyREST update has been moved to the App Manager.
+	 * ...
+	 * 
 	 * Checks against the cyrest.version property to see if this version of CyREST is different from the previous one installed.
 	 * 
 	 * This is necessary to ensure that only one version of CyREST is functional. Since Cytoscape Apps don't always release services,
@@ -298,16 +264,56 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 	 */
 	private boolean suggestRestart(BundleContext bc) {
 		Bundle defaultBundle = bc.getBundle();	
-		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class,
-				"(cyPropertyName=cytoscape3.props)");
+		final CyProperty<Properties> cyProperties = getService(bc, CyProperty.class, "(cyPropertyName=cytoscape3.props)");
 
 		Object cyRESTVersion = cyProperties.getProperties().get("cyrest.version");
 		if (!defaultBundle.getVersion().toString().equals(cyRESTVersion)) {
 			logger.info("CyREST [" + defaultBundle.getVersion().toString() + "] discovered previous CyREST Version: " + cyRESTVersion);
 			cyProperties.getProperties().put("cyrest.version", defaultBundle.getVersion().toString());
-			return true;
+//			return true;
 		} else {
-			return false;
+//			return false;
+		}
+		
+		// Always return false as of Cytoscape 3.10
+		// The logic to check for CyREST update has been moved to the App Manager.
+		return false;
+	}
+	
+	private void showRestartDialog() {
+		final CySwingApplication swingApplication = getService(bc, CySwingApplication.class);
+		if (swingApplication != null && swingApplication.getJFrame() != null) {
+			
+			JOptionPane messagePane = new JOptionPane(
+					"The running version of CyREST has changed.\n" +
+					"CyREST requires a restart of Cytoscape to function correctly.\n\n" +
+					"This may be caused by installing different versions of CyREST\n" +
+					"or switching between different versions of Cytoscape.",
+					JOptionPane.WARNING_MESSAGE
+			);
+	
+			final JFrame frame = swingApplication.getJFrame();
+			final JDialog d2= new JDialog(frame,"Restart required");
+			d2.setModal(false);
+			d2.add(messagePane);
+			d2.pack();
+			d2.setLocationRelativeTo(frame);
+			
+			PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					final String prop = evt.getPropertyName();
+					final Object val = evt.getNewValue();
+			        if (prop.equals(JOptionPane.VALUE_PROPERTY) && val != null && val != JOptionPane.UNINITIALIZED_VALUE) {
+			        	d2.setVisible(false);
+					}
+				}
+				
+			};
+			
+			messagePane.addPropertyChangeListener(propertyChangeListener);
+			d2.setVisible(true);
 		}
 	}
 
@@ -328,13 +334,11 @@ public class CyActivator extends AbstractCyActivator implements AppsFinishedStar
 				serverState = ServerState.STARTED;
 				long startTime = System.currentTimeMillis() - start;
 				logger.info("cyREST API Server initialized in " + startTime + "msec");
-			} 
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("Failed to initialize cyREST server.", e);
 				serverState = ServerState.FAILED_INITIALIZATION;
-			}
-			catch (Error e) {
+			} catch (Error e) {
 				e.printStackTrace();
 				logger.error("Failed to initialize cyREST server.", e);
 				serverState = ServerState.FAILED_INITIALIZATION;

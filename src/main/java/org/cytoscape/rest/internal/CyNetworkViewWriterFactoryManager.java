@@ -14,6 +14,7 @@ public class CyNetworkViewWriterFactoryManager {
 
 	// ID of the CX writer service
 	public static final String CX_WRITER_ID = "cxNetworkWriterFactory";
+	public static final String CX2_WRITER_ID = "cx2NetworkWriterFactory";
 	
 	private final Map<String, CyNetworkViewWriterFactory> factories;
 

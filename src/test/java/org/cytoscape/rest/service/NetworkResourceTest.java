@@ -829,7 +829,7 @@ public class NetworkResourceTest extends BasicResourceTest {
 		verify(inputStreamCXNetworkReader, never()).getNetworks();
 		
 		
-		String urlString = "http://www.ndexbio.org/v2/network/01c83ba5-0d90-11e6-b550-06603eb7f303?download=true";
+		String urlString = "https://www.ndexbio.org/v2/network/01c83ba5-0d90-11e6-b550-06603eb7f303";
 		final String newVal = createNetworkListJson(urlString);
 		System.out.println("New values: " + newVal);
 		final Entity<String> entity = Entity.entity(newVal, MediaType.APPLICATION_JSON_TYPE);

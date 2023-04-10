@@ -21,13 +21,13 @@
 
 		<rest.api.version>v1</rest.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cytoscape.api.version>3.10.0-SNAPSHOT</cytoscape.api.version>
+		<cytoscape.api.version>3.10.0</cytoscape.api.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
 	<artifactId>cy-rest</artifactId>
 
-	<version>3.13.2-SNAPSHOT</version>
+	<version>3.13.2</version>
 	<packaging>bundle</packaging>
 	<name>cyREST</name>
 

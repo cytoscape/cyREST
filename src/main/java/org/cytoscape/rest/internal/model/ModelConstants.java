@@ -77,7 +77,7 @@ public final class ModelConstants {
 			+ "}"
 			+ "```\n";
 	
-	public static final String JAVADOC_BASE_LINK = "http://chianti.ucsd.edu/cytoscape-" + CyRESTConstants.CYTOSCAPE_API_VERSION + "/API/";
+	public static final String JAVADOC_BASE_LINK = "https://cytoscape.org/javadoc/" + CyRESTConstants.CYTOSCAPE_API_VERSION + "/";
 	
 	public static final String VISUAL_PROPERTY_JAVADOC_LINK = JAVADOC_BASE_LINK + "org/cytoscape/view/presentation/property/BasicVisualLexicon.html";
 	public static final String PASSTHROUGH_MAPPING_JAVADOC_LINK = JAVADOC_BASE_LINK + "org/cytoscape/view/vizmap/mappings/PassthroughMapping.html"; 

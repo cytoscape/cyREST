@@ -1538,8 +1538,11 @@ public class NetworkResource extends AbstractResource {
 				CySubNetwork subnet = (CySubNetwork) networks[0];
 				final CyRootNetwork rootNet = subnet.getRootNetwork();
 				String rootNetName = rootNet.getRow(rootNet).get(CyNetwork.NAME, String.class);
-				rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
-				if (rootNetName == null || rootNetName.trim().length() == 0) {
+				if ( collectionName != null && collectionName.trim().length() > 0) {
+                    // Set the name of the root network to the collection
+					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);
+				}	
+				if ((rootNetName == null || rootNetName.trim().length() == 0) && collectionName != null ) {
 					// The root network does not have a name yet, set it the same
 					// as the base subnetwork
 					rootNet.getRow(rootNet).set(CyNetwork.NAME, collectionName);

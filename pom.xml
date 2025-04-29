@@ -33,6 +33,17 @@
 
 	<repositories>
 		<repository>
+                        <id>cytoscape_thirdparty</id>
+                        <snapshots>
+                                <enabled>true</enabled>
+                        </snapshots>
+                        <releases>
+                                <enabled>true</enabled>
+                        </releases>
+                        <name>Cytoscape Releases</name>
+                        <url>https://nrnb-nexus.ucsd.edu/repository/cytoscape_thirdparty/</url>
+                </repository>
+		<repository>
 			<id>cytoscape_releases</id>
 			<snapshots>
 				<enabled>false</enabled>
